@@ -1,0 +1,106 @@
+.hero {
+  background-color: #111111;
+  color: #ffffff;
+  padding: 80px 0;
+}
+
+.hero-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 80px;
+}
+
+/* ===========================
+   TEXTO
+=========================== */
+
+.hero-text {
+  flex: 1;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+
+  margin-bottom: 18px;
+
+  color: var(--color-gold);
+
+  font-size: 14px;
+  font-weight: 700;
+
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.hero-text h1 {
+  max-width: 560px;
+  font-size: 64px;
+  line-height: 1.1;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.hero-text p {
+  max-width: 540px;
+  color: #b8b8b8;
+  font-size: 20px;
+  line-height: 1.7;
+  margin-bottom: 36px;
+}
+
+/* ===========================
+   BOTÃO
+=========================== */
+
+.hero-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 52px;
+  padding: 0 34px;
+
+  background: var(--color-gold);
+  color: #ffffff;
+
+  border-radius: 10px;
+
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+
+  transition: 0.3s;
+}
+
+.hero-button:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.08);
+}
+
+/* ===========================
+   IMAGEM
+=========================== */
+
+.hero-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-image img {
+  width: 100%;
+  max-width: 620px;
+  height: auto;
+
+  display: block;
+  border-radius: 18px;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+
+  transition: transform 0.4s ease;
+}
+
+.hero-image img:hover {
+  transform: scale(1.01);
+}

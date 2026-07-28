@@ -1,0 +1,45 @@
+/* Remove margens e espaçamentos padrão */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Garante que a página ocupe toda a altura */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* Melhora a renderização das fontes */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove decoração dos links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Remove marcadores das listas */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Faz imagens se adaptarem ao espaço disponível */
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* Botões herdam a fonte da aplicação */
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
