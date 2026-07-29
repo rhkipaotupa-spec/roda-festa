@@ -1,0 +1,697 @@
+.scene-three {
+  position: relative;
+  overflow: hidden;
+
+  padding: 126px 0 136px;
+
+  background-color: #ffffff;
+  color: #17120c;
+
+  border-top: 1px solid rgba(23, 18, 12, 0.08);
+}
+
+.scene-three::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 22px;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(23, 18, 12, 0.035),
+      transparent
+    );
+}
+
+.scene-three-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Cabeçalho */
+
+.scene-three-header {
+  max-width: 1240px;
+  margin: 0 auto;
+
+  text-align: center;
+}
+
+.scene-three-eyebrow {
+  margin: 0 0 22px;
+
+  color: var(--color-gold);
+
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.scene-three-title {
+  max-width: 1180px;
+  margin: 0 auto;
+
+  color: #17120c;
+
+  font-size: clamp(46px, 4.8vw, 72px);
+  font-weight: 720;
+  line-height: 1.04;
+  letter-spacing: -0.05em;
+
+  text-wrap: balance;
+}
+
+.scene-three-description {
+  max-width: 670px;
+  margin: 32px auto 0;
+
+  color: rgba(23, 18, 12, 0.64);
+
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+/* Divisor do cabeçalho */
+
+.scene-three-divider {
+  margin: 38px auto 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.scene-three-divider-line {
+  width: 116px;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(201, 162, 39, 0.72)
+    );
+}
+
+.scene-three-divider-line:last-child {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(201, 162, 39, 0.72),
+      transparent
+    );
+}
+
+.scene-three-divider .memory-seal {
+  width: 32px;
+  height: 32px;
+
+  opacity: 0.95;
+}
+
+.scene-three-divider .memory-seal-spoke {
+  height: 24px;
+}
+
+/* Álbum */
+
+.scene-three-album {
+  margin-top: 72px;
+
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 34px;
+}
+
+/* Cards */
+
+.memory-card {
+  position: relative;
+  z-index: 1;
+
+  padding: 12px 12px 24px;
+
+  border: 1px solid rgba(201, 162, 39, 0.18);
+  border-radius: 4px;
+
+  background-color: #faf4ea;
+
+  box-shadow:
+    0 24px 45px rgba(94, 68, 38, 0.12),
+    0 6px 18px rgba(94, 68, 38, 0.06);
+
+  opacity: 0;
+
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s ease,
+    border-color 0.45s ease,
+    background-color 0.45s ease,
+    opacity 0.7s ease;
+
+  transition-delay: var(--memory-delay);
+}
+
+.scene-three--visible .memory-card {
+  opacity: 1;
+}
+
+.memory-card--first {
+  transform: translateY(42px) rotate(-1.4deg);
+}
+
+.memory-card--second {
+  margin-top: 58px;
+
+  transform: translateY(42px) rotate(1deg);
+}
+
+.memory-card--third {
+  margin-top: 18px;
+
+  transform: translateY(42px) rotate(-0.7deg);
+}
+
+.scene-three--visible .memory-card--first {
+  transform: translateY(0) rotate(-1.4deg);
+}
+
+.scene-three--visible .memory-card--second {
+  transform: translateY(0) rotate(1deg);
+}
+
+.scene-three--visible .memory-card--third {
+  transform: translateY(0) rotate(-0.7deg);
+}
+
+.memory-card:hover {
+  z-index: 2;
+
+  border-color: rgba(201, 162, 39, 0.38);
+  background-color: #fbf6ee;
+
+  box-shadow:
+    0 32px 58px rgba(94, 68, 38, 0.16),
+    0 10px 22px rgba(94, 68, 38, 0.08);
+}
+
+.scene-three--visible .memory-card--first:hover,
+.scene-three--visible .memory-card--second:hover,
+.scene-three--visible .memory-card--third:hover {
+  transform: translateY(-7px) rotate(0deg);
+}
+
+/* Imagem */
+
+.memory-card-image-wrapper {
+  position: relative;
+  overflow: hidden;
+
+  aspect-ratio: 4 / 3;
+
+  background-color: #e9e1d5;
+}
+
+.memory-card-image-wrapper::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent 64%,
+      rgba(23, 18, 12, 0.07)
+    );
+}
+
+.memory-card-image {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  filter:
+    saturate(0.92)
+    contrast(0.98);
+
+  transition:
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.45s ease;
+}
+
+.memory-card:hover .memory-card-image {
+  transform: scale(1.025);
+
+  filter:
+    saturate(1)
+    contrast(1);
+}
+
+/* Conteúdo */
+
+.memory-card-content {
+  min-height: 205px;
+  padding: 27px 17px 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.memory-card-quote {
+  margin: 0;
+
+  color: #211a12;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(21px, 1.7vw, 27px);
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+
+/*
+  O espaço do separador permanece para manter o layout.
+  A linha real fica totalmente escondida fora do hover.
+*/
+
+.memory-card-separator {
+  position: relative;
+
+  width: 100%;
+  height: 1px;
+
+  margin-top: auto;
+
+  flex: 0 0 auto;
+
+  background-color: transparent;
+
+  pointer-events: none;
+}
+
+.memory-card-separator::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(201, 162, 39, 0.42),
+      rgba(201, 162, 39, 0.9),
+      rgba(201, 162, 39, 0.42)
+    );
+
+  opacity: 0;
+
+  transform: scaleX(0);
+  transform-origin: center;
+
+  transition:
+    transform 0.35s ease,
+    opacity 0.2s ease;
+}
+
+.memory-card:hover .memory-card-separator::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+/* Rodapé do card */
+
+.memory-card-footer {
+  padding-top: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.memory-card-context {
+  margin: 0;
+
+  color: rgba(23, 18, 12, 0.56);
+
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.15em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* Selo da roda */
+
+.memory-seal {
+  position: relative;
+
+  width: 35px;
+  height: 35px;
+
+  display: block;
+  flex: 0 0 auto;
+
+  border: 1.5px solid var(--color-gold);
+  border-radius: 50%;
+
+  opacity: 0.88;
+
+  transform: rotate(-4deg);
+
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.45s ease;
+}
+
+.memory-card:hover .memory-seal {
+  transform: rotate(12deg);
+  opacity: 1;
+}
+
+.memory-seal-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+
+  width: 6px;
+  height: 6px;
+
+  border: 1.5px solid var(--color-gold);
+  border-radius: 50%;
+
+  background-color: #faf4ea;
+
+  transform: translate(-50%, -50%);
+}
+
+.scene-three-divider .memory-seal-center {
+  background-color: #ffffff;
+}
+
+.memory-seal-spoke {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 1.5px;
+  height: 27px;
+
+  background-color: var(--color-gold);
+
+  transform-origin: center;
+}
+
+.memory-seal-spoke--one {
+  transform: translate(-50%, -50%);
+}
+
+.memory-seal-spoke--two {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.memory-seal-spoke--three {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.memory-seal-spoke--four {
+  transform: translate(-50%, -50%) rotate(135deg);
+}
+
+/* Orientação do álbum no celular */
+
+.scene-three-mobile-hint {
+  display: none;
+}
+
+/* Tablet */
+
+@media (max-width: 1080px) {
+  .scene-three-title {
+    max-width: 940px;
+
+    font-size: clamp(45px, 5.6vw, 65px);
+  }
+}
+
+@media (max-width: 980px) {
+  .scene-three {
+    padding: 106px 0 118px;
+  }
+
+  .scene-three-header {
+    max-width: 820px;
+  }
+
+  .scene-three-title {
+    max-width: 800px;
+  }
+
+  .scene-three-album {
+    max-width: 760px;
+    margin: 68px auto 0;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .memory-card--third {
+    width: calc(50% - 17px);
+    margin-top: 12px;
+
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+}
+
+/* Celular */
+
+@media (max-width: 680px) {
+  .scene-three {
+    padding: 86px 0 94px;
+  }
+
+  .scene-three::before {
+    height: 16px;
+  }
+
+  .scene-three-header {
+    text-align: left;
+  }
+
+  .scene-three-eyebrow {
+    margin-bottom: 16px;
+  }
+
+  .scene-three-title {
+    max-width: 520px;
+    margin: 0;
+
+    font-size: clamp(39px, 11.7vw, 53px);
+    line-height: 1.04;
+  }
+
+  .scene-three-description {
+    max-width: 500px;
+    margin: 23px 0 0;
+
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  .scene-three-divider {
+    margin: 30px 0 0;
+
+    justify-content: flex-start;
+    gap: 14px;
+  }
+
+  .scene-three-divider-line {
+    width: 72px;
+  }
+
+  .scene-three-divider .memory-seal {
+    width: 28px;
+    height: 28px;
+  }
+
+  .scene-three-divider .memory-seal-spoke {
+    height: 21px;
+  }
+
+  .scene-three-album {
+    width: calc(100vw - 24px);
+    margin-top: 54px;
+    margin-left: -2px;
+
+    padding: 14px 28px 24px 2px;
+
+    display: flex;
+    gap: 20px;
+
+    overflow-x: auto;
+    overflow-y: visible;
+
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 2px;
+    overscroll-behavior-inline: contain;
+
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .scene-three-album::-webkit-scrollbar {
+    display: none;
+  }
+
+  .memory-card,
+  .memory-card--first,
+  .memory-card--second,
+  .memory-card--third {
+    width: min(82vw, 350px);
+    min-width: min(82vw, 350px);
+
+    margin-top: 0;
+
+    align-self: stretch;
+
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .memory-card--first {
+    transform: translateY(30px) rotate(-1deg);
+  }
+
+  .memory-card--second {
+    transform: translateY(30px) rotate(0.8deg);
+  }
+
+  .memory-card--third {
+    transform: translateY(30px) rotate(-0.6deg);
+  }
+
+  .scene-three--visible .memory-card--first {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  .scene-three--visible .memory-card--second {
+    transform: translateY(0) rotate(0.8deg);
+  }
+
+  .scene-three--visible .memory-card--third {
+    transform: translateY(0) rotate(-0.6deg);
+  }
+
+  .memory-card-content {
+    min-height: 190px;
+    padding: 23px 14px 0;
+  }
+
+  .memory-card-quote {
+    font-size: 22px;
+    line-height: 1.38;
+  }
+
+  .memory-card-footer {
+    padding-top: 17px;
+  }
+
+  .memory-card-context {
+    max-width: 190px;
+
+    font-size: 10px;
+  }
+
+  .scene-three-mobile-hint {
+    margin: 8px 0 0;
+
+    display: block;
+
+    color: rgba(23, 18, 12, 0.48);
+
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+  }
+}
+
+/* Celulares pequenos */
+
+@media (max-width: 390px) {
+  .scene-three-title {
+    font-size: 38px;
+  }
+
+  .scene-three-divider-line {
+    width: 58px;
+  }
+
+  .memory-card,
+  .memory-card--first,
+  .memory-card--second,
+  .memory-card--third {
+    width: 84vw;
+    min-width: 84vw;
+  }
+
+  .memory-card-content {
+    min-height: 188px;
+  }
+
+  .memory-card-quote {
+    font-size: 20px;
+  }
+}
+
+/* Acessibilidade */
+
+@media (prefers-reduced-motion: reduce) {
+  .memory-card,
+  .memory-card-image,
+  .memory-card-separator::after,
+  .memory-seal {
+    transition: none;
+  }
+
+  .memory-card {
+    opacity: 1;
+  }
+
+  .memory-card--first,
+  .memory-card--second,
+  .memory-card--third,
+  .scene-three--visible .memory-card--first,
+  .scene-three--visible .memory-card--second,
+  .scene-three--visible .memory-card--third {
+    transform: none;
+  }
+
+  .memory-card:hover,
+  .scene-three--visible .memory-card--first:hover,
+  .scene-three--visible .memory-card--second:hover,
+  .scene-three--visible .memory-card--third:hover {
+    transform: none;
+  }
+
+  .memory-card:hover .memory-card-image,
+  .memory-card:hover .memory-seal {
+    transform: none;
+  }
+}

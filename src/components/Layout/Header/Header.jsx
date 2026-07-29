@@ -1,18 +1,18 @@
 import "./Header.css";
-import logoRodaFesta from "../../assets/logo-roda-festa.png";
+import logoRodaFesta from "../../../assets/logo-roda-festa.png";
 
 function Header() {
   return (
     <header className="header">
       <div className="container header-content">
-        <a href="/" className="header-logo">
+        <a href="/" className="header-logo" aria-label="Página inicial Roda Festa">
           <img src={logoRodaFesta} alt="Roda Festa" />
         </a>
 
-        <nav className="header-menu">
+        <nav className="header-menu" aria-label="Navegação principal">
           <a href="#como-funciona">Como funciona</a>
+          <a href="#eventos">Eventos</a>
           <a href="#cardapio">Cardápio</a>
-          <a href="#orcamento">Simular orçamento</a>
           <a href="#contato">Contato</a>
         </nav>
 
@@ -22,7 +22,7 @@ function Header() {
           target="_blank"
           rel="noreferrer"
         >
-          WhatsApp
+          Planejar meu evento
         </a>
       </div>
     </header>

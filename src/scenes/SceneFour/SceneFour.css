@@ -1,0 +1,775 @@
+.scene-four {
+  position: relative;
+  overflow: hidden;
+
+  padding: 126px 0 142px;
+
+  background-color: #f1e8dc;
+  color: #1c160f;
+
+  border-top: 1px solid rgba(105, 78, 45, 0.1);
+}
+
+/*
+  O fundo recebe luzes muito suaves.
+  Elas dão profundidade sem parecer uma textura artificial.
+*/
+
+.scene-four::before {
+  content: "";
+
+  position: absolute;
+  top: -260px;
+  right: -180px;
+
+  width: 680px;
+  height: 680px;
+
+  border-radius: 50%;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.62) 0%,
+      rgba(255, 255, 255, 0.2) 40%,
+      transparent 72%
+    );
+}
+
+.scene-four::after {
+  content: "";
+
+  position: absolute;
+  bottom: -300px;
+  left: -240px;
+
+  width: 720px;
+  height: 720px;
+
+  border-radius: 50%;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(211, 173, 106, 0.16) 0%,
+      rgba(211, 173, 106, 0.05) 44%,
+      transparent 72%
+    );
+}
+
+.scene-four-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Cabeçalho */
+
+.scene-four-header {
+  max-width: 1080px;
+  margin: 0 auto;
+
+  text-align: center;
+}
+
+.scene-four-eyebrow {
+  margin: 0 0 22px;
+
+  color: var(--color-gold);
+
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.scene-four-title {
+  max-width: 1030px;
+  margin: 0 auto;
+
+  color: #17120c;
+
+  font-size: clamp(46px, 4.9vw, 72px);
+  font-weight: 720;
+  line-height: 1.04;
+  letter-spacing: -0.05em;
+
+  text-wrap: balance;
+}
+
+.scene-four-description {
+  max-width: 650px;
+  margin: 31px auto 0;
+
+  color: rgba(28, 22, 15, 0.65);
+
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+/* Divisor */
+
+.scene-four-divider {
+  margin: 38px auto 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.scene-four-divider-line {
+  width: 116px;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(176, 132, 48, 0.72)
+    );
+}
+
+.scene-four-divider-line:last-child {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(176, 132, 48, 0.72),
+      transparent
+    );
+}
+
+.scene-four-divider .flavor-wheel {
+  width: 32px;
+  height: 32px;
+
+  opacity: 0.95;
+}
+
+.scene-four-divider .flavor-wheel-spoke {
+  height: 24px;
+}
+
+/* Composição editorial */
+
+.scene-four-editorial {
+  margin-top: 78px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1.28fr) minmax(280px, 0.72fr);
+  grid-template-areas:
+    "main burger"
+    "main snacks";
+  align-items: stretch;
+  gap: 28px;
+}
+
+.flavor-feature {
+  position: relative;
+  overflow: hidden;
+
+  min-width: 0;
+
+  border: 1px solid rgba(116, 86, 48, 0.12);
+  border-radius: 20px;
+
+  background-color: rgba(255, 253, 249, 0.82);
+
+  box-shadow:
+    0 20px 45px rgba(79, 55, 28, 0.08),
+    0 4px 12px rgba(79, 55, 28, 0.04);
+
+  opacity: 0;
+
+  transform: translateY(38px);
+
+  transition:
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.7s ease,
+    box-shadow 0.45s ease,
+    border-color 0.45s ease,
+    background-color 0.45s ease;
+
+  transition-delay: var(--flavor-delay);
+}
+
+.scene-four--visible .flavor-feature {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.flavor-feature--main {
+  grid-area: main;
+
+  display: grid;
+  grid-template-rows: minmax(420px, 1fr) auto;
+}
+
+.flavor-feature--burger {
+  grid-area: burger;
+
+  display: grid;
+  grid-template-columns: minmax(150px, 0.9fr) minmax(180px, 1.1fr);
+  min-height: 300px;
+}
+
+.flavor-feature--snacks {
+  grid-area: snacks;
+
+  display: grid;
+  grid-template-columns: minmax(180px, 1.1fr) minmax(150px, 0.9fr);
+  min-height: 300px;
+}
+
+.flavor-feature--snacks .flavor-feature-image-wrapper {
+  order: 2;
+}
+
+.flavor-feature--snacks .flavor-feature-content {
+  order: 1;
+}
+
+.flavor-feature:hover {
+  transform: translateY(-6px);
+
+  border-color: rgba(176, 132, 48, 0.32);
+  background-color: rgba(255, 254, 251, 0.96);
+
+  box-shadow:
+    0 30px 58px rgba(79, 55, 28, 0.13),
+    0 8px 18px rgba(79, 55, 28, 0.06);
+}
+
+/* Imagens */
+
+.flavor-feature-image-wrapper {
+  position: relative;
+  overflow: hidden;
+
+  min-height: 0;
+
+  background-color: #ddcdb9;
+}
+
+.flavor-feature--main .flavor-feature-image-wrapper {
+  min-height: 440px;
+}
+
+.flavor-feature-image-wrapper::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(21, 15, 9, 0.02),
+      rgba(21, 15, 9, 0.13)
+    );
+
+  transition: opacity 0.45s ease;
+}
+
+.flavor-feature-image {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  filter:
+    saturate(0.94)
+    contrast(0.98);
+
+  transition:
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.45s ease;
+}
+
+.flavor-feature:hover .flavor-feature-image {
+  transform: scale(1.035);
+
+  filter:
+    saturate(1.04)
+    contrast(1.01);
+}
+
+.flavor-feature:hover .flavor-feature-image-wrapper::after {
+  opacity: 0.52;
+}
+
+/*
+  Reflexo quente que atravessa discretamente a fotografia.
+*/
+
+.flavor-feature-light {
+  position: absolute;
+  top: -35%;
+  left: -60%;
+
+  width: 42%;
+  height: 170%;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 242, 204, 0.22),
+      transparent
+    );
+
+  transform: rotate(14deg);
+  opacity: 0;
+
+  transition:
+    left 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.35s ease;
+}
+
+.flavor-feature:hover .flavor-feature-light {
+  left: 125%;
+  opacity: 1;
+}
+
+/* Textos */
+
+.flavor-feature-content {
+  position: relative;
+
+  padding: 32px 34px 35px;
+
+  display: flex;
+  flex-direction: column;
+
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.flavor-feature--burger .flavor-feature-content,
+.flavor-feature--snacks .flavor-feature-content {
+  padding: 29px 28px 30px;
+  justify-content: center;
+}
+
+.flavor-feature:hover .flavor-feature-content {
+  transform: translateY(-3px);
+}
+
+.flavor-feature-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.flavor-feature-eyebrow {
+  margin: 0;
+
+  color: var(--color-gold);
+
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.17em;
+  line-height: 1.45;
+  text-transform: uppercase;
+}
+
+.flavor-feature-title {
+  max-width: 610px;
+  margin: 19px 0 0;
+
+  color: #1c160f;
+
+  font-size: clamp(28px, 2.3vw, 40px);
+  font-weight: 680;
+  line-height: 1.13;
+  letter-spacing: -0.035em;
+}
+
+.flavor-feature--burger .flavor-feature-title,
+.flavor-feature--snacks .flavor-feature-title {
+  margin-top: 15px;
+
+  font-size: clamp(23px, 1.75vw, 30px);
+}
+
+.flavor-feature-description {
+  max-width: 610px;
+  margin: 17px 0 0;
+
+  color: rgba(28, 22, 15, 0.64);
+
+  font-size: 16px;
+  line-height: 1.67;
+}
+
+.flavor-feature--burger .flavor-feature-description,
+.flavor-feature--snacks .flavor-feature-description {
+  margin-top: 13px;
+
+  font-size: 14px;
+  line-height: 1.62;
+}
+
+/* Linha que aparece no hover */
+
+.flavor-feature-line {
+  position: relative;
+
+  width: 100%;
+  height: 1px;
+
+  margin-top: 27px;
+
+  overflow: hidden;
+
+  background-color: rgba(176, 132, 48, 0.13);
+}
+
+.flavor-feature-line::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(176, 132, 48, 0.35),
+      rgba(176, 132, 48, 0.9),
+      rgba(176, 132, 48, 0.35)
+    );
+
+  transform: scaleX(0);
+  transform-origin: left;
+
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.flavor-feature:hover .flavor-feature-line::after {
+  transform: scaleX(1);
+}
+
+/* Roda */
+
+.flavor-wheel {
+  position: relative;
+
+  width: 34px;
+  height: 34px;
+
+  display: block;
+  flex: 0 0 auto;
+
+  border: 1.5px solid var(--color-gold);
+  border-radius: 50%;
+
+  opacity: 0.82;
+
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.45s ease,
+    background-color 0.45s ease;
+}
+
+.flavor-feature:hover .flavor-wheel {
+  transform: rotate(16deg);
+  opacity: 1;
+
+  background-color: rgba(201, 162, 39, 0.06);
+}
+
+.flavor-wheel-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+
+  width: 6px;
+  height: 6px;
+
+  border: 1.5px solid var(--color-gold);
+  border-radius: 50%;
+
+  background-color: #fdf9f3;
+
+  transform: translate(-50%, -50%);
+}
+
+.scene-four-divider .flavor-wheel-center {
+  background-color: #f1e8dc;
+}
+
+.flavor-wheel-spoke {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 1.5px;
+  height: 26px;
+
+  background-color: var(--color-gold);
+
+  transform-origin: center;
+}
+
+.flavor-wheel-spoke--one {
+  transform: translate(-50%, -50%);
+}
+
+.flavor-wheel-spoke--two {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.flavor-wheel-spoke--three {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.flavor-wheel-spoke--four {
+  transform: translate(-50%, -50%) rotate(135deg);
+}
+
+/* Notebook e tablet */
+
+@media (max-width: 1080px) {
+  .scene-four-editorial {
+    grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
+  }
+
+  .flavor-feature--burger,
+  .flavor-feature--snacks {
+    grid-template-columns: 1fr;
+  }
+
+  .flavor-feature--burger .flavor-feature-image-wrapper,
+  .flavor-feature--snacks .flavor-feature-image-wrapper {
+    min-height: 210px;
+  }
+
+  .flavor-feature--snacks .flavor-feature-image-wrapper {
+    order: 1;
+  }
+
+  .flavor-feature--snacks .flavor-feature-content {
+    order: 2;
+  }
+}
+
+@media (max-width: 880px) {
+  .scene-four {
+    padding: 106px 0 118px;
+  }
+
+  .scene-four-editorial {
+    max-width: 760px;
+    margin: 68px auto 0;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "main main"
+      "burger snacks";
+  }
+
+  .flavor-feature--main {
+    grid-template-rows: minmax(390px, 1fr) auto;
+  }
+
+  .flavor-feature--burger,
+  .flavor-feature--snacks {
+    min-height: 0;
+
+    grid-template-columns: 1fr;
+  }
+
+  .flavor-feature--burger .flavor-feature-image-wrapper,
+  .flavor-feature--snacks .flavor-feature-image-wrapper {
+    min-height: 240px;
+  }
+}
+
+/* Celular */
+
+@media (max-width: 680px) {
+  .scene-four {
+    padding: 86px 0 96px;
+  }
+
+  .scene-four::before {
+    top: -180px;
+    right: -280px;
+
+    width: 520px;
+    height: 520px;
+  }
+
+  .scene-four-header {
+    text-align: left;
+  }
+
+  .scene-four-eyebrow {
+    margin-bottom: 16px;
+  }
+
+  .scene-four-title {
+    max-width: 540px;
+    margin: 0;
+
+    font-size: clamp(39px, 11.5vw, 53px);
+    line-height: 1.04;
+  }
+
+  .scene-four-description {
+    max-width: 500px;
+    margin: 23px 0 0;
+
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  .scene-four-divider {
+    margin: 30px 0 0;
+
+    justify-content: flex-start;
+    gap: 14px;
+  }
+
+  .scene-four-divider-line {
+    width: 72px;
+  }
+
+  .scene-four-divider .flavor-wheel {
+    width: 28px;
+    height: 28px;
+  }
+
+  .scene-four-divider .flavor-wheel-spoke {
+    height: 21px;
+  }
+
+  .scene-four-editorial {
+    margin-top: 56px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .flavor-feature,
+  .flavor-feature--main,
+  .flavor-feature--burger,
+  .flavor-feature--snacks {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+
+    min-height: 0;
+
+    border-radius: 16px;
+  }
+
+  .flavor-feature--main .flavor-feature-image-wrapper,
+  .flavor-feature--burger .flavor-feature-image-wrapper,
+  .flavor-feature--snacks .flavor-feature-image-wrapper {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+
+    order: 1;
+  }
+
+  .flavor-feature--main .flavor-feature-content,
+  .flavor-feature--burger .flavor-feature-content,
+  .flavor-feature--snacks .flavor-feature-content {
+    padding: 26px 24px 28px;
+
+    order: 2;
+  }
+
+  .flavor-feature-title,
+  .flavor-feature--burger .flavor-feature-title,
+  .flavor-feature--snacks .flavor-feature-title {
+    font-size: 28px;
+    line-height: 1.15;
+  }
+
+  .flavor-feature-description,
+  .flavor-feature--burger .flavor-feature-description,
+  .flavor-feature--snacks .flavor-feature-description {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .flavor-feature-line {
+    margin-top: 24px;
+  }
+}
+
+/* Celulares pequenos */
+
+@media (max-width: 390px) {
+  .scene-four-title {
+    font-size: 38px;
+  }
+
+  .scene-four-divider-line {
+    width: 58px;
+  }
+
+  .flavor-feature--main .flavor-feature-content,
+  .flavor-feature--burger .flavor-feature-content,
+  .flavor-feature--snacks .flavor-feature-content {
+    padding: 23px 20px 25px;
+  }
+
+  .flavor-feature-title,
+  .flavor-feature--burger .flavor-feature-title,
+  .flavor-feature--snacks .flavor-feature-title {
+    font-size: 25px;
+  }
+}
+
+/* Dispositivos sem cursor */
+
+@media (hover: none) {
+  .flavor-feature-line::after {
+    transform: scaleX(1);
+    opacity: 0.5;
+  }
+}
+
+/* Acessibilidade */
+
+@media (prefers-reduced-motion: reduce) {
+  .flavor-feature,
+  .flavor-feature-image,
+  .flavor-feature-content,
+  .flavor-feature-light,
+  .flavor-feature-line::after,
+  .flavor-wheel {
+    transition: none;
+  }
+
+  .flavor-feature {
+    opacity: 1;
+    transform: none;
+  }
+
+  .scene-four--visible .flavor-feature,
+  .flavor-feature:hover,
+  .flavor-feature:hover .flavor-feature-content,
+  .flavor-feature:hover .flavor-feature-image,
+  .flavor-feature:hover .flavor-wheel {
+    transform: none;
+  }
+
+  .flavor-feature-light {
+    display: none;
+  }
+}
