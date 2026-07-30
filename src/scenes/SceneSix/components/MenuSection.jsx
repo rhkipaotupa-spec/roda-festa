@@ -1,39 +1,34 @@
-function BrandWheel({ className = "" }) {
+function StoryWheel() {
   return (
     <span
-      className={`scene-six__brand-wheel ${className}`.trim()}
+      className="scene-six__story-wheel"
       aria-hidden="true"
     >
-      <span className="scene-six__brand-wheel-ring">
-        <span className="scene-six__brand-wheel-center" />
+      <span className="scene-six__story-wheel-center" />
 
-        <span className="scene-six__brand-wheel-spoke scene-six__brand-wheel-spoke--1" />
-        <span className="scene-six__brand-wheel-spoke scene-six__brand-wheel-spoke--2" />
-        <span className="scene-six__brand-wheel-spoke scene-six__brand-wheel-spoke--3" />
-        <span className="scene-six__brand-wheel-spoke scene-six__brand-wheel-spoke--4" />
-      </span>
+      {Array.from({ length: 8 }).map((_, index) => (
+        <span
+          key={index}
+          className="scene-six__story-wheel-spoke"
+          style={{
+            transform: `translate(-50%, 0) rotate(${index * 45}deg)`,
+          }}
+        />
+      ))}
     </span>
   );
 }
 
 function MenuSection({ section, index }) {
-  const isImageRight = section.layout === "image-right";
-
-  const sectionClassName = [
-    "scene-six__chapter",
-    isImageRight ? "scene-six__chapter--image-right" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const imageRight = section.layout === "image-right";
 
   return (
     <article
-      className={sectionClassName}
       id={section.id}
       data-menu-section
-      style={{
-        "--scene-six-chapter-index": index,
-      }}
+      className={`scene-six__chapter ${
+        imageRight ? "scene-six__chapter--image-right" : ""
+      }`}
     >
       <div className="scene-six__chapter-inner">
         <div className="scene-six__visual">
@@ -51,11 +46,23 @@ function MenuSection({ section, index }) {
             />
 
             <figcaption className="scene-six__photo-caption">
-              <span>{section.chapter}</span>
-              <span>Roda Festa</span>
+              <span className="scene-six__photo-number">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+
+              <span
+                className="scene-six__photo-line"
+                aria-hidden="true"
+              />
+
+              <span className="scene-six__photo-category">
+                {section.category}
+              </span>
             </figcaption>
 
-            <BrandWheel className="scene-six__brand-wheel--photo" />
+            <div className="scene-six__photo-wheel">
+              <StoryWheel />
+            </div>
           </figure>
         </div>
 
@@ -65,8 +72,10 @@ function MenuSection({ section, index }) {
               {String(index + 1).padStart(2, "0")}
             </span>
 
+            <span className="scene-six__chapter-heading-line" />
+
             <span className="scene-six__chapter-label">
-              {section.chapter}
+              {section.category}
             </span>
           </div>
 
@@ -97,26 +106,22 @@ function MenuSection({ section, index }) {
             <i />
           </div>
 
-          <ul
-            className="scene-six__items"
-            aria-label={`Opções de ${section.category}`}
-          >
+          <ul className="scene-six__items">
             {section.items.map((item, itemIndex) => (
               <li
+                key={`${item.title}-${item.subtitle}-${itemIndex}`}
                 className="scene-six__item"
-                key={item}
-                style={{
-                  "--scene-six-item-index": itemIndex,
-                }}
               >
-                <span className="scene-six__item-name">
-                  {item}
+                <span className="scene-six__item-copy">
+                  <span className="scene-six__item-name">
+                    {item.title}
+                  </span>
+
+                  <span className="scene-six__item-description">
+                    {item.subtitle}
+                  </span>
                 </span>
 
-                <span
-                  className="scene-six__item-dots"
-                  aria-hidden="true"
-                />
               </li>
             ))}
           </ul>

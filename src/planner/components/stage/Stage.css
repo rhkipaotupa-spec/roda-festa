@@ -1,0 +1,344 @@
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: calc(100vh - 88px);
+  overflow: hidden;
+  isolation: isolate;
+  background: #120a07;
+}
+
+.stage__background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at 50% 34%,
+      rgba(108, 52, 22, 0.32) 0%,
+      rgba(44, 20, 11, 0.14) 38%,
+      transparent 68%
+    ),
+    linear-gradient(
+      180deg,
+      #120a07 0%,
+      #170c08 57%,
+      #0b0604 100%
+    );
+}
+
+.stage__background::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.35) 0%,
+      transparent 20%,
+      transparent 80%,
+      rgba(0, 0, 0, 0.35) 100%
+    );
+}
+
+.stage__spotlight {
+  position: absolute;
+  top: -8%;
+  width: 24%;
+  height: 74%;
+  opacity: 0.86;
+  filter: blur(12px);
+  clip-path: polygon(44% 0%, 56% 0%, 100% 100%, 0% 100%);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 185, 92, 0.75) 0%,
+      rgba(198, 103, 42, 0.36) 38%,
+      rgba(111, 48, 17, 0.08) 78%,
+      transparent 100%
+    );
+}
+
+.stage__spotlight--left {
+  left: 4%;
+  transform: rotate(-5deg);
+}
+
+.stage__spotlight--right {
+  right: 4%;
+  transform: rotate(5deg);
+}
+
+.stage__particles {
+  position: absolute;
+  inset: 0;
+  opacity: 0.32;
+  background-image:
+    radial-gradient(circle, rgba(255, 189, 106, 0.8) 0 1px, transparent 1.7px),
+    radial-gradient(circle, rgba(255, 215, 151, 0.48) 0 1px, transparent 1.8px);
+  background-size: 92px 92px, 137px 137px;
+  background-position: 10px 24px, 45px 63px;
+  mask-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    #000 15%,
+    #000 66%,
+    transparent 92%
+  );
+}
+
+.stage__floor {
+  position: absolute;
+  left: -7%;
+  right: -7%;
+  bottom: -8%;
+  height: 38%;
+  transform: perspective(900px) rotateX(67deg);
+  transform-origin: bottom center;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.025) 0 1px,
+      transparent 1px 92px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.018) 0 1px,
+      transparent 1px 74px
+    ),
+    linear-gradient(
+      180deg,
+      #3a1d10 0%,
+      #261209 44%,
+      #100806 100%
+    );
+  box-shadow:
+    inset 0 34px 70px rgba(0, 0, 0, 0.55),
+    0 -30px 70px rgba(0, 0, 0, 0.42);
+}
+
+.stage__floor::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.48),
+      transparent 22%,
+      transparent 78%,
+      rgba(0, 0, 0, 0.48)
+    );
+}
+
+.stage__label {
+  position: absolute;
+  top: 34px;
+  left: 50%;
+  z-index: 4;
+  transform: translateX(-50%);
+  padding: 10px 24px;
+  border: 1px solid rgba(185, 121, 68, 0.45);
+  border-radius: 999px;
+  color: #c9ad99;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  background: rgba(19, 10, 7, 0.48);
+  backdrop-filter: blur(8px);
+}
+
+.stage__summary {
+  position: absolute;
+  top: 26px;
+  right: 28px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 190px;
+  padding: 14px 18px;
+  border: 1px solid rgba(185, 121, 68, 0.4);
+  border-radius: 18px;
+  color: #f2e8df;
+  background: rgba(18, 9, 6, 0.66);
+  backdrop-filter: blur(10px);
+}
+
+.stage__summary-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.stage__summary strong,
+.stage__summary span {
+  display: block;
+}
+
+.stage__summary strong {
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.stage__summary div span {
+  color: #c4afa1;
+  font-size: 12px;
+}
+
+.stage__cart-wrapper {
+  position: absolute;
+  left: 52%;
+  bottom: 7%;
+  z-index: 3;
+  width: min(76%, 980px);
+  transform: translateX(-50%);
+}
+
+.stage__cart-wrapper::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 10%;
+  bottom: -2%;
+  height: 12%;
+  z-index: -1;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.68);
+  filter: blur(24px);
+}
+
+.stage__cart {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 78vh;
+  object-fit: contain;
+  object-position: center bottom;
+  filter:
+    drop-shadow(0 30px 30px rgba(0, 0, 0, 0.42))
+    drop-shadow(0 8px 12px rgba(0, 0, 0, 0.28));
+}
+
+@media (max-width: 1180px) {
+  .stage__cart-wrapper {
+    width: min(84%, 850px);
+  }
+
+  .stage__label {
+    display: none;
+  }
+}
+
+@media (max-width: 980px) {
+  .stage {
+    min-height: 660px;
+  }
+
+  .stage__summary {
+    top: 18px;
+    right: 18px;
+  }
+
+  .stage__cart-wrapper {
+    left: 50%;
+    bottom: 5%;
+    width: 92%;
+  }
+}
+
+.stage__items{
+    position:absolute;
+    inset:0;
+    z-index:4;
+    pointer-events:none;
+}
+
+.stage__equipment-layer,
+.stage__food-layer,
+.stage__sweets-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.stage__equipment,
+.stage__food,
+.stage__sweets-table,
+.stage__sweet-item {
+  position: absolute;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.38));
+}
+
+.stage__sweets-table {
+  top: auto;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.stage__sweet-item {
+  z-index: 2;
+}
+
+/* =========================================
+   OPERAÇÕES INTERNAS DO CARRINHO
+========================================= */
+
+.cart__operations {
+  position: absolute;
+  left: 19%;
+  right: 19%;
+  top: 31%;
+  height: 28%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.cart-operation {
+  position: absolute;
+  bottom: 0;
+  width: 30%;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.cart-operation--left {
+  left: 18%;
+}
+
+.cart-operation--center {
+  left: 50%;
+}
+
+.cart-operation--right {
+  left: 82%;
+}
+
+.cart-operation__equipment {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 86%;
+  height: auto;
+  object-fit: contain;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.38));
+}
+
+.cart-operation__food {
+  position: absolute;
+  left: 50%;
+  bottom: 48%;
+  width: 78%;
+  height: auto;
+  object-fit: contain;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.32));
+}

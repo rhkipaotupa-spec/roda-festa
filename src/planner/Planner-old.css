@@ -1,0 +1,1074 @@
+/* =========================================
+   PLANNER — BASE
+========================================= */
+
+.planner {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: #efe4d4;
+  color: #3f2b21;
+  overflow: hidden;
+}
+
+/* =========================================
+   CABEÇALHO
+========================================= */
+
+.planner__header {
+  padding: 42px 5vw 28px;
+  border-bottom: 1px solid rgba(245, 238, 230, 0.08);
+  background:
+    radial-gradient(
+      circle at 78% 30%,
+      rgba(183, 134, 45, 0.11),
+      transparent 28%
+    ),
+    linear-gradient(
+      135deg,
+      #0d0a08 0%,
+      #17100c 55%,
+      #0b0908 100%
+    );
+  color: #f5eee6;
+}
+
+.planner__eyebrow {
+  display: block;
+  margin-bottom: 12px;
+  color: #d4a921;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.planner__title {
+  max-width: 900px;
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.5rem, 6vw, 5.6rem);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+
+.planner__intro {
+  margin: 20px 0 0;
+  color: rgba(245, 238, 230, 0.68);
+  font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+  line-height: 1.65;
+}
+
+/* =========================================
+   ÁREA PRINCIPAL
+========================================= */
+
+.planner__workspace {
+  min-height: 0;
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(520px, 1.08fr);
+}
+
+.planner__interaction,
+.planner__preview {
+  min-width: 0;
+  padding-top: clamp(42px, 5vw, 82px);
+  padding-bottom: clamp(42px, 5vw, 82px);
+}
+
+.planner__interaction {
+  padding-left: 5vw;
+  padding-right: 3.2vw;
+}
+
+.planner__preview {
+  padding-left: 4vw;
+  padding-right: 4vw;
+}
+
+/* =========================================
+   LADO ESQUERDO — EXPERIÊNCIA
+========================================= */
+
+.planner__interaction {
+  display: flex;
+  align-items: center;
+  background:
+    radial-gradient(
+      circle at 8% 10%,
+      rgba(255, 255, 255, 0.55),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 92% 88%,
+      rgba(187, 139, 73, 0.12),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #f6ecdf 0%,
+      #ead8c3 100%
+    );
+}
+
+.planner__interaction section {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.planner__interaction section > span {
+  display: block;
+  margin-bottom: 16px;
+  color: #98701d;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.planner__interaction h2 {
+  max-width: 650px;
+  margin: 0;
+  color: #3f2b21;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.3rem, 4.2vw, 4.4rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.planner__interaction p {
+  max-width: 520px;
+  margin: 20px 0 0;
+  color: rgba(63, 43, 33, 0.68);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* =========================================
+   LADO DIREITO — SEU PLANEJAMENTO
+========================================= */
+
+.planner__preview {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border-left: 1px solid rgba(75, 49, 36, 0.12);
+  background:
+    linear-gradient(
+      to top,
+      rgba(37, 24, 17, 0.94),
+      rgba(65, 43, 29, 0.38)
+    ),
+    radial-gradient(
+      circle at 50% 38%,
+      rgba(230, 189, 116, 0.28),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      #6c4e38 0%,
+      #3d2a20 46%,
+      #211710 100%
+    );
+  color: #f5eee6;
+}
+
+.planner__preview::before {
+  content: "";
+  position: absolute;
+  inset: 7%;
+  border: 1px solid rgba(245, 238, 230, 0.13);
+  pointer-events: none;
+}
+
+.planner__preview::after {
+  content: "";
+  position: absolute;
+  right: -15%;
+  bottom: -30%;
+  width: 70%;
+  height: 65%;
+  border-radius: 50%;
+  background: rgba(224, 190, 137, 0.08);
+  filter: blur(12px);
+  pointer-events: none;
+}
+
+.planner__preview section {
+  position: relative;
+  z-index: 1;
+  max-width: 460px;
+}
+
+.planner__preview section > span {
+  display: block;
+  margin-bottom: 16px;
+  color: #e0b85b;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.planner__preview h2 {
+  margin: 0;
+  color: #f5eee6;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 3.7vw, 4rem);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.planner__preview p {
+  max-width: 390px;
+  margin: 22px 0 0;
+  color: rgba(245, 238, 230, 0.68);
+  line-height: 1.7;
+}
+
+/* =========================================
+   SELETOR DE EVENTO
+========================================= */
+
+.event-selector {
+  width: 100%;
+}
+
+.event-selector__heading {
+  margin-bottom: 34px;
+}
+
+.event-selector__heading > span {
+  display: block;
+  margin-bottom: 16px;
+  color: #98701d;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.event-selector__heading h2 {
+  max-width: 650px;
+  margin: 0;
+  color: #3f2b21;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.3rem, 4.2vw, 4.4rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.event-selector__heading p {
+  max-width: 520px;
+  margin: 20px 0 0;
+  color: rgba(63, 43, 33, 0.67);
+  line-height: 1.7;
+}
+
+/* =========================================
+   COMPOSIÇÃO EDITORIAL DOS EVENTOS
+========================================= */
+
+.event-selector__editorial-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.65fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+/* =========================================
+   BASE DOS CARTÕES
+========================================= */
+
+.event-card {
+  position: relative;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(75, 49, 36, 0.12);
+  background: rgba(255, 255, 255, 0.42);
+  color: #3f2b21;
+  text-align: left;
+  cursor: pointer;
+  box-shadow:
+    0 18px 44px rgba(74, 50, 35, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.48);
+  transition:
+    transform 320ms ease,
+    border-color 320ms ease,
+    background 320ms ease,
+    box-shadow 320ms ease;
+}
+
+.event-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(156, 116, 32, 0.46);
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 24px 58px rgba(74, 50, 35, 0.11),
+    inset 0 1px 0 rgba(255, 255, 255, 0.58);
+}
+
+/* =========================================
+   CARTÃO PRINCIPAL
+========================================= */
+
+.event-card--featured {
+  display: grid;
+  grid-template-rows: minmax(310px, 1.35fr) auto;
+  min-height: 610px;
+}
+
+.event-card__visual {
+  position: relative;
+  min-height: 250px;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      to top,
+      rgba(57, 34, 22, 0.78),
+      rgba(57, 34, 22, 0.08)
+    ),
+    radial-gradient(
+      circle at 70% 22%,
+      rgba(255, 232, 184, 0.54),
+      transparent 28%
+    ),
+    linear-gradient(
+      135deg,
+      #cfad82 0%,
+      #b58155 48%,
+      #754b32 100%
+    );
+}
+
+.event-card__visual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at 20% 75%,
+      rgba(255, 255, 255, 0.12),
+      transparent 24%
+    ),
+    linear-gradient(
+      115deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.06) 45%,
+      transparent 70%
+    );
+}
+
+.event-card__index {
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  color: rgba(255, 248, 236, 0.35);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 4.5rem;
+  line-height: 1;
+}
+
+.event-card__visual-copy {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  bottom: 26px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #fff8ed;
+}
+
+.event-card__visual-copy span {
+  color: rgba(255, 248, 237, 0.65);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.event-card__visual-copy strong {
+  max-width: 360px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 3vw, 3.5rem);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+}
+
+.event-card__body {
+  display: flex;
+  min-height: 172px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 26px;
+  padding: 28px;
+}
+
+.event-card__body h3,
+.event-card--compact h3 {
+  margin: 0;
+  color: #3f2b21;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.event-card__body h3 {
+  font-size: 1.7rem;
+}
+
+.event-card__body p,
+.event-card--compact p {
+  color: rgba(63, 43, 33, 0.58);
+  line-height: 1.55;
+}
+
+.event-card__body p {
+  margin: 10px 0 0;
+  font-size: 0.9rem;
+}
+
+/* =========================================
+   CARTÕES SECUNDÁRIOS
+========================================= */
+
+.event-selector__secondary-grid {
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.event-card--compact {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 26px;
+}
+
+.event-card__compact-index {
+  color: rgba(63, 43, 33, 0.28);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+}
+
+.event-card--compact h3 {
+  font-size: 1.35rem;
+}
+
+.event-card--compact p {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+}
+
+/* =========================================
+   AÇÃO E SELEÇÃO
+========================================= */
+
+.event-card__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(63, 43, 33, 0.72);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.event-card__action span {
+  transition: transform 250ms ease;
+}
+
+.event-card:hover .event-card__action span {
+  transform: translateX(5px);
+}
+
+.event-card__check {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 3;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: #c89b2c;
+  color: #21150e;
+  font-size: 0.78rem;
+  opacity: 0;
+  transform: scale(0.72);
+  transition:
+    opacity 250ms ease,
+    transform 250ms ease;
+}
+
+.event-card--selected {
+  border-color: rgba(156, 116, 32, 0.78);
+  background: rgba(197, 151, 61, 0.13);
+  box-shadow:
+    0 28px 65px rgba(74, 50, 35, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.54);
+}
+
+.event-card--selected .event-card__check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.event-card--selected .event-card__action {
+  color: #98701d;
+}
+
+/* =========================================
+   RESPONSIVIDADE DOS CARTÕES
+========================================= */
+
+@media (max-width: 1250px) {
+  .event-selector__editorial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .event-card--featured {
+    min-height: 430px;
+  }
+
+  .event-selector__secondary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: none;
+  }
+
+  .event-card--compact {
+    min-height: 210px;
+  }
+}
+
+@media (max-width: 900px) {
+  .event-selector__editorial-grid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(220px, 0.75fr);
+  }
+
+  .event-selector__secondary-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .event-selector__editorial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .event-selector__secondary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .event-card--featured {
+    min-height: 400px;
+  }
+
+  .event-card--compact {
+    min-height: 180px;
+  }
+}
+
+
+
+
+/* =========================================
+   RODAPÉ / PROGRESSO
+========================================= */
+
+.planner > footer {
+  min-height: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  padding: 18px 5vw;
+  border-top: 1px solid rgba(245, 238, 230, 0.09);
+  background:
+    linear-gradient(
+      90deg,
+      #17100c 0%,
+      #271a13 50%,
+      #17100c 100%
+    );
+  color: #f5eee6;
+  box-shadow: 0 -18px 50px rgba(35, 22, 14, 0.13);
+}
+
+.planner > footer > span {
+  color: rgba(245, 238, 230, 0.76);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.planner > footer > div {
+  display: flex;
+  align-items: baseline;
+}
+
+.planner > footer strong {
+  color: #d4a921;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.7rem;
+  font-weight: 400;
+}
+
+.planner > footer div span {
+  color: rgba(245, 238, 230, 0.44);
+  font-size: 0.82rem;
+}
+
+/* =========================================
+   RESPONSIVIDADE
+========================================= */
+
+@media (max-width: 1150px) {
+  .planner__workspace {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(400px, 0.9fr);
+  }
+
+  .event-selector__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .planner {
+    overflow: visible;
+  }
+
+  .planner__workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .planner__header,
+  .planner__interaction,
+  .planner__preview {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .planner__preview {
+    min-height: 470px;
+    border-top: 1px solid rgba(75, 49, 36, 0.15);
+    border-left: 0;
+  }
+
+  .event-selector__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .planner > footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (max-width: 620px) {
+  .planner__header {
+    padding-top: 30px;
+    padding-bottom: 24px;
+  }
+
+  .planner__interaction,
+  .planner__preview {
+    padding-top: 52px;
+    padding-bottom: 52px;
+  }
+
+  .event-selector__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .event-card {
+    min-height: 215px;
+  }
+
+  .planner > footer {
+    min-height: 76px;
+  }
+}
+
+/* =========================================
+   CENA DO PLANEJAMENTO
+========================================= */
+
+.planning-panel {
+  width: 100%;
+  height: 100%;
+}
+
+.planning-panel__scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 620px;
+  overflow: hidden;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.planning-panel__overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(18, 10, 6, 0.28) 0%,
+      rgba(18, 10, 6, 0.03) 42%,
+      rgba(18, 10, 6, 0.04) 100%
+    ),
+    linear-gradient(
+      to top,
+      rgba(16, 8, 4, 0.5) 0%,
+      transparent 45%
+    );
+  pointer-events: none;
+}
+
+.planning-panel__copy {
+  position: absolute;
+  left: 5%;
+  bottom: 7%;
+  z-index: 2;
+  width: min(390px, 43%);
+}
+
+.planning-panel__copy span {
+  display: block;
+  margin-bottom: 14px;
+  color: #e1b64e;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.planning-panel__copy h2 {
+  margin: 0;
+  color: #fff8ef;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.4rem, 3.5vw, 4.7rem);
+  font-weight: 400;
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+}
+
+.planning-panel__copy p {
+  max-width: 350px;
+  margin: 20px 0 0;
+  color: rgba(255, 248, 239, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+@media (max-width: 900px) {
+  .planning-panel__scene {
+    min-height: 520px;
+    background-position: 58% center;
+  }
+
+  .planning-panel__copy {
+    left: 7%;
+    bottom: 8%;
+    width: min(380px, 60%);
+  }
+}
+
+@media (max-width: 620px) {
+  .planning-panel__scene {
+    min-height: 460px;
+    background-position: 62% center;
+  }
+
+  .planning-panel__copy {
+    left: 8%;
+    bottom: 8%;
+    width: 76%;
+  }
+}
+
+/* =========================================
+   CORREÇÃO DEFINITIVA — PALCO DO PLANNER
+========================================= */
+
+/*
+  Remove as limitações antigas da coluna direita.
+  O cenário passa a ocupar toda a área disponível.
+*/
+
+.planner__preview {
+  position: relative;
+  display: block;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border-left: 1px solid rgba(75, 49, 36, 0.12);
+  background: #24150e;
+}
+
+/*
+  Havia uma regra genérica limitando as sections
+  dentro do preview. Esta regra anula essa limitação.
+*/
+
+.planner__preview > .planning-panel,
+.planner__preview section.planning-panel {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  min-height: 640px;
+  margin: 0;
+}
+
+/* Remove os efeitos antigos aplicados no preview */
+
+.planner__preview::before,
+.planner__preview::after {
+  display: none;
+}
+
+/* =========================================
+   CONTAINER DO PALCO
+========================================= */
+
+.planning-panel {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  min-height: 640px;
+  margin: 0;
+}
+
+.planning-panel__stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 640px;
+  overflow: hidden;
+
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+
+  color: #fff8ef;
+}
+
+/* =========================================
+   CAMADAS DE PROFUNDIDADE
+========================================= */
+
+.planning-panel__shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(13, 7, 4, 0.42) 0%,
+      rgba(13, 7, 4, 0.06) 38%,
+      rgba(13, 7, 4, 0.02) 68%,
+      rgba(13, 7, 4, 0.16) 100%
+    ),
+    linear-gradient(
+      to top,
+      rgba(12, 6, 3, 0.48) 0%,
+      rgba(12, 6, 3, 0.04) 48%,
+      rgba(12, 6, 3, 0.06) 100%
+    );
+
+  pointer-events: none;
+}
+
+.planning-panel__frame {
+  position: absolute;
+  inset: 7%;
+  z-index: 2;
+  border: 1px solid rgba(255, 244, 229, 0.18);
+  pointer-events: none;
+}
+
+/* =========================================
+   TEXTO DO PALCO
+========================================= */
+
+.planning-panel__content {
+  position: absolute;
+  left: 6.5%;
+  bottom: 7%;
+  z-index: 3;
+  width: min(390px, 42%);
+}
+
+.planning-panel__eyebrow {
+  display: block;
+  margin-bottom: 14px;
+  color: #e2b64e;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.planning-panel__title {
+  margin: 0;
+  color: #fff8ef;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.5rem, 3.7vw, 4.8rem);
+  font-weight: 400;
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+  text-shadow: 0 4px 22px rgba(0, 0, 0, 0.36);
+}
+
+.planning-panel__description {
+  max-width: 350px;
+  margin: 20px 0 0;
+  color: rgba(255, 248, 239, 0.73);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* =========================================
+   TABLETS
+========================================= */
+
+@media (max-width: 900px) {
+  .planner__preview {
+    min-height: 540px;
+    border-top: 1px solid rgba(75, 49, 36, 0.15);
+    border-left: 0;
+  }
+
+  .planner__preview > .planning-panel,
+  .planner__preview section.planning-panel,
+  .planning-panel,
+  .planning-panel__stage {
+    min-height: 540px;
+  }
+
+  .planning-panel__stage {
+    background-position: center center;
+  }
+
+  .planning-panel__content {
+    left: 7%;
+    bottom: 7%;
+    width: min(380px, 60%);
+  }
+
+  .planning-panel__frame {
+    inset: 6%;
+  }
+}
+
+/* =========================================
+   CELULARES
+========================================= */
+
+@media (max-width: 620px) {
+  .planner__preview {
+    min-height: 470px;
+  }
+
+  .planner__preview > .planning-panel,
+  .planner__preview section.planning-panel,
+  .planning-panel,
+  .planning-panel__stage {
+    min-height: 470px;
+  }
+
+  .planning-panel__stage {
+    background-position: 54% center;
+  }
+
+  .planning-panel__content {
+    left: 8%;
+    bottom: 7%;
+    width: 76%;
+  }
+
+  .planning-panel__title {
+    font-size: clamp(2.4rem, 12vw, 3.8rem);
+  }
+
+  .planning-panel__description {
+    max-width: 290px;
+    font-size: 0.82rem;
+  }
+}
+
+/* ===== NOVO STAGE DO PLANNER ===== */
+
+.planner {
+  min-height: 100vh;
+  background: #f2eadf;
+}
+
+.planner__content {
+  display: grid;
+  grid-template-columns: 32% 68%;
+  min-height: calc(100vh - 88px);
+}
+
+.planner__controls {
+  position: relative;
+  z-index: 2;
+  padding: 48px;
+  background: #f2eadf;
+}
+
+.planner__preview {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background: #160d09;
+}
+
+.planner__preview .stage {
+  width: 100%;
+  height: 100%;
+  min-height: calc(100vh - 88px);
+}
+
+@media (max-width: 980px) {
+  .planner__content {
+    grid-template-columns: 1fr;
+  }
+
+  .planner__controls {
+    padding: 32px 24px;
+  }
+
+  .planner__preview .stage {
+    min-height: 620px;
+  }
+}

@@ -1,967 +1,1183 @@
+/* =========================================================
+   SCENE SIX — CARDÁPIO RODA FESTA
+   Versão limpa e organizada
+   ========================================================= */
+
+
+/* =========================================================
+   1. VARIÁVEIS E CONFIGURAÇÕES GERAIS
+   ========================================================= */
+
 .scene-six {
-  --scene-six-paper: #fbf7f0;
-  --scene-six-paper-deep: #f3eadc;
-  --scene-six-ink: #36231d;
-  --scene-six-ink-soft: #725d54;
-  --scene-six-red: #8d2024;
-  --scene-six-red-dark: #70171a;
-  --scene-six-gold: #bc8b43;
-  --scene-six-gold-soft: rgba(188, 139, 67, 0.28);
-  --scene-six-border: rgba(54, 35, 29, 0.14);
-  --scene-six-white: #fffdf9;
-  --scene-six-shadow: 0 30px 80px rgba(58, 36, 26, 0.16);
+  --six-dark: #17110e;
+  --six-dark-soft: #2a201b;
+  --six-dark-deep: #100b09;
+
+  --six-beige: #f3eee6;
+  --six-beige-soft: #e9dfd1;
+
+  --six-paper: #f4eadc;
+  --six-brown: #2c1d17;
+  --six-brown-soft: #6f574a;
+
+  --six-gold: #c99b4d;
+  --six-gold-soft: #d7ad64;
+
+  --six-red: #a94f3c;
+  --six-red-soft: rgba(169, 79, 60, 0.09);
 
   position: relative;
   overflow: hidden;
-  background: var(--scene-six-paper);
-  color: var(--scene-six-ink);
+
+  background: var(--six-dark);
+  color: var(--six-paper);
 }
 
+.scene-six *,
+.scene-six *::before,
+.scene-six *::after {
+  box-sizing: border-box;
+}
+
+.scene-six a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
 /* =========================================================
-   HERO
-========================================================= */
+   2. HERO DO CARDÁPIO
+   ========================================================= */
 
 .scene-six__hero {
   position: relative;
-  display: grid;
-  min-height: min(840px, 92svh);
-  place-items: center;
+
+  min-height: min(92vh, 920px);
+
+  display: flex;
+  align-items: flex-end;
+
   overflow: hidden;
-  background: #21140f;
-  isolation: isolate;
+
+  background: var(--six-dark-deep);
 }
 
 .scene-six__hero-image {
   position: absolute;
   inset: 0;
-  z-index: -3;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
   object-position: center;
-  transform: scale(1.03);
-  animation: scene-six-hero-image 16s ease-in-out infinite alternate;
+
+  transform: scale(1.035);
+
+  filter:
+    saturate(0.86)
+    contrast(1.04)
+    brightness(0.78);
 }
 
 .scene-six__hero-shade {
   position: absolute;
   inset: 0;
-  z-index: -2;
+
   background:
     linear-gradient(
-      90deg,
-      rgba(24, 14, 10, 0.82) 0%,
-      rgba(24, 14, 10, 0.57) 45%,
-      rgba(24, 14, 10, 0.25) 100%
+      180deg,
+      rgba(16, 11, 9, 0.07) 0%,
+      rgba(16, 11, 9, 0.24) 40%,
+      rgba(16, 11, 9, 0.94) 100%
     ),
     linear-gradient(
-      180deg,
-      rgba(21, 13, 10, 0.18) 0%,
-      rgba(21, 13, 10, 0.16) 58%,
-      rgba(21, 13, 10, 0.58) 100%
+      90deg,
+      rgba(16, 11, 9, 0.78) 0%,
+      rgba(16, 11, 9, 0.28) 58%,
+      rgba(16, 11, 9, 0.1) 100%
     );
 }
 
 .scene-six__hero-content {
   position: relative;
   z-index: 2;
-  width: min(100% - 64px, 1320px);
-  padding: 100px 0 125px;
+
+  width: min(1180px, calc(100% - 48px));
+
+  margin: 0 auto;
+  padding: 160px 0 96px;
+
+  opacity: 0;
+  transform: translateY(28px);
+
+  transition:
+    opacity 900ms ease,
+    transform 900ms ease;
+}
+
+.scene-six__hero-content.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .scene-six__hero-eyebrow,
 .scene-six__closing-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 18px;
-  color: #e1b66f;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.68rem;
+  gap: 12px;
+
+  margin-bottom: 26px;
+
+  font-family: Arial, sans-serif;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.32em;
-  line-height: 1.5;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
+
+  color: var(--six-gold-soft);
 }
 
-.scene-six__hero-eyebrow::after {
-  width: 72px;
-  height: 1px;
-  background: rgba(225, 182, 111, 0.78);
+.scene-six__hero-eyebrow::before,
+.scene-six__closing-eyebrow::before {
   content: "";
+
+  width: 38px;
+  height: 1px;
+
+  background: currentColor;
 }
 
 .scene-six__hero-title {
   max-width: 880px;
-  margin: 32px 0 0;
-  color: var(--scene-six-white);
+
+  margin: 0;
+
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(4rem, 7.5vw, 8.1rem);
+  font-size: clamp(3.25rem, 7vw, 7.4rem);
   font-weight: 400;
-  letter-spacing: -0.066em;
-  line-height: 0.9;
+  line-height: 0.91;
+  letter-spacing: -0.055em;
+
   text-wrap: balance;
 }
 
-.scene-six__hero-title em {
+.scene-six__hero-title em,
+.scene-six__closing-title em {
   display: block;
-  color: #efbd70;
+
+  color: var(--six-gold-soft);
+
   font-weight: 400;
 }
 
 .scene-six__hero-description {
-  max-width: 600px;
-  margin: 35px 0 0;
-  color: rgba(255, 253, 249, 0.82);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: clamp(1rem, 1.2vw, 1.12rem);
-  line-height: 1.82;
+  max-width: 590px;
+
+  margin: 34px 0 0;
+
+  font-family: Arial, sans-serif;
+  font-size: clamp(1rem, 1.35vw, 1.18rem);
+  line-height: 1.75;
+
+  color: rgba(244, 234, 220, 0.72);
 }
 
 .scene-six__hero-scroll {
   display: inline-flex;
   align-items: center;
-  gap: 22px;
-  margin-top: 46px;
-  color: var(--scene-six-white);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.66rem;
+  gap: 18px;
+
+  margin-top: 42px;
+  padding-bottom: 9px;
+
+  border-bottom: 1px solid rgba(244, 234, 220, 0.38);
+
+  font-family: Arial, sans-serif;
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.2em;
-  text-decoration: none;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-}
 
-.scene-six__hero-scroll i {
-  display: grid;
-  width: 46px;
-  height: 46px;
-  place-items: center;
-  border: 1px solid rgba(255, 253, 249, 0.52);
-  border-radius: 50%;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1rem;
-  font-style: normal;
   transition:
-    color 0.35s ease,
-    border-color 0.35s ease,
-    background 0.35s ease,
-    transform 0.35s ease;
+    gap 250ms ease,
+    border-color 250ms ease;
 }
 
-.scene-six__hero-scroll:hover i {
-  border-color: #e1b66f;
-  background: #e1b66f;
-  color: #372219;
-  transform: translateY(5px);
+.scene-six__hero-scroll:hover {
+  gap: 25px;
+
+  border-color: var(--six-paper);
 }
+
 
 /* =========================================================
-   RODA DE TRANSIÇÃO DA HERO
-========================================================= */
-
-.scene-six__hero-wheel {
-  position: absolute;
-  bottom: 28px;
-  left: 50%;
-  z-index: 5;
-  display: grid;
-  width: 52px;
-  height: 52px;
-  place-items: center;
-  border: 1px solid rgba(255, 253, 249, 0.4);
-  border-radius: 50%;
-  background: rgba(35, 21, 15, 0.34);
-  transform: translateX(-50%);
-  backdrop-filter: blur(8px);
-}
-
-.scene-six__hero-wheel-ring {
-  position: relative;
-  display: block;
-  width: 25px;
-  height: 25px;
-  border: 1px solid rgba(255, 253, 249, 0.72);
-  border-radius: 50%;
-  animation: scene-six-wheel-spin 14s linear infinite;
-}
-
-.scene-six__hero-wheel-center,
-.scene-six__brand-wheel-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: currentColor;
-  transform: translate(-50%, -50%);
-}
-
-.scene-six__hero-wheel-spoke,
-.scene-six__brand-wheel-spoke {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 72%;
-  height: 1px;
-  background: currentColor;
-  transform-origin: center;
-}
-
-.scene-six__hero-wheel-spoke--1,
-.scene-six__brand-wheel-spoke--1 {
-  transform: translate(-50%, -50%);
-}
-
-.scene-six__hero-wheel-spoke--2,
-.scene-six__brand-wheel-spoke--2 {
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.scene-six__hero-wheel-spoke--3,
-.scene-six__brand-wheel-spoke--3 {
-  transform: translate(-50%, -50%) rotate(90deg);
-}
-
-.scene-six__hero-wheel-spoke--4,
-.scene-six__brand-wheel-spoke--4 {
-  transform: translate(-50%, -50%) rotate(135deg);
-}
-
-/* =========================================================
-   CAPÍTULOS
-========================================================= */
+   3. ÁREA DOS CAPÍTULOS
+   ========================================================= */
 
 .scene-six__chapters {
   position: relative;
-  z-index: 2;
+
+  background: var(--six-beige);
 }
 
 .scene-six__chapter {
   position: relative;
-  padding: clamp(88px, 10vw, 150px) 0;
-  background: var(--scene-six-paper);
+
+  min-height: 840px;
+
+  display: flex;
+  align-items: center;
+
+  padding: clamp(90px, 11vw, 160px) 0;
+
+  overflow: hidden;
+
+  opacity: 0;
+  transform: translateY(38px);
+
+  transition:
+    opacity 900ms ease,
+    transform 900ms ease;
 }
+
+.scene-six__chapter.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scene-six__chapter + .scene-six__chapter {
+  border-top: 1px solid rgba(175, 130, 67, 0.2);
+}
+
+
+/* Capítulos claros */
+
+.scene-six__chapter:nth-child(odd) {
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(188, 139, 70, 0.1),
+      transparent 34%
+    ),
+    var(--six-beige);
+
+  color: var(--six-brown);
+}
+
+
+/* Capítulos escuros */
 
 .scene-six__chapter:nth-child(even) {
-  background: var(--scene-six-paper-deep);
-}
+  background:
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(199, 155, 77, 0.12),
+      transparent 38%
+    ),
+    var(--six-dark-soft);
 
-.scene-six__chapter:first-child {
-  padding-top: clamp(72px, 7vw, 105px);
+  color: var(--six-paper);
 }
 
 .scene-six__chapter-inner {
-  display: grid;
-  grid-template-columns: minmax(0, 1.18fr) minmax(360px, 0.82fr);
-  gap: clamp(64px, 8vw, 125px);
-  align-items: center;
-  width: min(100% - 80px, 1400px);
+  position: relative;
+  z-index: 2;
+
+  width: min(1280px, calc(100% - 64px));
+
   margin: 0 auto;
+
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.08fr)
+    minmax(360px, 0.92fr);
+
+  gap: clamp(58px, 8vw, 130px);
+  align-items: center;
 }
 
-.scene-six__chapter--image-right .scene-six__chapter-inner {
-  grid-template-columns: minmax(360px, 0.82fr) minmax(0, 1.18fr);
-}
+
+/* Alternância da posição da imagem */
 
 .scene-six__chapter--image-right .scene-six__visual {
-  grid-column: 2;
+  order: 2;
 }
 
 .scene-six__chapter--image-right .scene-six__chapter-content {
-  grid-column: 1;
-  grid-row: 1;
+  order: 1;
 }
 
+
 /* =========================================================
-   IMAGENS
-========================================================= */
+   4. IMAGEM DO CAPÍTULO
+   ========================================================= */
 
 .scene-six__visual {
-  position: relative;
+  min-width: 0;
 }
 
 .scene-six__photo-frame {
   position: relative;
-  overflow: hidden;
-  aspect-ratio: 1.05;
+
+  min-height: clamp(520px, 62vw, 760px);
+
   margin: 0;
-  border-radius: 4px;
-  background: #ded0bd;
-  box-shadow: var(--scene-six-shadow);
+
+  overflow: visible;
+}
+
+.scene-six__photo-frame::before {
+  content: "";
+
+  position: absolute;
+  inset: 20px -20px -20px 20px;
+
+  border: 1px solid rgba(178, 132, 64, 0.28);
+
+  pointer-events: none;
+}
+
+.scene-six__chapter:nth-child(even)
+  .scene-six__photo-frame::before {
+  border-color: rgba(215, 173, 100, 0.22);
 }
 
 .scene-six__photo {
+  display: block;
+
   width: 100%;
-  height: 100%;
+  height: clamp(520px, 62vw, 760px);
+
   object-fit: cover;
-  transform: scale(1.02);
+  object-position: center;
+
+  filter:
+    saturate(0.9)
+    contrast(1.03)
+    brightness(0.9);
+
   transition:
-    transform 1.3s cubic-bezier(0.2, 0.75, 0.25, 1),
-    filter 0.8s ease;
+    transform 1000ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    filter 600ms ease;
+}
+
+.scene-six__photo-frame:hover .scene-six__photo {
+  transform: scale(1.018);
+
+  filter:
+    saturate(0.98)
+    contrast(1.04)
+    brightness(0.94);
 }
 
 .scene-six__photo-overlay {
   position: absolute;
   inset: 0;
+
   background:
     linear-gradient(
       180deg,
-      transparent 58%,
-      rgba(30, 18, 13, 0.5) 100%
+      rgba(16, 11, 9, 0.17),
+      rgba(16, 11, 9, 0.01) 42%,
+      rgba(16, 11, 9, 0.24)
     );
+
   pointer-events: none;
 }
 
-.scene-six__photo-frame:hover .scene-six__photo {
-  filter: saturate(1.06);
-  transform: scale(1.065);
-}
+
+/* =========================================================
+   5. LEGENDA SOBRE A FOTO
+   01 — PETISCOS
+   ========================================================= */
 
 .scene-six__photo-caption {
   position: absolute;
-  right: 30px;
-  bottom: 24px;
-  left: 30px;
-  z-index: 3;
+  top: 22px;
+  left: 24px;
+  z-index: 4;
+
   display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  color: rgba(255, 253, 249, 0.9);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.57rem;
+  align-items: center;
+  gap: 10px;
+
+  font-family: Arial, sans-serif;
+  font-size: 0.64rem;
   font-weight: 700;
-  letter-spacing: 0.2em;
+  line-height: 1;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
+
+  color: rgba(255, 255, 255, 0.9);
+
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
 }
 
-/* =========================================================
-   RODA NAS FOTOS
-========================================================= */
-
-.scene-six__brand-wheel {
-  position: absolute;
-  z-index: 5;
-  display: grid;
-  place-items: center;
-  color: rgba(255, 253, 249, 0.82);
+.scene-six__photo-number {
+  color: #ddb05a;
 }
 
-.scene-six__brand-wheel--photo {
-  bottom: 24px;
-  left: 50%;
-  width: 48px;
-  height: 48px;
-  border: 1px solid rgba(255, 253, 249, 0.5);
-  border-radius: 50%;
-  background: rgba(25, 15, 11, 0.26);
-  transform: translateX(-50%);
-  backdrop-filter: blur(8px);
-}
-
-.scene-six__brand-wheel-ring {
-  position: relative;
+.scene-six__photo-line {
   display: block;
-  width: 23px;
-  height: 23px;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-  animation: scene-six-wheel-spin 15s linear infinite;
+
+  width: 30px;
+  height: 1px;
+
+  background: rgba(221, 176, 90, 0.9);
 }
 
+.scene-six__photo-category {
+  color: rgba(255, 255, 255, 0.94);
+}
+
+
 /* =========================================================
-   CONTEÚDO
-========================================================= */
+   6. RODA DA IMAGEM
+   ========================================================= */
+
+.scene-six__photo-wheel {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  z-index: 5;
+
+  width: 38px;
+  height: 38px;
+
+  transform: translateX(-50%);
+}
+
+.scene-six__story-wheel {
+  position: relative;
+
+  display: block;
+
+  width: 38px;
+  height: 38px;
+
+  border: 1px solid #d9aa4d;
+  border-radius: 50%;
+
+  background: rgba(19, 13, 10, 0.38);
+
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.24),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  transition:
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 350ms ease,
+    border-color 350ms ease;
+}
+
+.scene-six__story-wheel-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+
+  width: 5px;
+  height: 5px;
+
+  border: 1px solid #d9aa4d;
+  border-radius: 50%;
+
+  background: #18100d;
+
+  transform: translate(-50%, -50%);
+}
+
+.scene-six__story-wheel-spoke {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 1px;
+  height: 15px;
+
+  background: #d9aa4d;
+
+  border-radius: 999px;
+
+  transform-origin: 50% 0;
+}
+
+.scene-six__photo-frame:hover
+  .scene-six__story-wheel {
+  transform: rotate(45deg);
+
+  background: rgba(19, 13, 10, 0.62);
+  border-color: #e3b95f;
+}
+
+
+/* =========================================================
+   7. CONTEÚDO DO CAPÍTULO
+   ========================================================= */
 
 .scene-six__chapter-content {
   position: relative;
-  max-width: 570px;
+
+  min-width: 0;
 }
 
 .scene-six__chapter-heading {
   display: flex;
   align-items: center;
-  gap: 22px;
-  padding-bottom: 19px;
-  border-bottom: 1px solid var(--scene-six-border);
-}
+  gap: 14px;
 
-.scene-six__chapter-number {
-  color: var(--scene-six-red);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.2rem;
-  font-style: italic;
-}
+  margin-bottom: 28px;
 
-.scene-six__chapter-label {
-  color: var(--scene-six-gold);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.63rem;
+  font-family: Arial, sans-serif;
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
+.scene-six__chapter-number {
+  min-width: 24px;
+}
+
+.scene-six__chapter-heading-line {
+  width: 42px;
+  height: 1px;
+}
+
+
+/* Cabeçalho em capítulos claros */
+
+.scene-six__chapter:nth-child(odd)
+  .scene-six__chapter-number {
+  color: #a9772f;
+}
+
+.scene-six__chapter:nth-child(odd)
+  .scene-six__chapter-heading-line {
+  background: rgba(169, 119, 47, 0.58);
+}
+
+.scene-six__chapter:nth-child(odd)
+  .scene-six__chapter-label {
+  color: rgba(44, 29, 23, 0.72);
+}
+
+
+/* Cabeçalho em capítulos escuros */
+
+.scene-six__chapter:nth-child(even)
+  .scene-six__chapter-number {
+  color: var(--six-gold-soft);
+}
+
+.scene-six__chapter:nth-child(even)
+  .scene-six__chapter-heading-line {
+  background: rgba(215, 173, 100, 0.62);
+}
+
+.scene-six__chapter:nth-child(even)
+  .scene-six__chapter-label {
+  color: rgba(244, 234, 220, 0.72);
+}
+
+
+/* =========================================================
+   8. PALAVRA GIGANTE AO FUNDO
+   ========================================================= */
+
 .scene-six__background-category {
   position: absolute;
-  top: 71px;
-  left: -14px;
-  z-index: 0;
+  top: 34px;
+  left: -8px;
+  z-index: -1;
+
   margin: 0;
-  color: rgba(141, 32, 36, 0.04);
+
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(4.7rem, 7vw, 7.8rem);
+  font-size: clamp(4.8rem, 9vw, 9.5rem);
   font-style: italic;
+  font-weight: 400;
+  line-height: 0.8;
   letter-spacing: -0.07em;
-  line-height: 0.85;
-  pointer-events: none;
+
   white-space: nowrap;
+
+  pointer-events: none;
 }
+
+
+/* Mais visível no fundo bege */
+
+.scene-six__chapter:nth-child(odd)
+  .scene-six__background-category {
+  color: rgba(169, 79, 60, 0.085);
+
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+
+/* Discreto no fundo marrom */
+
+.scene-six__chapter:nth-child(even)
+  .scene-six__background-category {
+  color: rgba(244, 234, 220, 0.045);
+}
+
+
+/* =========================================================
+   9. TÍTULOS E DESCRIÇÕES
+   ========================================================= */
 
 .scene-six__category {
   position: relative;
-  z-index: 1;
-  margin: 48px 0 0;
-  color: var(--scene-six-red);
+  z-index: 2;
+
+  margin: 0;
+
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2.8rem, 4.7vw, 5.4rem);
+  font-size: clamp(3.5rem, 6vw, 6.4rem);
   font-weight: 400;
+  line-height: 0.9;
   letter-spacing: -0.055em;
-  line-height: 0.95;
+}
+
+.scene-six__chapter:nth-child(odd)
+  .scene-six__category {
+  color: var(--six-brown);
+
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.scene-six__chapter:nth-child(even)
+  .scene-six__category {
+  color: var(--six-paper);
 }
 
 .scene-six__chapter-title {
-  position: relative;
-  z-index: 1;
-  max-width: 530px;
-  margin: 27px 0 0;
+  max-width: 500px;
+
+  margin: 26px 0 0;
+
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1.9rem, 2.8vw, 3.2rem);
+  font-size: clamp(1.45rem, 2vw, 2.1rem);
   font-weight: 400;
-  letter-spacing: -0.04em;
-  line-height: 1.08;
-  text-wrap: balance;
+  font-style: italic;
+  line-height: 1.3;
+}
+
+.scene-six__chapter:nth-child(odd)
+  .scene-six__chapter-title {
+  color: var(--six-red);
+}
+
+.scene-six__chapter:nth-child(even)
+  .scene-six__chapter-title {
+  color: var(--six-gold-soft);
 }
 
 .scene-six__chapter-description {
-  max-width: 510px;
-  margin: 24px 0 0;
-  color: var(--scene-six-ink-soft);
-  font-family: Arial, Helvetica, sans-serif;
+  max-width: 540px;
+
+  margin: 22px 0 0;
+
+  font-family: Arial, sans-serif;
   font-size: 1rem;
-  line-height: 1.82;
+  line-height: 1.72;
 }
+
+.scene-six__chapter:nth-child(odd)
+  .scene-six__chapter-description {
+  color: rgba(44, 29, 23, 0.72);
+}
+
+.scene-six__chapter:nth-child(even)
+  .scene-six__chapter-description {
+  color: rgba(244, 234, 220, 0.72);
+}
+
+
+/* =========================================================
+   10. DIVISOR EDITORIAL
+   ========================================================= */
 
 .scene-six__chapter-divider {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 34px 0 16px;
+  gap: 10px;
+
+  margin: 34px 0 30px;
 }
 
 .scene-six__chapter-divider span {
-  width: 130px;
+  width: 72px;
   height: 1px;
-  background: var(--scene-six-gold);
 }
 
 .scene-six__chapter-divider i {
   width: 5px;
   height: 5px;
-  border: 1px solid var(--scene-six-gold);
+
+  border: 1px solid;
+
   transform: rotate(45deg);
 }
 
+.scene-six__chapter:nth-child(odd)
+  .scene-six__chapter-divider span {
+  background: rgba(75, 49, 36, 0.22);
+}
+
+.scene-six__chapter:nth-child(odd)
+  .scene-six__chapter-divider i {
+  border-color: #af7e35;
+  background: #af7e35;
+}
+
+.scene-six__chapter:nth-child(even)
+  .scene-six__chapter-divider span {
+  background: rgba(244, 234, 220, 0.18);
+}
+
+.scene-six__chapter:nth-child(even)
+  .scene-six__chapter-divider i {
+  border-color: var(--six-gold-soft);
+  background: var(--six-gold-soft);
+}
+
+
 /* =========================================================
-   LISTA DO CARDÁPIO
-========================================================= */
+   11. LISTA DE PRODUTOS
+   ========================================================= */
 
 .scene-six__items {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 0 42px;
+
   margin: 0;
   padding: 0;
+
   list-style: none;
 }
 
 .scene-six__item {
-  display: grid;
-  grid-template-columns: auto minmax(30px, 1fr);
-  gap: 14px;
-  align-items: center;
-  min-height: 61px;
-  border-bottom: 1px solid rgba(54, 35, 29, 0.09);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  min-width: 0;
+
+  padding: 22px 0;
+
+  border-bottom: 1px solid;
+
+  transition:
+    transform .25s ease,
+    border-color .25s ease;
+}
+
+.scene-six__item:hover {
+  transform: translateX(4px);
+}
+
+.scene-six__item-copy {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+
+  gap: 6px;
 }
 
 .scene-six__item-name {
+  display: block;
+
+  margin: 0;
+
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1.03rem, 1.25vw, 1.18rem);
-  line-height: 1.35;
-  transition:
-    color 0.35s ease,
-    transform 0.35s ease;
+  font-size: clamp(1.08rem, 1.2vw, 1.30rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -.01em;
+}
+
+.scene-six__item-description {
+  display: block;
+
+  max-width: 92%;
+  margin: 0;
+
+  font-family: Arial, sans-serif;
+  font-size: .90rem;
+  line-height: 1.45;
+
+  opacity: .85;
 }
 
 .scene-six__item-dots {
-  height: 1px;
-  background-image: repeating-linear-gradient(
-    to right,
-    rgba(54, 35, 29, 0.35) 0,
-    rgba(54, 35, 29, 0.35) 2px,
-    transparent 2px,
-    transparent 7px
-  );
-  opacity: 0.55;
-  transition:
-    opacity 0.35s ease,
-    transform 0.35s ease;
+  display: none;
 }
 
-.scene-six__item:hover .scene-six__item-name {
-  color: var(--scene-six-red);
-  transform: translateX(5px);
-}
-
-.scene-six__item:hover .scene-six__item-dots {
-  opacity: 1;
-  transform: translateX(-3px);
-}
-
-.scene-six__extra {
-  margin: 24px 0 0;
-  color: var(--scene-six-red);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-}
 
 /* =========================================================
-   ENCERRAMENTO
-========================================================= */
+   CAPÍTULOS CLAROS
+   ========================================================= */
+
+.scene-six__chapter:nth-child(odd)
+.scene-six__item {
+  border-color: rgba(75, 49, 36, .10);
+}
+
+.scene-six__chapter:nth-child(odd)
+.scene-six__item:hover {
+  border-color: rgba(169, 119, 47, .42);
+}
+
+.scene-six__chapter:nth-child(odd)
+.scene-six__item-name {
+  color: rgba(44, 29, 23, .96);
+}
+
+.scene-six__chapter:nth-child(odd)
+.scene-six__item-description {
+  color: rgba(44, 29, 23, .70);
+}
+
+
+/* =========================================================
+   CAPÍTULOS ESCUROS
+   ========================================================= */
+
+.scene-six__chapter:nth-child(even)
+.scene-six__item {
+  border-color: rgba(244, 234, 220, .08);
+}
+
+.scene-six__chapter:nth-child(even)
+.scene-six__item:hover {
+  border-color: rgba(215, 173, 100, .42);
+}
+
+.scene-six__chapter:nth-child(even)
+.scene-six__item-name {
+  color: rgba(244, 234, 220, .97);
+}
+
+.scene-six__chapter:nth-child(even)
+.scene-six__item-description {
+  color: rgba(244, 234, 220, .72);
+}
+/* =========================================================
+   12. TEXTO COMPLEMENTAR
+   ========================================================= */
+
+.scene-six__extra {
+  margin: 30px 0 0;
+  padding-left: 18px;
+
+  border-left: 1px solid;
+
+  font-family: Arial, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.65;
+  letter-spacing: 0.02em;
+}
+
+.scene-six__chapter:nth-child(odd)
+  .scene-six__extra {
+  border-color: rgba(169, 119, 47, 0.55);
+
+  color: rgba(44, 29, 23, 0.62);
+}
+
+.scene-six__chapter:nth-child(even)
+  .scene-six__extra {
+  border-color: rgba(215, 173, 100, 0.58);
+
+  color: rgba(244, 234, 220, 0.58);
+}
+
+
+/* =========================================================
+   13. ENCERRAMENTO
+   ========================================================= */
 
 .scene-six__closing {
   position: relative;
+
+  min-height: 720px;
+
   display: flex;
-  min-height: 740px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   padding: 120px 24px;
-  overflow: hidden;
+
+  text-align: center;
+
   background:
     radial-gradient(
-      circle at 50% 20%,
-      rgba(188, 139, 67, 0.15),
-      transparent 28rem
+      circle at 50% 0%,
+      rgba(169, 79, 60, 0.18),
+      transparent 48%
     ),
-    var(--scene-six-red-dark);
-  color: var(--scene-six-white);
-  text-align: center;
+    var(--six-dark-deep);
+
+  opacity: 0;
+  transform: translateY(32px);
+
+  transition:
+    opacity 900ms ease,
+    transform 900ms ease;
 }
 
-.scene-six__closing::before {
-  position: absolute;
-  top: -170px;
-  left: 50%;
-  width: 720px;
-  height: 720px;
-  border: 1px solid rgba(255, 253, 249, 0.07);
-  border-radius: 50%;
-  content: "";
-  transform: translateX(-50%);
+.scene-six__closing.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .scene-six__closing-symbol {
-  position: relative;
-  color: #e1b66f;
-  font-size: 1.3rem;
+  display: block;
+
+  margin-bottom: 32px;
+
+  font-size: 1.15rem;
+
+  color: var(--six-gold-soft);
 }
 
 .scene-six__closing-eyebrow {
-  position: relative;
-  margin-top: 25px;
+  margin-bottom: 28px;
 }
 
 .scene-six__closing-title {
-  position: relative;
-  max-width: 950px;
-  margin: 30px auto 0;
+  max-width: 980px;
+
+  margin: 0;
+
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(3rem, 6.2vw, 6.8rem);
+  font-size: clamp(3rem, 6vw, 6.2rem);
   font-weight: 400;
-  letter-spacing: -0.06em;
-  line-height: 0.94;
+  line-height: 0.98;
+  letter-spacing: -0.052em;
+
   text-wrap: balance;
 }
 
-.scene-six__closing-title em {
-  display: block;
-  color: #e1b66f;
-  font-weight: 400;
-}
-
 .scene-six__closing-description {
-  position: relative;
-  max-width: 640px;
-  margin: 32px auto 0;
-  color: rgba(255, 253, 249, 0.74);
-  font-family: Arial, Helvetica, sans-serif;
+  max-width: 630px;
+
+  margin: 30px auto 0;
+
+  font-family: Arial, sans-serif;
   font-size: 1rem;
-  line-height: 1.8;
+  line-height: 1.75;
+
+  color: rgba(244, 234, 220, 0.7);
 }
 
 .scene-six__closing-button {
-  position: relative;
+  min-height: 58px;
+
   display: inline-flex;
   align-items: center;
-  gap: 35px;
-  margin-top: 44px;
-  padding: 17px 22px 17px 25px;
-  border: 1px solid rgba(255, 253, 249, 0.45);
-  border-radius: 999px;
-  color: var(--scene-six-white);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.17em;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition:
-    color 0.35s ease,
-    border-color 0.35s ease,
-    background 0.35s ease,
-    transform 0.35s ease;
-}
+  justify-content: center;
+  gap: 18px;
 
-.scene-six__closing-button span:last-child {
-  font-size: 1.1rem;
+  margin-top: 42px;
+  padding: 0 30px;
+
+  border: 1px solid rgba(244, 234, 220, 0.58);
+
+  font-family: Arial, sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+
+  transition:
+    background 260ms ease,
+    color 260ms ease,
+    transform 260ms ease;
 }
 
 .scene-six__closing-button:hover {
-  border-color: #e1b66f;
-  background: #e1b66f;
-  color: var(--scene-six-red-dark);
-  transform: translateY(-4px);
+  background: var(--six-paper);
+  color: var(--six-dark-deep);
+
+  transform: translateY(-3px);
 }
+
 
 /* =========================================================
-   ANIMAÇÕES DE ENTRADA
-========================================================= */
+   14. TABLETS
+   ========================================================= */
 
-[data-scene-six-reveal] {
-  opacity: 0;
-  transform: translateY(34px);
-  transition:
-    opacity 1s ease,
-    transform 1s cubic-bezier(0.2, 0.75, 0.25, 1);
-}
+@media (max-width: 1024px) {
+  .scene-six__chapter-inner {
+    grid-template-columns: 1fr;
 
-[data-scene-six-reveal].is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+    gap: 84px;
+  }
 
-[data-menu-section] .scene-six__visual {
-  opacity: 0;
-  transform: translateX(-42px);
-  transition:
-    opacity 1.05s ease,
-    transform 1.05s cubic-bezier(0.2, 0.75, 0.25, 1);
-}
+  .scene-six__chapter--image-right
+    .scene-six__visual,
+  .scene-six__chapter--image-right
+    .scene-six__chapter-content {
+    order: initial;
+  }
 
-[data-menu-section] .scene-six__chapter-content {
-  opacity: 0;
-  transform: translateX(42px);
-  transition:
-    opacity 1.05s 0.12s ease,
-    transform 1.05s 0.12s cubic-bezier(0.2, 0.75, 0.25, 1);
-}
+  .scene-six__photo-frame,
+  .scene-six__photo {
+    height: min(76vw, 680px);
+    min-height: 500px;
+  }
 
-[data-menu-section].scene-six__chapter--image-right
-  .scene-six__visual {
-  transform: translateX(42px);
-}
-
-[data-menu-section].scene-six__chapter--image-right
   .scene-six__chapter-content {
-  transform: translateX(-42px);
+    max-width: 760px;
+  }
+
+  .scene-six__background-category {
+    font-size: clamp(4rem, 15vw, 8rem);
+  }
 }
 
-[data-menu-section].is-visible .scene-six__visual,
-[data-menu-section].is-visible .scene-six__chapter-content {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-[data-menu-section] .scene-six__item {
-  opacity: 0;
-  transform: translateY(10px);
-  transition:
-    opacity 0.55s ease,
-    transform 0.55s ease;
-  transition-delay: calc(
-    0.3s + var(--scene-six-item-index) * 0.06s
-  );
-}
-
-[data-menu-section].is-visible .scene-six__item {
-  opacity: 1;
-  transform: translateY(0);
-}
 
 /* =========================================================
-   KEYFRAMES
-========================================================= */
+   15. CELULARES
+   ========================================================= */
 
-@keyframes scene-six-hero-image {
-  from {
-    transform: scale(1.03);
-  }
-
-  to {
-    transform: scale(1.085);
-  }
-}
-
-@keyframes scene-six-wheel-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* =========================================================
-   TABLET
-========================================================= */
-
-@media (max-width: 1080px) {
-  .scene-six__chapter-inner,
-  .scene-six__chapter--image-right .scene-six__chapter-inner {
-    grid-template-columns: minmax(0, 1fr) minmax(310px, 0.82fr);
-    gap: 65px;
-    width: min(100% - 54px, 1050px);
-  }
-
-  .scene-six__chapter-divider span {
-    width: 105px;
-  }
-}
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 820px) {
+@media (max-width: 720px) {
   .scene-six__hero {
     min-height: 820px;
   }
 
-  .scene-six__hero-shade {
-    background:
-      linear-gradient(
-        180deg,
-        rgba(24, 14, 11, 0.3) 0%,
-        rgba(24, 14, 11, 0.54) 52%,
-        rgba(24, 14, 11, 0.84) 100%
-      );
+  .scene-six__hero-image {
+    object-position: 58% center;
   }
 
   .scene-six__hero-content {
-    display: flex;
-    width: min(100% - 36px, 650px);
-    min-height: 820px;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 100px 0 125px;
+    width: calc(100% - 40px);
+
+    padding: 140px 0 68px;
   }
 
   .scene-six__hero-title {
-    font-size: clamp(3.7rem, 14vw, 6.4rem);
-  }
-
-  .scene-six__hero-title em {
-    display: inline;
+    font-size: clamp(3.2rem, 16vw, 5.2rem);
+    line-height: 0.94;
   }
 
   .scene-six__hero-description {
-    max-width: 520px;
-  }
-
-  .scene-six__hero-wheel {
-    bottom: 25px;
+    font-size: 0.96rem;
+    line-height: 1.65;
   }
 
   .scene-six__chapter {
-    padding: 86px 0 110px;
+    min-height: auto;
+
+    padding: 96px 0 112px;
   }
 
-  .scene-six__chapter:first-child {
-    padding-top: 75px;
+  .scene-six__chapter-inner {
+    width: calc(100% - 36px);
+
+    gap: 72px;
   }
 
-  .scene-six__chapter-inner,
-  .scene-six__chapter--image-right .scene-six__chapter-inner {
-    display: flex;
-    width: min(100% - 30px, 680px);
-    flex-direction: column;
-    gap: 68px;
+  .scene-six__photo-frame,
+  .scene-six__photo {
+    height: 122vw;
+    min-height: 460px;
+    max-height: 650px;
   }
 
-  .scene-six__chapter--image-right .scene-six__visual,
-  .scene-six__chapter--image-right .scene-six__chapter-content {
-    grid-column: auto;
-    grid-row: auto;
-  }
-
-  .scene-six__visual,
-  .scene-six__chapter-content {
-    width: 100%;
-    max-width: none;
-  }
-
-  .scene-six__photo-frame {
-    aspect-ratio: 0.95;
-  }
-
-  .scene-six__chapter-content {
-    padding-top: 8px;
-  }
-
-  .scene-six__background-category {
-    top: 70px;
-    left: 0;
-    font-size: clamp(4.3rem, 18vw, 7.4rem);
-  }
-
-  .scene-six__category {
-    font-size: clamp(3.2rem, 13vw, 5.4rem);
-  }
-
-  .scene-six__chapter-title {
-    font-size: clamp(2rem, 8vw, 3.2rem);
-  }
-
-  [data-menu-section] .scene-six__visual,
-  [data-menu-section].scene-six__chapter--image-right
-    .scene-six__visual,
-  [data-menu-section] .scene-six__chapter-content,
-  [data-menu-section].scene-six__chapter--image-right
-    .scene-six__chapter-content {
-    transform: translateY(34px);
-  }
-
-  [data-menu-section].is-visible .scene-six__visual,
-  [data-menu-section].is-visible
-    .scene-six__chapter-content {
-    transform: translateY(0);
-  }
-}
-
-/* =========================================================
-   CELULARES PEQUENOS
-========================================================= */
-
-@media (max-width: 520px) {
-  .scene-six__hero-content {
-    width: min(100% - 28px, 480px);
-  }
-
-  .scene-six__hero-eyebrow::after {
-    width: 42px;
-  }
-
-  .scene-six__hero-scroll {
-    gap: 15px;
-    font-size: 0.58rem;
-  }
-
-  .scene-six__chapter {
-    padding: 78px 0 100px;
-  }
-
-  .scene-six__chapter-inner,
-  .scene-six__chapter--image-right .scene-six__chapter-inner {
-    width: min(100% - 22px, 500px);
-  }
-
-  .scene-six__photo-frame {
-    aspect-ratio: 0.89;
+  .scene-six__photo-frame::before {
+    inset: 12px -10px -12px 10px;
   }
 
   .scene-six__photo-caption {
-    right: 19px;
-    bottom: 19px;
-    left: 19px;
+    top: 16px;
+    left: 16px;
+
+    gap: 8px;
+
+    font-size: 0.57rem;
   }
 
-  .scene-six__photo-caption span:last-child {
-    display: none;
+  .scene-six__photo-line {
+    width: 23px;
   }
 
-  .scene-six__brand-wheel--photo {
-    bottom: 18px;
-    width: 42px;
-    height: 42px;
+  .scene-six__photo-wheel,
+  .scene-six__story-wheel {
+    width: 34px;
+    height: 34px;
   }
 
-  .scene-six__brand-wheel-ring {
-    width: 20px;
-    height: 20px;
+  .scene-six__photo-wheel {
+    bottom: 14px;
   }
 
-  .scene-six__chapter-heading {
-    gap: 14px;
+  .scene-six__story-wheel-spoke {
+    height: 13px;
   }
 
   .scene-six__category {
-    margin-top: 44px;
+    font-size: clamp(3.4rem, 17vw, 5.2rem);
   }
 
-  .scene-six__item {
-    min-height: 59px;
+  .scene-six__chapter-title {
+    margin-top: 22px;
+
+    font-size: 1.45rem;
   }
 
-  .scene-six__item-name {
-    font-size: 1rem;
+  .scene-six__items {
+    grid-template-columns: 1fr;
+  }
+
+  .scene-six__background-category {
+    top: 42px;
+
+    font-size: 22vw;
   }
 
   .scene-six__closing {
     min-height: 700px;
+
+    padding: 96px 22px;
   }
 
   .scene-six__closing-title {
-    font-size: clamp(2.9rem, 13vw, 4.7rem);
+    font-size: clamp(3rem, 14vw, 4.8rem);
   }
 
   .scene-six__closing-button {
-    gap: 18px;
-    padding: 16px 19px;
-    font-size: 0.58rem;
+    width: 100%;
+    max-width: 380px;
   }
 }
 
+
 /* =========================================================
-   ACESSIBILIDADE
-========================================================= */
+   16. ACESSIBILIDADE — MOVIMENTO REDUZIDO
+   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .scene-six *,
   .scene-six *::before,
   .scene-six *::after {
     scroll-behavior: auto !important;
+
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+
     transition-duration: 0.01ms !important;
   }
-
-  [data-scene-six-reveal],
-  [data-menu-section] .scene-six__visual,
-  [data-menu-section] .scene-six__chapter-content,
-  [data-menu-section] .scene-six__item {
-    opacity: 1;
-    transform: none;
-  }
 }
+

@@ -1,25 +1,9 @@
 import { useEffect, useRef } from "react";
+
 import MenuSection from "./components/MenuSection";
 import menuData, { heroCardapio } from "./data/menuData";
+
 import "./SceneSix.css";
-
-function HeroWheel() {
-  return (
-    <span
-      className="scene-six__hero-wheel"
-      aria-hidden="true"
-    >
-      <span className="scene-six__hero-wheel-ring">
-        <span className="scene-six__hero-wheel-center" />
-
-        <span className="scene-six__hero-wheel-spoke scene-six__hero-wheel-spoke--1" />
-        <span className="scene-six__hero-wheel-spoke scene-six__hero-wheel-spoke--2" />
-        <span className="scene-six__hero-wheel-spoke scene-six__hero-wheel-spoke--3" />
-        <span className="scene-six__hero-wheel-spoke scene-six__hero-wheel-spoke--4" />
-      </span>
-    </span>
-  );
-}
 
 function SceneSix() {
   const sceneRef = useRef(null);
@@ -71,9 +55,9 @@ function SceneSix() {
 
   return (
     <section
+      ref={sceneRef}
       className="scene-six"
       id="cardapio"
-      ref={sceneRef}
       aria-labelledby="scene-six-title"
     >
       <header className="scene-six__hero">
@@ -105,9 +89,9 @@ function SceneSix() {
           </h2>
 
           <p className="scene-six__hero-description">
-            Do preparo ao primeiro pedaço, cada escolha faz
-            parte da experiência e ajuda a transformar
-            encontros em boas lembranças.
+            Do preparo ao primeiro pedaço, cada escolha faz parte
+            da experiência e ajuda a transformar encontros em boas
+            lembranças.
           </p>
 
           <a
@@ -116,11 +100,9 @@ function SceneSix() {
             aria-label="Explorar o cardápio"
           >
             <span>Descubra nossos sabores</span>
-            <i aria-hidden="true">↓</i>
+            <span aria-hidden="true">↓</span>
           </a>
         </div>
-
-        <HeroWheel />
       </header>
 
       <div className="scene-six__chapters">
@@ -145,25 +127,25 @@ function SceneSix() {
         </span>
 
         <span className="scene-six__closing-eyebrow">
-          Escolhas que contam histórias
+          Sua celebração começa aqui
         </span>
 
         <h3 className="scene-six__closing-title">
-          Agora imagine tudo isso
-          <em> fazendo parte da sua celebração.</em>
+          Agora transforme esses sabores
+          <em> na experiência ideal para o seu evento.</em>
         </h3>
 
         <p className="scene-six__closing-description">
-          Cada evento pode receber uma combinação diferente,
-          criada de acordo com o momento, os convidados e a
-          experiência que você deseja proporcionar.
+          Escolha o tipo de celebração, conte-nos quem estará
+          presente e descubra uma composição criada especialmente
+          para o seu momento.
         </p>
 
         <a
           className="scene-six__closing-button"
-          href="#orcamento"
+          href="#simulador"
         >
-          <span>Solicitar meu orçamento</span>
+          <span>Montar minha celebração</span>
           <span aria-hidden="true">→</span>
         </a>
       </footer>
