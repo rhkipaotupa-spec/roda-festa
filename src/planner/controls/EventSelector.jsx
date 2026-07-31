@@ -1,38 +1,49 @@
-import { useState } from "react";
-
 const events = [
   {
-    id: "infantil",
+    id: "childrens-birthday",
     title: "Aniversário infantil",
-    description: "Celebrações leves, alegres e cheias de memória.",
+    description:
+      "Celebrações leves, alegres e cheias de memória.",
     featured: true,
   },
+
   {
-    id: "casamento",
+    id: "wedding",
     title: "Casamento",
-    description: "Uma experiência elegante para um dia único.",
+    description:
+      "Uma experiência elegante para um dia único.",
   },
+
   {
-    id: "corporativo",
+    id: "corporate",
     title: "Evento corporativo",
-    description: "Praticidade e cuidado em cada detalhe.",
+    description:
+      "Praticidade e cuidado em cada detalhe.",
   },
+
   {
-    id: "outro",
+    id: "other",
     title: "Outro evento",
-    description: "Conte para nós o que você está planejando.",
+    description:
+      "Conte para nós o que você está planejando.",
   },
 ];
 
-function EventSelector() {
-  const [selectedEvent, setSelectedEvent] = useState(null);
+export default function EventSelector({
+  selectedEvent,
+  onSelectEvent,
+}) {
+  const featuredEvent = events.find(
+    (event) => event.featured
+  );
 
-  const selectEvent = (eventId) => {
-    setSelectedEvent(eventId);
-  };
+  const secondaryEvents = events.filter(
+    (event) => !event.featured
+  );
 
-  const featuredEvent = events.find((event) => event.featured);
-  const secondaryEvents = events.filter((event) => !event.featured);
+  function selectEvent(eventId) {
+    onSelectEvent?.(eventId);
+  }
 
   return (
     <section className="event-selector">
@@ -42,8 +53,8 @@ function EventSelector() {
         <h2>Qual será o seu evento?</h2>
 
         <p>
-          Escolha a opção que mais combina com o momento que você está
-          planejando.
+          Escolha a opção que mais combina com o momento
+          que você está planejando.
         </p>
       </div>
 
@@ -55,73 +66,102 @@ function EventSelector() {
               ? "event-card--selected"
               : ""
           }`}
-          onClick={() => selectEvent(featuredEvent.id)}
+          onClick={() =>
+            selectEvent(featuredEvent.id)
+          }
         >
           <div className="event-card__visual">
-            <span className="event-card__index">01</span>
+            <span className="event-card__index">
+              01
+            </span>
 
             <div className="event-card__visual-copy">
               <span>Mais escolhido</span>
-              <strong>{featuredEvent.title}</strong>
+              <strong>
+                {featuredEvent.title}
+              </strong>
             </div>
           </div>
 
           <div className="event-card__body">
             <div>
               <h3>{featuredEvent.title}</h3>
-              <p>{featuredEvent.description}</p>
+
+              <p>
+                {featuredEvent.description}
+              </p>
             </div>
 
             <span className="event-card__action">
               {selectedEvent === featuredEvent.id
                 ? "Selecionado"
                 : "Escolher"}
+
               <span aria-hidden="true">→</span>
             </span>
           </div>
 
-          <span className="event-card__check" aria-hidden="true">
+          <span
+            className="event-card__check"
+            aria-hidden="true"
+          >
             ✓
           </span>
         </button>
 
         <div className="event-selector__secondary-grid">
-          {secondaryEvents.map((event, index) => {
-            const isSelected = selectedEvent === event.id;
+          {secondaryEvents.map(
+            (event, index) => {
+              const isSelected =
+                selectedEvent === event.id;
 
-            return (
-              <button
-                key={event.id}
-                type="button"
-                className={`event-card event-card--compact ${
-                  isSelected ? "event-card--selected" : ""
-                }`}
-                onClick={() => selectEvent(event.id)}
-              >
-                <span className="event-card__compact-index">
-                  {String(index + 2).padStart(2, "0")}
-                </span>
+              return (
+                <button
+                  key={event.id}
+                  type="button"
+                  className={`event-card event-card--compact ${
+                    isSelected
+                      ? "event-card--selected"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    selectEvent(event.id)
+                  }
+                >
+                  <span className="event-card__compact-index">
+                    {String(index + 2).padStart(
+                      2,
+                      "0"
+                    )}
+                  </span>
 
-                <div>
-                  <h3>{event.title}</h3>
-                  <p>{event.description}</p>
-                </div>
+                  <div>
+                    <h3>{event.title}</h3>
+                    <p>{event.description}</p>
+                  </div>
 
-                <span className="event-card__action">
-                  {isSelected ? "Selecionado" : "Escolher"}
-                  <span aria-hidden="true">→</span>
-                </span>
+                  <span className="event-card__action">
+                    {isSelected
+                      ? "Selecionado"
+                      : "Escolher"}
 
-                <span className="event-card__check" aria-hidden="true">
-                  ✓
-                </span>
-              </button>
-            );
-          })}
+                    <span aria-hidden="true">
+                      →
+                    </span>
+                  </span>
+
+                  <span
+                    className="event-card__check"
+                    aria-hidden="true"
+                  >
+                    ✓
+                  </span>
+                </button>
+              );
+            }
+          )}
         </div>
       </div>
     </section>
   );
 }
-
-export default EventSelector;

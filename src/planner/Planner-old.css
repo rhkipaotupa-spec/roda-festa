@@ -1072,3 +1072,20 @@
     min-height: 620px;
   }
 }
+
+/* =========================================
+   CORREÇÃO DA ÁREA ÚTIL DA CENA
+========================================= */
+
+.event-scene {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.event-scene__content {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}

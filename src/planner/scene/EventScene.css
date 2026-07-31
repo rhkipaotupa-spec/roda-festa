@@ -144,11 +144,9 @@
 ========================================= */
 
 .event-scene-cart {
-  position: absolute;
-  left: 45%;
-  bottom: 5%;
-  width: min(65%, 900px);
-  transform: translateX(-50%);
+  position: relative;
+  width: 420px;
+  max-width: 32vw;
 }
 
 .event-scene-cart::after {
@@ -175,6 +173,80 @@
     drop-shadow(0 28px 30px rgba(0, 0, 0, 0.44))
     drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
 }
+
+.event-scene-cart__identity {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  z-index: 5;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  min-width: 150px;
+  padding: 9px 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  border-radius: 10px;
+
+  color: #2b160e;
+  background: rgba(255, 248, 238, 0.92);
+
+  transform: translateX(-50%);
+  box-shadow: 0 8px 18px rgba(25, 10, 4, 0.2);
+  backdrop-filter: blur(6px);
+}
+
+.event-scene-cart__identity-icon {
+  display: grid;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+
+  border-radius: 50%;
+  background: rgba(115, 60, 29, 0.1);
+  font-size: 18px;
+}
+
+.event-scene-cart__identity div {
+  min-width: 0;
+}
+
+.event-scene-cart__identity strong,
+.event-scene-cart__identity span {
+  display: block;
+}
+
+.event-scene-cart__identity strong {
+  color: #3a1d11;
+  font-size: 12px;
+  line-height: 1.15;
+}
+
+.event-scene-cart__identity div span {
+  margin-top: 3px;
+  color: #866858;
+  font-size: 8px;
+  line-height: 1.2;
+}
+
+.event-scene-cart--mini-snacks
+  .event-scene-cart__identity {
+  border-color: rgba(155, 83, 38, 0.45);
+}
+
+.event-scene-cart--fried-snacks
+  .event-scene-cart__identity {
+  border-color: rgba(192, 133, 22, 0.5);
+}
+
+.event-scene-cart--drinks
+  .event-scene-cart__identity {
+  border-color: rgba(65, 126, 151, 0.52);
+}
+
 
 /* =========================================
    OPERAÇÕES DO CARRINHO
@@ -237,10 +309,9 @@
 ========================================= */
 
 .event-scene-dessert {
-  position: absolute;
-  right: 2%;
-  bottom: 7%;
-  width: min(27%, 360px);
+  position: relative;
+  width: 220px;
+  max-width: 18vw;
 }
 
 .event-scene-dessert::after {
@@ -362,16 +433,8 @@
    RESPONSIVIDADE
 ========================================= */
 
+
 @media (max-width: 1180px) {
-  .event-scene-cart {
-    left: 43%;
-    width: 70%;
-  }
-
-  .event-scene-dessert {
-    width: 29%;
-  }
-
   .event-scene__label {
     display: none;
   }
@@ -380,18 +443,6 @@
 @media (max-width: 900px) {
   .event-scene {
     min-height: 680px;
-  }
-
-  .event-scene-cart {
-    left: 43%;
-    bottom: 8%;
-    width: 76%;
-  }
-
-  .event-scene-dessert {
-    right: 1%;
-    bottom: 10%;
-    width: 30%;
   }
 }
 
@@ -403,18 +454,5 @@
   .event-scene__summary {
     top: 16px;
     right: 16px;
-  }
-
-  .event-scene-cart {
-    left: 50%;
-    bottom: 27%;
-    width: 94%;
-  }
-
-  .event-scene-dessert {
-    right: 50%;
-    bottom: 3%;
-    width: 50%;
-    transform: translateX(50%);
   }
 }

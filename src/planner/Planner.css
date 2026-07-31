@@ -9,7 +9,7 @@
 .planner__content {
   min-height: 0;
   display: grid;
-  grid-template-columns: 32% 68%;
+  grid-template-columns: 34rem minmax(0, 1fr);
 }
 
 .planner__controls {
@@ -23,6 +23,7 @@
   position: relative;
   min-width: 0;
   min-height: 0;
+  width: 100%;
   overflow: hidden;
   background: #120a07;
 }
@@ -34,7 +35,7 @@
 
 @media (max-width: 1100px) {
   .planner__content {
-    grid-template-columns: 38% 62%;
+    grid-template-columns: 30rem minmax(0, 1fr);
   }
 
   .planner__controls {
@@ -59,5 +60,59 @@
 
   .planner__preview {
     min-height: 650px;
+  }
+}
+
+/* =========================================
+   SOBRESCRITA DEFINITIVA DO LAYOUT
+========================================= */
+
+.planner {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.planner__content {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 34rem minmax(0, 1fr);
+}
+
+.planner__controls {
+  min-width: 0;
+}
+
+.planner__preview {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.planner__preview .event-scene {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+}
+
+.planner__preview .event-scene__content {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 1100px) {
+  .planner__content {
+    grid-template-columns: 30rem minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .planner__content {
+    grid-template-columns: 1fr;
   }
 }
