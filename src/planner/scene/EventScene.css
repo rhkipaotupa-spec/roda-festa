@@ -1,0 +1,420 @@
+.event-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 700px;
+  overflow: hidden;
+  isolation: isolate;
+  background: #120a07;
+}
+
+/* =========================================
+   FUNDO
+========================================= */
+
+.event-scene__background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at 50% 38%,
+      rgba(113, 55, 23, 0.3) 0%,
+      rgba(45, 21, 11, 0.12) 40%,
+      transparent 70%
+    ),
+    linear-gradient(
+      180deg,
+      #160c08 0%,
+      #190d08 58%,
+      #0c0604 100%
+    );
+}
+
+.event-scene__background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.46) 0%,
+      transparent 24%,
+      transparent 76%,
+      rgba(0, 0, 0, 0.46) 100%
+    );
+}
+
+.event-scene__light {
+  position: absolute;
+  top: -12%;
+  width: 32%;
+  height: 76%;
+  opacity: 0.45;
+  filter: blur(34px);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 191, 108, 0.75),
+      rgba(178, 83, 30, 0.18) 55%,
+      transparent 100%
+    );
+  clip-path: polygon(43% 0, 57% 0, 100% 100%, 0 100%);
+}
+
+.event-scene__light--left {
+  left: 2%;
+  transform: rotate(-6deg);
+}
+
+.event-scene__light--right {
+  right: 2%;
+  transform: rotate(6deg);
+}
+
+.event-scene__particles {
+  position: absolute;
+  inset: 0;
+  opacity: 0.23;
+  background-image:
+    radial-gradient(
+      circle,
+      rgba(255, 202, 137, 0.8) 0 1px,
+      transparent 1.6px
+    );
+  background-size: 105px 105px;
+  mask-image:
+    linear-gradient(
+      180deg,
+      transparent,
+      #000 18%,
+      #000 67%,
+      transparent 94%
+    );
+}
+
+/* =========================================
+   PISO
+========================================= */
+
+.event-scene__floor {
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  bottom: -10%;
+  z-index: 1;
+  height: 38%;
+  transform: perspective(1000px) rotateX(66deg);
+  transform-origin: bottom center;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.022) 0 1px,
+      transparent 1px 90px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.017) 0 1px,
+      transparent 1px 72px
+    ),
+    linear-gradient(
+      180deg,
+      #422113 0%,
+      #27120b 48%,
+      #100806 100%
+    );
+  box-shadow:
+    inset 0 35px 70px rgba(0, 0, 0, 0.55),
+    0 -25px 70px rgba(0, 0, 0, 0.38);
+}
+
+/* =========================================
+   CENA PRINCIPAL
+========================================= */
+
+.event-scene__content {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+/* =========================================
+   CARRINHO
+========================================= */
+
+.event-scene-cart {
+  position: absolute;
+  left: 45%;
+  bottom: 5%;
+  width: min(65%, 900px);
+  transform: translateX(-50%);
+}
+
+.event-scene-cart::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 10%;
+  bottom: -2%;
+  height: 10%;
+  z-index: -1;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.68);
+  filter: blur(24px);
+}
+
+.event-scene-cart__image {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 28px 30px rgba(0, 0, 0, 0.44))
+    drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
+}
+
+/* =========================================
+   OPERAÇÕES DO CARRINHO
+========================================= */
+
+.event-scene-cart__operations {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 29%;
+  height: 27%;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.event-scene-operation {
+  position: absolute;
+  bottom: 0;
+  width: 30%;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.event-scene-operation--left {
+  left: 18%;
+}
+
+.event-scene-operation--center {
+  left: 50%;
+}
+
+.event-scene-operation--right {
+  left: 82%;
+}
+
+.event-scene-operation__equipment {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 88%;
+  height: auto;
+  object-fit: contain;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 9px 12px rgba(0, 0, 0, 0.36));
+}
+
+.event-scene-operation__food {
+  position: absolute;
+  left: 50%;
+  bottom: 48%;
+  width: 72%;
+  height: auto;
+  object-fit: contain;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 7px 10px rgba(0, 0, 0, 0.3));
+}
+
+/* =========================================
+   MESA DE DOCES
+========================================= */
+
+.event-scene-dessert {
+  position: absolute;
+  right: 2%;
+  bottom: 7%;
+  width: min(27%, 360px);
+}
+
+.event-scene-dessert::after {
+  content: "";
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  bottom: -2%;
+  height: 11%;
+  z-index: -1;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.64);
+  filter: blur(20px);
+}
+
+.event-scene-dessert__table {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 22px 25px rgba(0, 0, 0, 0.4));
+}
+
+.event-scene-dessert__setup {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: -10%;
+  height: 47%;
+  z-index: 3;
+}
+
+.event-scene-dessert__decoration {
+  position: absolute;
+  left: 50%;
+  top: -8%;
+  width: 74%;
+  height: auto;
+  transform: translateX(-50%);
+  object-fit: contain;
+}
+
+.event-scene-dessert__cake {
+  position: absolute;
+  left: 44%;
+  bottom: 2%;
+  width: 42%;
+  height: auto;
+  transform: translateX(-50%);
+  object-fit: contain;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.28));
+}
+
+.event-scene-dessert__brigadeiro {
+  position: absolute;
+  right: -1%;
+  bottom: 2%;
+  width: 37%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.28));
+}
+
+/* =========================================
+   ELEMENTOS DE INTERFACE
+========================================= */
+
+.event-scene__label {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  z-index: 8;
+  transform: translateX(-50%);
+  padding: 9px 22px;
+  border: 1px solid rgba(190, 128, 75, 0.42);
+  border-radius: 999px;
+  color: #c9ad99;
+  background: rgba(18, 9, 6, 0.52);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  backdrop-filter: blur(9px);
+}
+
+.event-scene__summary {
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  z-index: 8;
+  min-width: 205px;
+  padding: 14px 18px;
+  border: 1px solid rgba(190, 128, 75, 0.38);
+  border-radius: 16px;
+  color: #f4eae1;
+  background: rgba(17, 8, 5, 0.68);
+  backdrop-filter: blur(10px);
+}
+
+.event-scene__summary strong,
+.event-scene__summary span {
+  display: block;
+}
+
+.event-scene__summary strong {
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.event-scene__summary span {
+  color: #bda99b;
+  font-size: 11px;
+}
+
+/* =========================================
+   RESPONSIVIDADE
+========================================= */
+
+@media (max-width: 1180px) {
+  .event-scene-cart {
+    left: 43%;
+    width: 70%;
+  }
+
+  .event-scene-dessert {
+    width: 29%;
+  }
+
+  .event-scene__label {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .event-scene {
+    min-height: 680px;
+  }
+
+  .event-scene-cart {
+    left: 43%;
+    bottom: 8%;
+    width: 76%;
+  }
+
+  .event-scene-dessert {
+    right: 1%;
+    bottom: 10%;
+    width: 30%;
+  }
+}
+
+@media (max-width: 620px) {
+  .event-scene {
+    min-height: 720px;
+  }
+
+  .event-scene__summary {
+    top: 16px;
+    right: 16px;
+  }
+
+  .event-scene-cart {
+    left: 50%;
+    bottom: 27%;
+    width: 94%;
+  }
+
+  .event-scene-dessert {
+    right: 50%;
+    bottom: 3%;
+    width: 50%;
+    transform: translateX(50%);
+  }
+}

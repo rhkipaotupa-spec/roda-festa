@@ -1,6 +1,6 @@
-import EventSelector from "./components/EventSelector";
-import ProgressFooter from "./components/ProgressFooter";
-import Stage from "./components/stage-v2/Stage";
+import EventSelector from "./controls/EventSelector";
+import ProgressFooter from "./layout/ProgressFooter";
+import EventScene from "./scene/EventScene";
 
 import "./Planner.css";
 
@@ -13,7 +13,7 @@ export default function Planner() {
         </section>
 
         <section className="planner__preview">
-          <Stage />
+          <EventScene />
         </section>
       </div>
 
