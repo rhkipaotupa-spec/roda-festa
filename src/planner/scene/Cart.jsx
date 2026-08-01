@@ -1,74 +1,79 @@
 import cartImage from "../components/stage/cart.png";
 
-const cartVariants = {
-  "mini-snack-cart": {
-    title: "Mini Lanches",
-    subtitle: "Preparados na hora",
-    icon: "🍔",
-    className: "event-scene-cart--mini-snacks",
-  },
-
-  "fried-snack-cart": {
-    title: "Petiscos",
-    subtitle: "Fritos durante o evento",
-    icon: "🥟",
-    className: "event-scene-cart--fried-snacks",
-  },
-
-  "drinks-station": {
-    title: "Bebidas",
-    subtitle: "Reposição contínua",
-    icon: "🥤",
-    className: "event-scene-cart--drinks",
-  },
-};
-
-const defaultVariant = {
-  title: "Roda Festa",
-  subtitle: "Serviço para eventos",
-  icon: "✨",
-  className: "event-scene-cart--default",
-};
+import {
+  getSceneAsset,
+} from "./sceneAssets";
 
 export default function Cart({
   children,
   serviceId,
   sceneObject,
+  products = [],
 }) {
-  const variant =
-    cartVariants[serviceId] ??
-    defaultVariant;
+  const visibleProducts = products
+    .map((product) => ({
+      ...product,
+      sceneImage: getSceneAsset(
+        product.assets?.scene
+      ),
+    }))
+    .filter((product) => product.sceneImage);
 
   return (
     <div
-      className={[
-        "event-scene-cart",
-        variant.className,
-      ].join(" ")}
+      className="event-scene-cart"
       data-service-id={serviceId}
     >
       <img
         src={cartImage}
         alt={
           sceneObject?.serviceName ??
-          variant.title
+          "Carrinho Roda Festa"
         }
         className="event-scene-cart__image"
       />
 
-      <div className="event-scene-cart__identity">
-        <span
-          className="event-scene-cart__identity-icon"
-          aria-hidden="true"
+      {visibleProducts.length > 0 && (
+        <div
+          style={{
+            position: "absolute",
+            top: "29%",
+            left: "18%",
+            right: "18%",
+            zIndex: 4,
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            gap: "4%",
+            height: "27%",
+            pointerEvents: "none",
+          }}
         >
-          {variant.icon}
-        </span>
-
-        <div>
-          <strong>{variant.title}</strong>
-          <span>{variant.subtitle}</span>
+          {visibleProducts.map((product) => (
+            <img
+              key={product.id}
+              src={product.sceneImage}
+              alt={product.name}
+              title={product.name}
+              style={{
+                display: "block",
+                width:
+                  visibleProducts.length >= 4
+                    ? "22%"
+                    : visibleProducts.length === 3
+                      ? "27%"
+                      : visibleProducts.length === 2
+                        ? "38%"
+                        : "48%",
+                maxHeight: "100%",
+                objectFit: "contain",
+                filter:
+                  "drop-shadow(0 7px 10px rgba(0, 0, 0, 0.34))",
+              }}
+            />
+          ))}
         </div>
-      </div>
+      )}
 
       {children && (
         <div className="event-scene-cart__content">

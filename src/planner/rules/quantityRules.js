@@ -142,3 +142,79 @@ export function calculateCakeQuantity({
     cakeReference.roundingStepKg
   );
 }
+
+/*
+|--------------------------------------------------------------------------
+| Identificadores das regras
+|--------------------------------------------------------------------------
+*/
+
+export const QUANTITY_RULE_IDS = {
+  MANUAL_UNIT: "manual-unit",
+  PARTY_SWEETS: "party-sweets",
+  CAKE_BY_WEIGHT: "cake-by-weight",
+};
+
+/*
+|--------------------------------------------------------------------------
+| Utilitários das regras
+|--------------------------------------------------------------------------
+*/
+
+export function getItemQuantityRuleId(item) {
+  return item?.planning?.quantityRuleId ?? null;
+}
+
+export function itemUsesQuantityRule(item, ruleId) {
+  return getItemQuantityRuleId(item) === ruleId;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Registro das regras de quantidade
+|--------------------------------------------------------------------------
+*/
+
+export const quantityRuleRegistry = {
+  [QUANTITY_RULE_IDS.MANUAL_UNIT]: {
+    id: QUANTITY_RULE_IDS.MANUAL_UNIT,
+    automatic: false,
+
+    calculate() {
+      return null;
+    },
+  },
+
+  [QUANTITY_RULE_IDS.PARTY_SWEETS]: {
+    id: QUANTITY_RULE_IDS.PARTY_SWEETS,
+    automatic: true,
+
+    calculate({ adults = 0, children = 0 }) {
+      return calculateBrigadeiroQuantity({
+        adults,
+        children,
+      });
+    },
+  },
+
+  [QUANTITY_RULE_IDS.CAKE_BY_WEIGHT]: {
+    id: QUANTITY_RULE_IDS.CAKE_BY_WEIGHT,
+    automatic: true,
+
+    calculate({
+      adults = 0,
+      children = 0,
+      hasPartySweets = false,
+    }) {
+      return calculateCakeQuantity({
+        adults,
+        children,
+        hasBrigadeiros: hasPartySweets,
+      });
+    },
+  },
+};
+
+export function findQuantityRule(ruleId) {
+  return quantityRuleRegistry[ruleId] ?? null;
+}

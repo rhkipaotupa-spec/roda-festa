@@ -1,11 +1,15 @@
 import {
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
 import EventSelector from "./controls/EventSelector";
+import PlannerProfileSelector from "./controls/PlannerProfileSelector";
 import ProgressFooter from "./layout/ProgressFooter";
 import EventScene from "./scene/EventScene";
+import StepWelcome from "./steps/StepWelcome";
 
 import PlannerEngine from "./engine/PlannerEngine";
 
@@ -16,56 +20,99 @@ import {
 import "./Planner-old.css";
 import "./Planner.css";
 
+const WELCOME_TRANSITION_DURATION = 3500;
+
 export default function Planner() {
+  const [
+    hasStarted,
+    setHasStarted,
+  ] = useState(false);
+
+  const [
+    isTransitioning,
+    setIsTransitioning,
+  ] = useState(false);
+
+  const transitionTimeoutRef =
+    useRef(null);
+
   const [
     plannerState,
     setPlannerState,
   ] = useState(initialPlannerState);
 
   const plannerResult = useMemo(() => {
-    return PlannerEngine.build(plannerState);
+    return PlannerEngine.build(
+      plannerState
+    );
   }, [plannerState]);
 
-function handleSelectEvent(eventType) {
+  useEffect(() => {
+    return () => {
+      if (
+        transitionTimeoutRef.current
+      ) {
+        window.clearTimeout(
+          transitionTimeoutRef.current
+        );
+      }
+    };
+  }, []);
 
-  console.log("CLICOU:", eventType);
+  function handleStartPlanning() {
+    if (isTransitioning) {
+      return;
+    }
 
-  setPlannerState(
-    (currentPlannerState) => ({
-      ...currentPlannerState,
+    setIsTransitioning(true);
 
-      event: {
-        ...currentPlannerState.event,
-        type: eventType,
-      },
-    })
-  );
-}
+    transitionTimeoutRef.current =
+      window.setTimeout(() => {
+        setHasStarted(true);
+        setIsTransitioning(false);
+      }, WELCOME_TRANSITION_DURATION);
+  }
 
-  console.log(
-    "PLANNER STATE:",
-    plannerState
-  );
+  function handleSelectEvent(eventType) {
+    setPlannerState(
+      (currentPlannerState) => ({
+        ...currentPlannerState,
 
-  console.log(
-    "PLANNER RESULT:",
-    plannerResult
-  );
+        event: {
+          ...currentPlannerState.event,
+          type: eventType,
+        },
+      })
+    );
+  }
 
-  console.log(
-  "TIPO DO EVENTO:",
-  plannerState.event.type
-);
+  function handleSelectProfile(
+    profileId
+  ) {
+    setPlannerState(
+      (currentPlannerState) => ({
+        ...currentPlannerState,
 
-console.log(
-  "REGRA ENCONTRADA:",
-  plannerResult.recommendation.ruleId
-);
+        preferences: {
+          ...currentPlannerState.preferences,
+          profile: profileId,
+        },
+      })
+    );
+  }
 
-console.log(
-  "OBJETOS DA CENA:",
-  plannerResult.scene.objects
-);
+  if (!hasStarted) {
+    return (
+      <StepWelcome
+        isTransitioning={
+          isTransitioning
+        }
+        onStart={
+          handleStartPlanning
+        }
+      />
+    );
+  }
 
   return (
     <main className="planner">
@@ -79,6 +126,19 @@ console.log(
               handleSelectEvent
             }
           />
+
+          {plannerState.event.type && (
+            <PlannerProfileSelector
+              selectedProfile={
+                plannerState
+                  .preferences
+                  .profile
+              }
+              onSelectProfile={
+                handleSelectProfile
+              }
+            />
+          )}
         </section>
 
         <section className="planner__preview">

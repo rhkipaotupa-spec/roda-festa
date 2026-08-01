@@ -6,6 +6,15 @@ export const menuItems = [
     categoryId: "mini-snacks",
     serviceId: "mini-snack-cart",
     measurementUnit: "unit",
+
+    assets: {
+      scene: "burger",
+    },
+
+    planning: {
+      quantityRuleId: "manual-unit",
+    },
+
     active: true,
   },
 
@@ -15,16 +24,34 @@ export const menuItems = [
     categoryId: "mini-snacks",
     serviceId: "mini-snack-cart",
     measurementUnit: "unit",
+
+    assets: {
+      scene: "hot-dog",
+    },
+
+    planning: {
+      quantityRuleId: "manual-unit",
+    },
+
     active: true,
   },
 
-  // PETISCOS
+  // FRITURAS
   {
     id: "meat-pastel",
     name: "Pastel de Carne",
     categoryId: "fried-snacks",
     serviceId: "fried-snack-cart",
     measurementUnit: "unit",
+
+    assets: {
+      scene: "pastel",
+    },
+
+    planning: {
+      quantityRuleId: "manual-unit",
+    },
+
     active: true,
   },
 
@@ -34,6 +61,15 @@ export const menuItems = [
     categoryId: "fried-snacks",
     serviceId: "fried-snack-cart",
     measurementUnit: "unit",
+
+    assets: {
+      scene: "pastel",
+    },
+
+    planning: {
+      quantityRuleId: "manual-unit",
+    },
+
     active: true,
   },
 
@@ -43,6 +79,15 @@ export const menuItems = [
     categoryId: "fried-snacks",
     serviceId: "fried-snack-cart",
     measurementUnit: "unit",
+
+    assets: {
+      scene: "pastel",
+    },
+
+    planning: {
+      quantityRuleId: "manual-unit",
+    },
+
     active: true,
   },
 
@@ -52,6 +97,15 @@ export const menuItems = [
     categoryId: "fried-snacks",
     serviceId: "fried-snack-cart",
     measurementUnit: "unit",
+
+    assets: {
+      scene: "pastel",
+    },
+
+    planning: {
+      quantityRuleId: "manual-unit",
+    },
+
     active: true,
   },
 
@@ -62,6 +116,15 @@ export const menuItems = [
     categoryId: "drinks",
     serviceId: "drinks-station",
     measurementUnit: "unit",
+
+    assets: {
+      scene: "drink",
+    },
+
+    planning: {
+      quantityRuleId: "manual-unit",
+    },
+
     active: true,
   },
 
@@ -72,6 +135,15 @@ export const menuItems = [
     categoryId: "desserts",
     serviceId: "desserts-and-cakes",
     measurementUnit: "unit",
+
+    assets: {
+      scene: "brigadeiro",
+    },
+
+    planning: {
+      quantityRuleId: "party-sweets",
+    },
+
     active: true,
   },
 
@@ -81,6 +153,15 @@ export const menuItems = [
     categoryId: "desserts",
     serviceId: "desserts-and-cakes",
     measurementUnit: "unit",
+
+    assets: {
+      scene: "brigadeiro",
+    },
+
+    planning: {
+      quantityRuleId: "party-sweets",
+    },
+
     active: true,
   },
 
@@ -91,6 +172,15 @@ export const menuItems = [
     categoryId: "cakes",
     serviceId: "desserts-and-cakes",
     measurementUnit: "kg",
+
+    assets: {
+      scene: "cake",
+    },
+
+    planning: {
+      quantityRuleId: "cake-by-weight",
+    },
+
     active: true,
   },
 
@@ -101,6 +191,15 @@ export const menuItems = [
     categoryId: "pies",
     serviceId: "pies-service",
     measurementUnit: "unit",
+
+    assets: {
+      scene: "mini-pie",
+    },
+
+    planning: {
+      quantityRuleId: "manual-unit",
+    },
+
     active: true,
   },
 ];

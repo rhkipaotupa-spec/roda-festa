@@ -17,19 +17,6 @@ import {
 
 /*
 |--------------------------------------------------------------------------
-| Identificadores e categorias especiais
-|--------------------------------------------------------------------------
-|
-| As categorias são usadas para identificar brigadeiros e bolos sem
-| depender exclusivamente do ID de cada produto.
-|
-*/
-
-const DESSERT_CATEGORY_ID = "desserts";
-const CAKE_CATEGORY_ID = "cakes";
-
-/*
-|--------------------------------------------------------------------------
 | Funções auxiliares de normalização
 |--------------------------------------------------------------------------
 */
@@ -159,31 +146,39 @@ function buildSelectedItems({
 
 /*
 |--------------------------------------------------------------------------
-| Identificação de brigadeiros e bolos
+| Identificação por regra de quantidade
 |--------------------------------------------------------------------------
+|
+| Nenhuma decisão depende do nome do produto. Cada item informa seu
+| comportamento por meio de planning.quantityRuleId.
+|
 */
 
-function isBrigadeiroItem(item) {
-  if (!item) {
-    return false;
-  }
+const QUANTITY_RULE_IDS = {
+  PARTY_SWEETS: "party-sweets",
+  CAKE_BY_WEIGHT: "cake-by-weight",
+};
 
-  const normalizedName = String(
-    item.name ?? ""
-  ).toLowerCase();
+function getItemQuantityRuleId(item) {
+  return item?.planning?.quantityRuleId ?? null;
+}
 
-  return (
-    item.categoryId === DESSERT_CATEGORY_ID &&
-    normalizedName.includes("brigadeiro")
+function itemUsesQuantityRule(item, ruleId) {
+  return getItemQuantityRuleId(item) === ruleId;
+}
+
+function isPartySweetItem(item) {
+  return itemUsesQuantityRule(
+    item,
+    QUANTITY_RULE_IDS.PARTY_SWEETS
   );
 }
 
-function isCakeItem(item) {
-  if (!item) {
-    return false;
-  }
-
-  return item.categoryId === CAKE_CATEGORY_ID;
+function isCakeByWeightItem(item) {
+  return itemUsesQuantityRule(
+    item,
+    QUANTITY_RULE_IDS.CAKE_BY_WEIGHT
+  );
 }
 
 /*
@@ -239,19 +234,19 @@ function buildSuggestedQuantities({
 }) {
   const selectedItems = normalizeArray(items);
 
-  const brigadeiroItems =
-    selectedItems.filter(isBrigadeiroItem);
+  const partySweetItems =
+    selectedItems.filter(isPartySweetItem);
 
   const cakeItems =
-    selectedItems.filter(isCakeItem);
+    selectedItems.filter(isCakeByWeightItem);
 
-  const hasBrigadeiros =
-    brigadeiroItems.length > 0;
+  const hasPartySweets =
+    partySweetItems.length > 0;
 
   const quantities = {};
 
-  if (hasBrigadeiros) {
-    const totalBrigadeiros =
+  if (hasPartySweets) {
+    const totalPartySweets =
       calculateBrigadeiroQuantity({
         adults: quantityContext.adults,
         children: quantityContext.children,
@@ -260,8 +255,8 @@ function buildSuggestedQuantities({
     Object.assign(
       quantities,
       distributeIntegerQuantity({
-        items: brigadeiroItems,
-        totalQuantity: totalBrigadeiros,
+        items: partySweetItems,
+        totalQuantity: totalPartySweets,
       })
     );
   }
@@ -271,7 +266,7 @@ function buildSuggestedQuantities({
       calculateCakeQuantity({
         adults: quantityContext.adults,
         children: quantityContext.children,
-        hasBrigadeiros,
+        hasBrigadeiros: hasPartySweets,
       });
 
     const kilogramsPerCake =
@@ -285,7 +280,7 @@ function buildSuggestedQuantities({
 
   return {
     quantities,
-    hasBrigadeiros,
+    hasPartySweets,
   };
 }
 
@@ -475,11 +470,18 @@ function buildProducts({
       measurementUnit:
         item.measurementUnit ?? "unit",
 
+      quantityRuleId:
+        item.planning?.quantityRuleId ?? null,
+
+      assets:
+        item.assets ?? {},
+
       quantity:
         safeQuantities[item.id] ?? null,
     })
   );
 }
+
 
 /*
 |--------------------------------------------------------------------------
@@ -503,7 +505,8 @@ function buildStaff(structures = []) {
           structure.defaultAttendants,
 
         structures:
-          structure.quantity,
+
+        structure.quantity,
 
         quantity:
           structure.totalDefaultAttendants,
@@ -699,7 +702,7 @@ function buildWarnings({
 function buildExplanations({
   recommendation,
   structures,
-  hasBrigadeiros,
+  hasPartySweets,
   selectedItems,
 }) {
   const explanations = [
@@ -710,18 +713,18 @@ function buildExplanations({
 
   const hasCake =
     normalizeArray(selectedItems).some(
-      isCakeItem
+      isCakeByWeightItem
     );
 
-  if (hasCake && hasBrigadeiros) {
+  if (hasCake && hasPartySweets) {
     explanations.push(
-      "A quantidade de bolo foi reduzida porque o evento também possui brigadeiros."
+      "A quantidade de bolo foi reduzida porque o evento também possui doces."
     );
   }
 
-  if (hasCake && !hasBrigadeiros) {
+  if (hasCake && !hasPartySweets) {
     explanations.push(
-      "A quantidade de bolo foi ampliada porque o evento não possui brigadeiros."
+      "A quantidade de bolo foi ampliada porque o evento não possui doces."
     );
   }
 
@@ -940,8 +943,8 @@ export function buildPlannerResult(
     buildExplanations({
       recommendation,
       structures,
-      hasBrigadeiros:
-        quantityResult.hasBrigadeiros,
+      hasPartySweets:
+        quantityResult.hasPartySweets,
       selectedItems,
     });
 
@@ -987,8 +990,8 @@ export function buildPlannerResult(
     warnings,
 
     metadata: {
-      hasBrigadeiros:
-        quantityResult.hasBrigadeiros,
+      hasPartySweets:
+        quantityResult.hasPartySweets,
 
       selectedItemCount:
         selectedItems.length,

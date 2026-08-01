@@ -13,6 +13,7 @@ function normalizeText(value) {
   return String(value ?? "").toLowerCase();
 }
 
+
 function buildDessertConfig(products) {
   const safeProducts = Array.isArray(products)
     ? products
@@ -20,29 +21,32 @@ function buildDessertConfig(products) {
 
   const hasCake = safeProducts.some(
     (product) =>
-      product.categoryId === "cakes"
+      product.quantityRuleId ===
+      "cake-by-weight"
   );
 
-  const hasBrigadeiro = safeProducts.some(
+  const hasPartySweets = safeProducts.some(
     (product) =>
-      product.categoryId === "desserts" &&
-      normalizeText(product.name).includes(
-        "brigadeiro"
-      )
+      product.quantityRuleId ===
+      "party-sweets"
   );
 
   return {
-    visible: hasCake || hasBrigadeiro,
+    visible: hasCake || hasPartySweets,
     decoration: true,
     cake: hasCake,
-    brigadeiro: hasBrigadeiro,
+    brigadeiro: hasPartySweets,
   };
 }
+
+
 
 function buildComponentProps({
   sceneObject,
   dessertConfig,
+  products,
 }) {
+
   if (
     sceneObject.component ===
     "DessertTable"
@@ -52,12 +56,34 @@ function buildComponentProps({
     };
   }
 
+  if (
+    sceneObject.component ===
+    "Cart"
+  ) {
+
+    return {
+
+      products:
+        products.filter(
+          (product) =>
+            product.serviceId ===
+            sceneObject.serviceId
+        ),
+
+    };
+
+  }
+
   return {};
+
 }
+
+
 
 function renderSceneObject({
   sceneObject,
   dessertConfig,
+  products,
 }) {
   const SceneComponent =
     getSceneComponent(
@@ -85,11 +111,13 @@ function renderSceneObject({
     Number(sceneObject.quantity) || 1
   );
 
-  const componentProps =
-    buildComponentProps({
-      sceneObject,
-      dessertConfig,
-    });
+
+const componentProps =
+  buildComponentProps({
+    sceneObject,
+    dessertConfig,
+    products,
+  });
 
   const objectStyle = {
     position: "absolute",
@@ -165,12 +193,18 @@ console.log(
       <SceneFloor />
 
 <div className="event-scene__content">
-  {layoutObjects.map((sceneObject) =>
-    renderSceneObject({
-      sceneObject,
-      dessertConfig,
-    })
-  )}
+
+
+{layoutObjects.map((sceneObject) =>
+  renderSceneObject({
+    sceneObject,
+    dessertConfig,
+    products,
+  })
+)}
+
+
+
 </div>
 
       <div className="event-scene__label">
