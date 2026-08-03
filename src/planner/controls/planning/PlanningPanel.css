@@ -1,0 +1,249 @@
+.planning-panel {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-height: 100%;
+
+  padding: 42px 34px 36px;
+
+  color: #3b2418;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(250, 246, 238, 0.98) 0%,
+      rgba(244, 236, 225, 0.98) 100%
+    );
+
+  border-right:
+    1px solid
+    rgba(108, 69, 39, 0.12);
+
+  box-shadow:
+    18px 0 42px rgba(40, 18, 7, 0.08);
+}
+
+.planning-panel__header {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.planning-panel__eyebrow {
+  color: #a56a18;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.planning-panel__title {
+  max-width: 320px;
+  margin: 0;
+
+  color: #3b2418;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: clamp(34px, 3vw, 52px);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+}
+
+.planning-panel__description {
+  max-width: 330px;
+  margin: 0;
+
+  color: rgba(78, 49, 31, 0.72);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.planning-panel__divider {
+  display: grid;
+  grid-template-columns:
+    minmax(24px, 1fr)
+    auto
+    minmax(24px, 1fr);
+
+  align-items: center;
+  gap: 14px;
+
+  width: 100%;
+
+  margin: 28px 0 26px;
+}
+
+.planning-panel__divider-line {
+  display: block;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(156, 97, 25, 0.45)
+    );
+}
+
+.planning-panel__divider-line:last-child {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(156, 97, 25, 0.45),
+      transparent
+    );
+}
+
+.planning-panel__wheel {
+  position: relative;
+
+  display: block;
+
+  width: 28px;
+  height: 28px;
+
+  border:
+    1.8px solid
+    rgba(121, 73, 25, 0.82);
+
+  border-radius: 50%;
+
+  animation:
+    planning-panel-wheel-spin
+    12s
+    linear
+    infinite;
+}
+
+.planning-panel__wheel-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+
+  background: #7c4a1c;
+
+  transform: translate(-50%, -50%);
+}
+
+.planning-panel__wheel-spoke {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 1px;
+  height: 72%;
+
+  background:
+    rgba(121, 73, 25, 0.72);
+
+  transform-origin: center;
+}
+
+.planning-panel__wheel-spoke--one {
+  transform:
+    translate(-50%, -50%)
+    rotate(0deg);
+}
+
+.planning-panel__wheel-spoke--two {
+  transform:
+    translate(-50%, -50%)
+    rotate(45deg);
+}
+
+.planning-panel__wheel-spoke--three {
+  transform:
+    translate(-50%, -50%)
+    rotate(90deg);
+}
+
+.planning-panel__wheel-spoke--four {
+  transform:
+    translate(-50%, -50%)
+    rotate(135deg);
+}
+
+.planning-panel__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  min-height: 0;
+}
+
+@keyframes planning-panel-wheel-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1200px) {
+  .planning-panel {
+    padding:
+      34px
+      28px
+      30px;
+  }
+
+  .planning-panel__title {
+    max-width: 280px;
+
+    font-size:
+      clamp(32px, 4vw, 44px);
+  }
+}
+
+@media (max-width: 900px) {
+  .planning-panel {
+    min-height: auto;
+
+    padding:
+      30px
+      24px;
+  }
+
+  .planning-panel__title,
+  .planning-panel__description {
+    max-width: 100%;
+  }
+}
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  .planning-panel__wheel {
+    animation: none;
+  }
+}
