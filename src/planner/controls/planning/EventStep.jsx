@@ -36,8 +36,14 @@ export default function EventStep({
     return (
       <section className="event-step event-step--summary">
         <div className="event-step__summary-content">
-          <span className="event-step__summary-label">
-            Evento
+          <span
+            className="event-step__summary-wheel"
+            aria-hidden="true"
+          >
+            <span />
+            <span />
+            <span />
+            <span />
           </span>
 
           <strong className="event-step__summary-value">

@@ -8,28 +8,14 @@
   background: #120a07;
 }
 
-/* =========================================
-   FUNDO
-========================================= */
-
 .event-scene__background {
   position: absolute;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   background:
-    radial-gradient(
-      ellipse at 50% 38%,
-      rgba(113, 55, 23, 0.3) 0%,
-      rgba(45, 21, 11, 0.12) 40%,
-      transparent 70%
-    ),
-    linear-gradient(
-      180deg,
-      #160c08 0%,
-      #190d08 58%,
-      #0c0604 100%
-    );
+    radial-gradient(ellipse at 50% 40%, rgba(114, 57, 27, 0.28), transparent 56%),
+    linear-gradient(180deg, #170d09 0%, #160b07 58%, #090403 100%);
 }
 
 .event-scene__background::after {
@@ -37,66 +23,39 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0.46) 0%,
-      transparent 24%,
-      transparent 76%,
-      rgba(0, 0, 0, 0.46) 100%
-    );
+    radial-gradient(ellipse at center, transparent 38%, rgba(0, 0, 0, 0.42) 100%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.4), transparent 24%, transparent 76%, rgba(0, 0, 0, 0.42));
 }
 
 .event-scene__light {
   position: absolute;
-  top: -12%;
-  width: 32%;
-  height: 76%;
-  opacity: 0.45;
-  filter: blur(34px);
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 191, 108, 0.75),
-      rgba(178, 83, 30, 0.18) 55%,
-      transparent 100%
-    );
+  top: -13%;
+  width: 31%;
+  height: 75%;
+  opacity: 0.36;
+  filter: blur(38px);
+  background: linear-gradient(180deg, rgba(255, 197, 118, 0.7), rgba(157, 72, 27, 0.12) 58%, transparent);
   clip-path: polygon(43% 0, 57% 0, 100% 100%, 0 100%);
 }
 
 .event-scene__light--left {
-  left: 2%;
+  left: 4%;
   transform: rotate(-6deg);
 }
 
 .event-scene__light--right {
-  right: 2%;
+  right: 4%;
   transform: rotate(6deg);
 }
 
 .event-scene__particles {
   position: absolute;
   inset: 0;
-  opacity: 0.23;
-  background-image:
-    radial-gradient(
-      circle,
-      rgba(255, 202, 137, 0.8) 0 1px,
-      transparent 1.6px
-    );
-  background-size: 105px 105px;
-  mask-image:
-    linear-gradient(
-      180deg,
-      transparent,
-      #000 18%,
-      #000 67%,
-      transparent 94%
-    );
+  opacity: 0.18;
+  background-image: radial-gradient(circle, rgba(255, 204, 143, 0.78) 0 1px, transparent 1.6px);
+  background-size: 112px 112px;
+  mask-image: linear-gradient(180deg, transparent, #000 18%, #000 70%, transparent 96%);
 }
-
-/* =========================================
-   PISO
-========================================= */
 
 .event-scene__floor {
   position: absolute;
@@ -108,45 +67,50 @@
   transform: perspective(1000px) rotateX(66deg);
   transform-origin: bottom center;
   background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.022) 0 1px,
-      transparent 1px 90px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.017) 0 1px,
-      transparent 1px 72px
-    ),
-    linear-gradient(
-      180deg,
-      #422113 0%,
-      #27120b 48%,
-      #100806 100%
-    );
-  box-shadow:
-    inset 0 35px 70px rgba(0, 0, 0, 0.55),
-    0 -25px 70px rgba(0, 0, 0, 0.38);
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 90px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.014) 0 1px, transparent 1px 72px),
+    linear-gradient(180deg, #3c1e12 0%, #25110a 48%, #0d0604 100%);
+  box-shadow: inset 0 35px 70px rgba(0, 0, 0, 0.58), 0 -25px 70px rgba(0, 0, 0, 0.4);
 }
 
-/* =========================================
-   CENA PRINCIPAL
-========================================= */
-
-.event-scene__content {
+.event-scene__content,
+.event-scene__atmosphere {
   position: absolute;
   inset: 0;
+}
+
+.event-scene__content {
   z-index: 3;
 }
 
-/* =========================================
-   CARRINHO
-========================================= */
+.event-scene__atmosphere {
+  z-index: 2;
+  pointer-events: none;
+}
+
+.event-scene__object {
+  position: absolute;
+  left: var(--scene-x);
+  top: var(--scene-y);
+  transform: translate(-50%, -50%) scale(var(--scene-scale));
+  transform-origin: center bottom;
+  opacity: 0;
+  animation: event-scene-object-enter 760ms cubic-bezier(0.22, 1, 0.36, 1) var(--scene-delay) forwards;
+}
+
+.event-scene__object--back {
+  filter: brightness(0.76) saturate(0.82) blur(0.25px);
+}
+
+.event-scene__object--middle {
+  filter: brightness(0.9) saturate(0.92);
+}
 
 .event-scene-cart {
   position: relative;
   width: 420px;
   max-width: 32vw;
+  cursor: default;
 }
 
 .event-scene-cart::after {
@@ -169,148 +133,110 @@
   width: 100%;
   height: auto;
   object-fit: contain;
-  filter:
-    drop-shadow(0 28px 30px rgba(0, 0, 0, 0.44))
-    drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
+  filter: drop-shadow(0 28px 30px rgba(0, 0, 0, 0.44)) drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
 }
 
-.event-scene-cart__identity {
+.event-scene-cart__products {
   position: absolute;
-  left: 50%;
-  top: 56%;
+  left: 22%;
+  right: 22%;
+  top: 31%;
   z-index: 5;
-
   display: flex;
-  align-items: center;
-  gap: 9px;
-
-  min-width: 150px;
-  padding: 9px 12px;
-
-  border: 1px solid rgba(255, 255, 255, 0.38);
-  border-radius: 10px;
-
-  color: #2b160e;
-  background: rgba(255, 248, 238, 0.92);
-
-  transform: translateX(-50%);
-  box-shadow: 0 8px 18px rgba(25, 10, 4, 0.2);
-  backdrop-filter: blur(6px);
-}
-
-.event-scene-cart__identity-icon {
-  display: grid;
-  flex: 0 0 32px;
-  width: 32px;
-  height: 32px;
-  place-items: center;
-
-  border-radius: 50%;
-  background: rgba(115, 60, 29, 0.1);
-  font-size: 18px;
-}
-
-.event-scene-cart__identity div {
-  min-width: 0;
-}
-
-.event-scene-cart__identity strong,
-.event-scene-cart__identity span {
-  display: block;
-}
-
-.event-scene-cart__identity strong {
-  color: #3a1d11;
-  font-size: 12px;
-  line-height: 1.15;
-}
-
-.event-scene-cart__identity div span {
-  margin-top: 3px;
-  color: #866858;
-  font-size: 8px;
-  line-height: 1.2;
-}
-
-.event-scene-cart--mini-snacks
-  .event-scene-cart__identity {
-  border-color: rgba(155, 83, 38, 0.45);
-}
-
-.event-scene-cart--fried-snacks
-  .event-scene-cart__identity {
-  border-color: rgba(192, 133, 22, 0.5);
-}
-
-.event-scene-cart--drinks
-  .event-scene-cart__identity {
-  border-color: rgba(65, 126, 151, 0.52);
-}
-
-
-/* =========================================
-   OPERAÇÕES DO CARRINHO
-========================================= */
-
-.event-scene-cart__operations {
-  position: absolute;
-  left: 18%;
-  right: 18%;
-  top: 29%;
-  height: 27%;
-  z-index: 4;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 7%;
+  height: 21%;
   pointer-events: none;
 }
 
-.event-scene-operation {
-  position: absolute;
-  bottom: 0;
-  width: 30%;
+.event-scene-cart__product {
+  position: relative;
+  display: grid;
+  place-items: end center;
+  width: 46%;
   height: 100%;
-  transform: translateX(-50%);
+  margin: 0;
+  transform-origin: center bottom;
+  animation: event-scene-food-settle 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.event-scene-operation--left {
-  left: 18%;
+.event-scene-cart__product--2 {
+  animation-delay: 130ms;
 }
 
-.event-scene-operation--center {
-  left: 50%;
+.event-scene-cart__product img {
+  display: block;
+  width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 8px 9px rgba(0, 0, 0, 0.38));
 }
 
-.event-scene-operation--right {
-  left: 82%;
+.event-scene-cart__product--1 {
+  transform: translateY(4%);
 }
 
-.event-scene-operation__equipment {
+.event-scene-cart__product--2 {
+  transform: translateY(1%) scale(1.06);
+}
+
+.event-scene-cart__tooltip {
   position: absolute;
   left: 50%;
-  bottom: 0;
-  width: 88%;
-  height: auto;
-  object-fit: contain;
-  transform: translateX(-50%);
-  filter: drop-shadow(0 9px 12px rgba(0, 0, 0, 0.36));
+  bottom: 94%;
+  z-index: 20;
+  width: 230px;
+  padding: 15px 17px;
+  border: 1px solid rgba(211, 159, 86, 0.28);
+  border-radius: 14px;
+  color: #f5e8d4;
+  background: rgba(25, 12, 7, 0.9);
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 10px);
+  transition: opacity 180ms ease, transform 180ms ease;
 }
 
-.event-scene-operation__food {
-  position: absolute;
-  left: 50%;
-  bottom: 48%;
-  width: 72%;
-  height: auto;
-  object-fit: contain;
-  transform: translateX(-50%);
-  filter: drop-shadow(0 7px 10px rgba(0, 0, 0, 0.3));
+.event-scene-cart:hover .event-scene-cart__tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
-/* =========================================
-   MESA DE DOCES
-========================================= */
+.event-scene-cart__tooltip strong {
+  display: block;
+  margin-bottom: 9px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.event-scene-cart__tooltip ul {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.event-scene-cart__tooltip li {
+  color: rgba(239, 220, 190, 0.68);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+}
+
+.event-scene-cart__tooltip li::before {
+  content: "•";
+  margin-right: 7px;
+  color: #c99a57;
+}
 
 .event-scene-dessert {
   position: relative;
-  width: 220px;
+  width: 230px;
   max-width: 18vw;
 }
 
@@ -350,20 +276,16 @@
   position: absolute;
   left: 50%;
   top: -8%;
-  width: 74%;
-  height: auto;
+  width: 70%;
   transform: translateX(-50%);
-  object-fit: contain;
 }
 
 .event-scene-dessert__cake {
   position: absolute;
-  left: 44%;
+  left: 42%;
   bottom: 2%;
-  width: 42%;
-  height: auto;
+  width: 46%;
   transform: translateX(-50%);
-  object-fit: contain;
   filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.28));
 }
 
@@ -371,78 +293,96 @@
   position: absolute;
   right: -1%;
   bottom: 2%;
-  width: 37%;
-  height: auto;
-  object-fit: contain;
+  width: 39%;
   filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.28));
 }
 
-/* =========================================
-   ELEMENTOS DE INTERFACE
-========================================= */
-
-.event-scene__label {
+.event-scene__balloons,
+.event-scene__flowers,
+.event-scene__corporate-panels {
   position: absolute;
-  top: 28px;
-  left: 50%;
-  z-index: 8;
-  transform: translateX(-50%);
-  padding: 9px 22px;
-  border: 1px solid rgba(190, 128, 75, 0.42);
-  border-radius: 999px;
-  color: #c9ad99;
-  background: rgba(18, 9, 6, 0.52);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  backdrop-filter: blur(9px);
+  opacity: 0.42;
 }
 
-.event-scene__summary {
-  position: absolute;
-  top: 22px;
-  right: 24px;
-  z-index: 8;
-  min-width: 205px;
-  padding: 14px 18px;
-  border: 1px solid rgba(190, 128, 75, 0.38);
-  border-radius: 16px;
-  color: #f4eae1;
-  background: rgba(17, 8, 5, 0.68);
-  backdrop-filter: blur(10px);
+.event-scene__balloons {
+  right: 7%;
+  top: 20%;
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
 }
 
-.event-scene__summary strong,
-.event-scene__summary span {
-  display: block;
+.event-scene__balloons span {
+  width: 28px;
+  height: 36px;
+  border-radius: 50% 50% 46% 46%;
+  background: rgba(213, 154, 88, 0.46);
+  filter: blur(0.2px);
 }
 
-.event-scene__summary strong {
-  margin-bottom: 4px;
-  font-size: 13px;
-  font-weight: 500;
+.event-scene__balloons span:nth-child(2) {
+  transform: translateY(-18px);
+  background: rgba(174, 111, 72, 0.44);
 }
 
-.event-scene__summary span {
-  color: #bda99b;
-  font-size: 11px;
+.event-scene__flowers {
+  right: 8%;
+  top: 22%;
+  display: flex;
+  gap: 9px;
 }
 
-/* =========================================
-   RESPONSIVIDADE
-========================================= */
+.event-scene__flowers span {
+  width: 24px;
+  height: 38px;
+  border-radius: 70% 30% 70% 30%;
+  border: 1px solid rgba(222, 190, 137, 0.46);
+  transform: rotate(28deg);
+}
 
+.event-scene__corporate-panels {
+  right: 8%;
+  top: 18%;
+  display: flex;
+  gap: 12px;
+}
 
-@media (max-width: 1180px) {
-  .event-scene__label {
-    display: none;
+.event-scene__corporate-panels span {
+  width: 52px;
+  height: 76px;
+  border: 1px solid rgba(198, 161, 109, 0.24);
+  background: rgba(82, 55, 39, 0.16);
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.18);
+}
+
+@keyframes event-scene-object-enter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 24px)) scale(calc(var(--scene-scale) * 0.94));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(var(--scene-scale));
+  }
+}
+
+@keyframes event-scene-food-settle {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.88);
+  }
+  to {
+    opacity: 1;
   }
 }
 
 @media (max-width: 900px) {
   .event-scene {
     min-height: 680px;
+  }
+
+  .event-scene-cart {
+    max-width: 38vw;
   }
 }
 
@@ -451,8 +391,19 @@
     min-height: 720px;
   }
 
-  .event-scene__summary {
-    top: 16px;
-    right: 16px;
+  .event-scene-cart {
+    max-width: 60vw;
+  }
+
+  .event-scene-cart__tooltip {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .event-scene__object,
+  .event-scene-cart__product {
+    animation: none;
+    opacity: 1;
   }
 }

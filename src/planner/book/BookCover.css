@@ -1,0 +1,541 @@
+.book-cover {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+
+  display: grid;
+  place-items: center;
+
+  min-height: 100vh;
+  padding: 28px;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      rgba(190, 141, 65, 0.12),
+      transparent 34%
+    ),
+    linear-gradient(
+      145deg,
+      #120b07 0%,
+      #21140d 48%,
+      #0b0705 100%
+    );
+}
+
+.book-cover::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      transparent 38%,
+      rgba(0, 0, 0, 0.52) 100%
+    );
+}
+
+.book-cover__book {
+  position: relative;
+  z-index: 2;
+
+  width: min(92vw, 560px);
+  min-height: min(82vh, 760px);
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(211, 167, 92, 0.26);
+
+  border-radius: 16px 26px 26px 16px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #3a2418 0%,
+      #2f1b12 46%,
+      #21120c 100%
+    );
+
+  box-shadow:
+    0 42px 90px rgba(0, 0, 0, 0.54),
+    0 12px 34px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 236, 198, 0.08),
+    inset -18px 0 34px rgba(0, 0, 0, 0.18);
+
+  isolation: isolate;
+}
+
+.book-cover__book::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  pointer-events: none;
+
+  opacity: 0.22;
+
+  background:
+    repeating-linear-gradient(
+      8deg,
+      rgba(255, 255, 255, 0.018) 0,
+      rgba(255, 255, 255, 0.018) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+}
+
+.book-cover__book::after {
+  content: "";
+
+  position: absolute;
+  inset: 14px;
+  z-index: 0;
+
+  pointer-events: none;
+
+  border:
+    1px solid
+    rgba(196, 145, 68, 0.28);
+
+  border-radius: 9px 18px 18px 9px;
+}
+
+.book-cover__spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 3;
+
+  width: 56px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.34),
+      rgba(255, 232, 186, 0.035) 38%,
+      rgba(0, 0, 0, 0.22) 100%
+    );
+
+  border-right:
+    1px solid
+    rgba(198, 149, 75, 0.16);
+
+  box-shadow:
+    inset -9px 0 16px rgba(0, 0, 0, 0.2);
+}
+
+.book-cover__content {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  min-height: min(82vh, 760px);
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 34px;
+
+  padding:
+    56px
+    48px
+    46px
+    92px;
+}
+
+.book-cover__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  text-align: center;
+}
+
+.book-cover__brand {
+  color: #d3a85f;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.book-cover__ornament {
+  margin-top: 16px;
+
+  color: #ba873b;
+
+  font-size: 12px;
+
+  text-shadow:
+    0 0 18px rgba(211, 168, 95, 0.34);
+}
+
+.book-cover__title {
+  margin: 20px 0 0;
+
+  color: #f3e4c8;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:
+    clamp(38px, 5vw, 60px);
+
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+
+  text-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.34);
+}
+
+.book-cover__subtitle {
+  max-width: 320px;
+  margin: 22px 0 0;
+
+  color:
+    rgba(238, 214, 175, 0.74);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.book-cover__form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  width: 100%;
+}
+
+.book-cover__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.book-cover__field > span {
+  color:
+    rgba(214, 176, 111, 0.78);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.book-cover__field input {
+  width: 100%;
+
+  padding:
+    12px
+    2px
+    10px;
+
+  border: 0;
+  border-bottom:
+    1px solid
+    rgba(214, 176, 111, 0.34);
+
+  border-radius: 0;
+
+  color: #f7ead2;
+
+  background: transparent;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 18px;
+  line-height: 1.25;
+
+  outline: none;
+
+  transition:
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+.book-cover__field input::placeholder {
+  color:
+    rgba(238, 214, 175, 0.34);
+}
+
+.book-cover__field input:focus {
+  border-color:
+    rgba(220, 173, 91, 0.82);
+}
+
+.book-cover__field input[type="date"] {
+  color-scheme: dark;
+}
+
+.book-cover__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+
+  width: 100%;
+  min-height: 58px;
+
+  margin-top: 8px;
+  padding:
+    0
+    22px;
+
+  border:
+    1px solid
+    rgba(213, 168, 89, 0.38);
+
+  border-radius: 999px;
+
+  color: #2b180e;
+
+  background:
+    linear-gradient(
+      135deg,
+      #e8c887 0%,
+      #c8994d 52%,
+      #a9732f 100%
+    );
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 247, 222, 0.46);
+
+  transition:
+    transform 220ms ease,
+    filter 220ms ease,
+    opacity 220ms ease;
+}
+
+.book-cover__button:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  filter: brightness(1.06);
+}
+
+.book-cover__button:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+}
+
+.book-cover__button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.book-cover__button:focus-visible {
+  outline:
+    3px solid
+    rgba(232, 200, 135, 0.28);
+
+  outline-offset: 4px;
+}
+
+.book-cover__button-wheel {
+  position: relative;
+
+  flex: 0 0 auto;
+
+  width: 22px;
+  height: 22px;
+
+  border:
+    1.4px solid
+    rgba(53, 29, 14, 0.74);
+
+  border-radius: 50%;
+}
+
+.book-cover__button-wheel::after {
+  content: "";
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 4px;
+  height: 4px;
+
+  border-radius: 50%;
+
+  background: #321a0d;
+
+  transform:
+    translate(-50%, -50%);
+}
+
+.book-cover__button-wheel span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 1px;
+  height: 15px;
+
+  background:
+    rgba(53, 29, 14, 0.66);
+
+  transform-origin: center;
+}
+
+.book-cover__button-wheel span:nth-child(1) {
+  transform:
+    translate(-50%, -50%)
+    rotate(0deg);
+}
+
+.book-cover__button-wheel span:nth-child(2) {
+  transform:
+    translate(-50%, -50%)
+    rotate(45deg);
+}
+
+.book-cover__button-wheel span:nth-child(3) {
+  transform:
+    translate(-50%, -50%)
+    rotate(90deg);
+}
+
+.book-cover__button-wheel span:nth-child(4) {
+  transform:
+    translate(-50%, -50%)
+    rotate(135deg);
+}
+
+.book-cover__button:hover:not(:disabled)
+  .book-cover__button-wheel {
+  animation:
+    book-cover-wheel-turn
+    700ms
+    cubic-bezier(0.22, 1, 0.36, 1)
+    1;
+}
+
+@keyframes book-cover-wheel-turn {
+  from {
+    transform: rotate(-80deg);
+  }
+
+  to {
+    transform: rotate(280deg);
+  }
+}
+
+@media (max-height: 760px) {
+  .book-cover {
+    padding: 18px;
+  }
+
+  .book-cover__book,
+  .book-cover__content {
+    min-height: 680px;
+  }
+
+  .book-cover__content {
+    padding:
+      40px
+      40px
+      34px
+      82px;
+  }
+
+  .book-cover__header {
+    transform: scale(0.94);
+  }
+
+  .book-cover__form {
+    gap: 15px;
+  }
+}
+
+@media (max-width: 620px) {
+  .book-cover {
+    padding: 14px;
+  }
+
+  .book-cover__book {
+    width: 100%;
+    min-height: calc(100vh - 28px);
+
+    border-radius:
+      12px
+      20px
+      20px
+      12px;
+  }
+
+  .book-cover__content {
+    min-height: calc(100vh - 28px);
+
+    padding:
+      42px
+      24px
+      32px
+      64px;
+  }
+
+  .book-cover__spine {
+    width: 42px;
+  }
+
+  .book-cover__title {
+    font-size:
+      clamp(34px, 12vw, 48px);
+  }
+}
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  .book-cover__button,
+  .book-cover__button-wheel {
+    animation: none;
+    transition: none;
+  }
+}

@@ -7,6 +7,7 @@ export default function PlanningPanel({
   isEventStepOpen,
   onSelectEvent,
   onEditEvent,
+  children,
 }) {
   return (
     <aside
@@ -21,12 +22,6 @@ export default function PlanningPanel({
         <h1 className="planning-panel__title">
           Seu evento está tomando forma.
         </h1>
-
-        <p className="planning-panel__description">
-          Conte para nós como será o seu evento.
-          Cada informação ajudará a preparar uma
-          sugestão personalizada.
-        </p>
       </header>
 
       <div className="planning-panel__divider">
@@ -47,14 +42,16 @@ export default function PlanningPanel({
         <span className="planning-panel__divider-line" />
       </div>
 
-      <div className="planning-panel__steps">
+      <section className="planning-panel__steps">
         <EventStep
           selectedEvent={selectedEvent}
           isOpen={isEventStepOpen}
           onSelectEvent={onSelectEvent}
           onEdit={onEditEvent}
         />
-      </div>
+
+        {children}
+      </section>
     </aside>
   );
 }

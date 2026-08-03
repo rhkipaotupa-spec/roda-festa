@@ -1,0 +1,2820 @@
+/* =========================================================
+   PLANNING BOOK
+   Caderno aberto + planejamento + execução do evento
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+body {
+  background: #080403;
+}
+
+/* =========================================================
+   TELA
+   ========================================================= */
+
+.planning-book {
+  position: relative;
+
+  width: 100%;
+  max-width: 100vw;
+  min-height: 100vh;
+
+  padding: 12px;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      ellipse at 50% -15%,
+      rgba(174, 115, 50, 0.15),
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse at 50% 115%,
+      rgba(68, 34, 17, 0.22),
+      transparent 50%
+    ),
+    linear-gradient(
+      145deg,
+      #080403 0%,
+      #130a07 48%,
+      #060302 100%
+    );
+}
+
+.planning-book::before {
+  content: "";
+
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      transparent 46%,
+      rgba(0, 0, 0, 0.44) 100%
+    );
+}
+
+/* =========================================================
+   CAPA EXTERNA — COURO ESCURO
+   ========================================================= */
+
+.planning-book__book {
+  position: relative;
+  z-index: 1;
+
+  display: grid;
+
+  /* Duas páginas iguais e área direita maior */
+  grid-template-columns:
+    minmax(0, 0.82fr)
+    minmax(0, 0.82fr)
+    minmax(0, 1.36fr);
+
+  width: 100%;
+  max-width: 100%;
+
+  height: calc(100vh - 24px);
+  min-height: 680px;
+
+  padding: 22px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(155, 94, 39, 0.54);
+
+  border-radius: 28px;
+
+  /*
+   * Couro:
+   * - café escuro
+   * - variações naturais
+   * - pequenos poros
+   * - veios discretos
+   */
+
+  background:
+    radial-gradient(
+      ellipse at 13% 5%,
+      rgba(255, 220, 170, 0.075),
+      transparent 29%
+    ),
+    radial-gradient(
+      ellipse at 79% 98%,
+      rgba(0, 0, 0, 0.42),
+      transparent 48%
+    ),
+    radial-gradient(
+      ellipse at 82% 24%,
+      rgba(99, 52, 25, 0.15),
+      transparent 32%
+    ),
+    radial-gradient(
+      ellipse at 20% 79%,
+      rgba(10, 4, 2, 0.26),
+      transparent 39%
+    ),
+    repeating-radial-gradient(
+      ellipse at 16% 22%,
+      rgba(255, 255, 255, 0.022) 0,
+      rgba(255, 255, 255, 0.022) 0.8px,
+      transparent 1px,
+      transparent 4px
+    ),
+    repeating-linear-gradient(
+      18deg,
+      rgba(255, 228, 187, 0.015) 0,
+      rgba(255, 228, 187, 0.015) 1px,
+      transparent 1px,
+      transparent 7px
+    ),
+    repeating-linear-gradient(
+      -24deg,
+      rgba(0, 0, 0, 0.029) 0,
+      rgba(0, 0, 0, 0.029) 1px,
+      transparent 1px,
+      transparent 9px
+    ),
+    linear-gradient(
+      145deg,
+      #3d2114 0%,
+      #30180f 30%,
+      #211008 64%,
+      #0d0503 100%
+    );
+
+  box-shadow:
+    0 48px 120px rgba(0, 0, 0, 0.75),
+    0 18px 48px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 231, 193, 0.08),
+    inset 0 0 0 7px rgba(7, 3, 2, 0.32),
+    inset 0 20px 36px rgba(255, 222, 177, 0.025),
+    inset 0 -26px 54px rgba(0, 0, 0, 0.31);
+
+  isolation: isolate;
+}
+
+/* Linha estrutural do couro */
+
+.planning-book__book::before {
+  content: "";
+
+  position: absolute;
+  inset: 7px;
+  z-index: 40;
+
+  pointer-events: none;
+
+  border:
+    1px solid
+    rgba(194, 136, 66, 0.31);
+
+  border-radius: 21px;
+
+  box-shadow:
+    inset 0 0 0 3px rgba(11, 5, 3, 0.17),
+    0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+/* Costura */
+
+.planning-book__book::after {
+  content: "";
+
+  position: absolute;
+  inset: 15px;
+  z-index: 39;
+
+  pointer-events: none;
+
+  border:
+    1px dashed
+    rgba(210, 153, 77, 0.26);
+
+  border-radius: 16px;
+
+  filter:
+    drop-shadow(
+      0 1px 0
+      rgba(0, 0, 0, 0.42)
+    );
+}
+
+/* =========================================================
+   PÁGINAS
+   ========================================================= */
+
+.planning-book__questions,
+.planning-book__summary {
+  position: relative;
+  z-index: 5;
+
+  min-width: 0;
+  min-height: 0;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  color: #38261b;
+
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(134, 88, 40, 0.24)
+    transparent;
+}
+
+/* Página esquerda */
+
+.planning-book__questions {
+  margin:
+    14px
+    0
+    14px
+    14px;
+
+  padding:
+    34px
+    36px
+    48px;
+
+  border:
+    1px solid
+    rgba(110, 73, 43, 0.16);
+
+  border-radius:
+    18px
+    3px
+    3px
+    18px;
+
+  background:
+    radial-gradient(
+      ellipse at 24% 12%,
+      rgba(255, 255, 255, 0.46),
+      transparent 34%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(91, 62, 42, 0.019) 0,
+      rgba(91, 62, 42, 0.019) 1px,
+      transparent 1px,
+      transparent 5px
+    ),
+    linear-gradient(
+      90deg,
+      #fbf6ee 0%,
+      #f5ede1 72%,
+      #dfceb8 100%
+    );
+
+  box-shadow:
+    inset -29px 0 39px rgba(67, 37, 20, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.42),
+    0 14px 30px rgba(0, 0, 0, 0.22);
+}
+
+/* Página central */
+
+.planning-book__summary {
+  display: flex;
+  flex-direction: column;
+
+  margin:
+    14px
+    14px
+    14px
+    0;
+
+  padding:
+    38px
+    34px
+    44px;
+
+  border:
+    1px solid
+    rgba(110, 73, 43, 0.16);
+
+  border-radius:
+    3px
+    18px
+    18px
+    3px;
+
+  background:
+    radial-gradient(
+      ellipse at 72% 10%,
+      rgba(255, 255, 255, 0.32),
+      transparent 36%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(91, 62, 42, 0.019) 0,
+      rgba(91, 62, 42, 0.019) 1px,
+      transparent 1px,
+      transparent 5px
+    ),
+    linear-gradient(
+      90deg,
+      #ddccb6 0%,
+      #eadcca 22%,
+      #f5ede2 100%
+    );
+
+  box-shadow:
+    inset 29px 0 39px rgba(67, 37, 20, 0.13),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.33),
+    0 14px 30px rgba(0, 0, 0, 0.21);
+}
+
+/* Contorno interno do papel */
+
+.planning-book__questions::before,
+.planning-book__summary::before {
+  content: "";
+
+  position: absolute;
+  inset: 9px;
+
+  pointer-events: none;
+
+  border:
+    1px solid
+    rgba(138, 95, 48, 0.12);
+
+  border-radius: 10px;
+}
+
+/* Sombra da dobra */
+
+.planning-book__questions::after {
+  content: "";
+
+  position: absolute;
+  top: 12px;
+  right: -1px;
+  bottom: 12px;
+
+  width: 16px;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(72, 42, 24, 0.1) 68%,
+      rgba(46, 25, 13, 0.17) 100%
+    );
+}
+
+.planning-book__summary::after {
+  content: "";
+
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: -1px;
+
+  width: 16px;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(46, 25, 13, 0.16) 0%,
+      rgba(72, 42, 24, 0.1) 32%,
+      transparent 100%
+    );
+}
+
+/* Barras verticais discretas */
+
+.planning-book__questions::-webkit-scrollbar,
+.planning-book__summary::-webkit-scrollbar {
+  width: 4px;
+}
+
+.planning-book__questions::-webkit-scrollbar-track,
+.planning-book__summary::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.planning-book__questions::-webkit-scrollbar-thumb,
+.planning-book__summary::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background:
+    rgba(134, 88, 40, 0.24);
+}
+
+/* =========================================================
+   ENCADERNAÇÃO
+   ========================================================= */
+
+.planning-book__binding {
+  position: absolute;
+
+  top: 57px;
+  bottom: 57px;
+
+  /*
+   * Primeira página corresponde a aproximadamente 27,33%
+   * da área interna. Este valor posiciona a dobra entre as
+   * duas páginas, já considerando a margem da capa.
+   */
+
+  left: 28.15%;
+  z-index: 50;
+
+  width: 44px;
+
+  pointer-events: none;
+
+  transform: translateX(-50%);
+}
+
+/* Dobra fina central */
+
+.planning-book__binding::before {
+  content: "";
+
+  position: absolute;
+
+  top: -18px;
+  bottom: -18px;
+  left: 50%;
+
+  width: 8px;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(37, 20, 11, 0.24) 0%,
+      rgba(126, 88, 54, 0.13) 28%,
+      rgba(255, 249, 235, 0.11) 50%,
+      rgba(102, 66, 40, 0.13) 72%,
+      rgba(31, 16, 9, 0.24) 100%
+    );
+
+  box-shadow:
+    -6px 0 12px rgba(57, 32, 18, 0.1),
+    6px 0 12px rgba(57, 32, 18, 0.1);
+
+  transform: translateX(-50%);
+}
+
+/*
+ * Argolas individuais:
+ * 11 unidades, mais próximas, mas ainda discretas.
+ */
+
+.planning-book__binding::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  opacity: 0.76;
+
+  background:
+    radial-gradient(
+      ellipse 20px 5px at 50% 3%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 12.4%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 21.8%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 31.2%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 40.6%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 50%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 59.4%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 68.8%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 78.2%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 87.6%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 97%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    );
+
+  filter:
+    drop-shadow(
+      1px 2px 1px
+      rgba(0, 0, 0, 0.25)
+    );
+}
+
+/* =========================================================
+   CAMADAS DO CONTEÚDO
+   ========================================================= */
+
+.planning-book__header,
+.planning-book__section,
+.planning-book__summary-header,
+.planning-book__summary-list,
+.planning-book__summary-footer {
+  position: relative;
+  z-index: 2;
+}
+
+/* =========================================================
+   CABEÇALHO
+   ========================================================= */
+
+.planning-book__header {
+  padding-bottom: 22px;
+
+  border-bottom:
+    1px solid
+    rgba(118, 79, 46, 0.16);
+}
+
+.planning-book__eyebrow,
+.planning-book__chapter {
+  color: #996525;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.planning-book__title {
+  max-width: 330px;
+  margin: 10px 0 0;
+
+  color: #352319;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:
+    clamp(34px, 2.65vw, 47px);
+
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+}
+
+.planning-book__intro {
+  max-width: 320px;
+  margin: 14px 0 0;
+
+  color:
+    rgba(66, 45, 31, 0.7);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* =========================================================
+   SEÇÕES
+   ========================================================= */
+
+.planning-book__section {
+  padding:
+    24px
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(117, 79, 47, 0.14);
+}
+
+.planning-book__section:last-child {
+  border-bottom: 0;
+}
+
+.planning-book__section h2 {
+  max-width: 330px;
+  margin:
+    8px
+    0
+    18px;
+
+  color: #39261b;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+}
+
+/* =========================================================
+   CAMPOS
+   ========================================================= */
+
+.planning-book__field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  margin-top: 15px;
+}
+
+.planning-book__field > span {
+  color:
+    rgba(73, 49, 34, 0.62);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.planning-book__field input,
+.planning-book__field select {
+  width: 100%;
+
+  padding:
+    11px
+    2px
+    10px;
+
+  border: 0;
+  border-bottom:
+    1px solid
+    rgba(112, 77, 46, 0.3);
+
+  border-radius: 0;
+
+  color: #352319;
+
+  background: transparent;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 18px;
+
+  outline: none;
+
+  transition:
+    border-color 180ms ease;
+}
+
+.planning-book__field input:focus,
+.planning-book__field select:focus {
+  border-color:
+    rgba(164, 112, 40, 0.78);
+}
+
+.planning-book__field input::placeholder {
+  color:
+    rgba(70, 48, 34, 0.32);
+}
+
+/* =========================================================
+   OPÇÕES DE EVENTO
+   ========================================================= */
+
+.planning-book__event-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.planning-book__event-option {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  width: 100%;
+
+  padding:
+    15px
+    16px;
+
+  border:
+    1px solid
+    rgba(108, 72, 42, 0.15);
+
+  border-radius: 13px;
+
+  color: #38261b;
+
+  background:
+    rgba(255, 255, 255, 0.38);
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.planning-book__event-option:hover {
+  transform: translateY(-1px);
+
+  border-color:
+    rgba(161, 109, 39, 0.32);
+
+  background:
+    rgba(255, 252, 246, 0.86);
+}
+
+.planning-book__event-option--selected {
+  border-color:
+    rgba(161, 109, 39, 0.52);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(246, 232, 207, 0.92),
+      rgba(255, 251, 244, 0.97)
+    );
+
+  box-shadow:
+    0 9px 22px
+    rgba(78, 46, 24, 0.08);
+}
+
+.planning-book__event-option strong {
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.planning-book__event-option span {
+  color:
+    rgba(72, 49, 34, 0.66);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   CONTADORES
+   ========================================================= */
+
+.planning-book__counter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding:
+    14px
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(112, 77, 46, 0.16);
+}
+
+.planning-book__counter-row > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.planning-book__counter-row strong {
+  color: #39261b;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.planning-book__counter-row span {
+  color:
+    rgba(72, 49, 34, 0.56);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+}
+
+.planning-book__counter {
+  display: grid;
+  grid-template-columns:
+    36px
+    52px
+    36px;
+
+  align-items: center;
+  gap: 6px;
+}
+
+.planning-book__counter button {
+  width: 36px;
+  height: 36px;
+
+  border:
+    1px solid
+    rgba(118, 78, 42, 0.2);
+
+  border-radius: 50%;
+
+  color: #4a2f1e;
+
+  background:
+    rgba(247, 238, 224, 0.96);
+
+  font-size: 19px;
+  cursor: pointer;
+
+  transition:
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.planning-book__counter button:hover {
+  transform: scale(1.05);
+
+  background: #fffaf1;
+}
+
+.planning-book__counter input {
+  width: 52px;
+
+  border: 0;
+
+  color: #332219;
+  background: transparent;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 22px;
+  text-align: center;
+
+  outline: none;
+}
+
+.planning-book__counter input::-webkit-inner-spin-button,
+.planning-book__counter input::-webkit-outer-spin-button {
+  margin: 0;
+
+  appearance: none;
+}
+
+/* =========================================================
+   PÁGINA CENTRAL
+   ========================================================= */
+
+.planning-book__summary-header {
+  text-align: center;
+}
+
+.planning-book__summary-header span {
+  color: #996525;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.planning-book__summary-header h2 {
+  margin: 9px 0 0;
+
+  color: #3a271c;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:
+    clamp(32px, 2.45vw, 43px);
+
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
+.planning-book__summary-list {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+
+  margin-top: 26px;
+}
+
+.planning-book__summary-list > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  padding:
+    13px
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(106, 72, 43, 0.16);
+
+  animation:
+    planning-book-write
+    260ms
+    ease
+    both;
+}
+
+.planning-book__summary-list span {
+  color:
+    rgba(78, 52, 35, 0.56);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.planning-book__summary-list strong {
+  color: #3b281d;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.planning-book__summary-list small {
+  color:
+    rgba(77, 53, 37, 0.62);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+}
+
+.planning-book__summary-footer {
+  margin-top: 22px;
+
+  color:
+    rgba(85, 58, 38, 0.52);
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* =========================================================
+   CENA DA FESTA
+   ========================================================= */
+
+.planning-book__scene {
+  position: relative;
+  z-index: 2;
+
+  min-width: 0;
+  min-height: 0;
+
+  margin:
+    14px
+    14px
+    14px
+    0;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(190, 137, 64, 0.2);
+
+  border-radius:
+    4px
+    18px
+    18px
+    4px;
+
+  background:
+    radial-gradient(
+      circle at 72% 20%,
+      rgba(212, 155, 77, 0.17),
+      transparent 26%
+    ),
+    radial-gradient(
+      circle at 54% 68%,
+      rgba(88, 46, 21, 0.19),
+      transparent 38%
+    ),
+    linear-gradient(
+      145deg,
+      #21120c 0%,
+      #110906 48%,
+      #060302 100%
+    );
+
+  box-shadow:
+    inset 32px 0 44px rgba(0, 0, 0, 0.38),
+    inset 0 0 0 7px rgba(0, 0, 0, 0.08),
+    0 14px 30px rgba(0, 0, 0, 0.25);
+}
+
+.planning-book__scene::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  opacity: 0.48;
+
+  background:
+    radial-gradient(
+      circle at 72% 17%,
+      rgba(255, 203, 119, 0.28) 0,
+      rgba(255, 203, 119, 0.04) 2%,
+      transparent 4%
+    ),
+    radial-gradient(
+      circle at 58% 25%,
+      rgba(255, 198, 104, 0.22) 0,
+      rgba(255, 198, 104, 0.03) 2%,
+      transparent 4%
+    ),
+    radial-gradient(
+      circle at 84% 33%,
+      rgba(255, 198, 104, 0.24) 0,
+      rgba(255, 198, 104, 0.03) 2%,
+      transparent 4%
+    ),
+    radial-gradient(
+      circle at 40% 14%,
+      rgba(255, 198, 104, 0.16) 0,
+      rgba(255, 198, 104, 0.02) 2%,
+      transparent 4%
+    );
+}
+
+.planning-book__scene::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(7, 4, 3, 0.05),
+      rgba(7, 4, 3, 0.7)
+    );
+}
+
+.planning-book__scene-overlay {
+  position: absolute;
+  top: 8%;
+  left: 8%;
+  z-index: 3;
+
+  max-width: 430px;
+}
+
+.planning-book__scene-overlay > span {
+  color: #b9873f;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.planning-book__scene-overlay h2 {
+  max-width: 390px;
+  margin:
+    14px
+    0
+    0;
+
+  color: #f3e4c8;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:
+    clamp(38px, 4vw, 62px);
+
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+}
+
+.planning-book__scene-overlay p {
+  max-width: 310px;
+  margin:
+    20px
+    0
+    0;
+
+  color:
+    rgba(239, 219, 184, 0.68);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   ANIMAÇÕES
+   ========================================================= */
+
+@keyframes planning-book-write {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 1380px) {
+  .planning-book__book {
+    grid-template-columns:
+      minmax(0, 0.9fr)
+      minmax(0, 0.9fr)
+      minmax(0, 1.2fr);
+  }
+
+  .planning-book__binding {
+    left: 30.7%;
+  }
+
+  .planning-book__questions,
+  .planning-book__summary {
+    padding-right: 30px;
+    padding-left: 30px;
+  }
+}
+
+@media (max-width: 1120px) {
+  .planning-book {
+    min-height: 100vh;
+    padding: 8px;
+
+    overflow-y: auto;
+  }
+
+  .planning-book__book {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr);
+
+    height: auto;
+    min-height: calc(100vh - 16px);
+
+    padding: 16px;
+  }
+
+  .planning-book__binding {
+    left: 50%;
+  }
+
+  .planning-book__scene {
+    grid-column: 1 / -1;
+
+    min-height: 600px;
+
+    margin:
+      0
+      14px
+      14px;
+
+    border-radius:
+      0
+      0
+      16px
+      16px;
+  }
+}
+
+@media (max-width: 760px) {
+  .planning-book {
+    padding: 0;
+
+    overflow-y: auto;
+  }
+
+  .planning-book__book {
+    grid-template-columns: 1fr;
+
+    width: 100%;
+    min-height: 100vh;
+
+    padding: 0;
+
+    border: 0;
+    border-radius: 0;
+  }
+
+  .planning-book__binding {
+    display: none;
+  }
+
+  .planning-book__questions,
+  .planning-book__summary,
+  .planning-book__scene {
+    min-height: 660px;
+    margin: 0;
+
+    border-radius: 0;
+  }
+
+  .planning-book__questions,
+  .planning-book__summary {
+    padding:
+      36px
+      25px
+      44px;
+  }
+
+  .planning-book__scene {
+    min-height: 76vh;
+  }
+}
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  .planning-book__event-option,
+  .planning-book__counter button,
+  .planning-book__summary-list > div {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* TESTE DEFINITIVO — COURO ESCURO COM TEXTURA */
+
+.planning-book__book {
+  background:
+    radial-gradient(
+      ellipse at 18% 10%,
+      rgba(255, 211, 150, 0.07),
+      transparent 30%
+    ),
+    radial-gradient(
+      ellipse at 82% 88%,
+      rgba(0, 0, 0, 0.55),
+      transparent 52%
+    ),
+    repeating-radial-gradient(
+      circle at 20% 20%,
+      rgba(255, 255, 255, 0.025) 0,
+      rgba(255, 255, 255, 0.025) 0.7px,
+      transparent 0.9px,
+      transparent 4px
+    ),
+    repeating-linear-gradient(
+      22deg,
+      rgba(255, 230, 190, 0.018) 0,
+      rgba(255, 230, 190, 0.018) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
+    repeating-linear-gradient(
+      -18deg,
+      rgba(0, 0, 0, 0.045) 0,
+      rgba(0, 0, 0, 0.045) 1px,
+      transparent 1px,
+      transparent 10px
+    ),
+    linear-gradient(
+      145deg,
+      #32180d 0%,
+      #241008 38%,
+      #170905 68%,
+      #080302 100%
+    ) !important;
+
+  border-color:
+    rgba(170, 105, 43, 0.45);
+
+  box-shadow:
+    0 48px 120px rgba(0, 0, 0, 0.78),
+    inset 0 1px 0 rgba(255, 225, 180, 0.08),
+    inset 0 0 0 8px rgba(0, 0, 0, 0.3),
+    inset 0 -30px 60px rgba(0, 0, 0, 0.34);
+}
+
+.planning-book__book::before {
+  border-color:
+    rgba(184, 121, 54, 0.3);
+}
+
+.planning-book__book::after {
+  border-color:
+    rgba(199, 143, 69, 0.23);
+}
+
+/* =========================================================
+   ANÁLISE DO PLANEJAMENTO
+   ========================================================= */
+
+.planning-book__questions--locked {
+  pointer-events: none;
+}
+
+.planning-book__questions--locked
+  .planning-book__header,
+.planning-book__questions--locked
+  .planning-book__section {
+  opacity: 0.54;
+
+  filter: saturate(0.72);
+
+  transition:
+    opacity 300ms ease,
+    filter 300ms ease;
+}
+
+.planning-book__analysis {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  margin-top: 34px;
+
+  animation:
+    planning-book-analysis-enter
+    420ms
+    ease
+    both;
+}
+
+.planning-book__analysis-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding-bottom: 20px;
+
+  border-bottom:
+    1px solid
+    rgba(106, 72, 43, 0.16);
+}
+
+.planning-book__analysis-heading > span {
+  color: #966326;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.17em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.planning-book__analysis-pulse {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.planning-book__analysis-pulse i {
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+
+  background: #a47031;
+
+  animation:
+    planning-book-pulse-dot
+    1.1s
+    ease-in-out
+    infinite;
+}
+
+.planning-book__analysis-pulse
+  i:nth-child(2) {
+  animation-delay: 160ms;
+}
+
+.planning-book__analysis-pulse
+  i:nth-child(3) {
+  animation-delay: 320ms;
+}
+
+.planning-book__analysis-steps {
+  display: flex;
+  flex-direction: column;
+
+  margin-top: 18px;
+}
+
+.planning-book__analysis-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-height: 48px;
+  padding:
+    10px
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(106, 72, 43, 0.12);
+
+  opacity: 0.28;
+
+  transition:
+    opacity 280ms ease,
+    transform 280ms ease,
+    color 280ms ease;
+}
+
+.planning-book__analysis-step--current {
+  opacity: 0.58;
+
+  transform:
+    translateX(3px);
+}
+
+.planning-book__analysis-step--completed {
+  opacity: 1;
+
+  animation:
+    planning-book-step-written
+    360ms
+    ease
+    both;
+}
+
+.planning-book__analysis-icon {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  width: 25px;
+  height: 25px;
+
+  border:
+    1px solid
+    rgba(143, 94, 35, 0.22);
+
+  border-radius: 50%;
+
+  color: rgba(73, 47, 29, 0.46);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 12px;
+}
+
+.planning-book__analysis-step--completed
+  .planning-book__analysis-icon {
+  color: #f4e6ce;
+
+  background:
+    linear-gradient(
+      135deg,
+      #9e6c2e,
+      #6e431e
+    );
+
+  border-color:
+    rgba(115, 70, 29, 0.34);
+
+  box-shadow:
+    0 5px 12px
+    rgba(67, 38, 18, 0.16);
+}
+
+.planning-book__analysis-step p {
+  margin: 0;
+
+  color: #3b291d;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.planning-book__loading-dots {
+  display: inline-block;
+
+  min-width: 24px;
+
+  letter-spacing: 3px;
+
+  animation:
+    planning-book-loading-dots
+    900ms
+    ease-in-out
+    infinite;
+}
+
+/* =========================================================
+   CENA EM ANÁLISE
+   ========================================================= */
+
+.planning-book__scene-overlay {
+  transition:
+    transform 500ms ease,
+    opacity 500ms ease;
+}
+
+.planning-book__scene--analyzing::before {
+  animation:
+    planning-book-scene-breathe
+    2.1s
+    ease-in-out
+    infinite;
+}
+
+.planning-book__scene--analyzing
+  .planning-book__scene-overlay {
+  transform:
+    translateY(4px);
+}
+
+.planning-book__scene--ready
+  .planning-book__scene-overlay {
+  animation:
+    planning-book-scene-ready
+    650ms
+    cubic-bezier(
+      0.22,
+      1,
+      0.36,
+      1
+    )
+    both;
+}
+
+.planning-book__personalize {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  width: min(100%, 340px);
+  min-height: 52px;
+
+  margin-top: 30px;
+  padding:
+    0
+    21px;
+
+  border:
+    1px solid
+    rgba(214, 168, 92, 0.35);
+
+  border-radius: 999px;
+
+  color: #f5e8d1;
+
+  background:
+    rgba(62, 35, 20, 0.72);
+
+  backdrop-filter:
+    blur(8px);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 14px 28px
+    rgba(0, 0, 0, 0.22);
+
+  animation:
+    planning-book-button-enter
+    520ms
+    250ms
+    ease
+    both;
+
+  transition:
+    transform 180ms ease,
+    background 180ms ease;
+}
+
+.planning-book__personalize:hover {
+  transform:
+    translateY(-2px);
+
+  background:
+    rgba(77, 44, 25, 0.86);
+}
+
+/* =========================================================
+   KEYFRAMES
+   ========================================================= */
+
+@keyframes planning-book-analysis-enter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(10px);
+
+    filter: blur(3px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+    filter: blur(0);
+  }
+}
+
+@keyframes planning-book-step-written {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+@keyframes planning-book-pulse-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+
+    transform:
+      translateY(0);
+  }
+
+  50% {
+    opacity: 1;
+
+    transform:
+      translateY(-3px);
+  }
+}
+
+@keyframes planning-book-loading-dots {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes planning-book-scene-breathe {
+  0%,
+  100% {
+    opacity: 0.38;
+
+    transform:
+      scale(1);
+  }
+
+  50% {
+    opacity: 0.62;
+
+    transform:
+      scale(1.025);
+  }
+}
+
+@keyframes planning-book-scene-ready {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+@keyframes planning-book-button-enter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  .planning-book__analysis,
+  .planning-book__analysis-step,
+  .planning-book__analysis-pulse i,
+  .planning-book__loading-dots,
+  .planning-book__scene--analyzing::before,
+  .planning-book__scene--ready
+    .planning-book__scene-overlay,
+  .planning-book__personalize {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* =========================================================
+   ESCOLHAS — SERVIÇOS OPCIONAIS
+   ========================================================= */
+
+.planning-book__choices {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.planning-book__choice {
+  display: grid;
+  grid-template-columns:
+    20px
+    minmax(0, 1fr);
+
+  align-items: start;
+  gap: 12px;
+
+  width: 100%;
+  padding:
+    13px
+    14px;
+
+  border:
+    1px solid
+    rgba(109, 73, 43, 0.14);
+
+  border-radius: 12px;
+
+  background:
+    rgba(255, 255, 255, 0.3);
+
+  cursor: pointer;
+}
+
+.planning-book__choice input {
+  width: 17px;
+  height: 17px;
+  margin: 2px 0 0;
+
+  accent-color: #986428;
+}
+
+.planning-book__choice > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.planning-book__choice strong {
+  color: #39261b;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.planning-book__choice small {
+  color:
+    rgba(72, 49, 34, 0.62);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   CONVIDADOS EQUIVALENTES
+   ========================================================= */
+
+.planning-book__equivalent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  margin-top: 16px;
+  padding:
+    13px
+    15px;
+
+  border-left:
+    2px solid
+    rgba(159, 105, 40, 0.48);
+
+  background:
+    rgba(232, 213, 181, 0.3);
+}
+
+.planning-book__equivalent span {
+  color:
+    rgba(77, 51, 34, 0.56);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.planning-book__equivalent strong {
+  color: #3b281d;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 17px;
+  font-weight: 400;
+}
+
+/* =========================================================
+   PÁGINA VAZIA DA RECOMENDAÇÃO
+   ========================================================= */
+
+.planning-book__empty-recommendation {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  max-width: 310px;
+  margin: 0 auto;
+
+  color: #3c291e;
+
+  text-align: center;
+}
+
+.planning-book__empty-recommendation > span {
+  color: #9e6a2d;
+
+  font-size: 28px;
+}
+
+.planning-book__empty-recommendation h3 {
+  margin:
+    18px
+    0
+    12px;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.planning-book__empty-recommendation p {
+  margin: 0;
+
+  color:
+    rgba(72, 49, 34, 0.62);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+/* =========================================================
+   RECOMENDAÇÃO ESCRITA
+   ========================================================= */
+
+.planning-book__recommendation {
+  position: relative;
+  z-index: 2;
+
+  overflow-y: auto;
+
+  padding-top: 26px;
+
+  animation:
+    planning-book-analysis-enter
+    480ms
+    ease
+    both;
+}
+
+.planning-book__recommendation-opening {
+  padding-bottom: 22px;
+
+  border-bottom:
+    1px solid
+    rgba(106, 72, 43, 0.16);
+}
+
+.planning-book__recommendation-opening > span {
+  color: #9a6728;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 16px;
+  font-style: italic;
+}
+
+.planning-book__recommendation-opening h3 {
+  margin:
+    10px
+    0
+    12px;
+
+  color: #38261b;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 25px;
+  font-weight: 400;
+  line-height: 1.12;
+}
+
+.planning-book__recommendation-opening p,
+.planning-book__recommendation-section p {
+  margin: 0;
+
+  color:
+    rgba(67, 45, 31, 0.72);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.planning-book__recommendation-section {
+  padding:
+    20px
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(106, 72, 43, 0.14);
+}
+
+.planning-book__recommendation-section > span,
+.planning-book__recommendation-investment > span {
+  color: #996526;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.planning-book__recommendation-section h4 {
+  margin:
+    7px
+    0
+    8px;
+
+  color: #3a281d;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 21px;
+  font-weight: 400;
+}
+
+.planning-book__recommendation-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+
+  margin-top: 12px;
+}
+
+.planning-book__recommendation-tags em {
+  padding:
+    7px
+    10px;
+
+  border:
+    1px solid
+    rgba(126, 83, 40, 0.16);
+
+  border-radius: 999px;
+
+  color:
+    rgba(67, 44, 30, 0.72);
+
+  background:
+    rgba(255, 255, 255, 0.34);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  font-style: normal;
+}
+
+.planning-book__recommendation-investment {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  margin-top: 24px;
+  padding:
+    19px;
+
+  border:
+    1px solid
+    rgba(139, 91, 40, 0.2);
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(229, 207, 174, 0.64),
+      rgba(255, 251, 244, 0.46)
+    );
+}
+
+.planning-book__recommendation-investment strong {
+  color: #352319;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 30px;
+  font-weight: 400;
+}
+
+.planning-book__recommendation-investment small {
+  color:
+    rgba(68, 46, 32, 0.62);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.planning-book__recommendation-signature {
+  margin:
+    24px
+    auto
+    0;
+
+  max-width: 260px;
+
+  color:
+    rgba(84, 56, 37, 0.52);
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* =========================================================
+   MÉTRICAS VISUAIS DO AMBIENTE
+   ========================================================= */
+
+.planning-book__scene-metrics {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  width: min(100%, 470px);
+
+  margin-top: 28px;
+
+  border:
+    1px solid
+    rgba(218, 171, 94, 0.2);
+
+  border-radius: 14px;
+
+  background:
+    rgba(23, 12, 7, 0.58);
+
+  backdrop-filter:
+    blur(10px);
+
+  overflow: hidden;
+
+  animation:
+    planning-book-scene-ready
+    600ms
+    ease
+    both;
+}
+
+.planning-book__scene-metrics > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+
+  padding:
+    15px;
+
+  border-right:
+    1px solid
+    rgba(218, 171, 94, 0.14);
+}
+
+.planning-book__scene-metrics > div:last-child {
+  border-right: 0;
+}
+
+.planning-book__scene-metrics span {
+  color:
+    rgba(232, 195, 133, 0.6);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.planning-book__scene-metrics strong {
+  color: #f3e3c7;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 25px;
+  font-weight: 400;
+}
+
+.planning-book__scene-metrics small {
+  color:
+    rgba(239, 219, 184, 0.58);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 8px;
+}
+
+.planning-book__scene-caption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 17px;
+
+  color:
+    rgba(239, 219, 184, 0.72);
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 14px;
+}
+
+.planning-book__scene-caption small {
+  padding-left: 10px;
+
+  border-left:
+    1px solid
+    rgba(218, 171, 94, 0.24);
+
+  color:
+    rgba(239, 219, 184, 0.54);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   RODAPES FIXOS — VERSAO CONSOLIDADA
+   Mantem a pagina 1 e a pagina 2 com areas independentes:
+   cabecalho/conteudo rolavel/acao fixa no rodape.
+   ========================================================= */
+
+.planning-book__questions,
+.planning-book__summary {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Pagina 1: somente o miolo rola. */
+
+.planning-book__questions-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0 -4px 0 0;
+  padding-right: 4px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(134, 88, 40, 0.24) transparent;
+}
+
+.planning-book__questions-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.planning-book__questions-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.planning-book__questions-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(134, 88, 40, 0.24);
+}
+
+.planning-book__questions-footer {
+  position: relative;
+  z-index: 45;
+  flex: 0 0 auto;
+  margin: 0 -36px -48px;
+  padding: 18px 36px 32px;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(247, 239, 226, 0) 0%,
+      rgba(247, 239, 226, 0.96) 26%,
+      #f5ede1 55%,
+      #f5ede1 100%
+    );
+  box-shadow: 0 -20px 30px rgba(245, 237, 225, 0.9);
+}
+
+.planning-book__generate {
+  position: relative;
+  inset: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+  min-height: 58px;
+  margin: 0;
+  padding: 0 22px;
+  border: 1px solid rgba(139, 85, 32, 0.36);
+  border-radius: 14px;
+  color: #f7ead6;
+  background:
+    linear-gradient(
+      135deg,
+      #4b2b18 0%,
+      #30190e 58%,
+      #1e0e07 100%
+    );
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  line-height: 1.45;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow:
+    0 14px 28px rgba(54, 28, 13, 0.24),
+    inset 0 1px 0 rgba(255, 235, 202, 0.11);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+}
+
+.planning-book__generate::before {
+  display: none;
+}
+
+.planning-book__generate:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 34px rgba(54, 28, 13, 0.3),
+    inset 0 1px 0 rgba(255, 235, 202, 0.14);
+}
+
+.planning-book__generate:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.planning-book__generate-hint {
+  position: static;
+  margin: 0 0 9px;
+  padding: 0;
+  color: rgba(70, 48, 33, 0.62);
+  background: transparent;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+/* Pagina 2: recomendacao rola; investimento permanece no rodape. */
+
+.planning-book__summary-header {
+  flex: 0 0 auto;
+}
+
+.planning-book__recommendation,
+.planning-book__analysis,
+.planning-book__empty-recommendation {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.planning-book__recommendation {
+  margin-top: 22px;
+  padding: 0 5px 28px 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(133, 88, 42, 0.24) transparent;
+}
+
+.planning-book__recommendation::-webkit-scrollbar {
+  width: 4px;
+}
+
+.planning-book__recommendation::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.planning-book__recommendation::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(133, 88, 42, 0.24);
+}
+
+.planning-book__investment-footer {
+  position: relative;
+  z-index: 45;
+  flex: 0 0 auto;
+  margin: 0 -34px -44px;
+  padding: 18px 34px 30px;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(245, 237, 226, 0) 0%,
+      rgba(245, 237, 226, 0.96) 22%,
+      #f3eade 50%,
+      #f3eade 100%
+    );
+  box-shadow: 0 -22px 32px rgba(243, 234, 222, 0.94);
+}
+
+.planning-book__recommendation-investment {
+  position: relative;
+  inset: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0;
+  padding: 16px 18px;
+  border: 1px solid rgba(139, 91, 40, 0.24);
+  border-radius: 14px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(231, 210, 178, 0.97),
+      rgba(253, 247, 238, 0.98)
+    );
+  box-shadow:
+    0 12px 25px rgba(60, 35, 18, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62);
+}
+
+.planning-book__recommendation-investment::before {
+  display: none;
+}
+
+.planning-book__recommendation-investment > span {
+  color: #956225;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+
+.planning-book__recommendation-investment strong {
+  color: #352319;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(27px, 2vw, 35px);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.planning-book__recommendation-investment small {
+  color: rgba(66, 45, 31, 0.62);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.planning-book__adjust {
+  width: 100%;
+  margin-top: 7px;
+  padding: 8px 12px 0;
+  border: 0;
+  color: rgba(69, 45, 30, 0.72);
+  background: transparent;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 160ms ease;
+}
+
+.planning-book__adjust:hover {
+  color: #8e5c23;
+}
+
+@media (max-width: 1380px) {
+  .planning-book__questions-footer {
+    margin-right: -30px;
+    margin-left: -30px;
+    padding-right: 30px;
+    padding-left: 30px;
+  }
+
+  .planning-book__investment-footer {
+    margin-right: -30px;
+    margin-left: -30px;
+    padding-right: 30px;
+    padding-left: 30px;
+  }
+}
+
+@media (max-width: 760px) {
+  .planning-book__questions-footer,
+  .planning-book__investment-footer {
+    margin-right: -25px;
+    margin-left: -25px;
+    padding-right: 25px;
+    padding-left: 25px;
+  }
+}
+
+/* =========================================================
+   EVENT SCENE REUTILIZADA — INTEGRACAO COMPLETA
+   ========================================================= */
+
+.planning-book__event-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  opacity: 0.48;
+  transform: scale(1.035);
+  filter: brightness(0.58) saturate(0.82);
+  transition:
+    opacity 700ms ease,
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 700ms ease;
+}
+
+.planning-book__scene--ready .planning-book__event-scene {
+  opacity: 1;
+  transform: scale(1);
+  filter: brightness(0.88) saturate(1);
+}
+
+.planning-book__scene--analyzing .planning-book__event-scene {
+  opacity: 0.66;
+  filter: brightness(0.7) saturate(0.88) blur(1px);
+}
+
+.planning-book__event-scene .event-scene {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-radius: inherit;
+}
+
+.planning-book__event-scene .event-scene__label,
+.planning-book__event-scene .event-scene__summary,
+.planning-book__event-scene .event-scene__note {
+  display: none;
+}
+
+.planning-book__event-scene .event-scene-cart {
+  width: min(420px, 28vw);
+  max-width: 100%;
+}
+
+.planning-book__scene-placeholder {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at 70% 22%,
+      rgba(212, 164, 91, 0.12),
+      transparent 26%
+    ),
+    linear-gradient(145deg, #20110b, #080403);
+}
+
+.planning-book__scene-placeholder span {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(230, 187, 111, 0.58);
+  box-shadow: 0 0 18px rgba(230, 187, 111, 0.5);
+  animation: planning-book-placeholder-light 2.4s ease-in-out infinite;
+}
+
+.planning-book__scene-placeholder span:nth-child(1) {
+  top: 18%;
+  left: 22%;
+}
+
+.planning-book__scene-placeholder span:nth-child(2) {
+  top: 13%;
+  left: 52%;
+  animation-delay: 400ms;
+}
+
+.planning-book__scene-placeholder span:nth-child(3) {
+  top: 22%;
+  right: 18%;
+  animation-delay: 800ms;
+}
+
+@keyframes planning-book-placeholder-light {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.82);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}

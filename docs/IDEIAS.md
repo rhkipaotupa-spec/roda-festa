@@ -1,101 +1,60 @@
-# SITE RODA-FESTA — Banco de Ideias
+# IDEIAS — SITE RODA-FESTA
 
-## 1. Motor Inteligente de Recomendações
+**Atualizado em:** 03/08/2026
 
-### Verde — Excelente
+## Ideias registradas para não perder
 
-- evento equilibrado;
-- quantidades adequadas;
-- capacidade operacional confortável;
-- nenhuma alteração obrigatória.
+### Welcome
 
-### Amarelo — Atenção
+- livro fechado que se abre e cai no Planning Book;
+- preservar a Welcome atual, usando a abertura como transição, não como nova tela redundante.
 
-- recomendação de mais um carrinho;
-- aumento de determinada quantidade;
-- melhoria em bebidas, doces ou variedade;
-- explicação objetiva do motivo.
+### Planning Book
 
-### Vermelho — Crítico
+- cada resposta escreve uma nova parte da história;
+- capítulos progressivos;
+- versão 1, versão 2, versão 3 do planejamento;
+- planejamento salvo automaticamente;
+- código como `RF-2026-00418`;
+- frase: `Grandes festas não começam no dia do evento. Elas começam aqui.`
 
-- risco de faltar alimentação;
-- risco de fila excessiva;
-- capacidade incompatível com convidados e duração;
-- ação recomendada em destaque.
+### Recomendação
 
-## 2. Saúde do Evento
+- escrita linha por linha;
+- justificativa humana para a quantidade de carrinhos;
+- texto que explique fluxo, filas e conforto;
+- investimento revelado por último;
+- assinatura da equipe Roda Festa.
 
-Indicador geral de 0 a 100, com explicação humana.
+### Cena
 
-Exemplo:
+- cena sincronizada com a escrita;
+- carrinho aparece quando a estrutura é mencionada;
+- garçom entra quando a equipe é mencionada;
+- produtos aparecem quando o cardápio é mencionado;
+- iluminação conforme horário;
+- festa infantil com balões e ambiente familiar;
+- casamento com flores e luz quente;
+- corporativo com painel e lounge;
+- pessoas e mesas desfocadas;
+- poucas comidas grandes;
+- tooltip ao passar o mouse;
+- composição triangular;
+- profundidade de primeiro, segundo e terceiro planos.
 
-- `95/100 — Excelente distribuição de alimentos.`
-- `68/100 — Recomendamos aumentar bebidas e capacidade de atendimento.`
+### Personalização
 
-## 3. Índice de conforto operacional
+- folha vira ao clicar em personalizar;
+- trocar, adicionar ou remover produtos;
+- alterar quantidades;
+- recalcular em tempo real;
+- cena reage às mudanças;
+- indicador verde, amarelo e vermelho para equilíbrio/risco.
 
-Analisar:
+### Proposta e operação
 
-- duração do evento;
-- convidados equivalentes;
-- quantidade de carrinhos;
-- vazão estimada;
-- risco de filas;
-- variedade;
-- bebidas e sobremesas.
-
-## 4. Explicação do porquê
-
-Cada recomendação pode ter um botão `Por quê?`.
-
-Exemplo:
-
-`Escolhemos 2 carrinhos porque a estimativa de consumo e a duração do evento ultrapassam a capacidade confortável de um único equipamento.`
-
-## 5. Economia possível
-
-Mostrar alternativas que reduzam investimento sem comprometer a experiência.
-
-Exemplo:
-
-`Você pode economizar R$ 320 substituindo X por Y, mantendo a capacidade recomendada.`
-
-## 6. Upgrade contextual
-
-Sugerir complementos coerentes com o perfil, sem tom comercial agressivo.
-
-Exemplo:
-
-`Para um casamento com perfil Premium, brigadeiros gourmet ajudam a completar a experiência.`
-
-## 7. Linha do tempo do evento
-
-Gerar uma timeline operacional com horários sugeridos para recepção, salgados, principal, doces, parabéns e encerramento.
-
-## 8. Inteligência climática
-
-Em versões futuras, considerar época, cidade e clima para sugerir água, sucos, gelo e ajustes de consumo.
-
-## 9. Evento balanceado
-
-Indicador dinâmico que sobe ou desce conforme o cliente adiciona ou remove itens.
-
-## 10. Linguagem de inteligência
-
-Preferir:
-
-`Nossa inteligência analisou seu evento e preparou algumas sugestões.`
-
-Evitar:
-
-`O sistema recomenda comprar mais.`
-
-## 11. Showroom de carrinhos
-
-A tela de escolha deve parecer um showroom:
-
-- carrinhos iluminados individualmente;
-- hover com spotlight;
-- produto e madeira com leve brilho;
-- restante da cena escurece;
-- seleção com sensação de curadoria.
+- transformar planejamento em proposta comercial;
+- PDF chamado `Livro da Festa`;
+- mesma estética do livro;
+- proposta vira ordem de serviço;
+- ordem de serviço vira produção, checklist, agenda e financeiro.

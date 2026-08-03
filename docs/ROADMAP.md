@@ -1,73 +1,107 @@
-# SITE RODA-FESTA — Roadmap
+# ROADMAP — SITE RODA-FESTA
+
+**Atualizado em:** 03/08/2026
 
 ## Fase 1 — Welcome
 
-- [x] Identidade visual premium
-- [x] Fundo clean
-- [x] Conteúdo HTML/CSS
-- [x] Aro luminoso animado
-- [x] CTA final
-- [x] Transição com loading
-- [x] Duração de 5 segundos
-- [x] Commit e push no GitHub
+**Status:** concluída e congelada.
 
-## Fase 2 — Escolha do evento
+- identidade premium;
+- CTA;
+- transição de 5 segundos;
+- movimentos suaves.
 
-- [ ] Revisar layout atual
-- [ ] Transformar opções em experiência de showroom
-- [ ] Aplicar foco e iluminação por cartão
-- [ ] Melhorar estados selecionado, hover e teclado
-- [ ] Garantir responsividade
+### Futuro registrado
 
-## Fase 3 — Perfil do evento
+- livro fechado abrindo e revelando o Planning Book.
 
-- [ ] Essencial
-- [ ] Balanceado
-- [ ] Premium
-- [ ] Explicar diferenças e impacto
-- [ ] Recomendar perfil inicial sem impedir edição
+## Fase 2 — Planning Book base
 
-## Fase 4 — Dados do evento
+**Status:** aproximadamente 90%.
 
-- [ ] adultos
-- [ ] crianças
-- [ ] cálculo equivalente: criança = 0,5 adulto
-- [ ] data
-- [ ] horário de início
-- [ ] horário de término
-- [ ] cidade/local
+Concluído:
 
-## Fase 5 — Motor operacional
+- layout do livro;
+- páginas com funções distintas;
+- campos de entrada;
+- motor de cálculo;
+- análise progressiva;
+- recomendação consultiva;
+- botão fixo na página 1;
+- investimento fixo na página 2;
+- integração inicial com EventScene.
 
-- [ ] capacidade por carrinho
-- [ ] produção média
-- [ ] carrinhos compartilháveis
-- [ ] duração-base de 4 horas
-- [ ] hora adicional por carrinho
-- [ ] cálculo de filas e conforto
+Pendente:
 
-## Fase 6 — Recomendações
+- cardápio detalhado com quantidades e valores;
+- ações finais abaixo do investimento;
+- escrita mais progressiva da recomendação;
+- validações e máscaras de dados;
+- revisão responsiva.
 
-- [ ] semáforo verde/amarelo/vermelho
-- [ ] saúde do evento
-- [ ] explicações `Por quê?`
-- [ ] ações rápidas de correção
-- [ ] economia e upgrade contextual
+## Fase 3 — Cena Viva 2.0
 
-## Fase 7 — Resultado e orçamento
+**Status:** próxima prioridade.
 
-- [ ] resumo visual
-- [ ] investimento em tempo real
-- [ ] edição de itens
-- [ ] proposta em PDF
-- [ ] envio por WhatsApp
-- [ ] registro do lead
+Entregas:
 
-## Fase 8 — Administração
+1. `SceneDirector.js`;
+2. `SceneLayoutEngine.js` refeito;
+3. `EventScene.jsx` simplificado;
+4. `Cart.jsx` com poucos produtos grandes;
+5. `EventScene.css` com profundidade e atmosfera;
+6. tooltip elegante;
+7. decoração por evento;
+8. animações em camadas.
 
-- [ ] catálogo
-- [ ] preços
-- [ ] capacidades
-- [ ] regras
-- [ ] disponibilidade
-- [ ] histórico de propostas
+Critério de aprovação:
+
+> O cliente deve conseguir imaginar a festa acontecendo, e não apenas visualizar carrinhos isolados.
+
+## Fase 4 — Escrita Viva
+
+- recomendação escrita por blocos;
+- cena nasce sincronizada com os blocos;
+- carrinhos aparecem quando a estrutura é mencionada;
+- equipe aparece quando o atendimento é mencionado;
+- produtos aparecem quando o cardápio é apresentado;
+- investimento é revelado por último.
+
+## Fase 5 — Personalização do cardápio
+
+- virada de página;
+- adicionar/remover produtos;
+- editar quantidades;
+- recalcular estrutura;
+- recalcular investimento;
+- indicador de equilíbrio;
+- versões do planejamento.
+
+## Fase 6 — Proposta comercial
+
+- gerar proposta em PDF;
+- mesma identidade do Planning Book;
+- código de planejamento;
+- dados do cliente;
+- análise;
+- estrutura;
+- cardápio;
+- serviços;
+- investimento;
+- envio por WhatsApp ou fluxo comercial.
+
+## Fase 7 — Operação interna
+
+- transformar proposta aprovada em ordem de serviço;
+- checklist do evento;
+- agenda;
+- produção;
+- logística;
+- financeiro;
+- histórico.
+
+## Visão de longo prazo
+
+O Planning Book poderá evoluir para o primeiro módulo do Simplify Eventos, mantendo a visão:
+
+**Transformamos a operação em informação.**

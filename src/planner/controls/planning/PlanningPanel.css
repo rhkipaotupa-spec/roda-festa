@@ -5,17 +5,20 @@
   flex-direction: column;
 
   width: 100%;
-  min-height: 100%;
+  height: 100vh;
+  min-height: 0;
 
-  padding: 42px 34px 36px;
+  padding: 18px 18px 16px;
+
+  overflow: hidden;
 
   color: #3b2418;
 
   background:
     linear-gradient(
       180deg,
-      rgba(250, 246, 238, 0.98) 0%,
-      rgba(244, 236, 225, 0.98) 100%
+      rgba(250, 246, 238, 0.99) 0%,
+      rgba(244, 236, 225, 0.99) 100%
     );
 
   border-right:
@@ -23,13 +26,15 @@
     rgba(108, 69, 39, 0.12);
 
   box-shadow:
-    18px 0 42px rgba(40, 18, 7, 0.08);
+    18px 0 42px
+    rgba(40, 18, 7, 0.08);
 }
 
 .planning-panel__header {
   display: flex;
+  flex: 0 0 auto;
   flex-direction: column;
-  gap: 14px;
+  gap: 5px;
 }
 
 .planning-panel__eyebrow {
@@ -40,15 +45,15 @@
     Helvetica,
     sans-serif;
 
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 800;
-  letter-spacing: 0.24em;
-  line-height: 1.4;
+  letter-spacing: 0.22em;
+  line-height: 1.3;
   text-transform: uppercase;
 }
 
 .planning-panel__title {
-  max-width: 320px;
+  max-width: 310px;
   margin: 0;
 
   color: #3b2418;
@@ -58,26 +63,12 @@
     "Times New Roman",
     serif;
 
-  font-size: clamp(34px, 3vw, 52px);
+  font-size:
+    clamp(27px, 2.2vw, 37px);
+
   font-weight: 400;
   letter-spacing: -0.035em;
-  line-height: 0.98;
-}
-
-.planning-panel__description {
-  max-width: 330px;
-  margin: 0;
-
-  color: rgba(78, 49, 31, 0.72);
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
-
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 1.6;
+  line-height: 1;
 }
 
 .planning-panel__divider {
@@ -87,12 +78,13 @@
     auto
     minmax(24px, 1fr);
 
+  flex: 0 0 auto;
   align-items: center;
-  gap: 14px;
+  gap: 9px;
 
   width: 100%;
 
-  margin: 28px 0 26px;
+  margin: 8px 0 6px;
 }
 
 .planning-panel__divider-line {
@@ -103,7 +95,7 @@
     linear-gradient(
       90deg,
       transparent,
-      rgba(156, 97, 25, 0.45)
+      rgba(156, 97, 25, 0.42)
     );
 }
 
@@ -111,7 +103,7 @@
   background:
     linear-gradient(
       90deg,
-      rgba(156, 97, 25, 0.45),
+      rgba(156, 97, 25, 0.42),
       transparent
     );
 }
@@ -121,14 +113,19 @@
 
   display: block;
 
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
+
+  box-sizing: border-box;
 
   border:
-    1.8px solid
+    1.5px solid
     rgba(121, 73, 25, 0.82);
 
   border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.08);
 
   animation:
     planning-panel-wheel-spin
@@ -142,14 +139,15 @@
   top: 50%;
   left: 50%;
 
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 
   border-radius: 50%;
 
   background: #7c4a1c;
 
-  transform: translate(-50%, -50%);
+  transform:
+    translate(-50%, -50%);
 }
 
 .planning-panel__wheel-spoke {
@@ -158,7 +156,7 @@
   left: 50%;
 
   width: 1px;
-  height: 72%;
+  height: 14px;
 
   background:
     rgba(121, 73, 25, 0.72);
@@ -192,10 +190,42 @@
 
 .planning-panel__steps {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-
   min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 7px;
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  padding-top: 0;
+  padding-right: 3px;
+  padding-bottom: 118px;
+
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(137, 84, 30, 0.24)
+    transparent;
+}
+
+.planning-panel__steps::-webkit-scrollbar {
+  width: 4px;
+}
+
+.planning-panel__steps::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.planning-panel__steps::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background:
+    rgba(137, 84, 30, 0.22);
+}
+
+.planning-panel__steps::-webkit-scrollbar-thumb:hover {
+  background:
+    rgba(137, 84, 30, 0.34);
 }
 
 @keyframes planning-panel-wheel-spin {
@@ -208,34 +238,54 @@
   }
 }
 
-@media (max-width: 1200px) {
+@media (max-height: 820px) {
   .planning-panel {
     padding:
-      34px
-      28px
-      30px;
+      14px
+      16px
+      12px;
   }
 
   .planning-panel__title {
-    max-width: 280px;
-
     font-size:
-      clamp(32px, 4vw, 44px);
+      clamp(25px, 2vw, 34px);
+  }
+
+  .planning-panel__divider {
+    margin:
+      6px
+      0
+      5px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .planning-panel__title {
+    max-width: 290px;
   }
 }
 
 @media (max-width: 900px) {
   .planning-panel {
-    min-height: auto;
+    height: auto;
+    min-height: 100vh;
+
+    overflow: visible;
 
     padding:
-      30px
-      24px;
+      20px
+      18px;
   }
 
-  .planning-panel__title,
-  .planning-panel__description {
+  .planning-panel__title {
     max-width: 100%;
+  }
+
+  .planning-panel__steps {
+    overflow: visible;
+
+    padding-right: 0;
+    padding-bottom: 0;
   }
 }
 

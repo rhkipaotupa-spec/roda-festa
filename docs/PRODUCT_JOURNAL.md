@@ -1,48 +1,57 @@
-# SITE RODA-FESTA — Diário de Produto
+# PRODUCT JOURNAL — SITE RODA-FESTA
 
-## 01/08/2026
+## Sessão de 03/08/2026
 
-### O que foi feito
+### Objetivo da sessão
 
-- consolidação da tela Welcome;
-- troca do fundo para a arte clean;
-- textos reconstruídos em HTML/CSS;
-- ajustes de posição, tipografia e iluminação;
-- criação de aro externo com reflexo em movimento;
-- remoção da bolinha orbitando;
-- refinamento da roda/divisor;
-- refinamento do CTA;
-- remoção definitiva da seta do botão;
-- criação da tela de preparação após o clique;
-- inclusão de barra de progresso e pontos animados;
-- duração da transição ajustada para 5 segundos;
-- alterações enviadas ao GitHub na branch `main`.
+Evoluir o Planning Book de uma interface bonita para uma experiência funcional e iniciar a integração com os componentes visuais já existentes no projeto.
 
-### Decisões emocionais
+### O que foi alcançado
 
-- a experiência deve gerar vontade de clicar;
-- a Welcome deve estabelecer confiança e qualidade;
-- o sistema deve parecer consultivo, não comercial;
-- a próxima tela precisa alcançar o mesmo nível visual.
+- Refinamento do layout do livro concluído e aprovado.
+- Papel com textura grossa aprovado.
+- Couro e encadernação congelados para evitar refinamento infinito.
+- Motor de recomendação criado em `planningRules.js`.
+- Regras e preços principais consolidados.
+- `PlanningBook.jsx` conectado ao motor.
+- Análise progressiva criada.
+- Página 2 deixou de repetir a página 1 e passou a interpretar as escolhas.
+- Investimento e CTA foram movidos para rodapés reais.
+- Projeto anterior foi revisado e componentes existentes foram identificados para reaproveitamento.
+- Adaptador `buildPlanningScene.js` foi criado.
+- `EventScene` foi integrado ao Planning Book.
+- Primeira cena reutilizada foi testada.
 
-### Ideias importantes
+### Aprendizado principal
 
-- semáforo verde/amarelo/vermelho;
-- amarelo pode recomendar mais um carrinho;
-- saúde do evento;
-- conforto operacional;
-- explicação do motivo das recomendações;
-- economia possível;
-- upgrades contextuais;
-- timeline do evento;
-- inteligência climática;
-- indicador de evento balanceado;
-- showroom de carrinhos.
+A cena não deve mostrar todos os itens do orçamento. Ela deve ajudar o cliente a imaginar o evento.
+
+### Problemas detectados no primeiro teste da Cena Viva
+
+- cards chamativos;
+- produtos pequenos;
+- produtos flutuando;
+- excesso de bandejas;
+- repetição visual;
+- falta de profundidade;
+- composição sem hierarquia.
+
+### Nova direção
+
+- poucos produtos grandes;
+- elementos apoiados fisicamente;
+- sem cards permanentes;
+- tooltip no hover;
+- carrinhos em primeiro plano;
+- doces como apoio;
+- fundo atmosférico;
+- decoração por evento;
+- `SceneDirector` como cérebro visual.
+
+### Estado emocional do produto
+
+A experiência deixou de ser tratada como formulário ou simulador e passou a ser entendida como consultoria digital de eventos.
 
 ### Próxima sessão
 
-1. Não mexer na Welcome.
-2. Abrir a tela de escolha do evento.
-3. Avaliar o estado atual antes de alterar.
-4. Planejar uma experiência de showroom.
-5. Registrar novas decisões neste diário antes de encerrar.
+Começar pela reconstrução do `SceneDirector.js` e `SceneLayoutEngine.js`, com arquivos completos, antes de ajustar os componentes visuais.

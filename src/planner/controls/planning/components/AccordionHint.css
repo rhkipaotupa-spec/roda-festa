@@ -1,0 +1,184 @@
+.accordion-hint {
+  width: 100%;
+}
+
+.accordion-hint__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  width: 100%;
+
+  padding: 8px 0;
+
+  border: 0;
+
+  color: #8c5618;
+  background: transparent;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-align: left;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    color 180ms ease;
+}
+
+.accordion-hint__trigger:hover {
+  color: #4d2a0d;
+}
+
+.accordion-hint__trigger:focus-visible {
+  outline:
+    3px solid
+    rgba(174, 112, 30, 0.28);
+
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+.accordion-hint__indicator {
+  position: relative;
+
+  flex: 0 0 auto;
+
+  width: 18px;
+  height: 18px;
+
+  border:
+    1px solid
+    rgba(140, 86, 24, 0.24);
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 252, 246, 0.6);
+
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease;
+}
+
+.accordion-hint__indicator span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 8px;
+  height: 1px;
+
+  background: currentColor;
+
+  transform:
+    translate(-50%, -50%);
+
+  transition:
+    transform 220ms ease,
+    opacity 220ms ease;
+}
+
+.accordion-hint__indicator span:last-child {
+  transform:
+    translate(-50%, -50%)
+    rotate(90deg);
+}
+
+.accordion-hint--open
+  .accordion-hint__indicator {
+  transform: rotate(180deg);
+
+  border-color:
+    rgba(140, 86, 24, 0.42);
+
+  background:
+    rgba(244, 229, 203, 0.88);
+}
+
+.accordion-hint--open
+  .accordion-hint__indicator
+  span:last-child {
+  opacity: 0;
+}
+
+.accordion-hint__content {
+  overflow: hidden;
+}
+
+.accordion-hint__content-inner {
+  margin-top: 4px;
+  padding: 14px 16px;
+
+  border-left:
+    2px solid
+    rgba(156, 97, 25, 0.28);
+
+  border-radius: 0 12px 12px 0;
+
+  color:
+    rgba(76, 48, 31, 0.68);
+
+  background:
+    rgba(255, 255, 255, 0.38);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 12px;
+  line-height: 1.55;
+
+  animation:
+    accordion-hint-content-enter
+    220ms
+    ease;
+}
+
+.accordion-hint__content-inner p {
+  margin: 0;
+}
+
+.accordion-hint__content-inner p + p {
+  margin-top: 10px;
+}
+
+@keyframes accordion-hint-content-enter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  .accordion-hint__trigger,
+  .accordion-hint__indicator,
+  .accordion-hint__indicator span,
+  .accordion-hint__content-inner {
+    animation: none;
+    transition: none;
+  }
+}

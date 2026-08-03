@@ -3,26 +3,26 @@
 }
 
 .event-step--open {
-  padding: 26px;
+  padding: 18px;
 
   border:
     1px solid
     rgba(119, 74, 34, 0.12);
 
-  border-radius: 24px;
+  border-radius: 18px;
 
   background:
     rgba(255, 252, 246, 0.72);
 
   box-shadow:
-    0 14px 38px
-    rgba(58, 30, 12, 0.06);
+    0 10px 26px
+    rgba(58, 30, 12, 0.05);
 }
 
 .event-step__header {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
 }
 
 .event-step__eyebrow {
@@ -33,10 +33,10 @@
     Helvetica,
     sans-serif;
 
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
-  letter-spacing: 0.22em;
-  line-height: 1.4;
+  letter-spacing: 0.2em;
+  line-height: 1.35;
   text-transform: uppercase;
 }
 
@@ -51,34 +51,34 @@
     serif;
 
   font-size:
-    clamp(26px, 2.1vw, 36px);
+    clamp(23px, 1.8vw, 31px);
 
   font-weight: 400;
-  line-height: 1.08;
+  line-height: 1.05;
 }
 
 .event-step__description {
-  max-width: 360px;
+  max-width: 340px;
   margin: 0;
 
   color:
-    rgba(78, 49, 31, 0.7);
+    rgba(78, 49, 31, 0.68);
 
   font-family:
     Arial,
     Helvetica,
     sans-serif;
 
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .event-step__options {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 
-  margin-top: 22px;
+  margin-top: 14px;
 }
 
 .event-step__option {
@@ -86,14 +86,14 @@
 
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 
   width: 100%;
 
   padding:
-    18px
-    20px
-    20px;
+    13px
+    15px
+    15px;
 
   overflow: hidden;
 
@@ -101,53 +101,48 @@
     1px solid
     rgba(101, 59, 26, 0.12);
 
-  border-radius: 18px;
+  border-radius: 14px;
 
   color: #3b2418;
 
   background:
-    rgba(255, 255, 255, 0.72);
+    rgba(255, 255, 255, 0.7);
 
   text-align: left;
-
   cursor: pointer;
 
   transition:
-    transform 260ms ease,
-    border-color 260ms ease,
-    background 260ms ease,
-    box-shadow 260ms ease;
+    transform 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease,
+    box-shadow 220ms ease;
 }
 
 .event-step__option:hover {
   transform:
-    translateY(-2px);
+    translateY(-1px);
 
   border-color:
-    rgba(156, 97, 25, 0.36);
+    rgba(156, 97, 25, 0.34);
 
   background:
     rgba(255, 253, 248, 0.96);
 
   box-shadow:
-    0 12px 28px
-    rgba(72, 35, 12, 0.09);
+    0 8px 20px
+    rgba(72, 35, 12, 0.07);
 }
 
 .event-step__option--selected {
   border-color:
-    rgba(150, 91, 20, 0.54);
+    rgba(150, 91, 20, 0.52);
 
   background:
     linear-gradient(
       135deg,
       rgba(255, 250, 240, 0.98),
-      rgba(242, 228, 204, 0.92)
+      rgba(242, 228, 204, 0.9)
     );
-
-  box-shadow:
-    0 14px 32px
-    rgba(80, 42, 14, 0.11);
 }
 
 .event-step__option-title {
@@ -159,7 +154,7 @@
     "Times New Roman",
     serif;
 
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 400;
   line-height: 1.2;
 }
@@ -168,26 +163,26 @@
   position: relative;
   z-index: 2;
 
-  max-width: 320px;
+  max-width: 310px;
 
   color:
-    rgba(76, 48, 31, 0.66);
+    rgba(76, 48, 31, 0.62);
 
   font-family:
     Arial,
     Helvetica,
     sans-serif;
 
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .event-step__option-line {
   position: absolute;
-  right: 18px;
-  bottom: 13px;
+  right: 14px;
+  bottom: 10px;
 
-  width: 38px;
+  width: 30px;
   height: 1px;
 
   background:
@@ -198,10 +193,10 @@
     );
 
   transform-origin: right;
-  transform: scaleX(0.55);
+  transform: scaleX(0.5);
 
   transition:
-    transform 260ms ease;
+    transform 220ms ease;
 }
 
 .event-step__option:hover
@@ -215,44 +210,105 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 14px;
+
+  min-height: 50px;
 
   padding:
-    18px
-    20px;
+    10px
+    14px;
 
   border:
     1px solid
     rgba(119, 74, 34, 0.12);
 
-  border-radius: 18px;
+  border-radius: 14px;
 
   background:
-    rgba(255, 252, 246, 0.74);
+    rgba(255, 252, 246, 0.76);
 }
 
 .event-step__summary-content {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
 }
 
-.event-step__summary-label {
-  color:
-    rgba(83, 50, 30, 0.58);
+.event-step__summary-wheel {
+  position: relative;
 
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
+  flex: 0 0 auto;
 
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  width: 18px;
+  height: 18px;
+
+  border:
+    1.3px solid
+    rgba(121, 73, 25, 0.78);
+
+  border-radius: 50%;
+}
+
+.event-step__summary-wheel::after {
+  content: "";
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 3px;
+  height: 3px;
+
+  border-radius: 50%;
+
+  background: #7c4a1c;
+
+  transform:
+    translate(-50%, -50%);
+}
+
+.event-step__summary-wheel span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 1px;
+  height: 13px;
+
+  background:
+    rgba(121, 73, 25, 0.66);
+
+  transform-origin: center;
+}
+
+.event-step__summary-wheel span:nth-child(1) {
+  transform:
+    translate(-50%, -50%)
+    rotate(0deg);
+}
+
+.event-step__summary-wheel span:nth-child(2) {
+  transform:
+    translate(-50%, -50%)
+    rotate(45deg);
+}
+
+.event-step__summary-wheel span:nth-child(3) {
+  transform:
+    translate(-50%, -50%)
+    rotate(90deg);
+}
+
+.event-step__summary-wheel span:nth-child(4) {
+  transform:
+    translate(-50%, -50%)
+    rotate(135deg);
 }
 
 .event-step__summary-value {
+  overflow: hidden;
+
   color: #3b2418;
 
   font-family:
@@ -260,17 +316,22 @@
     "Times New Roman",
     serif;
 
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 400;
+  line-height: 1.2;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .event-step__edit {
-  padding: 8px 0;
+  flex: 0 0 auto;
+
+  padding: 6px 0;
 
   border: 0;
 
   color: #8c5618;
-
   background: transparent;
 
   font-family:
@@ -278,9 +339,9 @@
     Helvetica,
     sans-serif;
 
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 
   cursor: pointer;
@@ -297,12 +358,6 @@
     rgba(174, 112, 30, 0.28);
 
   outline-offset: 3px;
-}
-
-@media (max-width: 900px) {
-  .event-step--open {
-    padding: 22px;
-  }
 }
 
 @media (

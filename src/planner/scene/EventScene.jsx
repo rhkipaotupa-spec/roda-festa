@@ -2,239 +2,157 @@ import "./EventScene.css";
 
 import SceneBackground from "./SceneBackground";
 import SceneFloor from "./SceneFloor";
+import SceneDirector from "./SceneDirector";
 
-import SceneLayoutEngine from "./SceneLayoutEngine";
-
-import {
-  getSceneComponent,
-} from "./SceneRegistry";
-
-function normalizeText(value) {
-  return String(value ?? "").toLowerCase();
-}
-
+import { getSceneComponent } from "./SceneRegistry";
 
 function buildDessertConfig(products) {
-  const safeProducts = Array.isArray(products)
-    ? products
-    : [];
-
-  const hasCake = safeProducts.some(
-    (product) =>
-      product.quantityRuleId ===
-      "cake-by-weight"
-  );
-
-  const hasPartySweets = safeProducts.some(
-    (product) =>
-      product.quantityRuleId ===
-      "party-sweets"
-  );
+  const safeProducts = Array.isArray(products) ? products : [];
 
   return {
-    visible: hasCake || hasPartySweets,
+    visible: safeProducts.some(
+      (product) =>
+        product.quantityRuleId === "cake-by-weight" ||
+        product.quantityRuleId === "party-sweets"
+    ),
     decoration: true,
-    cake: hasCake,
-    brigadeiro: hasPartySweets,
+    cake: safeProducts.some(
+      (product) => product.quantityRuleId === "cake-by-weight"
+    ),
+    brigadeiro: safeProducts.some(
+      (product) => product.quantityRuleId === "party-sweets"
+    ),
   };
 }
 
-
-
-function buildComponentProps({
-  sceneObject,
-  dessertConfig,
-  products,
-}) {
-
-  if (
-    sceneObject.component ===
-    "DessertTable"
-  ) {
-    return {
-      config: dessertConfig,
-    };
+function buildComponentProps({ sceneObject, dessertConfig, products }) {
+  if (sceneObject.component === "DessertTable") {
+    return { config: dessertConfig };
   }
 
-  if (
-    sceneObject.component ===
-    "Cart"
-  ) {
-
+  if (sceneObject.component === "Cart") {
     return {
-
-      products:
-        products.filter(
-          (product) =>
-            product.serviceId ===
-            sceneObject.serviceId
-        ),
-
+      products: products.filter(
+        (product) => product.serviceId === sceneObject.serviceId
+      ),
     };
-
   }
 
   return {};
-
 }
 
-
-
-function renderSceneObject({
-  sceneObject,
-  dessertConfig,
-  products,
-}) {
-  const SceneComponent =
-    getSceneComponent(
-      sceneObject.component
-    );
+function renderSceneObject({ sceneObject, dessertConfig, products }) {
+  const SceneComponent = getSceneComponent(sceneObject.component);
 
   if (!SceneComponent) {
     console.warn(
       `Componente de cena não encontrado: ${sceneObject.component}`
     );
-
     return null;
   }
 
   if (
-    sceneObject.component ===
-      "DessertTable" &&
+    sceneObject.component === "DessertTable" &&
     !dessertConfig.visible
   ) {
     return null;
   }
 
-  const quantity = Math.max(
-    1,
-    Number(sceneObject.quantity) || 1
-  );
-
-
-const componentProps =
-  buildComponentProps({
+  const componentProps = buildComponentProps({
     sceneObject,
     dessertConfig,
     products,
   });
 
   const objectStyle = {
-    position: "absolute",
-    left: `${sceneObject.layout?.x ?? 50}%`,
-    top: `${sceneObject.layout?.y ?? 70}%`,
-    transform: `
-      translate(-50%, -50%)
-      scale(${sceneObject.layout?.scale ?? 1})
-    `,
-    zIndex:
-      sceneObject.layout?.zIndex ?? 1,
+    "--scene-x": `${sceneObject.layout?.x ?? 50}%`,
+    "--scene-y": `${sceneObject.layout?.y ?? 70}%`,
+    "--scene-scale": sceneObject.layout?.scale ?? 1,
+    "--scene-delay": `${sceneObject.layout?.delay ?? 0}ms`,
+    zIndex: sceneObject.layout?.zIndex ?? 1,
   };
 
-  return Array.from(
-    { length: quantity },
-    (_, index) => (
-      <div
-        key={`${sceneObject.id}-${index}`}
-        className="event-scene__object"
-        style={objectStyle}
-      >
-        <SceneComponent
-          {...componentProps}
-          sceneObject={sceneObject}
-          serviceId={sceneObject.serviceId}
-          variant={
-            sceneObject.visual?.variant
-          }
-          theme={
-            sceneObject.visual?.theme
-          }
-          instanceIndex={index}
-        />
-      </div>
-    )
+  return (
+    <div
+      key={sceneObject.instanceId ?? sceneObject.id}
+      className={[
+        "event-scene__object",
+        `event-scene__object--${sceneObject.director?.role ?? "support"}`,
+        `event-scene__object--${sceneObject.director?.depth ?? "front"}`,
+      ].join(" ")}
+      style={objectStyle}
+    >
+      <SceneComponent
+        {...componentProps}
+        sceneObject={sceneObject}
+        serviceId={sceneObject.serviceId}
+        variant={sceneObject.visual?.variant}
+        theme={sceneObject.visual?.theme}
+        instanceIndex={sceneObject.instanceIndex ?? 0}
+      />
+    </div>
   );
 }
 
-export default function EventScene({
-  plannerResult,
-}) {
+function SceneAtmosphere({ atmosphere }) {
+  return (
+    <div className="event-scene__atmosphere" aria-hidden="true">
+      {atmosphere.showBalloons && (
+        <div className="event-scene__balloons">
+          <span />
+          <span />
+          <span />
+        </div>
+      )}
+
+      {atmosphere.showFlowers && (
+        <div className="event-scene__flowers">
+          <span />
+          <span />
+          <span />
+        </div>
+      )}
+
+      {atmosphere.showCorporatePanels && (
+        <div className="event-scene__corporate-panels">
+          <span />
+          <span />
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function EventScene({ plannerResult }) {
   const scene = plannerResult?.scene ?? {
     objects: [],
     notes: [],
   };
 
-  const products =
-    plannerResult?.composition?.products ?? [];
+  const products = plannerResult?.composition?.products ?? [];
+  const eventType = plannerResult?.event?.type ?? "neutral";
+  const dessertConfig = buildDessertConfig(products);
 
-  const dessertConfig =
-    buildDessertConfig(products);
-
-    const layoutObjects =
-  SceneLayoutEngine.build(scene.objects);
-
-console.log(
-  "LAYOUT OBJECTS:",
-  layoutObjects
-);
-
-  const totalStructures =
-    plannerResult?.composition?.structures
-      ?.reduce(
-        (total, structure) =>
-          total +
-          (Number(structure.quantity) || 0),
-        0
-      ) ?? 0;
+  const directedScene = SceneDirector.direct({
+    sceneObjects: scene.objects,
+    eventType,
+  });
 
   return (
-    <section className="event-scene">
+    <section className={`event-scene event-scene--${eventType}`}>
       <SceneBackground />
       <SceneFloor />
+      <SceneAtmosphere atmosphere={directedScene.atmosphere} />
 
-<div className="event-scene__content">
-
-
-{layoutObjects.map((sceneObject) =>
-  renderSceneObject({
-    sceneObject,
-    dessertConfig,
-    products,
-  })
-)}
-
-
-
-</div>
-
-      <div className="event-scene__label">
-        Planner visual
-      </div>
-
-      <div className="event-scene__summary">
-        <strong>Resumo do evento</strong>
-
-        {!plannerResult?.event?.type ? (
-          <span>
-            Escolha um tipo de evento para iniciar.
-          </span>
-        ) : (
-          <span>
-            {products.length} produto(s) e{" "}
-            {totalStructures} estrutura(s)
-            sugeridos.
-          </span>
+      <div className="event-scene__content">
+        {directedScene.objects.map((sceneObject) =>
+          renderSceneObject({
+            sceneObject,
+            dessertConfig,
+            products,
+          })
         )}
       </div>
-
-      {scene.notes?.map((note) => (
-        <div
-          key={note.id}
-          className="event-scene__note"
-        >
-          {note.message}
-        </div>
-      ))}
     </section>
   );
 }

@@ -1,0 +1,223 @@
+.smart-number-input {
+  display: grid;
+  grid-template-columns:
+    40px
+    minmax(54px, auto)
+    40px;
+
+  align-items: center;
+  gap: 10px;
+}
+
+.smart-number-input__button,
+.smart-number-input__value,
+.smart-number-input__field {
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+}
+
+.smart-number-input__button {
+  display: grid;
+  place-items: center;
+
+  width: 40px;
+  height: 40px;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(130, 76, 28, 0.2);
+
+  border-radius: 50%;
+
+  color: #6a3e18;
+
+  background:
+    rgba(251, 244, 233, 0.94);
+
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1;
+
+  cursor: pointer;
+
+  box-shadow:
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.64);
+
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+}
+
+.smart-number-input__button:hover:not(:disabled) {
+  transform: scale(1.06);
+
+  border-color:
+    rgba(146, 87, 25, 0.46);
+
+  color: #3f210c;
+
+  background:
+    rgba(244, 229, 203, 0.98);
+
+  box-shadow:
+    0 8px 18px
+    rgba(74, 38, 13, 0.09),
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.74);
+}
+
+.smart-number-input__button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.smart-number-input__button:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+.smart-number-input__value {
+  min-width: 54px;
+
+  padding: 7px 8px;
+
+  border: 0;
+  border-radius: 12px;
+
+  color: #3b2418;
+
+  background: transparent;
+
+  font-size: 27px;
+  font-weight: 400;
+  line-height: 1;
+
+  text-align: center;
+
+  cursor: text;
+
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.smart-number-input__value:hover {
+  background:
+    rgba(255, 255, 255, 0.56);
+
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(130, 76, 28, 0.1);
+}
+
+.smart-number-input__value:active {
+  transform: scale(0.98);
+}
+
+.smart-number-input__field {
+  width: 70px;
+  min-width: 70px;
+
+  padding: 7px 8px;
+
+  border:
+    1px solid
+    rgba(146, 87, 25, 0.38);
+
+  border-radius: 12px;
+
+  color: #3b2418;
+
+  background:
+    rgba(255, 252, 246, 0.96);
+
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+
+  text-align: center;
+
+  box-shadow:
+    0 8px 20px
+    rgba(72, 35, 12, 0.08),
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.74);
+
+  outline: none;
+}
+
+.smart-number-input__field:focus {
+  border-color:
+    rgba(146, 87, 25, 0.62);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(174, 112, 30, 0.16),
+    0 8px 20px
+    rgba(72, 35, 12, 0.08);
+}
+
+.smart-number-input__button:focus-visible,
+.smart-number-input__value:focus-visible {
+  outline:
+    3px solid
+    rgba(174, 112, 30, 0.28);
+
+  outline-offset: 3px;
+}
+
+/*
+  Remove as setas nativas do campo numérico.
+*/
+.smart-number-input__field::-webkit-outer-spin-button,
+.smart-number-input__field::-webkit-inner-spin-button {
+  margin: 0;
+
+  -webkit-appearance: none;
+}
+
+.smart-number-input__field[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+@media (max-width: 900px) {
+  .smart-number-input {
+    grid-template-columns:
+      38px
+      minmax(50px, auto)
+      38px;
+
+    gap: 8px;
+  }
+
+  .smart-number-input__button {
+    width: 38px;
+    height: 38px;
+  }
+
+  .smart-number-input__value {
+    min-width: 50px;
+
+    font-size: 25px;
+  }
+}
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  .smart-number-input__button,
+  .smart-number-input__value {
+    transition: none;
+  }
+}
