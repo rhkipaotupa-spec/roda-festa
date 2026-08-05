@@ -3,6 +3,7 @@ import "./EventScene.css";
 import SceneBackground from "./SceneBackground";
 import SceneFloor from "./SceneFloor";
 import SceneDirector from "./SceneDirector";
+import StageDecor from "./StageDecor";
 
 import { getSceneComponent } from "./SceneRegistry";
 
@@ -79,6 +80,9 @@ function renderSceneObject({ sceneObject, dessertConfig, products }) {
         "event-scene__object",
         `event-scene__object--${sceneObject.director?.role ?? "support"}`,
         `event-scene__object--${sceneObject.director?.depth ?? "front"}`,
+        `event-scene__object--${sceneObject.component
+          .replace(/([a-z])([A-Z])/g, "$1-$2")
+          .toLowerCase()}`,
       ].join(" ")}
       style={objectStyle}
     >
@@ -90,35 +94,6 @@ function renderSceneObject({ sceneObject, dessertConfig, products }) {
         theme={sceneObject.visual?.theme}
         instanceIndex={sceneObject.instanceIndex ?? 0}
       />
-    </div>
-  );
-}
-
-function SceneAtmosphere({ atmosphere }) {
-  return (
-    <div className="event-scene__atmosphere" aria-hidden="true">
-      {atmosphere.showBalloons && (
-        <div className="event-scene__balloons">
-          <span />
-          <span />
-          <span />
-        </div>
-      )}
-
-      {atmosphere.showFlowers && (
-        <div className="event-scene__flowers">
-          <span />
-          <span />
-          <span />
-        </div>
-      )}
-
-      {atmosphere.showCorporatePanels && (
-        <div className="event-scene__corporate-panels">
-          <span />
-          <span />
-        </div>
-      )}
     </div>
   );
 }
@@ -142,7 +117,7 @@ export default function EventScene({ plannerResult }) {
     <section className={`event-scene event-scene--${eventType}`}>
       <SceneBackground />
       <SceneFloor />
-      <SceneAtmosphere atmosphere={directedScene.atmosphere} />
+      <StageDecor atmosphere={directedScene.atmosphere} />
 
       <div className="event-scene__content">
         {directedScene.objects.map((sceneObject) =>

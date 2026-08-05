@@ -34,6 +34,12 @@ export const PLANNING_PARAMETERS = {
     cartBasePrice: 300,
     additionalHourPerCart: 150,
     preparersPerCart: 1,
+    maxCarts: 3,
+  },
+
+  limits: {
+    maxAdults: 100,
+    maxChildren: 100,
   },
 
   disposables: {
@@ -78,160 +84,53 @@ export const PLANNING_PARAMETERS = {
    ========================================================= */
 
 export const PRODUCTS = {
-  pastelCarne: {
-    id: "pastel-carne",
-    name: "Pastel de carne",
-    commercialCategory: "Frituras",
-    operationalGroup: "fried",
-    productionPerHour: 100,
-    suggestedUnitsPerEquivalentGuest: 3,
-    lotSize: 10,
-    unitPrice: 1.5,
-    active: true,
-  },
+  coxinhaFrangoCatupiry: { id: "coxinha-frango-catupiry", name: "Coxinha de frango com catupiry", commercialCategory: "Petiscos", operationalGroup: "fried", productionPerHour: 120, suggestedUnitsPerEquivalentGuest: 1, lotSize: 25, unitPrice: 1.5, active: true },
+  bolinhaQueijo: { id: "bolinha-queijo", name: "Bolinha de queijo", commercialCategory: "Petiscos", operationalGroup: "fried", productionPerHour: 120, suggestedUnitsPerEquivalentGuest: 1, lotSize: 25, unitPrice: 1.5, active: true },
+  risolesPresuntoQueijo: { id: "risoles-presunto-queijo", name: "Risoles de presunto e queijo", commercialCategory: "Petiscos", operationalGroup: "fried", productionPerHour: 120, suggestedUnitsPerEquivalentGuest: 1, lotSize: 25, unitPrice: 1.5, active: true },
+  kibeCarne: { id: "kibe-carne", name: "Kibe de carne", commercialCategory: "Petiscos", operationalGroup: "fried", productionPerHour: 120, suggestedUnitsPerEquivalentGuest: 1, lotSize: 25, unitPrice: 1.5, active: true },
+  luaCalabresa: { id: "lua-calabresa", name: "Lua de Calabresa", commercialCategory: "Petiscos", operationalGroup: "fried", productionPerHour: 120, suggestedUnitsPerEquivalentGuest: 1, lotSize: 25, unitPrice: 1.5, active: true },
+  pastelCarne: { id: "pastel-carne", name: "Pastelzinho de carne", commercialCategory: "Petiscos", operationalGroup: "fried", productionPerHour: 100, suggestedUnitsPerEquivalentGuest: 3, lotSize: 10, unitPrice: 1.5, active: true },
+  pastelQueijo: { id: "pastel-queijo", name: "Pastelzinho de queijo", commercialCategory: "Petiscos", operationalGroup: "fried", productionPerHour: 100, suggestedUnitsPerEquivalentGuest: 3, lotSize: 10, unitPrice: 1.5, active: true },
+  pastelPizza: { id: "pastel-pizza", name: "Pastelzinho de pizza", commercialCategory: "Petiscos", operationalGroup: "fried", productionPerHour: 100, suggestedUnitsPerEquivalentGuest: 1, lotSize: 10, unitPrice: 1.5, active: true },
+  enroladinhoSalsicha: { id: "enroladinho-salsicha", name: "Enroladinho de salsicha", commercialCategory: "Petiscos", operationalGroup: "fried", productionPerHour: 120, suggestedUnitsPerEquivalentGuest: 1, lotSize: 25, unitPrice: 1.5, active: true },
+  braxolaCarne: { id: "braxola-carne", name: "Braxola de carne", commercialCategory: "Petiscos", operationalGroup: "fried", productionPerHour: 120, suggestedUnitsPerEquivalentGuest: 1, lotSize: 25, unitPrice: 1.5, active: true },
+  braxolaQueijo: { id: "braxola-queijo", name: "Braxola de queijo", commercialCategory: "Petiscos", operationalGroup: "fried", productionPerHour: 120, suggestedUnitsPerEquivalentGuest: 1, lotSize: 25, unitPrice: 1.5, active: true },
+  bolinhaQueijoBacon: { id: "bolinha-queijo-bacon", name: "Bolinha de queijo com bacon", commercialCategory: "Petiscos", operationalGroup: "fried", productionPerHour: 120, suggestedUnitsPerEquivalentGuest: 1, lotSize: 25, unitPrice: 2, active: true },
+  kibeQueijo: { id: "kibe-queijo", name: "Kibe com queijo", commercialCategory: "Petiscos", operationalGroup: "fried", productionPerHour: 120, suggestedUnitsPerEquivalentGuest: 1, lotSize: 25, unitPrice: 2, active: true },
 
-  pastelQueijo: {
-    id: "pastel-queijo",
-    name: "Pastel de queijo",
-    commercialCategory: "Frituras",
-    operationalGroup: "fried",
-    productionPerHour: 100,
-    suggestedUnitsPerEquivalentGuest: 3,
-    lotSize: 10,
-    unitPrice: 1.5,
-    active: true,
-  },
+  miniXBurguer: { id: "mini-x-burguer", name: "X-Burguer", description: "Pão, hambúrguer artesanal de contra-filé e queijo", commercialCategory: "Mini lanches", operationalGroup: "hotSandwiches", productionPerHour: 80, suggestedUnitsPerEquivalentGuest: 2, lotSize: 5, unitPrice: 6, active: true },
+  miniXSalada: { id: "mini-x-salada", name: "X-Salada", description: "Pão, hambúrguer artesanal de contra-filé, alface, tomate e queijo", commercialCategory: "Mini lanches", operationalGroup: "hotSandwiches", productionPerHour: 80, suggestedUnitsPerEquivalentGuest: 2, lotSize: 5, unitPrice: 6, active: true },
+  miniHotDog: { id: "mini-hot-dog", name: "Hot dog", description: "Pão, molho de tomate caseiro e salsichas cortadas", commercialCategory: "Mini lanches", operationalGroup: "hotSandwiches", productionPerHour: 100, suggestedUnitsPerEquivalentGuest: 2, lotSize: 5, unitPrice: 6, active: true },
+  carneLouca: { id: "carne-louca", name: "Carne louca", description: "Pão com carne louca, sem pimentão", commercialCategory: "Mini lanches", operationalGroup: "hotSandwiches", productionPerHour: 80, suggestedUnitsPerEquivalentGuest: 2, lotSize: 5, unitPrice: 8, active: true },
 
-  coxinhaFrangoCatupiry: {
-    id: "coxinha-frango-catupiry",
-    name: "Coxinha de frango com catupiry",
-    commercialCategory: "Frituras",
-    operationalGroup: "fried",
-    productionPerHour: 120,
-    suggestedUnitsPerEquivalentGuest: 1,
-    lotSize: 25,
-    unitPrice: 1.5,
-    active: true,
-  },
+  tortaCebolaCaramelizada: { id: "torta-cebola-caramelizada-queijo", name: "Cebola caramelizada com queijo", commercialCategory: "Tortas", operationalGroup: "hotSandwiches", productionPerHour: 40, suggestedUnitsPerEquivalentGuest: 1, lotSize: 1, unitPrice: 5, priceUnit: "portion150g", portionGrams: 150, active: true },
+  tortaStrogonoffFrango: { id: "torta-strogonoff-frango", name: "Strogonoff de frango", commercialCategory: "Tortas", operationalGroup: "hotSandwiches", productionPerHour: 40, suggestedUnitsPerEquivalentGuest: 1, lotSize: 1, unitPrice: 5, priceUnit: "portion150g", portionGrams: 150, active: true },
+  tortaFrangoCatupiry: { id: "torta-frango-catupiry", name: "Frango com catupiry", commercialCategory: "Tortas", operationalGroup: "hotSandwiches", productionPerHour: 40, suggestedUnitsPerEquivalentGuest: 1, lotSize: 1, unitPrice: 5, priceUnit: "portion150g", portionGrams: 150, active: true },
+  tortaFrangoCreamCheese: { id: "torta-frango-cream-cheese-ervas", name: "Frango com cream cheese e ervas", commercialCategory: "Tortas", operationalGroup: "hotSandwiches", productionPerHour: 40, suggestedUnitsPerEquivalentGuest: 1, lotSize: 1, unitPrice: 5, priceUnit: "portion150g", portionGrams: 150, active: true },
+  tortaPalmitoCatupiry: { id: "torta-palmito-catupiry", name: "Palmito com catupiry", commercialCategory: "Tortas", operationalGroup: "hotSandwiches", productionPerHour: 40, suggestedUnitsPerEquivalentGuest: 1, lotSize: 1, unitPrice: 5, priceUnit: "portion150g", portionGrams: 150, active: true },
+  tortaCamaraoCatupiry: { id: "torta-camarao-catupiry", name: "Camarão com catupiry", commercialCategory: "Tortas", operationalGroup: "hotSandwiches", productionPerHour: 40, suggestedUnitsPerEquivalentGuest: 1, lotSize: 1, unitPrice: 13.5, priceUnit: "portion150g", portionGrams: 150, active: true },
+  tortaCarneLoucaCheddar: { id: "torta-carne-louca-cheddar", name: "Carne louca com cheddar", commercialCategory: "Tortas", operationalGroup: "hotSandwiches", productionPerHour: 40, suggestedUnitsPerEquivalentGuest: 1, lotSize: 1, unitPrice: 13.5, priceUnit: "portion150g", portionGrams: 150, active: true },
+  tortaBacalhauCatupiry: { id: "torta-bacalhau-catupiry", name: "Bacalhau com catupiry", commercialCategory: "Tortas", operationalGroup: "hotSandwiches", productionPerHour: 40, suggestedUnitsPerEquivalentGuest: 1, lotSize: 1, unitPrice: 13.5, priceUnit: "portion150g", portionGrams: 150, active: true },
 
-  risolesPresuntoQueijo: {
-    id: "risoles-presunto-queijo",
-    name: "Risoles de presunto e queijo",
-    commercialCategory: "Frituras",
-    operationalGroup: "fried",
-    productionPerHour: 120,
-    suggestedUnitsPerEquivalentGuest: 1,
-    lotSize: 25,
-    unitPrice: 1.5,
-    active: true,
-  },
+  boloBeatriz: { id: "bolo-beatriz", name: '"Beatriz" — Leite condensado com morango', commercialCategory: "Bolos", operationalGroup: "cake", productionPerHour: 100, suggestedUnitsPerEquivalentGuest: 1, lotSize: 1, unitPrice: 10.8, priceUnit: "portion120g", portionGrams: 120, active: true, countsAsMainCart: false },
+  boloBrigadeiroNinho: { id: "bolo-brigadeiro-leite-ninho", name: "Bolo de brigadeiro com leite ninho", commercialCategory: "Bolos", operationalGroup: "cake", productionPerHour: 100, suggestedUnitsPerEquivalentGuest: 1, lotSize: 1, unitPrice: 10.8, priceUnit: "portion120g", portionGrams: 120, active: true, countsAsMainCart: false },
+  boloMousseNinho: { id: "bolo-mousse-leite-ninho", name: "Bolo mousse de leite ninho", commercialCategory: "Bolos", operationalGroup: "cake", productionPerHour: 100, suggestedUnitsPerEquivalentGuest: 1, lotSize: 1, unitPrice: 10.8, priceUnit: "portion120g", portionGrams: 120, active: true, countsAsMainCart: false },
+  boloAbacaxiLeiteMoca: { id: "bolo-abacaxi-leite-moca", name: "Bolo de abacaxi com leite moça", commercialCategory: "Bolos", operationalGroup: "cake", productionPerHour: 100, suggestedUnitsPerEquivalentGuest: 1, lotSize: 1, unitPrice: 10.8, priceUnit: "portion120g", portionGrams: 120, active: true, countsAsMainCart: false },
+  boloChocolateBrigadeiro: { id: "bolo-chocolate-brigadeiro", name: "Bolo de chocolate com brigadeiro", commercialCategory: "Bolos", operationalGroup: "cake", productionPerHour: 100, suggestedUnitsPerEquivalentGuest: 1, lotSize: 1, unitPrice: 10.8, priceUnit: "portion120g", portionGrams: 120, active: true, countsAsMainCart: false },
 
-  miniXBurguer: {
-    id: "mini-x-burguer",
-    name: "Mini X-Burguer",
-    commercialCategory: "Mini lanches",
-    operationalGroup: "hotSandwiches",
-    productionPerHour: 80,
-    suggestedUnitsPerEquivalentGuest: 2,
-    lotSize: 5,
-    unitPrice: 6,
-    active: true,
-  },
+  brigadeiroChocolate: { id: "brigadeiro-chocolate", name: "Brigadeiro de chocolate", commercialCategory: "Doces", operationalGroup: "sweets", productionPerHour: 200, suggestedUnitsPerEquivalentGuest: 3, lotSize: 10, unitPrice: 3, active: true, countsAsMainCart: false },
+  brigadeiroLeiteNinho: { id: "brigadeiro-leite-ninho", name: "Brigadeiro de leite ninho", commercialCategory: "Doces", operationalGroup: "sweets", productionPerHour: 200, suggestedUnitsPerEquivalentGuest: 3, lotSize: 10, unitPrice: 3, active: true, countsAsMainCart: false },
 
-  miniHotDog: {
-    id: "mini-hot-dog",
-    name: "Mini Hot Dog",
-    commercialCategory: "Mini lanches",
-    operationalGroup: "hotSandwiches",
-    productionPerHour: 100,
-    suggestedUnitsPerEquivalentGuest: 2,
-    lotSize: 5,
-    unitPrice: 6,
-    active: true,
-  },
-
-  brigadeiroChocolate: {
-    id: "brigadeiro-chocolate",
-    name: "Brigadeiro de chocolate",
-    commercialCategory: "Doces",
-    operationalGroup: "sweets",
-    productionPerHour: 200,
-    suggestedUnitsPerEquivalentGuest: 3,
-    lotSize: 10,
-    unitPrice: 3,
-    active: true,
-    countsAsMainCart: false,
-  },
-
-  brigadeiroLeiteNinho: {
-    id: "brigadeiro-leite-ninho",
-    name: "Brigadeiro de leite ninho",
-    commercialCategory: "Doces",
-    operationalGroup: "sweets",
-    productionPerHour: 200,
-    suggestedUnitsPerEquivalentGuest: 3,
-    lotSize: 10,
-    unitPrice: 3,
-    active: true,
-    countsAsMainCart: false,
-  },
-
-  bolo: {
-    id: "bolo",
-    name: "Bolo",
-    commercialCategory: "Bolos",
-    operationalGroup: "cake",
-    productionPerHour: 100,
-    suggestedUnitsPerEquivalentGuest: 0.1481,
-    lotSize: 0.5,
-    unitPrice: 90,
-    priceUnit: "kg",
-    active: true,
-    countsAsMainCart: false,
-  },
-
-  refrigerante200ml: {
-    id: "refrigerante-200ml",
-    name: "Refrigerante 200 ml",
-    commercialCategory: "Bebidas",
-    operationalGroup: "beverages",
-    productionPerHour: 150,
-    suggestedUnitsPerEquivalentGuest: 1,
-    lotSize: 10,
-    unitPrice: 2.5,
-    active: true,
-    consignment: true,
-    countsAsMainCart: false,
-  },
-
-  sucoLaranja200ml: {
-    id: "suco-laranja-200ml",
-    name: "Suco de laranja natural 200 ml",
-    commercialCategory: "Bebidas",
-    operationalGroup: "beverages",
-    productionPerHour: 150,
-    suggestedUnitsPerEquivalentGuest: 1,
-    lotSize: 10,
-    unitPrice: 6,
-    active: true,
-    consignment: true,
-    countsAsMainCart: false,
-  },
-
-  aguaMineral: {
-    id: "agua-mineral",
-    name: "Água mineral sem gás",
-    commercialCategory: "Bebidas",
-    operationalGroup: "beverages",
-    productionPerHour: 150,
-    suggestedUnitsPerEquivalentGuest: 1,
-    lotSize: 10,
-    unitPrice: 2.5,
-    active: true,
-    consignment: true,
-    countsAsMainCart: false,
-  },
+  refrigerante200ml: { id: "refrigerante-200ml", name: "Refrigerante 200 ml", commercialCategory: "Bebidas", operationalGroup: "beverages", productionPerHour: 150, suggestedUnitsPerEquivalentGuest: 1, lotSize: 10, unitPrice: 2.5, active: true, consignment: true, countsAsMainCart: true },
+  sucoLaranja200ml: { id: "suco-laranja-200ml", name: "Suco de laranja natural 200 ml", commercialCategory: "Bebidas", operationalGroup: "beverages", productionPerHour: 150, suggestedUnitsPerEquivalentGuest: 1, lotSize: 10, unitPrice: 6, active: true, consignment: true, countsAsMainCart: true },
+  aguaMineral: { id: "agua-mineral", name: "Água mineral sem gás", commercialCategory: "Bebidas", operationalGroup: "beverages", productionPerHour: 150, suggestedUnitsPerEquivalentGuest: 1, lotSize: 10, unitPrice: 2.5, active: true, consignment: true, countsAsMainCart: true },
 };
+
+export const DEFAULT_BEVERAGE_PRODUCT_IDS = [
+  "refrigerante-200ml",
+  "suco-laranja-200ml",
+  "agua-mineral",
+];
 
 /* =========================================================
    FUNÇÕES AUXILIARES
@@ -319,6 +218,10 @@ export function calculateSuggestedProductQuantity({
     return 0;
   }
 
+  if (equivalentGuests < 5 && product.id !== "bolo") {
+    return product.lotSize;
+  }
+
   const rawQuantity =
     equivalentGuests *
     product.suggestedUnitsPerEquivalentGuest;
@@ -326,6 +229,23 @@ export function calculateSuggestedProductQuantity({
   return roundUpToDecimalMultiple(
     rawQuantity,
     product.lotSize
+  );
+}
+
+export function getAdaptiveProductIds({
+  equivalentGuests,
+  selectedProductIds = [],
+}) {
+  if (equivalentGuests >= 15) {
+    return selectedProductIds;
+  }
+
+  // Eventos compactos começam com uma recomendação simples de frituras.
+  // Mini lanches, doces e bolo podem ser acrescentados pelo cliente depois.
+  const compactEventIds = ["pastel-carne"];
+
+  return compactEventIds.filter((id) =>
+    selectedProductIds.includes(id)
   );
 }
 
@@ -363,8 +283,9 @@ export function buildSuggestedItems({
       return {
         ...product,
         quantity,
-        estimatedValue:
-          quantity * product.unitPrice,
+        estimatedValue: product.consignment
+          ? 0
+          : quantity * product.unitPrice,
       };
     });
 }
@@ -416,6 +337,7 @@ export function calculateCakeQuantity({
 export function calculateCarts({
   items = [],
   serviceHours,
+  equivalentGuests = 0,
 }) {
   const includedHours =
     PLANNING_PARAMETERS.service.includedHours;
@@ -425,11 +347,17 @@ export function calculateCarts({
     Number(serviceHours) || includedHours
   );
 
-  const groups = items.reduce(
+  const cartGroupOrder = [
+    "fried",
+    "hotSandwiches",
+    "beverages",
+  ];
+
+  const groupedItems = items.reduce(
     (accumulator, item) => {
       if (
         item.countsAsMainCart === false ||
-        !item.operationalGroup ||
+        !cartGroupOrder.includes(item.operationalGroup) ||
         item.quantity <= 0
       ) {
         return accumulator;
@@ -437,54 +365,65 @@ export function calculateCarts({
 
       const group =
         accumulator[item.operationalGroup] ?? {
-          operationalGroup:
-            item.operationalGroup,
+          operationalGroup: item.operationalGroup,
           items: [],
           totalLoadInHours: 0,
         };
 
-      const productLoadInHours =
-        item.quantity /
-        item.productionPerHour;
-
       group.items.push(item);
       group.totalLoadInHours +=
-        productLoadInHours;
+        item.quantity / item.productionPerHour;
 
-      accumulator[item.operationalGroup] =
-        group;
-
+      accumulator[item.operationalGroup] = group;
       return accumulator;
     },
     {}
   );
 
-  const cartGroups = Object.values(
-    groups
-  ).map((group) => {
-    const cartsRequired = Math.max(
-      1,
-      Math.ceil(
-        group.totalLoadInHours /
-          operationalHours
-      )
-    );
+  /*
+   * Regra operacional Roda Festa:
+   * - 1 carrinho exclusivo para frituras;
+   * - 1 carrinho exclusivo para mini lanches ou tortas;
+   * - 1 carrinho exclusivo para bebidas em consignação;
+   * - doces e bolo não utilizam carrinho nem mesa fornecida.
+   *
+   * Os limites de 100 adultos e 100 crianças já representam
+   * a capacidade máxima de produção planejada para um único
+   * carrinho de cada categoria durante o evento. Por isso, o
+   * volume não cria um segundo carrinho da mesma categoria.
+   */
+  let cartGroups = cartGroupOrder
+    .filter((groupId) => groupedItems[groupId])
+    .map((groupId) => {
+      const group = groupedItems[groupId];
+      const capacityUsage =
+        operationalHours > 0
+          ? group.totalLoadInHours / operationalHours
+          : 0;
 
-    return {
-      ...group,
-      cartsRequired,
-    };
-  });
+      return {
+        ...group,
+        cartsRequired: 1,
+        capacityUsage,
+        withinPlannedCapacity: capacityUsage <= 1,
+      };
+    });
 
-  const totalCarts = cartGroups.reduce(
-    (total, group) =>
-      total + group.cartsRequired,
-    0
+
+  const maxCarts =
+    PLANNING_PARAMETERS.service.maxCarts;
+
+  const totalCarts = Math.min(
+    cartGroups.length,
+    maxCarts
   );
 
   return {
     totalCarts,
-    groups: cartGroups,
+    groups: cartGroups.slice(0, maxCarts),
+    maximumAvailable: maxCarts,
+    reachedMaximum: totalCarts === maxCarts,
+    allocationRule: "one-cart-per-operational-group",
   };
 }
 
@@ -610,15 +549,37 @@ export function calculateInvestment({
     0
   );
 
+  /*
+   * Bebidas são fornecidas em consignação. O carrinho continua fazendo
+   * parte da estrutura visual e operacional, mas não compõe o investimento
+   * inicial estimado. Por isso, somente grupos de carrinho com itens não
+   * consignados entram no valor-base e nas horas adicionais.
+   */
+  const billableCartGroups = new Set(
+    items
+      .filter(
+        (item) =>
+          Number(item.quantity) > 0 &&
+          item.countsAsMainCart !== false &&
+          !item.consignment
+      )
+      .map((item) => item.operationalGroup)
+  );
+
+  const billableTotalCarts = Math.min(
+    Number(totalCarts) || 0,
+    billableCartGroups.size
+  );
+
   const cartsValue =
-    totalCarts *
+    billableTotalCarts *
     PLANNING_PARAMETERS.service
       .cartBasePrice;
 
   const additionalHours =
     calculateAdditionalHours({
       serviceHours,
-      totalCarts,
+      totalCarts: billableTotalCarts,
     });
 
   const waitersValue =
@@ -637,6 +598,7 @@ export function calculateInvestment({
   return {
     productsValue,
     cartsValue,
+    billableTotalCarts,
     additionalHoursValue:
       additionalHours.value,
     waitersValue,
@@ -723,6 +685,7 @@ export function generatePlanningSuggestion({
   includeWaiters = false,
   includeDisposables = false,
   includeBeverages = false,
+  additionalProductIds = [],
 }) {
   const realGuests =
     calculateRealGuests({
@@ -736,9 +699,27 @@ export function generatePlanningSuggestion({
       children,
     });
 
-  let items = buildSuggestedItems({
+  const adaptiveProductIds = getAdaptiveProductIds({
     equivalentGuests,
     selectedProductIds,
+  });
+
+  const recommendationProductIds = Array.from(
+    new Set([...adaptiveProductIds, ...additionalProductIds])
+  );
+
+  const effectiveProductIds = includeBeverages
+    ? Array.from(
+        new Set([
+          ...recommendationProductIds,
+          ...DEFAULT_BEVERAGE_PRODUCT_IDS,
+        ])
+      )
+    : recommendationProductIds;
+
+  let items = buildSuggestedItems({
+    equivalentGuests,
+    selectedProductIds: effectiveProductIds,
     includeBeverages,
   });
 
@@ -772,6 +753,7 @@ export function generatePlanningSuggestion({
   const carts = calculateCarts({
     items,
     serviceHours,
+    equivalentGuests,
   });
 
   const preparers =

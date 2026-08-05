@@ -263,15 +263,15 @@ export function buildPlanningScene({
   const cartObjects =
     buildCartObjects(suggestion);
 
-  const dessertObject =
-    buildDessertObject(products);
+  // Doces e bolo continuam fora da contagem de carrinhos, mas entram
+  // como uma referência visual separada na Cena Viva. A mesa exibida
+  // representa apenas a apresentação dos itens, cuja estrutura e montagem
+  // permanecem sob responsabilidade do cliente.
+  const dessertObject = buildDessertObject(products);
 
   const sceneObjects = [
     ...cartObjects,
-
-    ...(dessertObject
-      ? [dessertObject]
-      : []),
+    ...(dessertObject ? [dessertObject] : []),
   ];
 
   return {

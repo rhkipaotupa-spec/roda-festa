@@ -1,0 +1,5974 @@
+/* =========================================================
+   PLANNING BOOK
+   Caderno aberto + planejamento + execução do evento
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+body {
+  background: #080403;
+}
+
+/* =========================================================
+   TELA
+   ========================================================= */
+
+.planning-book {
+  position: relative;
+
+  width: 100%;
+  max-width: 100vw;
+  min-height: 100vh;
+
+  padding: 12px;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      ellipse at 50% -15%,
+      rgba(174, 115, 50, 0.15),
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse at 50% 115%,
+      rgba(68, 34, 17, 0.22),
+      transparent 50%
+    ),
+    linear-gradient(
+      145deg,
+      #080403 0%,
+      #130a07 48%,
+      #060302 100%
+    );
+}
+
+.planning-book::before {
+  content: "";
+
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      transparent 46%,
+      rgba(0, 0, 0, 0.44) 100%
+    );
+}
+
+/* =========================================================
+   CAPA EXTERNA — COURO ESCURO
+   ========================================================= */
+
+.planning-book__book {
+  position: relative;
+  z-index: 1;
+
+  display: grid;
+
+  /* Duas páginas iguais e área direita maior */
+  grid-template-columns:
+    minmax(0, 0.82fr)
+    minmax(0, 0.82fr)
+    minmax(0, 1.36fr);
+
+  width: 100%;
+  max-width: 100%;
+
+  height: calc(100vh - 24px);
+  min-height: 680px;
+
+  padding: 22px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(155, 94, 39, 0.54);
+
+  border-radius: 28px;
+
+  /*
+   * Couro:
+   * - café escuro
+   * - variações naturais
+   * - pequenos poros
+   * - veios discretos
+   */
+
+  background:
+    radial-gradient(
+      ellipse at 13% 5%,
+      rgba(255, 220, 170, 0.075),
+      transparent 29%
+    ),
+    radial-gradient(
+      ellipse at 79% 98%,
+      rgba(0, 0, 0, 0.42),
+      transparent 48%
+    ),
+    radial-gradient(
+      ellipse at 82% 24%,
+      rgba(99, 52, 25, 0.15),
+      transparent 32%
+    ),
+    radial-gradient(
+      ellipse at 20% 79%,
+      rgba(10, 4, 2, 0.26),
+      transparent 39%
+    ),
+    repeating-radial-gradient(
+      ellipse at 16% 22%,
+      rgba(255, 255, 255, 0.022) 0,
+      rgba(255, 255, 255, 0.022) 0.8px,
+      transparent 1px,
+      transparent 4px
+    ),
+    repeating-linear-gradient(
+      18deg,
+      rgba(255, 228, 187, 0.015) 0,
+      rgba(255, 228, 187, 0.015) 1px,
+      transparent 1px,
+      transparent 7px
+    ),
+    repeating-linear-gradient(
+      -24deg,
+      rgba(0, 0, 0, 0.029) 0,
+      rgba(0, 0, 0, 0.029) 1px,
+      transparent 1px,
+      transparent 9px
+    ),
+    linear-gradient(
+      145deg,
+      #3d2114 0%,
+      #30180f 30%,
+      #211008 64%,
+      #0d0503 100%
+    );
+
+  box-shadow:
+    0 48px 120px rgba(0, 0, 0, 0.75),
+    0 18px 48px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 231, 193, 0.08),
+    inset 0 0 0 7px rgba(7, 3, 2, 0.32),
+    inset 0 20px 36px rgba(255, 222, 177, 0.025),
+    inset 0 -26px 54px rgba(0, 0, 0, 0.31);
+
+  isolation: isolate;
+}
+
+/* Linha estrutural do couro */
+
+.planning-book__book::before {
+  content: "";
+
+  position: absolute;
+  inset: 7px;
+  z-index: 40;
+
+  pointer-events: none;
+
+  border:
+    1px solid
+    rgba(194, 136, 66, 0.31);
+
+  border-radius: 21px;
+
+  box-shadow:
+    inset 0 0 0 3px rgba(11, 5, 3, 0.17),
+    0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+/* Costura */
+
+.planning-book__book::after {
+  content: "";
+
+  position: absolute;
+  inset: 15px;
+  z-index: 39;
+
+  pointer-events: none;
+
+  border:
+    1px dashed
+    rgba(210, 153, 77, 0.26);
+
+  border-radius: 16px;
+
+  filter:
+    drop-shadow(
+      0 1px 0
+      rgba(0, 0, 0, 0.42)
+    );
+}
+
+/* =========================================================
+   PÁGINAS
+   ========================================================= */
+
+.planning-book__questions,
+.planning-book__summary {
+  position: relative;
+  z-index: 5;
+
+  min-width: 0;
+  min-height: 0;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  color: #38261b;
+
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(134, 88, 40, 0.24)
+    transparent;
+}
+
+/* Página esquerda */
+
+.planning-book__questions {
+  margin:
+    14px
+    0
+    14px
+    14px;
+
+  padding:
+    34px
+    36px
+    48px;
+
+  border:
+    1px solid
+    rgba(110, 73, 43, 0.16);
+
+  border-radius:
+    18px
+    3px
+    3px
+    18px;
+
+  background:
+    radial-gradient(
+      ellipse at 24% 12%,
+      rgba(255, 255, 255, 0.46),
+      transparent 34%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(91, 62, 42, 0.019) 0,
+      rgba(91, 62, 42, 0.019) 1px,
+      transparent 1px,
+      transparent 5px
+    ),
+    linear-gradient(
+      90deg,
+      #fbf6ee 0%,
+      #f5ede1 72%,
+      #dfceb8 100%
+    );
+
+  box-shadow:
+    inset -29px 0 39px rgba(67, 37, 20, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.42),
+    0 14px 30px rgba(0, 0, 0, 0.22);
+}
+
+/* Página central */
+
+.planning-book__summary {
+  display: flex;
+  flex-direction: column;
+
+  margin:
+    14px
+    14px
+    14px
+    0;
+
+  padding:
+    38px
+    34px
+    44px;
+
+  border:
+    1px solid
+    rgba(110, 73, 43, 0.16);
+
+  border-radius:
+    3px
+    18px
+    18px
+    3px;
+
+  background:
+    radial-gradient(
+      ellipse at 72% 10%,
+      rgba(255, 255, 255, 0.32),
+      transparent 36%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(91, 62, 42, 0.019) 0,
+      rgba(91, 62, 42, 0.019) 1px,
+      transparent 1px,
+      transparent 5px
+    ),
+    linear-gradient(
+      90deg,
+      #ddccb6 0%,
+      #eadcca 22%,
+      #f5ede2 100%
+    );
+
+  box-shadow:
+    inset 29px 0 39px rgba(67, 37, 20, 0.13),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.33),
+    0 14px 30px rgba(0, 0, 0, 0.21);
+}
+
+/* Contorno interno do papel */
+
+.planning-book__questions::before,
+.planning-book__summary::before {
+  content: "";
+
+  position: absolute;
+  inset: 9px;
+
+  pointer-events: none;
+
+  border:
+    1px solid
+    rgba(138, 95, 48, 0.12);
+
+  border-radius: 10px;
+}
+
+/* Sombra da dobra */
+
+.planning-book__questions::after {
+  content: "";
+
+  position: absolute;
+  top: 12px;
+  right: -1px;
+  bottom: 12px;
+
+  width: 16px;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(72, 42, 24, 0.1) 68%,
+      rgba(46, 25, 13, 0.17) 100%
+    );
+}
+
+.planning-book__summary::after {
+  content: "";
+
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: -1px;
+
+  width: 16px;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(46, 25, 13, 0.16) 0%,
+      rgba(72, 42, 24, 0.1) 32%,
+      transparent 100%
+    );
+}
+
+/* Barras verticais discretas */
+
+.planning-book__questions::-webkit-scrollbar,
+.planning-book__summary::-webkit-scrollbar {
+  width: 4px;
+}
+
+.planning-book__questions::-webkit-scrollbar-track,
+.planning-book__summary::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.planning-book__questions::-webkit-scrollbar-thumb,
+.planning-book__summary::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background:
+    rgba(134, 88, 40, 0.24);
+}
+
+/* =========================================================
+   ENCADERNAÇÃO
+   ========================================================= */
+
+.planning-book__binding {
+  position: absolute;
+
+  top: 57px;
+  bottom: 57px;
+
+  /*
+   * Primeira página corresponde a aproximadamente 27,33%
+   * da área interna. Este valor posiciona a dobra entre as
+   * duas páginas, já considerando a margem da capa.
+   */
+
+  left: 28.15%;
+  z-index: 50;
+
+  width: 44px;
+
+  pointer-events: none;
+
+  transform: translateX(-50%);
+}
+
+/* Dobra fina central */
+
+.planning-book__binding::before {
+  content: "";
+
+  position: absolute;
+
+  top: -18px;
+  bottom: -18px;
+  left: 50%;
+
+  width: 8px;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(37, 20, 11, 0.24) 0%,
+      rgba(126, 88, 54, 0.13) 28%,
+      rgba(255, 249, 235, 0.11) 50%,
+      rgba(102, 66, 40, 0.13) 72%,
+      rgba(31, 16, 9, 0.24) 100%
+    );
+
+  box-shadow:
+    -6px 0 12px rgba(57, 32, 18, 0.1),
+    6px 0 12px rgba(57, 32, 18, 0.1);
+
+  transform: translateX(-50%);
+}
+
+/*
+ * Argolas individuais:
+ * 11 unidades, mais próximas, mas ainda discretas.
+ */
+
+.planning-book__binding::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  opacity: 0.76;
+
+  background:
+    radial-gradient(
+      ellipse 20px 5px at 50% 3%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 12.4%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 21.8%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 31.2%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 40.6%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 50%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 59.4%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 68.8%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 78.2%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 87.6%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 20px 5px at 50% 97%,
+      #d0a058 0%,
+      #a26d30 45%,
+      #5e3814 70%,
+      transparent 75%
+    );
+
+  filter:
+    drop-shadow(
+      1px 2px 1px
+      rgba(0, 0, 0, 0.25)
+    );
+}
+
+/* =========================================================
+   CAMADAS DO CONTEÚDO
+   ========================================================= */
+
+.planning-book__header,
+.planning-book__section,
+.planning-book__summary-header,
+.planning-book__summary-list,
+.planning-book__summary-footer {
+  position: relative;
+  z-index: 2;
+}
+
+/* =========================================================
+   CABEÇALHO
+   ========================================================= */
+
+.planning-book__header {
+  padding-bottom: 22px;
+
+  border-bottom:
+    1px solid
+    rgba(118, 79, 46, 0.16);
+}
+
+.planning-book__eyebrow,
+.planning-book__chapter {
+  color: #996525;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.planning-book__title {
+  max-width: 330px;
+  margin: 10px 0 0;
+
+  color: #352319;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:
+    clamp(34px, 2.65vw, 47px);
+
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+}
+
+.planning-book__intro {
+  max-width: 320px;
+  margin: 14px 0 0;
+
+  color:
+    rgba(66, 45, 31, 0.7);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* =========================================================
+   SEÇÕES
+   ========================================================= */
+
+.planning-book__section {
+  padding:
+    24px
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(117, 79, 47, 0.14);
+}
+
+.planning-book__section:last-child {
+  border-bottom: 0;
+}
+
+.planning-book__section h2 {
+  max-width: 330px;
+  margin:
+    8px
+    0
+    18px;
+
+  color: #39261b;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+}
+
+/* =========================================================
+   CAMPOS
+   ========================================================= */
+
+.planning-book__field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  margin-top: 15px;
+}
+
+.planning-book__field > span {
+  color:
+    rgba(73, 49, 34, 0.62);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.planning-book__field input,
+.planning-book__field select {
+  width: 100%;
+
+  padding:
+    11px
+    2px
+    10px;
+
+  border: 0;
+  border-bottom:
+    1px solid
+    rgba(112, 77, 46, 0.3);
+
+  border-radius: 0;
+
+  color: #352319;
+
+  background: transparent;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 18px;
+
+  outline: none;
+
+  transition:
+    border-color 180ms ease;
+}
+
+.planning-book__field input:focus,
+.planning-book__field select:focus {
+  border-color:
+    rgba(164, 112, 40, 0.78);
+}
+
+.planning-book__field input::placeholder {
+  color:
+    rgba(70, 48, 34, 0.32);
+}
+
+/* =========================================================
+   OPÇÕES DE EVENTO
+   ========================================================= */
+
+.planning-book__event-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.planning-book__event-option {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  width: 100%;
+
+  padding:
+    15px
+    16px;
+
+  border:
+    1px solid
+    rgba(108, 72, 42, 0.15);
+
+  border-radius: 13px;
+
+  color: #38261b;
+
+  background:
+    rgba(255, 255, 255, 0.38);
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.planning-book__event-option:hover {
+  transform: translateY(-1px);
+
+  border-color:
+    rgba(161, 109, 39, 0.32);
+
+  background:
+    rgba(255, 252, 246, 0.86);
+}
+
+.planning-book__event-option--selected {
+  border-color:
+    rgba(161, 109, 39, 0.52);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(246, 232, 207, 0.92),
+      rgba(255, 251, 244, 0.97)
+    );
+
+  box-shadow:
+    0 9px 22px
+    rgba(78, 46, 24, 0.08);
+}
+
+.planning-book__event-option strong {
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.planning-book__event-option span {
+  color:
+    rgba(72, 49, 34, 0.66);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   CONTADORES
+   ========================================================= */
+
+.planning-book__counter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding:
+    14px
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(112, 77, 46, 0.16);
+}
+
+.planning-book__counter-row > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.planning-book__counter-row strong {
+  color: #39261b;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.planning-book__counter-row span {
+  color:
+    rgba(72, 49, 34, 0.56);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+}
+
+.planning-book__counter {
+  display: grid;
+  grid-template-columns:
+    36px
+    52px
+    36px;
+
+  align-items: center;
+  gap: 6px;
+}
+
+.planning-book__counter button {
+  width: 36px;
+  height: 36px;
+
+  border:
+    1px solid
+    rgba(118, 78, 42, 0.2);
+
+  border-radius: 50%;
+
+  color: #4a2f1e;
+
+  background:
+    rgba(247, 238, 224, 0.96);
+
+  font-size: 19px;
+  cursor: pointer;
+
+  transition:
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.planning-book__counter button:hover {
+  transform: scale(1.05);
+
+  background: #fffaf1;
+}
+
+.planning-book__counter input {
+  width: 52px;
+
+  border: 0;
+
+  color: #332219;
+  background: transparent;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 22px;
+  text-align: center;
+
+  outline: none;
+}
+
+.planning-book__counter input::-webkit-inner-spin-button,
+.planning-book__counter input::-webkit-outer-spin-button {
+  margin: 0;
+
+  appearance: none;
+}
+
+/* =========================================================
+   PÁGINA CENTRAL
+   ========================================================= */
+
+.planning-book__summary-header {
+  text-align: center;
+}
+
+.planning-book__summary-header span {
+  color: #996525;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.planning-book__summary-header h2 {
+  margin: 9px 0 0;
+
+  color: #3a271c;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:
+    clamp(32px, 2.45vw, 43px);
+
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
+.planning-book__summary-list {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+
+  margin-top: 26px;
+}
+
+.planning-book__summary-list > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  padding:
+    13px
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(106, 72, 43, 0.16);
+
+  animation:
+    planning-book-write
+    260ms
+    ease
+    both;
+}
+
+.planning-book__summary-list span {
+  color:
+    rgba(78, 52, 35, 0.56);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.planning-book__summary-list strong {
+  color: #3b281d;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.planning-book__summary-list small {
+  color:
+    rgba(77, 53, 37, 0.62);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+}
+
+.planning-book__summary-footer {
+  margin-top: 22px;
+
+  color:
+    rgba(85, 58, 38, 0.52);
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* =========================================================
+   CENA DA FESTA
+   ========================================================= */
+
+.planning-book__scene {
+  position: relative;
+  z-index: 2;
+
+  min-width: 0;
+  min-height: 0;
+
+  margin:
+    14px
+    14px
+    14px
+    0;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(190, 137, 64, 0.2);
+
+  border-radius:
+    4px
+    18px
+    18px
+    4px;
+
+  background:
+    radial-gradient(
+      circle at 72% 20%,
+      rgba(212, 155, 77, 0.17),
+      transparent 26%
+    ),
+    radial-gradient(
+      circle at 54% 68%,
+      rgba(88, 46, 21, 0.19),
+      transparent 38%
+    ),
+    linear-gradient(
+      145deg,
+      #21120c 0%,
+      #110906 48%,
+      #060302 100%
+    );
+
+  box-shadow:
+    inset 32px 0 44px rgba(0, 0, 0, 0.38),
+    inset 0 0 0 7px rgba(0, 0, 0, 0.08),
+    0 14px 30px rgba(0, 0, 0, 0.25);
+}
+
+.planning-book__scene::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  opacity: 0.48;
+
+  background:
+    radial-gradient(
+      circle at 72% 17%,
+      rgba(255, 203, 119, 0.28) 0,
+      rgba(255, 203, 119, 0.04) 2%,
+      transparent 4%
+    ),
+    radial-gradient(
+      circle at 58% 25%,
+      rgba(255, 198, 104, 0.22) 0,
+      rgba(255, 198, 104, 0.03) 2%,
+      transparent 4%
+    ),
+    radial-gradient(
+      circle at 84% 33%,
+      rgba(255, 198, 104, 0.24) 0,
+      rgba(255, 198, 104, 0.03) 2%,
+      transparent 4%
+    ),
+    radial-gradient(
+      circle at 40% 14%,
+      rgba(255, 198, 104, 0.16) 0,
+      rgba(255, 198, 104, 0.02) 2%,
+      transparent 4%
+    );
+}
+
+.planning-book__scene::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(7, 4, 3, 0.05),
+      rgba(7, 4, 3, 0.7)
+    );
+}
+
+.planning-book__scene-overlay {
+  position: absolute;
+  top: 8%;
+  left: 8%;
+  z-index: 3;
+
+  max-width: 430px;
+}
+
+.planning-book__scene-overlay > span {
+  color: #b9873f;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.planning-book__scene-overlay h2 {
+  max-width: 390px;
+  margin:
+    14px
+    0
+    0;
+
+  color: #f3e4c8;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:
+    clamp(38px, 4vw, 62px);
+
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+}
+
+.planning-book__scene-overlay p {
+  max-width: 310px;
+  margin:
+    20px
+    0
+    0;
+
+  color:
+    rgba(239, 219, 184, 0.68);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   ANIMAÇÕES
+   ========================================================= */
+
+@keyframes planning-book-write {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 1380px) {
+  .planning-book__book {
+    grid-template-columns:
+      minmax(0, 0.9fr)
+      minmax(0, 0.9fr)
+      minmax(0, 1.2fr);
+  }
+
+  .planning-book__binding {
+    left: 30.7%;
+  }
+
+  .planning-book__questions,
+  .planning-book__summary {
+    padding-right: 30px;
+    padding-left: 30px;
+  }
+}
+
+@media (max-width: 1120px) {
+  .planning-book {
+    min-height: 100vh;
+    padding: 8px;
+
+    overflow-y: auto;
+  }
+
+  .planning-book__book {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr);
+
+    height: auto;
+    min-height: calc(100vh - 16px);
+
+    padding: 16px;
+  }
+
+  .planning-book__binding {
+    left: 50%;
+  }
+
+  .planning-book__scene {
+    grid-column: 1 / -1;
+
+    min-height: 600px;
+
+    margin:
+      0
+      14px
+      14px;
+
+    border-radius:
+      0
+      0
+      16px
+      16px;
+  }
+}
+
+@media (max-width: 760px) {
+  .planning-book {
+    padding: 0;
+
+    overflow-y: auto;
+  }
+
+  .planning-book__book {
+    grid-template-columns: 1fr;
+
+    width: 100%;
+    min-height: 100vh;
+
+    padding: 0;
+
+    border: 0;
+    border-radius: 0;
+  }
+
+  .planning-book__binding {
+    display: none;
+  }
+
+  .planning-book__questions,
+  .planning-book__summary,
+  .planning-book__scene {
+    min-height: 660px;
+    margin: 0;
+
+    border-radius: 0;
+  }
+
+  .planning-book__questions,
+  .planning-book__summary {
+    padding:
+      36px
+      25px
+      44px;
+  }
+
+  .planning-book__scene {
+    min-height: 76vh;
+  }
+}
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  .planning-book__event-option,
+  .planning-book__counter button,
+  .planning-book__summary-list > div {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* TESTE DEFINITIVO — COURO ESCURO COM TEXTURA */
+
+.planning-book__book {
+  background:
+    radial-gradient(
+      ellipse at 18% 10%,
+      rgba(255, 211, 150, 0.07),
+      transparent 30%
+    ),
+    radial-gradient(
+      ellipse at 82% 88%,
+      rgba(0, 0, 0, 0.55),
+      transparent 52%
+    ),
+    repeating-radial-gradient(
+      circle at 20% 20%,
+      rgba(255, 255, 255, 0.025) 0,
+      rgba(255, 255, 255, 0.025) 0.7px,
+      transparent 0.9px,
+      transparent 4px
+    ),
+    repeating-linear-gradient(
+      22deg,
+      rgba(255, 230, 190, 0.018) 0,
+      rgba(255, 230, 190, 0.018) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
+    repeating-linear-gradient(
+      -18deg,
+      rgba(0, 0, 0, 0.045) 0,
+      rgba(0, 0, 0, 0.045) 1px,
+      transparent 1px,
+      transparent 10px
+    ),
+    linear-gradient(
+      145deg,
+      #32180d 0%,
+      #241008 38%,
+      #170905 68%,
+      #080302 100%
+    ) !important;
+
+  border-color:
+    rgba(170, 105, 43, 0.45);
+
+  box-shadow:
+    0 48px 120px rgba(0, 0, 0, 0.78),
+    inset 0 1px 0 rgba(255, 225, 180, 0.08),
+    inset 0 0 0 8px rgba(0, 0, 0, 0.3),
+    inset 0 -30px 60px rgba(0, 0, 0, 0.34);
+}
+
+.planning-book__book::before {
+  border-color:
+    rgba(184, 121, 54, 0.3);
+}
+
+.planning-book__book::after {
+  border-color:
+    rgba(199, 143, 69, 0.23);
+}
+
+/* =========================================================
+   ANÁLISE DO PLANEJAMENTO
+   ========================================================= */
+
+.planning-book__questions--locked {
+  pointer-events: none;
+}
+
+.planning-book__questions--locked
+  .planning-book__header,
+.planning-book__questions--locked
+  .planning-book__section {
+  opacity: 0.54;
+
+  filter: saturate(0.72);
+
+  transition:
+    opacity 300ms ease,
+    filter 300ms ease;
+}
+
+.planning-book__analysis {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  margin-top: 34px;
+
+  animation:
+    planning-book-analysis-enter
+    420ms
+    ease
+    both;
+}
+
+.planning-book__analysis-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding-bottom: 20px;
+
+  border-bottom:
+    1px solid
+    rgba(106, 72, 43, 0.16);
+}
+
+.planning-book__analysis-heading > span {
+  color: #966326;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.17em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.planning-book__analysis-pulse {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.planning-book__analysis-pulse i {
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+
+  background: #a47031;
+
+  animation:
+    planning-book-pulse-dot
+    1.1s
+    ease-in-out
+    infinite;
+}
+
+.planning-book__analysis-pulse
+  i:nth-child(2) {
+  animation-delay: 160ms;
+}
+
+.planning-book__analysis-pulse
+  i:nth-child(3) {
+  animation-delay: 320ms;
+}
+
+.planning-book__analysis-steps {
+  display: flex;
+  flex-direction: column;
+
+  margin-top: 18px;
+}
+
+.planning-book__analysis-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-height: 48px;
+  padding:
+    10px
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(106, 72, 43, 0.12);
+
+  opacity: 0.28;
+
+  transition:
+    opacity 280ms ease,
+    transform 280ms ease,
+    color 280ms ease;
+}
+
+.planning-book__analysis-step--current {
+  opacity: 0.58;
+
+  transform:
+    translateX(3px);
+}
+
+.planning-book__analysis-step--completed {
+  opacity: 1;
+
+  animation:
+    planning-book-step-written
+    360ms
+    ease
+    both;
+}
+
+.planning-book__analysis-icon {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  width: 25px;
+  height: 25px;
+
+  border:
+    1px solid
+    rgba(143, 94, 35, 0.22);
+
+  border-radius: 50%;
+
+  color: rgba(73, 47, 29, 0.46);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 12px;
+}
+
+.planning-book__analysis-step--completed
+  .planning-book__analysis-icon {
+  color: #f4e6ce;
+
+  background:
+    linear-gradient(
+      135deg,
+      #9e6c2e,
+      #6e431e
+    );
+
+  border-color:
+    rgba(115, 70, 29, 0.34);
+
+  box-shadow:
+    0 5px 12px
+    rgba(67, 38, 18, 0.16);
+}
+
+.planning-book__analysis-step p {
+  margin: 0;
+
+  color: #3b291d;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.planning-book__loading-dots {
+  display: inline-block;
+
+  min-width: 24px;
+
+  letter-spacing: 3px;
+
+  animation:
+    planning-book-loading-dots
+    900ms
+    ease-in-out
+    infinite;
+}
+
+/* =========================================================
+   CENA EM ANÁLISE
+   ========================================================= */
+
+.planning-book__scene-overlay {
+  transition:
+    transform 500ms ease,
+    opacity 500ms ease;
+}
+
+.planning-book__scene--analyzing::before {
+  animation:
+    planning-book-scene-breathe
+    2.1s
+    ease-in-out
+    infinite;
+}
+
+.planning-book__scene--analyzing
+  .planning-book__scene-overlay {
+  transform:
+    translateY(4px);
+}
+
+.planning-book__scene--ready
+  .planning-book__scene-overlay {
+  animation:
+    planning-book-scene-ready
+    650ms
+    cubic-bezier(
+      0.22,
+      1,
+      0.36,
+      1
+    )
+    both;
+}
+
+.planning-book__personalize {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  width: min(100%, 340px);
+  min-height: 52px;
+
+  margin-top: 30px;
+  padding:
+    0
+    21px;
+
+  border:
+    1px solid
+    rgba(214, 168, 92, 0.35);
+
+  border-radius: 999px;
+
+  color: #f5e8d1;
+
+  background:
+    rgba(62, 35, 20, 0.72);
+
+  backdrop-filter:
+    blur(8px);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 14px 28px
+    rgba(0, 0, 0, 0.22);
+
+  animation:
+    planning-book-button-enter
+    520ms
+    250ms
+    ease
+    both;
+
+  transition:
+    transform 180ms ease,
+    background 180ms ease;
+}
+
+.planning-book__personalize:hover {
+  transform:
+    translateY(-2px);
+
+  background:
+    rgba(77, 44, 25, 0.86);
+}
+
+/* =========================================================
+   KEYFRAMES
+   ========================================================= */
+
+@keyframes planning-book-analysis-enter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(10px);
+
+    filter: blur(3px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+    filter: blur(0);
+  }
+}
+
+@keyframes planning-book-step-written {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+@keyframes planning-book-pulse-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+
+    transform:
+      translateY(0);
+  }
+
+  50% {
+    opacity: 1;
+
+    transform:
+      translateY(-3px);
+  }
+}
+
+@keyframes planning-book-loading-dots {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes planning-book-scene-breathe {
+  0%,
+  100% {
+    opacity: 0.38;
+
+    transform:
+      scale(1);
+  }
+
+  50% {
+    opacity: 0.62;
+
+    transform:
+      scale(1.025);
+  }
+}
+
+@keyframes planning-book-scene-ready {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+@keyframes planning-book-button-enter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  .planning-book__analysis,
+  .planning-book__analysis-step,
+  .planning-book__analysis-pulse i,
+  .planning-book__loading-dots,
+  .planning-book__scene--analyzing::before,
+  .planning-book__scene--ready
+    .planning-book__scene-overlay,
+  .planning-book__personalize {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* =========================================================
+   ESCOLHAS — SERVIÇOS OPCIONAIS
+   ========================================================= */
+
+.planning-book__choices {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.planning-book__choice {
+  display: grid;
+  grid-template-columns:
+    20px
+    minmax(0, 1fr);
+
+  align-items: start;
+  gap: 12px;
+
+  width: 100%;
+  padding:
+    13px
+    14px;
+
+  border:
+    1px solid
+    rgba(109, 73, 43, 0.14);
+
+  border-radius: 12px;
+
+  background:
+    rgba(255, 255, 255, 0.3);
+
+  cursor: pointer;
+}
+
+.planning-book__choice input {
+  width: 17px;
+  height: 17px;
+  margin: 2px 0 0;
+
+  accent-color: #986428;
+}
+
+.planning-book__choice > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.planning-book__choice strong {
+  color: #39261b;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.planning-book__choice small {
+  color:
+    rgba(72, 49, 34, 0.62);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   CONVIDADOS EQUIVALENTES
+   ========================================================= */
+
+.planning-book__equivalent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  margin-top: 16px;
+  padding:
+    13px
+    15px;
+
+  border-left:
+    2px solid
+    rgba(159, 105, 40, 0.48);
+
+  background:
+    rgba(232, 213, 181, 0.3);
+}
+
+.planning-book__equivalent span {
+  color:
+    rgba(77, 51, 34, 0.56);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.planning-book__equivalent strong {
+  color: #3b281d;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 17px;
+  font-weight: 400;
+}
+
+/* =========================================================
+   PÁGINA VAZIA DA RECOMENDAÇÃO
+   ========================================================= */
+
+.planning-book__empty-recommendation {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  max-width: 310px;
+  margin: 0 auto;
+
+  color: #3c291e;
+
+  text-align: center;
+}
+
+.planning-book__empty-recommendation > span {
+  color: #9e6a2d;
+
+  font-size: 28px;
+}
+
+.planning-book__empty-recommendation h3 {
+  margin:
+    18px
+    0
+    12px;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.planning-book__empty-recommendation p {
+  margin: 0;
+
+  color:
+    rgba(72, 49, 34, 0.62);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+/* =========================================================
+   RECOMENDAÇÃO ESCRITA
+   ========================================================= */
+
+.planning-book__recommendation {
+  position: relative;
+  z-index: 2;
+
+  overflow-y: auto;
+
+  padding-top: 26px;
+
+  animation:
+    planning-book-analysis-enter
+    480ms
+    ease
+    both;
+}
+
+.planning-book__recommendation-opening {
+  padding-bottom: 22px;
+
+  border-bottom:
+    1px solid
+    rgba(106, 72, 43, 0.16);
+}
+
+.planning-book__recommendation-opening > span {
+  color: #9a6728;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 16px;
+  font-style: italic;
+}
+
+.planning-book__recommendation-opening h3 {
+  margin:
+    10px
+    0
+    12px;
+
+  color: #38261b;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 25px;
+  font-weight: 400;
+  line-height: 1.12;
+}
+
+.planning-book__recommendation-opening p,
+.planning-book__recommendation-section p {
+  margin: 0;
+
+  color:
+    rgba(67, 45, 31, 0.72);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.planning-book__recommendation-section {
+  padding:
+    20px
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(106, 72, 43, 0.14);
+}
+
+.planning-book__recommendation-section > span,
+.planning-book__recommendation-investment > span {
+  color: #996526;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.planning-book__recommendation-section h4 {
+  margin:
+    7px
+    0
+    8px;
+
+  color: #3a281d;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 21px;
+  font-weight: 400;
+}
+
+.planning-book__recommendation-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+
+  margin-top: 12px;
+}
+
+.planning-book__recommendation-tags em {
+  padding:
+    7px
+    10px;
+
+  border:
+    1px solid
+    rgba(126, 83, 40, 0.16);
+
+  border-radius: 999px;
+
+  color:
+    rgba(67, 44, 30, 0.72);
+
+  background:
+    rgba(255, 255, 255, 0.34);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  font-style: normal;
+}
+
+.planning-book__recommendation-investment {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  margin-top: 24px;
+  padding:
+    19px;
+
+  border:
+    1px solid
+    rgba(139, 91, 40, 0.2);
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(229, 207, 174, 0.64),
+      rgba(255, 251, 244, 0.46)
+    );
+}
+
+.planning-book__recommendation-investment strong {
+  color: #352319;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 30px;
+  font-weight: 400;
+}
+
+.planning-book__recommendation-investment small {
+  color:
+    rgba(68, 46, 32, 0.62);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.planning-book__recommendation-signature {
+  margin:
+    24px
+    auto
+    0;
+
+  max-width: 260px;
+
+  color:
+    rgba(84, 56, 37, 0.52);
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* =========================================================
+   MÉTRICAS VISUAIS DO AMBIENTE
+   ========================================================= */
+
+.planning-book__scene-metrics {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  width: min(100%, 470px);
+
+  margin-top: 28px;
+
+  border:
+    1px solid
+    rgba(218, 171, 94, 0.2);
+
+  border-radius: 14px;
+
+  background:
+    rgba(23, 12, 7, 0.58);
+
+  backdrop-filter:
+    blur(10px);
+
+  overflow: hidden;
+
+  animation:
+    planning-book-scene-ready
+    600ms
+    ease
+    both;
+}
+
+.planning-book__scene-metrics > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+
+  padding:
+    15px;
+
+  border-right:
+    1px solid
+    rgba(218, 171, 94, 0.14);
+}
+
+.planning-book__scene-metrics > div:last-child {
+  border-right: 0;
+}
+
+.planning-book__scene-metrics span {
+  color:
+    rgba(232, 195, 133, 0.6);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.planning-book__scene-metrics strong {
+  color: #f3e3c7;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 25px;
+  font-weight: 400;
+}
+
+.planning-book__scene-metrics small {
+  color:
+    rgba(239, 219, 184, 0.58);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 8px;
+}
+
+.planning-book__scene-caption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 17px;
+
+  color:
+    rgba(239, 219, 184, 0.72);
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 14px;
+}
+
+.planning-book__scene-caption small {
+  padding-left: 10px;
+
+  border-left:
+    1px solid
+    rgba(218, 171, 94, 0.24);
+
+  color:
+    rgba(239, 219, 184, 0.54);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   LIVRO DINAMICO — NAVEGACAO, CONTEXTO E VIRADA DE FOLHA
+   ========================================================= */
+
+.planning-book__questions-scroll {
+  min-height: 0;
+}
+
+.planning-book__questions--context {
+  overflow: hidden;
+}
+
+.planning-book__questions--context .planning-book__questions-scroll {
+  height: 100%;
+  overflow: auto;
+  padding-bottom: 24px;
+}
+
+.planning-book__event-context {
+  display: grid;
+  gap: 20px;
+  min-height: 100%;
+  padding: 4px 2px 22px;
+}
+
+.planning-book__event-context-topline,
+.planning-book__event-context-main,
+.planning-book__event-context-actions,
+.planning-book__event-context-stats,
+.planning-book__event-context-tags {
+  display: flex;
+  align-items: center;
+}
+
+.planning-book__event-context-topline {
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(104, 68, 38, 0.18);
+}
+
+.planning-book__event-context-topline > span {
+  color: #9b672f;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.planning-book__event-context-actions {
+  gap: 7px;
+}
+
+.planning-book__event-context-actions button {
+  padding: 7px 10px;
+  border: 1px solid rgba(112, 73, 39, 0.2);
+  border-radius: 999px;
+  color: #604127;
+  background: rgba(255, 251, 241, 0.42);
+  font: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.planning-book__event-context-main {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.planning-book__event-context-main > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.planning-book__event-context-main > div:first-child strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(28px, 2.2vw, 42px);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.planning-book__event-context-main > div:first-child span {
+  color: rgba(73, 49, 31, 0.62);
+  font-size: 12px;
+}
+
+.planning-book__event-context-stats {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.planning-book__event-context-stats span {
+  display: grid;
+  min-width: calc(50% - 4px);
+  gap: 3px;
+  padding: 12px 13px;
+  border: 1px solid rgba(112, 73, 39, 0.13);
+  border-radius: 13px;
+  background: rgba(255, 252, 244, 0.4);
+  color: rgba(74, 49, 30, 0.62);
+  font-size: 10px;
+}
+
+.planning-book__event-context-stats b {
+  color: #4b301d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.planning-book__event-context-tags {
+  align-items: stretch;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: auto;
+}
+
+.planning-book__event-context-tags span {
+  padding: 10px 12px;
+  border-left: 2px solid rgba(164, 109, 48, 0.48);
+  color: rgba(76, 50, 31, 0.7);
+  background: rgba(176, 124, 64, 0.06);
+  font-size: 10px;
+}
+
+.planning-book__turning-sheet {
+  position: relative;
+  min-height: 100%;
+  transform-origin: left center;
+  backface-visibility: hidden;
+  animation-duration: 520ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+}
+
+.planning-book__turning-sheet::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(90deg, rgba(70, 37, 17, 0.18), transparent 36%);
+  animation: planning-book-page-shadow 520ms ease both;
+}
+
+.planning-book__turning-sheet--forward {
+  animation-name: planning-book-turn-forward;
+}
+
+.planning-book__turning-sheet--backward {
+  transform-origin: right center;
+  animation-name: planning-book-turn-backward;
+}
+
+.planning-book__dynamic-sheet-content {
+  min-height: 0;
+  padding-bottom: 190px;
+}
+
+.planning-book__stations {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.planning-book__stations-heading {
+  display: grid;
+  gap: 4px;
+}
+
+.planning-book__stations-heading > span {
+  color: #9b672f;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.planning-book__stations-heading p {
+  margin: 0;
+  color: rgba(70, 47, 30, 0.62);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.planning-book__station-cards {
+  display: grid;
+  gap: 8px;
+}
+
+.planning-book__station-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid rgba(117, 76, 39, 0.16);
+  border-radius: 13px;
+  text-align: left;
+  color: #4d321f;
+  background: linear-gradient(145deg, rgba(255,255,255,0.48), rgba(185,132,73,0.06));
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.planning-book__station-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(158, 104, 47, 0.38);
+  box-shadow: 0 10px 22px rgba(73, 42, 18, 0.08);
+}
+
+.planning-book__station-card span {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+}
+
+.planning-book__station-card strong {
+  color: #9b672f;
+  font-size: 9px;
+}
+
+.planning-book__station-card small {
+  grid-column: 1 / -1;
+  color: rgba(78, 51, 31, 0.58);
+  font-size: 9px;
+}
+
+.planning-book__station-sheet,
+.planning-book__customization-sheet {
+  display: grid;
+  gap: 14px;
+}
+
+.planning-book__station-sheet h2,
+.planning-book__customization-sheet h2 {
+  margin: 0;
+  color: #452d1c;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(24px, 2vw, 34px);
+  font-weight: 400;
+}
+
+.planning-book__station-sheet > p,
+.planning-book__customization-sheet > p {
+  margin: 0;
+  color: rgba(72, 48, 30, 0.68);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.planning-book__station-items {
+  display: grid;
+  gap: 7px;
+}
+
+.planning-book__station-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 13px;
+  border-bottom: 1px solid rgba(112, 73, 39, 0.13);
+}
+
+.planning-book__station-item > div {
+  display: grid;
+  gap: 3px;
+}
+
+.planning-book__station-item strong {
+  color: #4c311e;
+  font-size: 11px;
+}
+
+.planning-book__station-item span {
+  color: rgba(79, 52, 31, 0.52);
+  font-size: 9px;
+}
+
+.planning-book__station-item b {
+  color: #9b672f;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.planning-book__primary-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 13px;
+  color: #fff8e9;
+  background: linear-gradient(135deg, #6f3e20, #3c1d10);
+  box-shadow: 0 14px 30px rgba(57, 29, 13, 0.2);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.planning-book__customization-preview {
+  display: grid;
+  gap: 5px;
+  padding: 18px;
+  border: 1px dashed rgba(145, 93, 43, 0.3);
+  border-radius: 14px;
+  background: rgba(174, 112, 50, 0.05);
+}
+
+.planning-book__customization-preview span {
+  color: #9b672f;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.planning-book__customization-preview strong {
+  color: #4c311e;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.planning-book__sheet-navigation {
+  position: absolute;
+  right: 28px;
+  bottom: 16px;
+  left: 28px;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(107, 69, 36, 0.14);
+}
+
+.planning-book__sheet-navigation button {
+  border: 0;
+  color: rgba(78, 50, 29, 0.72);
+  background: transparent;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.planning-book__sheet-navigation button:last-child {
+  justify-self: end;
+}
+
+.planning-book__sheet-navigation span {
+  color: rgba(127, 81, 38, 0.6);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* A vitrine encanta; os detalhes permanecem no livro. */
+.planning-book .event-scene-cart__details-trigger-wrap,
+.planning-book .event-scene-cart__details-panel,
+.planning-book .event-scene-cart__tooltip {
+  display: none !important;
+}
+
+@keyframes planning-book-turn-forward {
+  0% {
+    opacity: 0.2;
+    transform: perspective(1300px) rotateY(-12deg) translateX(18px);
+    filter: brightness(0.88);
+  }
+  60% {
+    opacity: 1;
+    transform: perspective(1300px) rotateY(2deg) translateX(0);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1300px) rotateY(0) translateX(0);
+    filter: brightness(1);
+  }
+}
+
+@keyframes planning-book-turn-backward {
+  0% {
+    opacity: 0.2;
+    transform: perspective(1300px) rotateY(12deg) translateX(-18px);
+    filter: brightness(0.88);
+  }
+  60% {
+    opacity: 1;
+    transform: perspective(1300px) rotateY(-2deg) translateX(0);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1300px) rotateY(0) translateX(0);
+    filter: brightness(1);
+  }
+}
+
+@keyframes planning-book-page-shadow {
+  0% { opacity: 0.75; }
+  55% { opacity: 0.22; }
+  100% { opacity: 0; }
+}
+
+@media (max-width: 900px) {
+  .planning-book__sheet-navigation {
+    right: 18px;
+    left: 18px;
+  }
+
+  .planning-book__event-context-stats span {
+    min-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planning-book__turning-sheet,
+  .planning-book__turning-sheet::after {
+    animation: none;
+  }
+}
+
+/* =========================================================
+   BOOK CORE — INTEGRACAO DA ARQUITETURA NOVA
+   ========================================================= */
+
+.book-core {
+  position: relative;
+  grid-column: 1 / span 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+}
+
+.book-core > .planning-book__binding {
+  top: 57px;
+  bottom: 57px;
+  left: 50%;
+}
+
+.planning-book__context-stack {
+  display: grid;
+  align-content: start;
+  gap: 22px;
+  min-height: 100%;
+}
+
+.book-header {
+  display: grid;
+  gap: 18px;
+}
+
+.book-header__topline,
+.book-header__actions,
+.book-header__identity,
+.book-header__metrics,
+.book-header__services {
+  display: flex;
+  align-items: center;
+}
+
+.book-header__topline {
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(104, 68, 38, 0.18);
+}
+
+.book-header__eyebrow {
+  color: #996525;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.book-header h2 {
+  margin: 7px 0 0;
+  color: #38261b;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.book-header__actions {
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.book-header__actions button,
+.book-footer button {
+  border: 0;
+  color: rgba(79, 50, 28, 0.72);
+  background: transparent;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.book-header__actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+}
+
+.book-header__identity {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 0.85fr;
+  gap: 8px;
+}
+
+.book-header__identity > div,
+.book-header__metrics > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid rgba(112, 73, 39, 0.13);
+  border-radius: 12px;
+  background: rgba(255, 252, 244, 0.4);
+}
+
+.book-header__identity span,
+.book-header__metrics span {
+  color: rgba(74, 49, 30, 0.55);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.book-header__identity strong,
+.book-header__metrics strong {
+  overflow: hidden;
+  color: #4b301d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.book-header__metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.book-header__metrics small {
+  color: rgba(74, 49, 30, 0.5);
+  font-size: 8px;
+}
+
+.book-header__services {
+  align-items: stretch;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.book-header__services span {
+  padding: 9px 11px;
+  border-left: 2px solid rgba(116, 76, 40, 0.24);
+  color: rgba(76, 50, 31, 0.55);
+  background: rgba(176, 124, 64, 0.045);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+}
+
+.book-header__services span.is-active {
+  border-left-color: #9b672f;
+  color: #604025;
+  background: rgba(176, 124, 64, 0.085);
+  font-weight: 700;
+}
+
+.book-progress {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(104, 68, 38, 0.14);
+}
+
+.book-progress__step {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  color: rgba(83, 55, 34, 0.4);
+  text-align: center;
+}
+
+.book-progress__step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: calc(50% + 12px);
+  width: calc(100% - 24px);
+  height: 1px;
+  background: rgba(119, 78, 39, 0.18);
+}
+
+.book-progress__step.is-complete:not(:last-child)::after {
+  background: rgba(155, 103, 47, 0.62);
+}
+
+.book-progress__number {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border: 1px solid rgba(119, 78, 39, 0.2);
+  border-radius: 50%;
+  background: #f4eadc;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.book-progress__step.is-active,
+.book-progress__step.is-complete {
+  color: #805327;
+}
+
+.book-progress__step.is-active .book-progress__number,
+.book-progress__step.is-complete .book-progress__number {
+  border-color: #9b672f;
+  color: #fff9ed;
+  background: #805027;
+}
+
+.book-progress__label {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.book-flip {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  transform-origin: left center;
+  animation: book-core-turn-forward 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.book-flip--backward {
+  transform-origin: right center;
+  animation-name: book-core-turn-backward;
+}
+
+.book-flip__content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.book-flip__shadow {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(70, 37, 17, 0.18), transparent 36%);
+  animation: book-core-shadow 520ms ease both;
+}
+
+.planning-book__summary {
+  overflow: hidden;
+}
+
+.planning-book__dynamic-sheet-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 4px 24px 0;
+}
+
+.planning-book__investment-footer {
+  position: relative;
+  z-index: 15;
+  flex: 0 0 auto;
+  padding-top: 10px;
+  background: linear-gradient(180deg, rgba(245, 237, 226, 0), #f5ede2 18%);
+}
+
+.planning-book__investment-footer .planning-book__recommendation-investment {
+  margin-top: 0;
+}
+
+.book-footer {
+  position: relative;
+  z-index: 25;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  padding-top: 10px;
+  border-top: 1px solid rgba(107, 69, 36, 0.14);
+}
+
+.book-footer button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+.book-footer button:last-child {
+  justify-self: end;
+}
+
+.book-footer__current {
+  color: rgba(127, 81, 38, 0.62);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.planning-book__questions-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  margin: auto -36px -48px;
+  padding: 14px 36px 18px;
+  background: linear-gradient(180deg, rgba(246, 238, 226, 0), #f6eee2 22%);
+}
+
+.planning-book__generate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 18px;
+  border: 0;
+  border-radius: 14px;
+  color: #fff7e8;
+  background: linear-gradient(135deg, #55301b, #241108);
+  box-shadow: 0 16px 32px rgba(44, 22, 10, 0.26);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.planning-book__generate:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.planning-book__generate-hint {
+  margin: 0 0 8px;
+  color: rgba(73, 49, 31, 0.55);
+  font-size: 9px;
+  text-align: center;
+}
+
+.planning-book__recommendation-signature {
+  margin: 16px 0 2px;
+  color: rgba(91, 59, 34, 0.62);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.45;
+  text-align: center;
+}
+
+@keyframes book-core-turn-forward {
+  0% { opacity: 0.25; transform: perspective(1300px) rotateY(-11deg) translateX(16px); }
+  60% { opacity: 1; transform: perspective(1300px) rotateY(2deg) translateX(0); }
+  100% { opacity: 1; transform: perspective(1300px) rotateY(0) translateX(0); }
+}
+
+@keyframes book-core-turn-backward {
+  0% { opacity: 0.25; transform: perspective(1300px) rotateY(11deg) translateX(-16px); }
+  60% { opacity: 1; transform: perspective(1300px) rotateY(-2deg) translateX(0); }
+  100% { opacity: 1; transform: perspective(1300px) rotateY(0) translateX(0); }
+}
+
+@keyframes book-core-shadow {
+  0% { opacity: 0.72; }
+  55% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@media (max-width: 1180px) {
+  .book-header__identity,
+  .book-header__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .book-core {
+    grid-column: 1;
+    grid-template-columns: 1fr;
+  }
+
+  .book-core > .planning-book__binding {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-flip,
+  .book-flip__shadow {
+    animation: none;
+  }
+}
+
+/* =========================================================
+   REFINO VISUAL — RESUMO, BOTOES E INVESTIMENTO
+   ========================================================= */
+
+/* Linguagem única para ações do livro */
+.book-button,
+.book-header__actions .book-button,
+.book-footer .book-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 9px 13px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.15;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.book-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.book-button:focus-visible {
+  outline: 2px solid rgba(156, 103, 47, 0.34);
+  outline-offset: 2px;
+}
+
+.book-button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.book-button--primary {
+  color: #fff8ec;
+  background: linear-gradient(135deg, #58331f, #281309);
+  box-shadow: 0 10px 22px rgba(47, 24, 12, 0.2);
+}
+
+.book-button--secondary {
+  border-color: rgba(116, 75, 38, 0.19);
+  color: #5e3d25;
+  background: rgba(255, 252, 245, 0.68);
+  box-shadow: 0 5px 14px rgba(76, 43, 21, 0.07);
+}
+
+.book-button--ghost {
+  border-color: rgba(116, 75, 38, 0.12);
+  color: rgba(83, 53, 31, 0.74);
+  background: rgba(226, 205, 177, 0.2);
+}
+
+.book-button--compact {
+  min-height: 32px;
+  padding: 8px 11px;
+}
+
+/* Resumo: cartões uniformes e telefone legível */
+.book-header__identity {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.book-header__identity > div {
+  min-height: 62px;
+}
+
+.book-header__metrics > div {
+  min-height: 62px;
+}
+
+.book-header__identity strong,
+.book-header__metrics strong {
+  overflow: visible;
+  color: #3e2a1d;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.book-header__metrics strong {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.book-header__phone {
+  font-size: 12px !important;
+  letter-spacing: -0.01em;
+}
+
+.book-header__actions {
+  min-width: 168px;
+}
+
+.book-header__actions .book-button {
+  width: 100%;
+}
+
+/* Conteúdo adicional para eliminar o vazio sem poluir */
+.book-header__saved-note {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: start;
+  gap: 11px;
+  margin-top: 4px;
+  padding: 14px 15px;
+  border: 1px solid rgba(126, 82, 40, 0.14);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(255, 252, 245, 0.58), rgba(226, 205, 177, 0.24));
+  box-shadow: 0 10px 24px rgba(67, 38, 19, 0.06);
+}
+
+.book-header__saved-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: #fff8ec;
+  background: #815329;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.book-header__saved-note strong {
+  color: #4b301d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.book-header__saved-note p {
+  margin: 5px 0 0;
+  color: rgba(72, 48, 32, 0.62);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+/* Investimento: fundo e borda contínuos, sem emenda visual */
+.planning-book__investment-footer {
+  margin: 0 -2px;
+  padding: 14px 2px 0;
+  background:
+    linear-gradient(180deg, rgba(245, 237, 226, 0), rgba(245, 237, 226, 0.96) 30%, #f5ede2 100%);
+}
+
+.planning-book__investment-footer .planning-book__recommendation-investment {
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  padding: 18px 19px;
+  border: 1px solid rgba(139, 91, 40, 0.22);
+  border-radius: 15px;
+  background:
+    linear-gradient(135deg, rgba(238, 219, 190, 0.96), rgba(255, 251, 244, 0.9));
+  box-shadow:
+    0 12px 26px rgba(67, 37, 18, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.planning-book__investment-footer .planning-book__recommendation-investment::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.planning-book__investment-footer .planning-book__recommendation-investment strong {
+  position: relative;
+  z-index: 1;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 31px;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ações principais existentes seguem o mesmo padrão aprovado */
+.planning-book__primary-action,
+.planning-book__generate {
+  border-radius: 14px;
+}
+
+@media (max-width: 1180px) {
+  .book-header__identity {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .book-header__phone {
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .book-header__identity {
+    grid-template-columns: 1fr;
+  }
+
+  .book-header__actions {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+
+/* =========================================================
+   AJUSTES FINOS — 04/08/2026
+   ========================================================= */
+
+/* Evita o preenchimento cinza/azulado do navegador nos campos preenchidos. */
+.planning-book__field input,
+.planning-book__field select {
+  background-color: transparent !important;
+}
+
+.planning-book__field input:-webkit-autofill,
+.planning-book__field input:-webkit-autofill:hover,
+.planning-book__field input:-webkit-autofill:focus,
+.planning-book__field input:autofill {
+  -webkit-text-fill-color: #352319 !important;
+  caret-color: #352319;
+  box-shadow: 0 0 0 1000px #f7efe4 inset !important;
+  -webkit-box-shadow: 0 0 0 1000px #f7efe4 inset !important;
+  transition: background-color 9999s ease-out 0s;
+}
+
+/* Opção escolhida sem a moldura marrom fechada. */
+.planning-book__event-option--selected {
+  border-color: transparent !important;
+  background:
+    linear-gradient(90deg, rgba(183, 126, 63, 0.13), rgba(255, 252, 246, 0.72)) !important;
+  box-shadow:
+    inset 3px 0 0 #a76d31,
+    0 8px 18px rgba(78, 46, 24, 0.05) !important;
+}
+
+/* Ritmo visual uniforme para os cartões do resumo. */
+.book-header__identity,
+.book-header__metrics {
+  align-items: stretch;
+  grid-auto-rows: 68px;
+}
+
+.book-header__identity > div,
+.book-header__metrics > div {
+  height: 68px;
+  min-height: 68px;
+  align-content: start;
+}
+
+/* Retorna à tipografia clássica aprovada. */
+.book-header__identity strong,
+.book-header__metrics strong {
+  color: #4b301d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.18;
+}
+
+.book-header__metrics strong {
+  font-size: 17px;
+  font-variant-numeric: normal;
+}
+
+.book-header__phone {
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: 13px !important;
+  letter-spacing: -0.015em;
+  white-space: nowrap !important;
+  overflow: visible !important;
+}
+
+.book-header__metrics small {
+  margin-top: -1px;
+  line-height: 1.1;
+}
+
+/* Todos os comandos de navegação seguem a linguagem do CTA principal. */
+.book-header__actions .book-button,
+.book-footer .book-button {
+  min-height: 34px;
+  border: 0 !important;
+  border-radius: 12px;
+  color: #fff8ec !important;
+  background: linear-gradient(135deg, #57311d, #2b150b) !important;
+  box-shadow: 0 8px 18px rgba(47, 24, 12, 0.17) !important;
+}
+
+.book-header__actions .book-button:hover,
+.book-footer .book-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #653a22, #32180c) !important;
+  box-shadow: 0 10px 21px rgba(47, 24, 12, 0.22) !important;
+}
+
+.book-footer {
+  padding-top: 12px;
+}
+
+.book-footer button {
+  padding: 9px 13px !important;
+}
+
+/* Card de investimento isolado, sem faixa ou emenda de fundo. */
+.planning-book__investment-footer {
+  margin: 0;
+  padding: 12px 0 0;
+  background: transparent !important;
+}
+
+.planning-book__investment-footer .planning-book__recommendation-investment {
+  overflow: hidden;
+  margin: 0;
+  padding: 18px 19px;
+  border: 1px solid rgba(139, 91, 40, 0.24);
+  border-radius: 15px;
+  background: #f8efe2 !important;
+  box-shadow:
+    0 10px 23px rgba(67, 37, 18, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.64) !important;
+}
+
+.planning-book__investment-footer .planning-book__recommendation-investment::before {
+  content: none !important;
+}
+
+.planning-book__investment-footer .planning-book__recommendation-investment strong {
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: 31px;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  font-variant-numeric: normal;
+}
+
+@media (max-width: 1180px) {
+  .book-header__identity,
+  .book-header__metrics {
+    grid-auto-rows: 68px;
+  }
+}
+
+/* =========================================================
+   AJUSTES FINOS — V3
+   Editabilidade, aviso de duração, suspense e navegação estável
+   ========================================================= */
+
+:root {
+  --book-action-width: 168px;
+  --book-action-height: 36px;
+}
+
+/* O número pode ser digitado diretamente, além dos botões + e -. */
+.planning-book__counter input {
+  width: 58px;
+  height: 38px;
+  border: 1px solid rgba(132, 86, 42, 0.16);
+  border-radius: 10px;
+  background: rgba(255, 252, 246, 0.48);
+  cursor: text;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.planning-book__counter input:hover {
+  background: rgba(255, 252, 246, 0.72);
+  border-color: rgba(157, 101, 43, 0.28);
+}
+
+.planning-book__counter input:focus {
+  border-color: rgba(157, 101, 43, 0.56);
+  background: #fffaf2;
+  box-shadow: 0 0 0 3px rgba(166, 110, 49, 0.09);
+  outline: none;
+}
+
+/* Informação comercial da duração, sem pesar a página. */
+.planning-book__duration-notice {
+  display: grid;
+  grid-template-columns: 25px minmax(0, 1fr);
+  align-items: start;
+  gap: 9px;
+  margin-top: 13px;
+  padding: 11px 12px;
+  border-left: 2px solid rgba(161, 105, 45, 0.68);
+  border-radius: 0 10px 10px 0;
+  background: linear-gradient(90deg, rgba(188, 130, 67, 0.10), rgba(255, 252, 246, 0.35));
+}
+
+.planning-book__duration-notice > span {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #fff8ed;
+  background: #8c592c;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.planning-book__duration-notice p {
+  margin: 1px 0 0;
+  color: rgba(69, 45, 29, 0.72);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+/* Suspense com mais presença, mantendo elegância. */
+.planning-book__analysis {
+  padding: 22px 20px;
+  border: 1px solid rgba(154, 99, 42, 0.20);
+  border-radius: 17px;
+  background:
+    radial-gradient(circle at 15% 5%, rgba(205, 151, 79, 0.13), transparent 34%),
+    linear-gradient(145deg, rgba(255, 252, 245, 0.84), rgba(232, 213, 186, 0.42));
+  box-shadow:
+    0 18px 38px rgba(65, 36, 18, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.58);
+}
+
+.planning-book__analysis-heading {
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(135, 87, 40, 0.14);
+}
+
+.planning-book__analysis-heading > span {
+  font-size: 10px;
+  letter-spacing: 0.20em;
+}
+
+.planning-book__analysis-steps {
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.planning-book__analysis-step {
+  min-height: 46px;
+  padding: 9px 11px;
+  border: 1px solid rgba(133, 85, 39, 0.10);
+  border-radius: 12px;
+  background: rgba(255, 252, 246, 0.46);
+  opacity: 0.64;
+  transform: translateX(0);
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.planning-book__analysis-step--current {
+  opacity: 1;
+  transform: translateX(4px);
+  border-color: rgba(164, 105, 42, 0.35);
+  background: rgba(255, 249, 239, 0.94);
+  box-shadow: 0 9px 20px rgba(72, 39, 18, 0.08);
+}
+
+.planning-book__analysis-step--completed {
+  opacity: 1;
+  border-color: rgba(126, 91, 47, 0.19);
+  background: rgba(239, 225, 202, 0.58);
+}
+
+.planning-book__analysis-step > span,
+.planning-book__analysis-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 29px;
+  width: 29px;
+  height: 29px;
+  border: 1px solid rgba(142, 91, 39, 0.25);
+  border-radius: 50%;
+  color: #8a5729;
+  background: rgba(255, 250, 241, 0.82);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 4px 10px rgba(70, 39, 20, 0.06);
+}
+
+.planning-book__analysis-step--current > span,
+.planning-book__analysis-step--current .planning-book__analysis-icon {
+  color: #fff8ed;
+  background: #9a632f;
+  animation: planning-book-current-step 1.15s ease-in-out infinite;
+}
+
+.planning-book__analysis-step--completed > span,
+.planning-book__analysis-step--completed .planning-book__analysis-icon {
+  color: #fff8ed;
+  background: #71451f;
+}
+
+.planning-book__analysis-step p {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@keyframes planning-book-current-step {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(154, 99, 47, 0.22); }
+  50% { transform: scale(1.06); box-shadow: 0 0 0 7px rgba(154, 99, 47, 0); }
+}
+
+/* Mesma altura, largura e posição em todas as folhas do livro. */
+.book-header__actions {
+  width: var(--book-action-width);
+  min-width: var(--book-action-width);
+}
+
+.book-header__actions .book-button,
+.book-footer .book-button {
+  box-sizing: border-box;
+  width: var(--book-action-width) !important;
+  min-width: var(--book-action-width) !important;
+  max-width: var(--book-action-width) !important;
+  height: var(--book-action-height) !important;
+  min-height: var(--book-action-height) !important;
+  padding: 8px 12px !important;
+  white-space: nowrap;
+}
+
+.book-footer {
+  display: grid;
+  grid-template-columns: var(--book-action-width) minmax(70px, 1fr) var(--book-action-width);
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.book-footer__current {
+  min-width: 0;
+  text-align: center;
+}
+
+.book-footer .book-button:first-child {
+  justify-self: start;
+}
+
+.book-footer .book-button:last-child {
+  justify-self: end;
+}
+
+@media (max-width: 1180px) {
+  :root {
+    --book-action-width: 154px;
+  }
+}
+
+/* =========================================================
+   REFINOS V4 — suspense sincronizado e acabamento do briefing
+   ========================================================= */
+
+/* Mais respiro entre a última opção e o CTA, com a borda direita íntegra. */
+.planning-book__questions-footer {
+  padding-top: 24px !important;
+  padding-right: 44px !important;
+}
+
+.planning-book__generate {
+  width: calc(100% - 8px) !important;
+  margin-right: 8px;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow:
+    0 16px 32px rgba(44, 22, 10, 0.26),
+    inset 0 0 0 1px rgba(255, 244, 226, 0.04);
+}
+
+/* Campos fundidos ao papel, sem retângulo branco ou cinza. */
+.planning-book__field input,
+.planning-book__field select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.035) !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.planning-book__field input:-webkit-autofill,
+.planning-book__field input:-webkit-autofill:hover,
+.planning-book__field input:-webkit-autofill:focus,
+.planning-book__field input:autofill {
+  -webkit-text-fill-color: #352319 !important;
+  caret-color: #352319;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  box-shadow: 0 0 0 1000px rgba(246, 238, 226, 0.2) inset !important;
+  -webkit-box-shadow: 0 0 0 1000px rgba(246, 238, 226, 0.2) inset !important;
+}
+
+/* Durante a análise, a folha esquerda permanece em branco e só é populada
+   junto com a recomendação ao fim dos checks. */
+.planning-book__context-waiting {
+  width: 100%;
+  min-height: 100%;
+}
+
+/* Roda do carrinho girando no passo atual. */
+.planning-book__analysis-status--wheel {
+  position: relative;
+  color: transparent !important;
+  background: transparent !important;
+  border: 2px solid #9a632f !important;
+  box-shadow: 0 0 0 5px rgba(154, 99, 47, 0.08) !important;
+  animation: planning-book-wheel-spin 1.05s linear infinite !important;
+}
+
+.planning-book__analysis-status--wheel::before,
+.planning-book__analysis-status--wheel::after {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 2px;
+  height: 78%;
+  border-radius: 999px;
+  background: #9a632f;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+}
+
+.planning-book__analysis-status--wheel::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.planning-book__analysis-status--wheel {
+  background-image:
+    linear-gradient(45deg, transparent 46%, #9a632f 47%, #9a632f 53%, transparent 54%),
+    linear-gradient(-45deg, transparent 46%, #9a632f 47%, #9a632f 53%, transparent 54%) !important;
+}
+
+@keyframes planning-book-wheel-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =========================================================
+   REFINOS V5 — acabamento do CTA, roda completa e legibilidade
+   ========================================================= */
+
+/* Respiro real entre a última opção e o CTA, sem faixa de fundo diferente. */
+.planning-book__questions-footer {
+  margin: 22px -36px -48px !important;
+  padding: 18px 44px 22px 36px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.planning-book__generate {
+  width: 100% !important;
+  margin: 0 !important;
+  border-radius: 15px !important;
+  background: linear-gradient(135deg, #56311d 0%, #32180d 56%, #241108 100%) !important;
+  box-shadow:
+    0 15px 30px rgba(44, 22, 10, 0.24),
+    inset 0 1px 0 rgba(255, 248, 236, 0.05) !important;
+}
+
+/* Fonte dos botões maior e mais legível, mantendo o mesmo tamanho físico. */
+.book-header__actions .book-button,
+.book-footer .book-button,
+.planning-book__generate,
+.planning-book__primary-action {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+}
+
+.book-header__actions .book-button,
+.book-footer .book-button {
+  padding-inline: 14px !important;
+}
+
+/* Roda com aro, cubo e 12 raios completos do centro à borda. */
+.planning-book__analysis-status--wheel {
+  position: relative;
+  overflow: hidden;
+  color: transparent !important;
+  border: 2px solid #9a632f !important;
+  background:
+    radial-gradient(circle at center,
+      #9a632f 0 9%,
+      #f8efe3 10% 15%,
+      #9a632f 16% 19%,
+      transparent 20% 100%),
+    repeating-conic-gradient(
+      from 0deg,
+      #9a632f 0deg 2deg,
+      transparent 2deg 30deg
+    ) !important;
+  box-shadow:
+    0 0 0 4px rgba(154, 99, 47, 0.08),
+    inset 0 0 0 2px rgba(248, 239, 227, 0.96) !important;
+  animation: planning-book-wheel-spin 1.05s linear infinite !important;
+}
+
+.planning-book__analysis-status--wheel::before,
+.planning-book__analysis-status--wheel::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(154, 99, 47, 0.72);
+  border-radius: 50%;
+  background: transparent;
+  transform: none;
+}
+
+.planning-book__analysis-status--wheel::after {
+  inset: 50%;
+  width: 5px;
+  height: 5px;
+  border: 0;
+  border-radius: 50%;
+  background: #9a632f;
+  transform: translate(-50%, -50%);
+}
+
+
+/* =========================================================
+   REFINOS V6 — capacidade, suspense e estrutura do cliente
+   ========================================================= */
+
+.planning-book__analysis-status--wheel {
+  display: grid !important;
+  place-items: center !important;
+  overflow: visible !important;
+  border: 0 !important;
+  background: rgba(255, 250, 242, 0.94) !important;
+  box-shadow:
+    0 0 0 1px rgba(154, 99, 47, 0.26),
+    0 6px 14px rgba(86, 49, 29, 0.13) !important;
+  animation: none !important;
+}
+
+.planning-book__analysis-status--wheel::before,
+.planning-book__analysis-status--wheel::after {
+  display: none !important;
+}
+
+.planning-book__wheel-svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: #9a632f;
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  animation: planning-book-wheel-spin 1.15s linear infinite;
+}
+
+.planning-book__wheel-svg circle:nth-child(2) {
+  fill: #f9efe2;
+}
+
+.planning-book__client-structure-note {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 16px 0 18px;
+  padding: 14px 16px;
+  border-left: 3px solid #9a632f;
+  border-radius: 0 12px 12px 0;
+  background: rgba(250, 240, 225, 0.72);
+  color: #4e3525;
+}
+
+.planning-book__client-structure-note strong {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.planning-book__client-structure-note span {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   V7 — DISTRIBUICAO EXPLICADA DOS CARRINHOS
+   ========================================================= */
+
+.planning-book__cart-allocation {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.planning-book__cart-allocation-item {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 13px 14px;
+  border: 1px solid rgba(150, 96, 38, 0.18);
+  border-radius: 14px;
+  background: rgba(255, 250, 242, 0.58);
+}
+
+.planning-book__cart-allocation-count {
+  display: flex;
+  min-height: 58px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid rgba(150, 96, 38, 0.16);
+}
+
+.planning-book__cart-allocation-count strong {
+  color: #6e3c1f;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 25px;
+  line-height: 1;
+}
+
+.planning-book__cart-allocation-count span {
+  margin-top: 4px;
+  color: rgba(74, 47, 30, 0.58);
+  font: 700 8px/1.2 Arial, Helvetica, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.planning-book__cart-allocation-item h5 {
+  margin: 0;
+  color: #3d291d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.planning-book__cart-allocation-item p {
+  margin: 5px 0 0;
+  color: rgba(69, 46, 31, 0.72);
+  font: 11px/1.45 Arial, Helvetica, sans-serif;
+}
+
+.planning-book__cart-allocation-item small {
+  display: block;
+  margin-top: 5px;
+  color: rgba(128, 81, 34, 0.76);
+  font: 700 8px/1.35 Arial, Helvetica, sans-serif;
+  letter-spacing: 0.03em;
+}
+
+.planning-book__structure-support-note {
+  margin-top: 13px !important;
+  padding: 10px 12px;
+  border-left: 2px solid rgba(157, 99, 36, 0.72);
+  background: rgba(180, 117, 48, 0.06);
+  color: rgba(67, 43, 28, 0.72) !important;
+  font-size: 10px !important;
+  line-height: 1.5 !important;
+}
+
+/* Roda com oito raios, como a identidade visual dos carrinhos da home. */
+.planning-book__wheel-svg line {
+  stroke-linecap: round;
+  stroke-width: 1.45;
+}
+
+/* =========================================================
+   V9 - EXPERIENCIA GUIADA
+   ========================================================= */
+
+.planning-book__ready-panel {
+  margin-top: 26px;
+  padding: 22px;
+  border: 1px solid rgba(151, 96, 39, 0.18);
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(255, 250, 242, 0.86), rgba(244, 231, 211, 0.72));
+  box-shadow: 0 16px 34px rgba(78, 45, 22, 0.08);
+}
+
+.planning-book__ready-panel > span {
+  display: block;
+  color: #996525;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.planning-book__ready-panel h3 {
+  margin: 10px 0 8px;
+  color: #352319;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 25px;
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.planning-book__ready-panel p {
+  margin: 0 0 18px;
+  color: rgba(62, 42, 29, 0.7);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.planning-book__reveal-suggestion {
+  width: 100%;
+  min-height: 52px;
+  margin: 0;
+}
+
+.planning-book__suggestion-closed {
+  min-height: 420px;
+}
+
+.planning-book__structure-hero {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  margin: 14px 0 16px;
+  padding: 18px 16px;
+  border: 1px solid rgba(151, 96, 39, 0.2);
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.72), transparent 62%),
+    linear-gradient(135deg, rgba(246, 232, 210, 0.78), rgba(255, 251, 245, 0.92));
+  box-shadow: 0 14px 28px rgba(80, 45, 22, 0.08);
+}
+
+.planning-book__structure-hero strong {
+  color: #4a2c1c;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 48px;
+  font-weight: 400;
+  line-height: 0.9;
+}
+
+.planning-book__structure-hero span {
+  color: #8f5d25;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.planning-book__recommendation-signature {
+  width: 100%;
+  margin: 24px auto 22px;
+  text-align: center;
+}
+
+.planning-book__station-sheet {
+  padding-top: 4px;
+}
+
+.planning-book__station-intro {
+  padding: 4px 0 22px;
+  border-bottom: 1px solid rgba(118, 79, 46, 0.16);
+}
+
+.planning-book__station-intro h2 {
+  margin: 10px 0 8px;
+  color: #352319;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(30px, 2.35vw, 39px);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.planning-book__station-intro p {
+  margin: 0;
+  color: rgba(65, 44, 31, 0.68);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.planning-book__station-included-label {
+  display: block;
+  margin-top: 18px;
+  color: #996525;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* Na folha da estacao, o titulo principal ja aparece no conteudo. */
+.planning-book__book--sheet-station .planning-book__summary-header {
+  display: none;
+}
+
+.planning-book__book--sheet-station .planning-book__dynamic-sheet-content {
+  padding-top: 0;
+}
+
+@media (max-width: 1100px) {
+  .planning-book__structure-hero strong {
+    font-size: 40px;
+  }
+}
+
+/* =========================================================
+   V10.1 - FLUXO GUIADO DA RECOMENDACAO
+   ========================================================= */
+
+/* O resumo permanece estável; a ação e o progresso ficam ancorados no rodapé. */
+.planning-book__context-stack {
+  display: flex !important;
+  flex-direction: column;
+  gap: 18px !important;
+  height: 100%;
+  min-height: 0;
+}
+
+.planning-book__context-bottom {
+  display: grid;
+  gap: 16px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.planning-book__ready-panel {
+  margin: 0 !important;
+  padding: 18px 20px !important;
+  border-radius: 15px !important;
+}
+
+.planning-book__ready-panel h3 {
+  margin-top: 8px !important;
+  font-size: 23px !important;
+}
+
+.planning-book__ready-panel p {
+  margin-bottom: 14px !important;
+}
+
+.planning-book__reveal-suggestion {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px !important;
+  font-size: 11px !important;
+}
+
+.planning-book__reveal-suggestion:disabled {
+  opacity: 1;
+  cursor: wait;
+}
+
+.planning-book__button-wheel {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  border: 2px solid rgba(255, 247, 234, 0.42);
+  border-top-color: #fff8ec;
+  border-radius: 50%;
+  animation: planning-book-wheel-spin 720ms linear infinite;
+}
+
+/* A segunda folha fica realmente em branco até o cliente abrir a recomendação. */
+.planning-book__suggestion-closed {
+  min-height: 100%;
+  background: transparent;
+}
+
+.planning-book__book--sheet-suggestion .planning-book__summary:has(.planning-book__suggestion-closed) {
+  overflow: hidden;
+}
+
+/* A etapa Recomendação só é ativada depois do clique. */
+.book-progress__label {
+  white-space: nowrap;
+}
+
+/* Evita deslocamento visual durante a troca entre resumo e recomendação. */
+.planning-book__questions--context .planning-book__questions-scroll {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.planning-book__summary {
+  scrollbar-gutter: stable;
+}
+
+/* =========================================================
+   V10.2 - HIERARQUIA, RESUMO SEM SCROLL E REUSO DE LAYOUT
+   ========================================================= */
+
+/* No resumo fechado, tudo deve caber na folha sem rolagem. */
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .planning-book__questions--context
+  .planning-book__questions-scroll {
+  overflow-y: hidden !important;
+  scrollbar-gutter: auto;
+}
+
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .planning-book__context-stack {
+  gap: 10px !important;
+}
+
+.planning-book__book:has(.planning-book__suggestion-closed) .book-header {
+  gap: 12px;
+}
+
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .book-header__saved-note {
+  margin-top: 2px;
+  padding: 13px 15px;
+}
+
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .book-header__saved-note p {
+  margin-top: 3px;
+  line-height: 1.35;
+}
+
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .planning-book__context-bottom {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+/* A principal ação aparece junto ao tipo de evento, onde o olhar já está. */
+.book-header__recommendation-action {
+  width: 100%;
+  min-height: 48px;
+  justify-content: space-between !important;
+  padding-inline: 17px !important;
+  background: linear-gradient(135deg, #5a2e19, #35170c) !important;
+  color: #fff8ee !important;
+  box-shadow: 0 12px 24px rgba(61, 28, 13, 0.18) !important;
+}
+
+.book-header__recommendation-action:disabled {
+  opacity: 1 !important;
+  cursor: wait;
+}
+
+/* Com a ação principal presente, os botões auxiliares continuam alinhados. */
+.book-header__actions {
+  grid-template-columns: 1fr !important;
+  width: min(176px, 44%);
+}
+
+.book-header__actions .book-button {
+  width: 100% !important;
+}
+
+/* Distribuição dos carrinhos: mesma linguagem dos cards das estações. */
+.planning-book__cart-allocation {
+  display: grid;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.planning-book__cart-allocation-item {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 16px !important;
+  min-height: 78px;
+  padding: 14px 16px !important;
+  border: 1px solid rgba(118, 79, 46, 0.16) !important;
+  border-radius: 13px !important;
+  background: rgba(255, 255, 255, 0.34) !important;
+  box-shadow: none !important;
+}
+
+.planning-book__cart-allocation-copy {
+  min-width: 0;
+}
+
+.planning-book__cart-allocation-item h5 {
+  margin: 0 0 4px !important;
+  color: #38261b;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px !important;
+  font-weight: 400 !important;
+}
+
+.planning-book__cart-allocation-item p {
+  margin: 0 0 4px !important;
+  font-size: 10px !important;
+  line-height: 1.38 !important;
+}
+
+.planning-book__cart-allocation-item small {
+  display: block;
+  color: #996525 !important;
+  font-size: 8px !important;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.planning-book__cart-allocation-count {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-end !important;
+  justify-content: center;
+  min-width: 62px;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.planning-book__cart-allocation-count strong {
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+
+.planning-book__cart-allocation-count span {
+  margin-top: 4px;
+  font-size: 8px !important;
+}
+
+/* Personalização herda integralmente a apresentação dos detalhes. */
+.planning-book__book--sheet-customization .planning-book__summary-header {
+  display: none;
+}
+
+.planning-book__book--sheet-customization .planning-book__dynamic-sheet-content {
+  padding-top: 0;
+}
+
+.planning-book__customization-sheet {
+  padding-top: 4px !important;
+}
+
+.planning-book__customization-sheet .planning-book__customization-preview {
+  margin: 18px 0;
+}
+
+@media (max-width: 1180px) {
+  .book-header__recommendation-action {
+    min-height: 44px;
+    font-size: 10px !important;
+  }
+
+  .book-header__actions {
+    width: min(168px, 45%);
+  }
+}
+
+/* =========================================================
+   V10.3 - CTA NO FLUXO E CONSISTENCIA DA ESTRUTURA
+   ========================================================= */
+
+/* O CTA principal fecha o resumo e ocupa toda a largura, logo antes do progresso. */
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .planning-book__reveal-suggestion {
+  display: flex !important;
+  width: 100% !important;
+  min-height: 64px !important;
+  margin: 0 !important;
+  padding: 0 22px !important;
+  align-items: center;
+  justify-content: space-between !important;
+  border-radius: 15px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
+  background: linear-gradient(135deg, #5a2e19, #35170c) !important;
+  color: #fff8ee !important;
+  box-shadow: 0 13px 26px rgba(61, 28, 13, 0.2) !important;
+}
+
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .planning-book__context-stack {
+  gap: 12px !important;
+}
+
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .planning-book__context-bottom {
+  margin-top: 0 !important;
+  padding-top: 10px !important;
+}
+
+/* Os botões auxiliares permanecem juntos no topo, sem disputar com o CTA principal. */
+.book-header__actions {
+  grid-template-columns: 1fr !important;
+  width: min(176px, 44%);
+}
+
+.book-header__actions .book-button {
+  width: 100% !important;
+}
+
+/* O resumo total da estrutura usa o mesmo desenho editorial dos cards operacionais. */
+.planning-book__structure-hero {
+  display: grid !important;
+  grid-template-columns: 78px minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 16px !important;
+  margin: 14px 0 16px !important;
+  padding: 14px 16px !important;
+  border: 1px solid rgba(150, 96, 38, 0.18) !important;
+  border-radius: 14px !important;
+  background: rgba(255, 250, 242, 0.58) !important;
+  box-shadow: none !important;
+}
+
+.planning-book__structure-hero-count {
+  display: flex;
+  min-height: 66px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid rgba(150, 96, 38, 0.18);
+}
+
+.planning-book__structure-hero-count strong {
+  color: #6e3c1f !important;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: 28px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+}
+
+.planning-book__structure-hero-count span {
+  margin-top: 5px;
+  color: rgba(74, 47, 30, 0.58) !important;
+  font: 700 8px/1.2 Arial, Helvetica, sans-serif !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase;
+}
+
+.planning-book__structure-hero-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.planning-book__structure-hero-copy h5 {
+  margin: 0 0 5px;
+  color: #3d291d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.planning-book__structure-hero-copy p {
+  margin: 0 !important;
+  color: rgba(69, 46, 31, 0.72) !important;
+  font: 10px/1.45 Arial, Helvetica, sans-serif !important;
+}
+
+/* Restaura a distribuição individual: número à esquerda, divisor e explicação à direita. */
+.planning-book__cart-allocation-item {
+  display: grid !important;
+  grid-template-columns: 68px minmax(0, 1fr) !important;
+  gap: 14px !important;
+  align-items: center !important;
+  min-height: 78px;
+  padding: 13px 14px !important;
+  border: 1px solid rgba(150, 96, 38, 0.18) !important;
+  border-radius: 14px !important;
+  background: rgba(255, 250, 242, 0.58) !important;
+  box-shadow: none !important;
+}
+
+.planning-book__cart-allocation-copy {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.planning-book__cart-allocation-count {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex !important;
+  min-width: 0 !important;
+  min-height: 58px;
+  flex-direction: column;
+  align-items: center !important;
+  justify-content: center;
+  padding: 0 12px 0 0 !important;
+  border: 0 !important;
+  border-right: 1px solid rgba(150, 96, 38, 0.16) !important;
+  background: transparent !important;
+}
+
+.planning-book__cart-allocation-count strong {
+  color: #6e3c1f !important;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: 25px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+}
+
+.planning-book__cart-allocation-count span {
+  margin-top: 4px;
+  color: rgba(74, 47, 30, 0.58) !important;
+  font: 700 8px/1.2 Arial, Helvetica, sans-serif !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.planning-book__cart-allocation-item h5 {
+  margin: 0 !important;
+  font-size: 15px !important;
+}
+
+.planning-book__cart-allocation-item p {
+  margin: 5px 0 0 !important;
+  font-size: 10px !important;
+  line-height: 1.45 !important;
+}
+
+.planning-book__cart-allocation-item small {
+  margin-top: 5px !important;
+  font-size: 8px !important;
+}
+
+@media (max-width: 1180px) {
+  .planning-book__book:has(.planning-book__suggestion-closed)
+    .planning-book__reveal-suggestion {
+    min-height: 56px !important;
+    font-size: 12px !important;
+  }
+}
+
+
+/* =========================================================
+   V10.4 - CONSISTENCIA DOS CARDS E RITMO VERTICAL
+   ========================================================= */
+
+/* Aproxima o aviso salvo do CTA principal. */
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .book-header__saved-note {
+  margin-bottom: 0 !important;
+}
+
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .planning-book__reveal-suggestion {
+  margin-top: -4px !important;
+}
+
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .planning-book__context-stack {
+  gap: 8px !important;
+}
+
+/* Card principal da estrutura: mesmo desenho editorial, com destaque marrom. */
+.planning-book__structure-hero {
+  grid-template-columns: 82px minmax(0, 1fr) !important;
+  min-height: 92px !important;
+  padding: 14px 16px !important;
+  border-color: rgba(79, 38, 18, 0.72) !important;
+  background: linear-gradient(135deg, #6a351e 0%, #4a2414 58%, #35170c 100%) !important;
+  box-shadow: 0 14px 28px rgba(57, 27, 13, 0.2) !important;
+}
+
+.planning-book__structure-hero-count {
+  min-height: 64px !important;
+  border-right-color: rgba(255, 244, 226, 0.28) !important;
+}
+
+.planning-book__structure-hero-count strong,
+.planning-book__structure-hero-copy h5 {
+  color: #fff8ec !important;
+}
+
+.planning-book__structure-hero-count span,
+.planning-book__structure-hero-copy p {
+  color: rgba(255, 244, 226, 0.78) !important;
+}
+
+/* Todos os cards operacionais compartilham proporção e divisor. */
+.planning-book__cart-allocation-item {
+  grid-template-columns: 82px minmax(0, 1fr) !important;
+  min-height: 92px !important;
+  padding: 14px 16px !important;
+}
+
+.planning-book__cart-allocation-count {
+  min-height: 64px !important;
+  padding-right: 16px !important;
+}
+
+/* Remove o vazio antes de Estações sugeridas. */
+.planning-book__recommendation-signature {
+  margin: 12px auto 10px !important;
+  padding: 0 !important;
+}
+
+.planning-book__stations {
+  margin-top: 0 !important;
+  padding-top: 12px !important;
+}
+
+.planning-book__recommendation-section + .planning-book__recommendation-signature {
+  margin-top: 12px !important;
+}
+
+
+/* =========================================================
+   V10.5 — HIERARQUIA DE BOTOES E CARDS UNIFORMES
+   ========================================================= */
+
+/* Card total e cards filhos com a mesma altura e o mesmo eixo vertical. */
+.planning-book__structure-hero,
+.planning-book__cart-allocation-item {
+  box-sizing: border-box !important;
+  height: 96px !important;
+  min-height: 96px !important;
+  max-height: 96px !important;
+  grid-template-columns: 78px minmax(0, 1fr) !important;
+  gap: 16px !important;
+  padding: 13px 16px !important;
+  overflow: hidden;
+}
+
+.planning-book__structure-hero-count,
+.planning-book__cart-allocation-count {
+  box-sizing: border-box !important;
+  width: 78px !important;
+  min-width: 78px !important;
+  min-height: 68px !important;
+  height: 68px !important;
+  padding: 0 16px 0 0 !important;
+  border-right: 1px solid rgba(255, 245, 232, 0.32) !important;
+}
+
+.planning-book__cart-allocation-count {
+  border-right-color: rgba(150, 96, 38, 0.18) !important;
+}
+
+.planning-book__structure-hero-copy,
+.planning-book__cart-allocation-copy {
+  min-width: 0;
+  align-self: center;
+}
+
+.planning-book__structure-hero-copy p,
+.planning-book__cart-allocation-copy p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.planning-book__cart-allocation-copy small {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Navegação operacional: escura, estável e reconhecível em todas as folhas. */
+.book-header__actions .book-button,
+.book-footer .book-button {
+  color: #fff8ec !important;
+  background: linear-gradient(135deg, #542b18, #261108) !important;
+  border: 1px solid rgba(255, 239, 216, 0.08) !important;
+  box-shadow: 0 8px 18px rgba(43, 20, 9, 0.2) !important;
+}
+
+/* Ações de conteúdo: marrom mais claro para separar edição de navegação. */
+.planning-book__primary-action {
+  color: #fffaf1 !important;
+  background: linear-gradient(135deg, #8a5631, #63371f) !important;
+  border: 1px solid rgba(255, 244, 228, 0.16) !important;
+  box-shadow: 0 10px 20px rgba(92, 49, 25, 0.18) !important;
+}
+
+.planning-book__primary-action:hover {
+  background: linear-gradient(135deg, #98613a, #704026) !important;
+  box-shadow: 0 12px 24px rgba(92, 49, 25, 0.24) !important;
+}
+
+/* O CTA que revela a recomendação continua como ação principal escura. */
+.planning-book__reveal-suggestion {
+  color: #fff8ec !important;
+  background: linear-gradient(135deg, #542b18, #261108) !important;
+}
+
+/* =========================================================
+   V10.6 — identidade de marca, análise escrita na folha
+   e recomendação compacta para eventos pequenos
+   ========================================================= */
+
+/* A análise passa a parecer escrita diretamente no papel. */
+.planning-book__analysis {
+  margin-top: 12px !important;
+  padding: 8px 18px 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.planning-book__analysis-brand {
+  display: flex;
+  justify-content: center;
+  min-height: 72px;
+  margin: 0 0 14px;
+}
+
+.planning-book__analysis-brand img {
+  width: 132px;
+  height: 72px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  filter: sepia(1) saturate(0.75) contrast(1.12) brightness(0.72);
+  opacity: 0.92;
+}
+
+.planning-book__analysis-heading {
+  padding: 0 4px 14px !important;
+  border-bottom: 1px solid rgba(123, 78, 37, 0.18) !important;
+}
+
+.planning-book__analysis-steps {
+  gap: 0 !important;
+  margin-top: 8px !important;
+}
+
+.planning-book__analysis-step {
+  min-height: 50px !important;
+  padding: 10px 4px !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(117, 74, 36, 0.12) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.planning-book__analysis-step--current {
+  transform: translateX(5px) !important;
+  background: linear-gradient(
+    90deg,
+    rgba(172, 113, 51, 0.08),
+    transparent 76%
+  ) !important;
+}
+
+.planning-book__analysis-step--completed {
+  background: transparent !important;
+}
+
+.planning-book__analysis-step p {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+/* Logo integrado ao cabeçalho, sem mover os comandos entre folhas. */
+.book-header__title-block {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 14px;
+}
+
+.book-header__brand {
+  flex: 0 0 auto;
+  width: 76px;
+  height: 54px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  filter: sepia(1) saturate(0.7) contrast(1.16) brightness(0.68);
+}
+
+.book-header__title-block > div {
+  min-width: 0;
+}
+
+/* O espaço do CTA permanece reservado depois da abertura.
+   Assim, a página esquerda não pula nem muda de posição. */
+.planning-book__reveal-slot {
+  display: block;
+  min-height: 64px;
+}
+
+.planning-book__reveal-suggestion {
+  width: 100%;
+  min-height: 64px;
+  transition:
+    opacity 220ms ease,
+    visibility 220ms ease,
+    transform 220ms ease;
+}
+
+.planning-book__reveal-suggestion.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: none;
+}
+
+/* Opções complementares para eventos compactos. */
+.planning-book__optional-groups {
+  margin-top: 16px;
+  padding: 14px 15px;
+  border: 1px solid rgba(139, 89, 38, 0.17);
+  border-radius: 13px;
+  background: rgba(255, 251, 244, 0.46);
+}
+
+.planning-book__optional-groups > span {
+  color: #966326;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.planning-book__optional-groups p {
+  margin: 7px 0 11px;
+  color: rgba(64, 42, 27, 0.72);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.planning-book__optional-groups > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.planning-book__optional-groups button {
+  min-height: 34px;
+  padding: 8px 12px;
+  border: 1px solid rgba(135, 83, 35, 0.22);
+  border-radius: 10px;
+  color: #6f421f;
+  background: rgba(244, 226, 201, 0.72);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.planning-book__optional-groups button:hover {
+  background: rgba(235, 208, 170, 0.88);
+}
+
+@media (max-width: 1180px) {
+  .book-header__brand {
+    width: 64px;
+    height: 46px;
+  }
+
+  .book-header__title-block {
+    gap: 10px;
+  }
+}
+
+/* =========================================================
+   V10.7 — marca refinada e página 1 estável ao abrir a recomendação
+   ========================================================= */
+
+/* Logo marrom transparente, sem caixa cinza e sem filtros que degradam a arte. */
+.book-header__brand,
+.planning-book__analysis-brand img {
+  mix-blend-mode: normal !important;
+  filter: none !important;
+  opacity: 1 !important;
+  object-fit: contain !important;
+}
+
+.book-header__brand {
+  width: 82px !important;
+  height: 58px !important;
+}
+
+.planning-book__analysis-brand {
+  min-height: 86px !important;
+  margin-bottom: 10px !important;
+}
+
+.planning-book__analysis-brand img {
+  width: 146px !important;
+  height: 86px !important;
+}
+
+/* Ao revelar a recomendação, a página 1 permanece exatamente no mesmo lugar. */
+.planning-book__questions--recommendation-open {
+  overflow: hidden !important;
+}
+
+.planning-book__questions--recommendation-open
+  .planning-book__questions-scroll {
+  overflow-y: hidden !important;
+  scrollbar-gutter: auto !important;
+}
+
+.planning-book__questions--recommendation-open
+  .planning-book__context-stack {
+  gap: 8px !important;
+}
+
+.planning-book__questions--recommendation-open .book-header {
+  gap: 12px !important;
+}
+
+.planning-book__questions--recommendation-open
+  .book-header__saved-note {
+  margin-top: 2px !important;
+  padding: 13px 15px !important;
+}
+
+.planning-book__questions--recommendation-open
+  .book-header__saved-note p {
+  margin-top: 3px !important;
+  line-height: 1.35 !important;
+}
+
+.planning-book__questions--recommendation-open
+  .planning-book__context-bottom {
+  margin-top: auto !important;
+  padding-top: 8px !important;
+}
+
+/* O espaço do CTA continua reservado, preservando o progresso e os botões. */
+.planning-book__questions--recommendation-open
+  .planning-book__reveal-slot {
+  min-height: 64px !important;
+}
+
+.planning-book__questions--recommendation-open
+  .planning-book__reveal-suggestion.is-hidden {
+  display: flex !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+@media (max-width: 1180px) {
+  .book-header__brand {
+    width: 72px !important;
+    height: 50px !important;
+  }
+
+  .planning-book__analysis-brand img {
+    width: 132px !important;
+    height: 78px !important;
+  }
+}
+
+/* =========================================================
+   V10.8 — presença de marca refinada
+   ========================================================= */
+
+/* O logo do resumo passa a acompanhar a altura visual do título do evento. */
+.book-header__title-block {
+  align-items: flex-end !important;
+  gap: 16px !important;
+}
+
+.book-header__brand {
+  width: 104px !important;
+  height: 88px !important;
+  margin-bottom: 1px !important;
+  object-fit: contain !important;
+}
+
+/* Aproxima a marca do título durante a análise, sem voltar a criar um card. */
+.planning-book__analysis-brand {
+  min-height: 78px !important;
+  margin: -10px 0 2px !important;
+  transform: translateY(-2px);
+}
+
+.planning-book__analysis-brand img {
+  width: 150px !important;
+  height: 82px !important;
+}
+
+/* Marca d'água institucional na abertura do Planner. */
+.planning-book__scene-brandmark {
+  position: absolute;
+  right: 44px;
+  bottom: 38px;
+  z-index: 4;
+  width: clamp(190px, 18vw, 285px);
+  pointer-events: none;
+  opacity: 0.22;
+  filter:
+    brightness(0)
+    invert(94%)
+    sepia(18%)
+    saturate(530%)
+    hue-rotate(342deg)
+    brightness(102%);
+}
+
+.planning-book__scene-brandmark img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 1180px) {
+  .book-header__brand {
+    width: 90px !important;
+    height: 76px !important;
+  }
+
+  .planning-book__analysis-brand {
+    margin-top: -7px !important;
+  }
+
+  .planning-book__analysis-brand img {
+    width: 138px !important;
+    height: 76px !important;
+  }
+
+  .planning-book__scene-brandmark {
+    right: 28px;
+    bottom: 28px;
+    width: 190px;
+  }
+}
+
+/* =========================================================
+   V11.0 — IDENTIDADE DA APLICAÇÃO
+   A marca vive fora do livro; o papel continua dedicado ao cliente.
+   ========================================================= */
+
+.planning-book__app-signature {
+  position: absolute;
+  top: 25px;
+  left: 42px;
+  z-index: 70;
+  display: flex;
+  align-items: baseline;
+  gap: 13px;
+  pointer-events: none;
+  color: rgba(250, 234, 210, 0.9);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.32);
+}
+
+.planning-book__app-signature strong {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  line-height: 1;
+}
+
+.planning-book__app-signature span {
+  padding-left: 13px;
+  border-left: 1px solid rgba(218, 174, 111, 0.35);
+  color: rgba(232, 205, 168, 0.62);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* Remove qualquer presença de marca dentro do papel. */
+.book-header__brand,
+.planning-book__analysis-brand {
+  display: none !important;
+}
+
+.book-header__title-block {
+  align-items: flex-start !important;
+}
+
+/* Aproxima o conteúdo do suspense do título superior da folha. */
+.planning-book__analysis {
+  transform: translateY(-24px);
+}
+
+/* Mantém a assinatura visual da marca apenas no ambiente externo inicial. */
+.planning-book__scene-brandmark {
+  opacity: 0.76;
+}
+
+@media (max-width: 1180px) {
+  .planning-book__app-signature {
+    top: 20px;
+    left: 30px;
+  }
+
+  .planning-book__app-signature span {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .planning-book__app-signature {
+    left: 24px;
+  }
+}
+
+/* =========================================================
+   V11.1 — MOBILE FIRST / LIVRO VERTICAL
+   No celular, as tres areas viram capitulos empilhados:
+   pagina 1 -> pagina 2 -> visualizacao.
+   ========================================================= */
+
+@media (max-width: 760px) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body,
+  #root {
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+
+  .planning-book {
+    min-height: 100dvh;
+    padding: 0;
+    overflow: visible;
+    background:
+      linear-gradient(180deg, #160b07 0%, #080403 100%);
+  }
+
+  .planning-book__app-signature {
+    position: relative;
+    top: auto;
+    left: auto;
+    z-index: 80;
+    min-height: 54px;
+    padding: 18px 20px 14px;
+    background: rgba(13, 7, 5, 0.96);
+    border-bottom: 1px solid rgba(211, 159, 91, 0.18);
+  }
+
+  .planning-book__app-signature strong {
+    font-size: 10px;
+  }
+
+  .planning-book__book {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .planning-book__book::before,
+  .planning-book__book::after,
+  .book-core > .planning-book__binding {
+    display: none;
+  }
+
+  .book-core {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 0;
+  }
+
+  .planning-book__questions,
+  .planning-book__summary,
+  .planning-book__scene {
+    width: 100%;
+    min-height: auto;
+    margin: 0;
+    overflow: visible;
+    border-radius: 0;
+  }
+
+  .planning-book__questions,
+  .planning-book__summary {
+    scroll-margin-top: 54px;
+    padding: 30px 20px 34px;
+    border-right: 0;
+    border-left: 0;
+    background:
+      radial-gradient(ellipse at 28% 4%, rgba(255,255,255,0.42), transparent 30%),
+      repeating-linear-gradient(0deg, rgba(91,62,42,0.018) 0, rgba(91,62,42,0.018) 1px, transparent 1px, transparent 5px),
+      linear-gradient(180deg, #fbf6ee 0%, #f1e6d7 100%);
+    box-shadow:
+      inset 0 -22px 30px rgba(75, 45, 25, 0.06),
+      0 10px 28px rgba(0,0,0,0.2);
+  }
+
+  .planning-book__questions {
+    min-height: calc(100dvh - 54px);
+  }
+
+  .planning-book__summary {
+    min-height: 72dvh;
+    border-top: 10px solid #2a160f;
+  }
+
+  .planning-book__questions::before,
+  .planning-book__questions::after,
+  .planning-book__summary::before,
+  .planning-book__summary::after {
+    display: none;
+  }
+
+  .planning-book__questions-scroll,
+  .planning-book__questions--context .planning-book__questions-scroll,
+  .planning-book__questions--recommendation-open .planning-book__questions-scroll {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding-right: 0 !important;
+  }
+
+  .planning-book__questions-footer {
+    position: sticky;
+    right: auto;
+    bottom: 0;
+    left: auto;
+    z-index: 35;
+    width: calc(100% + 40px);
+    margin: 22px -20px -34px;
+    padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+    background:
+      linear-gradient(180deg, rgba(246,237,224,0.06), #f0e4d4 24%, #eadbc7 100%);
+    border-top: 1px solid rgba(106, 70, 39, 0.14);
+  }
+
+  .planning-book__generate,
+  .planning-book__reveal-suggestion,
+  .book-button {
+    min-height: 54px;
+    font-size: 13px;
+  }
+
+  .planning-book__event-options {
+    gap: 9px;
+  }
+
+  .planning-book__event-option {
+    padding: 14px;
+  }
+
+  .planning-book__counter-row {
+    align-items: center;
+    gap: 10px;
+  }
+
+  .planning-book__counter {
+    flex: 0 0 auto;
+  }
+
+  .book-header__topline {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .book-header__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .book-header__actions button,
+  .book-footer button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .book-header__identity,
+  .book-header__metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 10px;
+  }
+
+  .book-header__identity > div,
+  .book-header__metrics > div {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .book-header__services {
+    flex-wrap: wrap;
+  }
+
+  .book-progress {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .book-progress::-webkit-scrollbar {
+    display: none;
+  }
+
+  .book-progress__step {
+    flex: 0 0 86px;
+  }
+
+  .planning-book__reveal-slot {
+    min-height: 58px;
+  }
+
+  .planning-book__investment-footer {
+    position: static;
+    margin-top: 22px;
+  }
+
+  .book-footer {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .book-footer__current {
+    order: -1;
+    text-align: center;
+  }
+
+  .planning-book__scene {
+    min-height: 78dvh;
+    scroll-margin-top: 54px;
+    border-top: 10px solid #2a160f;
+    border-right: 0;
+    border-left: 0;
+    background-color: #0d0705;
+  }
+
+  .planning-book__event-scene {
+    min-height: 78dvh;
+  }
+
+  .planning-book__scene-overlay {
+    top: 7%;
+    right: 22px;
+    left: 22px;
+    max-width: none;
+  }
+
+  .planning-book__scene-overlay h2 {
+    max-width: 310px;
+    font-size: clamp(34px, 11vw, 48px);
+  }
+
+  .planning-book__scene-overlay p {
+    max-width: 290px;
+  }
+
+  .planning-book__scene-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    gap: 7px;
+  }
+
+  .planning-book__scene-metrics > div {
+    min-width: 0;
+    padding: 10px 7px;
+  }
+
+  .planning-book__scene-metrics strong {
+    font-size: 21px;
+  }
+
+  .planning-book__scene-brandmark {
+    right: 20px;
+    bottom: 24px;
+    width: min(48vw, 210px);
+  }
+
+  .planning-book__analysis {
+    transform: translateY(-10px);
+  }
+
+  .planning-book__analysis-steps {
+    width: 100%;
+  }
+
+  .planning-book__structure-card,
+  .planning-book__allocation-card,
+  .planning-book__station-card,
+  .planning-book__recommendation-card {
+    grid-template-columns: 86px minmax(0, 1fr) !important;
+  }
+
+  .planning-book__dynamic-sheet-content,
+  .planning-book__station-details,
+  .planning-book__customization {
+    width: 100%;
+  }
+}
+
+@media (max-width: 390px) {
+  .planning-book__questions,
+  .planning-book__summary {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .planning-book__questions-footer {
+    width: calc(100% + 32px);
+    margin-right: -16px;
+    margin-left: -16px;
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .book-header__identity,
+  .book-header__metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .book-header__actions {
+    grid-template-columns: 1fr;
+  }
+
+  .planning-book__scene-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   V11.2 — VISUALIZAÇÃO OPERACIONAL DAS ESCOLHAS
+   ========================================================= */
+
+.planning-book__scene-selections {
+  width: min(100%, 470px);
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid rgba(218, 171, 94, 0.2);
+  border-radius: 14px;
+  background: rgba(20, 10, 6, 0.62);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+}
+
+.planning-book__scene-selections-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.planning-book__scene-selections-heading > span {
+  color: #e8c78f;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.planning-book__scene-selections-heading > small {
+  color: rgba(239, 219, 184, 0.56);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+}
+
+.planning-book__scene-selection-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.planning-book__scene-selection-list button {
+  display: flex;
+  min-width: 0;
+  min-height: 52px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid rgba(218, 171, 94, 0.16);
+  border-radius: 10px;
+  color: #f0dfc1;
+  background: rgba(255, 255, 255, 0.035);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.planning-book__scene-selection-list button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(218, 171, 94, 0.4);
+  background: rgba(218, 171, 94, 0.09);
+}
+
+.planning-book__scene-selection-list button > span {
+  overflow: hidden;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 13px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planning-book__scene-selection-list button > small {
+  color: rgba(239, 219, 184, 0.5);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+}
+
+.planning-book__scene-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 9px 12px;
+  border: 1px solid rgba(218, 171, 94, 0.22);
+  border-radius: 999px;
+  color: #f2dfbe;
+  background: rgba(53, 30, 17, 0.88);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  animation: planning-book-scene-notice 280ms ease both;
+}
+
+.planning-book__scene-notice > span {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 50%;
+  color: #382116;
+  background: #d7ac66;
+  font-size: 11px;
+}
+
+.planning-book__scene--updated .planning-book__event-scene {
+  animation: planning-book-scene-soft-update 520ms ease both;
+}
+
+@keyframes planning-book-scene-notice {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes planning-book-scene-soft-update {
+  0% {
+    opacity: 0.76;
+    filter: saturate(0.82) brightness(0.92);
+  }
+  100% {
+    opacity: 1;
+    filter: saturate(1) brightness(1);
+  }
+}
+
+@media (max-width: 760px) {
+  .planning-book__scene {
+    min-height: 86dvh;
+  }
+
+  .planning-book__event-scene {
+    min-height: 86dvh;
+  }
+
+  .planning-book__scene-overlay {
+    top: 5.5%;
+  }
+
+  .planning-book__scene-overlay h2 {
+    max-width: 290px;
+    font-size: clamp(31px, 10vw, 44px);
+  }
+
+  .planning-book__scene-selections {
+    width: 100%;
+    margin-top: 14px;
+    padding: 12px;
+  }
+
+  .planning-book__scene-selection-list {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .planning-book__scene-selection-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .planning-book__scene-selection-list button {
+    flex: 0 0 min(72vw, 220px);
+  }
+}
+
+@media (max-width: 390px) {
+  .planning-book__scene-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .planning-book__scene-metrics > div {
+    padding: 9px 5px;
+  }
+
+  .planning-book__scene-metrics strong {
+    font-size: 18px;
+  }
+
+  .planning-book__scene-selections-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+}
+
+/* =========================================================
+   V11.3 — VISUALIZAÇÃO DAS ESCOLHAS: CENA COMO PROTAGONISTA
+   ========================================================= */
+
+.planning-book__scene--ready .planning-book__scene-overlay {
+  top: 6.5%;
+  left: 7.5%;
+  right: 7.5%;
+  max-width: none;
+  pointer-events: none;
+}
+
+.planning-book__scene--ready .planning-book__scene-overlay h2 {
+  max-width: 520px;
+  margin-top: 12px;
+  font-size: clamp(40px, 3.8vw, 58px);
+  line-height: 0.98;
+}
+
+.planning-book__scene--ready .planning-book__scene-overlay > p {
+  max-width: 480px;
+  margin-top: 14px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+/* Remove informações redundantes da cena. */
+.planning-book__scene--ready .planning-book__scene-metrics,
+.planning-book__scene--ready .planning-book__scene-caption {
+  display: none !important;
+}
+
+/* Remove ornamentos que competem com os carrinhos. */
+.planning-book__scene--ready .event-scene__light,
+.planning-book__scene--ready .event-scene__string-lights,
+.planning-book__scene--ready .event-scene__decor,
+.planning-book__scene--ready .event-scene__particles {
+  display: none !important;
+}
+
+.planning-book__scene--ready .planning-book__scene-selections {
+  width: min(100%, 650px);
+  margin-top: 24px;
+  padding: 11px 12px 12px;
+  border-radius: 12px;
+  background: rgba(16, 8, 5, 0.44);
+  backdrop-filter: blur(8px);
+  box-shadow: none;
+  pointer-events: auto;
+}
+
+.planning-book__scene--ready .planning-book__scene-selections-heading {
+  margin-bottom: 8px;
+}
+
+.planning-book__scene--ready .planning-book__scene-selection-list {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 7px;
+}
+
+.planning-book__scene--ready .planning-book__scene-selection-list button {
+  min-height: 45px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.planning-book__scene--ready .planning-book__scene-selection-list button > span {
+  font-size: 12px;
+}
+
+.planning-book__scene-guidance {
+  position: absolute;
+  left: 0;
+  top: min(71vh, 650px);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: min(100%, 650px);
+  padding: 13px 15px;
+  border: 1px solid rgba(218, 171, 94, 0.18);
+  border-radius: 12px;
+  color: rgba(243, 226, 196, 0.8);
+  background: rgba(45, 24, 14, 0.72);
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.planning-book__scene-guidance > span {
+  color: #d5a55d;
+  font-size: 18px;
+}
+
+.planning-book__scene-guidance > p {
+  max-width: none;
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.planning-book__scene--ready .planning-book__event-scene {
+  transform: translateY(5%);
+}
+
+@media (max-width: 760px) {
+  .planning-book__scene--ready .planning-book__scene-overlay {
+    top: 4.5%;
+    left: 5%;
+    right: 5%;
+  }
+
+  .planning-book__scene--ready .planning-book__scene-overlay h2 {
+    max-width: 330px;
+    font-size: clamp(34px, 11vw, 48px);
+  }
+
+  .planning-book__scene--ready .planning-book__scene-selections {
+    margin-top: 18px;
+  }
+
+  .planning-book__scene--ready .planning-book__scene-selection-list {
+    display: flex;
+  }
+
+  .planning-book__scene-guidance {
+    top: auto;
+    bottom: 4.5%;
+    width: 100%;
+  }
+
+  .planning-book__scene--ready .planning-book__event-scene {
+    transform: translateY(8%);
+  }
+}

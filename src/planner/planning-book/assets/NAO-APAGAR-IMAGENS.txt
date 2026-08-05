@@ -1,0 +1,6 @@
+IMPORTANTE
+
+Esta pasta assets no seu projeto ja contem as 8 imagens personalizadas dos carrinhos e mesas.
+Nao apague essas imagens.
+Ao aplicar este rollback, copie a pasta planning-book por cima da pasta existente e escolha substituir os arquivos com o mesmo nome.
+O Windows deve manter os PNGs que ja existem em assets.
