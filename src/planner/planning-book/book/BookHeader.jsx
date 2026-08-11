@@ -12,15 +12,16 @@ export default function BookHeader({
   eventLabel = "Evento",
   adults = 0,
   children = 0,
-  equivalentGuests = 0,
+  olderChildren = 0,
   duration = 4,
   includeWaiters = false,
   includeDisposables = false,
   includeBeverages = false,
+  selectedMenuDetails = [],
   onEdit,
   onRestart,
 }) {
-  const totalGuests = Number(adults || 0) + Number(children || 0);
+  const totalGuests = Number(adults || 0) + Number(children || 0) + Number(olderChildren || 0);
 
   return (
     <section className="book-header" aria-label="Resumo do evento">
@@ -76,7 +77,6 @@ export default function BookHeader({
         <div>
           <span>Convidados</span>
           <strong>{totalGuests}</strong>
-          <small>{equivalentGuests} equivalentes</small>
         </div>
 
         <div>
@@ -85,7 +85,12 @@ export default function BookHeader({
         </div>
 
         <div>
-          <span>Crianças</span>
+          <span>Crianças 7+</span>
+          <strong>{olderChildren}</strong>
+        </div>
+
+        <div>
+          <span>Crianças 0–6</span>
           <strong>{children}</strong>
         </div>
 
@@ -108,6 +113,20 @@ export default function BookHeader({
           {includeBeverages ? "✓" : "—"} Bebidas em consignação
         </span>
       </div>
+
+      {selectedMenuDetails.length > 0 && (
+        <div className="book-header__menu-selection">
+          <span className="book-header__menu-title">Cardápio escolhido</span>
+          <div>
+            {selectedMenuDetails.map((category) => (
+              <section key={category.id}>
+                <strong>{category.title}</strong>
+                <p>{category.products.map((product) => product.name).join(" · ")}</p>
+              </section>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="book-header__saved-note">
         <span className="book-header__saved-icon" aria-hidden="true">✓</span>

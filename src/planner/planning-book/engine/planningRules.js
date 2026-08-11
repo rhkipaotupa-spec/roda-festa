@@ -254,40 +254,66 @@ export function buildSuggestedItems({
   selectedProductIds = [],
   includeBeverages = false,
 }) {
-  const products = Object.values(PRODUCTS);
+  const selectedProducts = Object.values(PRODUCTS).filter((product) => {
+    if (!product.active) return false;
+    if (product.consignment && !includeBeverages) return false;
+    return selectedProductIds.includes(product.id);
+  });
 
-  return products
-    .filter((product) => {
-      if (!product.active) {
-        return false;
-      }
+  const byCategory = selectedProducts.reduce((groups, product) => {
+    const key = product.commercialCategory;
+    groups[key] = groups[key] ?? [];
+    groups[key].push(product);
+    return groups;
+  }, {});
 
-      if (
-        product.consignment &&
-        !includeBeverages
-      ) {
-        return false;
-      }
+  const items = [];
+  const categoryAllocations = [];
 
-      return selectedProductIds.includes(
-        product.id
-      );
-    })
-    .map((product) => {
-      const quantity =
-        calculateSuggestedProductQuantity({
-          product,
-          equivalentGuests,
-        });
+  Object.entries(byCategory).forEach(([category, products]) => {
+    const unitsPerGuest = Math.max(
+      ...products.map((product) => Number(product.suggestedUnitsPerEquivalentGuest) || 0)
+    );
+    const suggestedTotal = Math.max(0, equivalentGuests * unitsPerGuest);
 
-      return {
+    const quantities = products.map((product) => ({
+      product,
+      quantity: suggestedTotal > 0 ? Number(product.lotSize) || 1 : 0,
+    }));
+
+    let allocatedTotal = quantities.reduce((sum, entry) => sum + entry.quantity, 0);
+    let cursor = 0;
+    let guard = 0;
+
+    while (allocatedTotal < suggestedTotal && quantities.length && guard < 100000) {
+      const entry = quantities[cursor % quantities.length];
+      const lot = Number(entry.product.lotSize) || 1;
+      entry.quantity += lot;
+      allocatedTotal += lot;
+      cursor += 1;
+      guard += 1;
+    }
+
+    quantities.forEach(({ product, quantity }) => {
+      items.push({
         ...product,
         quantity,
-        estimatedValue: product.consignment
-          ? 0
-          : quantity * product.unitPrice,
-      };
+        estimatedValue: product.consignment ? 0 : quantity * product.unitPrice,
+      });
     });
+
+    const excess = Math.max(0, allocatedTotal - suggestedTotal);
+    categoryAllocations.push({
+      category,
+      selectedProducts: products.length,
+      suggestedTotal,
+      allocatedTotal,
+      excess,
+      hasLotAdjustment: excess > 0,
+    });
+  });
+
+  return { items, categoryAllocations };
 }
 
 /* =========================================================
@@ -699,29 +725,22 @@ export function generatePlanningSuggestion({
       children,
     });
 
-  const adaptiveProductIds = getAdaptiveProductIds({
-    equivalentGuests,
-    selectedProductIds,
-  });
-
+  // Na V17 o cardápio nasce das escolhas do cliente. O motor recomenda
+  // quantidades e não acrescenta produtos padrão nem substitui seleções.
   const recommendationProductIds = Array.from(
-    new Set([...adaptiveProductIds, ...additionalProductIds])
+    new Set([...selectedProductIds, ...additionalProductIds])
   );
 
-  const effectiveProductIds = includeBeverages
-    ? Array.from(
-        new Set([
-          ...recommendationProductIds,
-          ...DEFAULT_BEVERAGE_PRODUCT_IDS,
-        ])
-      )
-    : recommendationProductIds;
+  const effectiveProductIds = recommendationProductIds;
 
-  let items = buildSuggestedItems({
+  const builtSuggestion = buildSuggestedItems({
     equivalentGuests,
     selectedProductIds: effectiveProductIds,
     includeBeverages,
   });
+
+  let items = builtSuggestion.items;
+  const categoryAllocations = builtSuggestion.categoryAllocations;
 
   const hasBrigadeiros = items.some(
     (item) =>
@@ -814,5 +833,6 @@ export function generatePlanningSuggestion({
     },
     investment,
     evaluation,
+    categoryAllocations,
   };
 }

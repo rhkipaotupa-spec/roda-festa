@@ -143,7 +143,7 @@ function SceneSix() {
 
         <a
           className="scene-six__closing-button"
-          href="#simulador"
+          href="/planning-book"
         >
           <span>Montar minha celebração</span>
           <span aria-hidden="true">→</span>

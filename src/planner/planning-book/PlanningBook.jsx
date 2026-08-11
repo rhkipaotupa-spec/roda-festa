@@ -31,6 +31,7 @@ import {
 } from "./engine/buildPlanningScene";
 
 import rodaFestaLogo from "./assets/logo-roda-festa.png";
+import rodaFestaLogoCreme from "./assets/logo-roda-festa-creme.png";
 import carBurger from "./assets/car-burger.png";
 import carFrituras from "./assets/car-frituras.png";
 import carHotDog from "./assets/car-hot-dog.png";
@@ -86,9 +87,12 @@ function getSceneComposition(stations = []) {
       label = "Carrinho de mini burger";
     }
 
-    if (src) {
-      result.push({ id: "mini", kind: "cart", label, src });
+    if (!src) {
+      src = SCENE_ASSETS.burger;
+      label = "Carrinho de mini lanches e tortas";
     }
+
+    result.push({ id: "mini", kind: "cart", label, src });
   }
 
   const beverageStation = byId.get("beverages");
@@ -182,15 +186,13 @@ const EVENT_OPTIONS = [
   },
 ];
 
-const INITIAL_PRODUCT_IDS = [
-  "pastel-carne",
-  "pastel-queijo",
-  "coxinha-frango-catupiry",
-  "risoles-presunto-queijo",
-  "mini-x-burguer",
-  "brigadeiro-chocolate",
-  "brigadeiro-leite-ninho",
-  "bolo-beatriz",
+const MENU_CATEGORIES = [
+  { id: "mini-lanches", title: "Mini Lanches", commercialCategory: "Mini lanches", note: "Escolha os mini lanches que combinam com o seu evento." },
+  { id: "salgadinhos-fritos", title: "Salgadinhos Fritos", commercialCategory: "Petiscos", note: "Selecione os sabores que deseja servir durante a festa." },
+  { id: "tortas", title: "Tortas", commercialCategory: "Tortas", note: "A recomendação será calculada em porções de 150 g por pessoa." },
+  { id: "doces", title: "Doces", commercialCategory: "Doces", note: "Escolha os doces que deseja incluir na composição." },
+  { id: "bolos", title: "Bolos", commercialCategory: "Bolos", note: "A recomendação será calculada em porções de 120 g por pessoa." },
+  { id: "bebidas", title: "Bebidas (Consignação)", commercialCategory: "Bebidas", note: "Cobradas conforme o consumo e fora do investimento contratado." },
 ];
 
 const ANALYSIS_STEPS = [
@@ -198,7 +200,7 @@ const ANALYSIS_STEPS = [
   "Interpretando o número de convidados",
   "Dimensionando a estrutura",
   "Organizando a equipe",
-  "Montando o cardápio inicial",
+  "Interpretando suas escolhas de cardápio",
   "Calculando o investimento",
   "Finalizando sua recomendação",
 ];
@@ -294,6 +296,27 @@ function getTodayDateInputValue() {
   const now = new Date();
   const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
   return localDate.toISOString().slice(0, 10);
+}
+
+function createPlanningCode() {
+  const now = new Date();
+  const datePart = [
+    String(now.getFullYear()).slice(-2),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("");
+
+  let sequence = 1;
+
+  try {
+    const storageKey = `roda-festa-planning-sequence-${datePart}`;
+    sequence = Number(window.localStorage.getItem(storageKey) || 0) + 1;
+    window.localStorage.setItem(storageKey, String(sequence));
+  } catch {
+    sequence = Number(String(Date.now()).slice(-5));
+  }
+
+  return `RF-${datePart}-${String(sequence).padStart(5, "0")}`;
 }
 
 function formatQuantity(item) {
@@ -470,10 +493,13 @@ export default function PlanningBook() {
   const [selectedEvent, setSelectedEvent] = useState("");
   const [adults, setAdults] = useState(0);
   const [children, setChildren] = useState(0);
+  const [olderChildren, setOlderChildren] = useState(0);
   const [duration, setDuration] = useState(4);
   const [includeWaiters, setIncludeWaiters] = useState(false);
   const [includeDisposables, setIncludeDisposables] = useState(false);
   const [includeBeverages, setIncludeBeverages] = useState(false);
+  const [selectedProductIds, setSelectedProductIds] = useState([]);
+  const [expandedMenuCategories, setExpandedMenuCategories] = useState([]);
   const [generatedSuggestion, setGeneratedSuggestion] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisStep, setAnalysisStep] = useState(-1);
@@ -482,25 +508,64 @@ export default function PlanningBook() {
   const [isOpeningRecommendation, setIsOpeningRecommendation] = useState(false);
   const [additionalProductIds, setAdditionalProductIds] = useState([]);
   const [sceneNotice, setSceneNotice] = useState("");
+  const [pendingProductAddition, setPendingProductAddition] = useState(null);
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [isOpeningBook, setIsOpeningBook] = useState(false);
+  const [isClosingBook, setIsClosingBook] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
+  const [planningCode, setPlanningCode] = useState("");
+  const [welcomeErrors, setWelcomeErrors] = useState({});
 
+  const planningCodeRef = useRef("");
   const summaryPageRef = useRef(null);
   const scenePageRef = useRef(null);
 
   const navigation = useBookNavigation();
 
+  const planningAdults = adults + olderChildren;
+
   const equivalentGuests = useMemo(
-    () => adults + children * 0.5,
-    [adults, children]
+    () => planningAdults + children * 0.5,
+    [planningAdults, children]
   );
 
-  const realGuests = adults + children;
+  const realGuests = adults + olderChildren + children;
   const minimumEventDate = useMemo(() => getTodayDateInputValue(), []);
 
   const selectedEventData =
     EVENT_OPTIONS.find((option) => option.id === selectedEvent) ?? null;
 
+  const menuCategories = useMemo(
+    () =>
+      MENU_CATEGORIES.map((category) => ({
+        ...category,
+        products: PRODUCT_CATALOG.filter(
+          (product) => product.active && product.commercialCategory === category.commercialCategory
+        ),
+      })),
+    []
+  );
+
+  const selectedMenuCategoriesCount = menuCategories.filter((category) =>
+    category.products.some((product) => selectedProductIds.includes(product.id))
+  ).length;
+
+  const selectedMenuDetails = useMemo(
+    () => menuCategories
+      .map((category) => ({
+        id: category.id,
+        title: category.title,
+        products: category.products.filter((product) => selectedProductIds.includes(product.id)),
+      }))
+      .filter((category) => category.products.length > 0),
+    [menuCategories, selectedProductIds]
+  );
+
   const canGenerateSuggestion =
-    Boolean(selectedEvent) && realGuests > 0 && !isAnalyzing;
+    Boolean(selectedEvent) &&
+    realGuests > 0 &&
+    selectedProductIds.length > 0 &&
+    !isAnalyzing;
 
   const stations = useMemo(
     () =>
@@ -555,7 +620,7 @@ export default function PlanningBook() {
         introduction: getEventIntroduction(selectedEvent),
         structure: getStructureExplanation({
           carts: generatedSuggestion.carts.totalCarts,
-          adults,
+          adults: planningAdults,
           children,
           duration,
           groups: generatedSuggestion.carts.groups,
@@ -566,6 +631,34 @@ export default function PlanningBook() {
         }),
       }
     : null;
+
+  async function handleOpenPlanningBook(event) {
+    event?.preventDefault();
+    if (isOpeningBook) return;
+
+    const errors = {};
+    const cleanName = clientName.trim();
+    const phoneDigits = phone.replace(/\D/g, "");
+
+    if (!cleanName) errors.clientName = "Informe seu nome para continuar.";
+    if (!phoneDigits || phoneDigits.length < 10) {
+      errors.phone = "Informe um telefone válido com DDD.";
+    }
+    if (!eventDate) {
+      errors.eventDate = "Escolha a data do evento.";
+    } else if (eventDate < minimumEventDate) {
+      errors.eventDate = "A data do evento não pode ser anterior a hoje.";
+    }
+
+    setWelcomeErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    setClientName(cleanName);
+    setIsOpeningBook(true);
+    await wait(920);
+    setShowWelcome(false);
+    window.setTimeout(() => setIsOpeningBook(false), 80);
+  }
 
   function scrollToMobileSection(sectionRef, delay = 80) {
     if (typeof window === "undefined" || window.innerWidth > 760) return;
@@ -596,6 +689,51 @@ export default function PlanningBook() {
     invalidateSuggestion();
   }
 
+  function handleOlderChildrenChange(value) {
+    setOlderChildren(Math.min(100, Math.max(0, Number(value) || 0)));
+    invalidateSuggestion();
+  }
+
+  function toggleMenuCategory(category) {
+    const productIds = category.products.map((product) => product.id);
+    const hasSelection = productIds.some((id) => selectedProductIds.includes(id));
+
+    setExpandedMenuCategories((current) =>
+      current.includes(category.id)
+        ? current.filter((id) => id !== category.id)
+        : [...current, category.id]
+    );
+
+    if (hasSelection) {
+      setSelectedProductIds((current) => current.filter((id) => !productIds.includes(id)));
+      if (category.id === "bebidas") setIncludeBeverages(false);
+    } else {
+      setSelectedProductIds((current) => [...new Set([...current, ...productIds])]);
+      if (category.id === "bebidas") setIncludeBeverages(true);
+    }
+
+    invalidateSuggestion();
+  }
+
+  function toggleMenuProduct(product, categoryId) {
+    setSelectedProductIds((current) => {
+      const next = current.includes(product.id)
+        ? current.filter((id) => id !== product.id)
+        : [...current, product.id];
+
+      if (categoryId === "bebidas") {
+        const beverageIds = menuCategories
+          .find((category) => category.id === "bebidas")
+          ?.products.map((item) => item.id) ?? [];
+        setIncludeBeverages(next.some((id) => beverageIds.includes(id)));
+      }
+
+      return next;
+    });
+
+    invalidateSuggestion();
+  }
+
   async function handleGenerateSuggestion() {
     if (!canGenerateSuggestion) return;
 
@@ -608,13 +746,13 @@ export default function PlanningBook() {
     scrollToMobileSection(summaryPageRef, 140);
 
     const suggestion = generatePlanningSuggestion({
-      adults,
+      adults: planningAdults,
       children,
       serviceHours: duration,
-      selectedProductIds: INITIAL_PRODUCT_IDS,
+      selectedProductIds,
       includeWaiters,
       includeDisposables,
-      includeBeverages,
+      includeBeverages: selectedProductIds.some((id) => PRODUCTS[Object.keys(PRODUCTS).find((key) => PRODUCTS[key].id === id)]?.consignment),
       additionalProductIds: [],
     });
 
@@ -642,10 +780,13 @@ export default function PlanningBook() {
     setSelectedEvent("");
     setAdults(0);
     setChildren(0);
+    setOlderChildren(0);
     setDuration(4);
     setIncludeWaiters(false);
     setIncludeDisposables(false);
     setIncludeBeverages(false);
+    setSelectedProductIds([]);
+    setExpandedMenuCategories([]);
     setGeneratedSuggestion(null);
     setIsAnalyzing(false);
     setAnalysisStep(-1);
@@ -653,6 +794,7 @@ export default function PlanningBook() {
     setIsOpeningRecommendation(false);
     setAdditionalProductIds([]);
     setSceneNotice("");
+    setPendingProductAddition(null);
     navigation.restart();
   }
 
@@ -670,8 +812,9 @@ export default function PlanningBook() {
 
   function handleAddOptionalGroup(groupId) {
     const groupProducts = {
+      fried: ["coxinha-frango-catupiry"],
       hotSandwiches: ["mini-x-burguer"],
-      desserts: ["brigadeiro-chocolate", "bolo"],
+      desserts: ["brigadeiro-chocolate", "bolo-beatriz"],
       beverages: [],
     };
 
@@ -681,10 +824,10 @@ export default function PlanningBook() {
       setIncludeBeverages(true);
 
       const nextSuggestion = generatePlanningSuggestion({
-        adults,
+        adults: planningAdults,
         children,
         serviceHours: duration,
-        selectedProductIds: INITIAL_PRODUCT_IDS,
+        selectedProductIds,
         includeWaiters,
         includeDisposables,
         includeBeverages: true,
@@ -707,22 +850,24 @@ export default function PlanningBook() {
     setAdditionalProductIds(nextAdditionalProductIds);
 
     const nextSuggestion = generatePlanningSuggestion({
-      adults,
+      adults: planningAdults,
       children,
       serviceHours: duration,
-      selectedProductIds: INITIAL_PRODUCT_IDS,
+      selectedProductIds,
       includeWaiters,
       includeDisposables,
-      includeBeverages,
+      includeBeverages: selectedProductIds.some((id) => PRODUCTS[Object.keys(PRODUCTS).find((key) => PRODUCTS[key].id === id)]?.consignment),
       additionalProductIds: nextAdditionalProductIds,
     });
 
     setGeneratedSuggestion(nextSuggestion);
 
     const groupLabel =
-      groupId === "hotSandwiches"
-        ? "Mini Lanches adicionados à visualização"
-        : "Doces e bolo adicionados à visualização";
+      groupId === "fried"
+        ? "Petiscos adicionados à visualização"
+        : groupId === "hotSandwiches"
+          ? "Mini lanches e tortas adicionados à visualização"
+          : "Doces e bolos adicionados à visualização";
 
     setSceneNotice(groupLabel);
     window.setTimeout(() => {
@@ -750,9 +895,11 @@ export default function PlanningBook() {
 
     rebuildSuggestionWithItems(nextItems);
     setSceneNotice(
-      groupId === "hotSandwiches"
-        ? "Mini lanches e tortas retirados do planejamento"
-        : groupId === "desserts"
+      groupId === "fried"
+        ? "Petiscos retirados do planejamento"
+        : groupId === "hotSandwiches"
+          ? "Mini lanches e tortas retirados do planejamento"
+          : groupId === "desserts"
           ? "Doces e bolos retirados do planejamento"
           : "Bebidas retiradas do planejamento"
     );
@@ -868,6 +1015,40 @@ export default function PlanningBook() {
     window.setTimeout(() => setSceneNotice(""), 1800);
   }
 
+  function getCategorySuggestedTotal(product) {
+    const categoryProducts = PRODUCT_CATALOG.filter(
+      (item) => item.active && item.commercialCategory === product.commercialCategory
+    );
+    const unitsPerGuest = Math.max(
+      0,
+      ...categoryProducts.map((item) => Number(item.suggestedUnitsPerEquivalentGuest) || 0)
+    );
+    return Math.max(0, equivalentGuests * unitsPerGuest);
+  }
+
+  function distributeCategoryTotal(products, targetTotal) {
+    if (!products.length) return [];
+
+    const allocations = products.map((product) => ({
+      product,
+      quantity: Number(product.lotSize) || 1,
+    }));
+    let allocated = allocations.reduce((sum, item) => sum + item.quantity, 0);
+    let cursor = 0;
+    let guard = 0;
+
+    while (allocated < targetTotal && guard < 100000) {
+      const entry = allocations[cursor % allocations.length];
+      const lot = Number(entry.product.lotSize) || 1;
+      entry.quantity += lot;
+      allocated += lot;
+      cursor += 1;
+      guard += 1;
+    }
+
+    return allocations;
+  }
+
   function handleAddProduct(productId) {
     if (!generatedSuggestion) return;
     if (generatedSuggestion.items.some((item) => item.id === productId)) return;
@@ -875,45 +1056,331 @@ export default function PlanningBook() {
     const product = PRODUCT_CATALOG.find((item) => item.id === productId);
     if (!product) return;
 
-    const quantity = product.operationalGroup === "cake"
-      ? calculateSuggestedProductQuantity({ product, equivalentGuests })
-      : calculateSuggestedProductQuantity({ product, equivalentGuests });
+    const sameCategoryItems = generatedSuggestion.items.filter(
+      (item) => item.commercialCategory === product.commercialCategory
+    );
+    const suggestedTotal = getCategorySuggestedTotal(product);
+    const currentTotal = sameCategoryItems.reduce(
+      (sum, item) => sum + (Number(item.quantity) || 0),
+      0
+    );
+
+    if (sameCategoryItems.length > 0 && currentTotal >= suggestedTotal) {
+      setPendingProductAddition({
+        product,
+        suggestedTotal,
+        currentTotal,
+        extraQuantity: Number(product.lotSize) || 1,
+      });
+      return;
+    }
+
+    const quantity = Math.max(
+      Number(product.lotSize) || 1,
+      Math.min(
+        calculateSuggestedProductQuantity({ product, equivalentGuests }),
+        Math.max(Number(product.lotSize) || 1, suggestedTotal - currentTotal)
+      )
+    );
+
+    confirmProductAddition(product, quantity);
+  }
+
+  function confirmProductAddition(product, quantity) {
+    const safeQuantity = Math.max(
+      Number(product.lotSize) || 1,
+      Number(quantity) || Number(product.lotSize) || 1
+    );
 
     rebuildSuggestionWithItems([
       ...generatedSuggestion.items,
       {
         ...product,
-        quantity,
-        estimatedValue: product.consignment ? 0 : quantity * product.unitPrice,
+        quantity: safeQuantity,
+        estimatedValue: product.consignment ? 0 : safeQuantity * product.unitPrice,
       },
     ]);
 
-    if (product.operationalGroup === "beverages") {
-      setIncludeBeverages(true);
-    }
-
+    if (product.operationalGroup === "beverages") setIncludeBeverages(true);
+    setPendingProductAddition(null);
     setSceneNotice(`${product.name} adicionado à recomendação`);
     window.setTimeout(() => setSceneNotice(""), 1800);
   }
 
+  function redistributeWithPendingProduct() {
+    if (!generatedSuggestion || !pendingProductAddition) return;
+    const { product, suggestedTotal } = pendingProductAddition;
+    const categoryItems = generatedSuggestion.items.filter(
+      (item) => item.commercialCategory === product.commercialCategory
+    );
+    const otherItems = generatedSuggestion.items.filter(
+      (item) => item.commercialCategory !== product.commercialCategory
+    );
+    const allocations = distributeCategoryTotal([...categoryItems, product], suggestedTotal);
+    const redistributed = allocations.map(({ product: item, quantity }) => ({
+      ...item,
+      quantity,
+      estimatedValue: item.consignment ? 0 : quantity * item.unitPrice,
+    }));
+
+    rebuildSuggestionWithItems([...otherItems, ...redistributed]);
+    if (product.operationalGroup === "beverages") setIncludeBeverages(true);
+    setPendingProductAddition(null);
+    setSceneNotice("Quantidade total redistribuída entre os sabores");
+    window.setTimeout(() => setSceneNotice(""), 2200);
+  }
+
+  function ensurePlanningCode() {
+    if (planningCodeRef.current) return planningCodeRef.current;
+
+    const nextCode = createPlanningCode();
+    planningCodeRef.current = nextCode;
+    setPlanningCode(nextCode);
+
+    try {
+      window.localStorage.setItem("roda-festa-last-planning-code", nextCode);
+    } catch {
+      // O código continua válido durante esta sessão mesmo sem armazenamento local.
+    }
+
+    return nextCode;
+  }
+
   function handlePrintProposal() {
-    const previousTitle = document.title;
-    const safeClientName = clientName.trim() || "cliente";
-    document.title = `Proposta Roda Festa - ${safeClientName}`;
-    window.print();
-    window.setTimeout(() => {
-      document.title = previousTitle;
-    }, 500);
+    if (!generatedSuggestion) return;
+
+    const currentPlanningCode = ensurePlanningCode();
+
+    const proposalWindow = window.open("", "_blank");
+    if (!proposalWindow) {
+      window.alert("Permita a abertura de pop-ups para gerar a proposta em PDF.");
+      return;
+    }
+
+    proposalWindow.opener = null;
+
+    const escapeHtml = (value) =>
+      String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+    const absoluteLogoUrl = new URL(rodaFestaLogo, window.location.href).href;
+    const consignmentEstimate = getConsignmentEstimate(generatedSuggestion.items);
+    const hasDesserts = stations.some((station) => station.id === "desserts");
+    const clientDisplayName = clientName.trim() || "Cliente";
+    const eventDisplayName = selectedEventData?.label || "Evento";
+
+    const stationPages = stations
+      .map((station) => {
+        const items = station.items
+          .map(
+            (item) => `
+              <div class="item-row">
+                <span>${escapeHtml(item.name)}</span>
+                <strong>${escapeHtml(formatSummaryQuantity(item))}</strong>
+              </div>`
+          )
+          .join("");
+
+        return `
+          <section class="station-card">
+            <h3>${escapeHtml(getStationSummaryLabel(station))}</h3>
+            ${items}
+          </section>`;
+      })
+      .join("");
+
+    const cancellationHtml = CANCELLATION_TERMS.map(
+      (term) => `<p>${escapeHtml(term)}</p>`
+    ).join("");
+
+    const electricalHtml = ELECTRICAL_TERMS.map(
+      (term) => `<p>${escapeHtml(term)}</p>`
+    ).join("");
+
+    const proposalHtml = `<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Proposta Roda Festa ${escapeHtml(currentPlanningCode)} - ${escapeHtml(clientDisplayName)}</title>
+  <style>
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #fff; color: #3b281d; }
+    body { font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { position: relative; width: 210mm; min-height: 297mm; height: 297mm; max-height: 297mm; padding: 20mm; break-after: page; page-break-after: always; background: #fbf6ee; overflow: hidden; }
+    .page:last-child { page-break-after: auto; }
+    .cover { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: linear-gradient(145deg, #f8f0e4, #ead7bd); }
+    .cover::before { content: ""; position: absolute; inset: 9mm; border: 1px solid #b6803d; }
+    .cover img { width: 54mm; max-height: 45mm; object-fit: contain; margin-bottom: 14mm; opacity: .96; filter: brightness(0) saturate(100%) invert(22%) sepia(30%) saturate(1120%) hue-rotate(343deg) brightness(82%) contrast(92%); }
+    .cover .eyebrow, .brandline { color: #8c5a27; font-size: 9pt; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .cover h1 { margin: 5mm 0 0; color: #392419; font: 400 30pt/1 Georgia, serif; }
+    .cover h2 { margin: 7mm 0 10mm; color: #9a6728; font: italic 18pt Georgia, serif; }
+    .cover .meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 8mm; color: #5f4838; font-size: 10pt; }
+    .brandline { display: flex; align-items: center; justify-content: space-between; padding-bottom: 5mm; border-bottom: 1px solid #d8bea0; }
+    h2 { margin: 9mm 0 6mm; color: #382419; font: 400 24pt Georgia, serif; }
+    h3 { margin: 0 0 3mm; color: #8d5a27; font-size: 10pt; letter-spacing: .1em; text-transform: uppercase; }
+    .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+    .fact { padding: 4mm; border: 1px solid #dfcbb3; border-radius: 3mm; background: rgba(255,255,255,.58); }
+    .fact span { display: block; margin-bottom: 2mm; color: #94704d; font-size: 7pt; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+    .fact strong { color: #3c291d; font: 400 11pt Georgia, serif; }
+    .station-card { margin-bottom: 4mm; padding: 4mm 5mm; border-left: 2mm solid #9b672c; background: #fffaf3; break-inside: avoid; }
+    .station-card h3 { margin-bottom: 2mm; color: #3c291d; font: 400 13pt Georgia, serif; letter-spacing: 0; text-transform: none; }
+    .item-row { display: flex; justify-content: space-between; gap: 8mm; padding: 1.6mm 0; border-top: .2mm solid #eadbca; color: #5e4938; font-size: 8.5pt; }
+    .item-row strong { white-space: nowrap; color: #7a4b25; }
+    .investment { padding: 8mm; border-radius: 4mm; background: #5a2b16; color: #fff4df; }
+    .investment span { display: block; font-size: 8pt; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .investment strong { display: block; margin: 3mm 0; font: 400 29pt Georgia, serif; }
+    .investment small { font-size: 8pt; opacity: .82; }
+    .consignment { margin-top: 5mm; padding: 5mm; border: 1px solid #c79a60; border-radius: 3mm; background: #fffaf3; }
+    .consignment span { color: #94622d; font-size: 8pt; font-weight: 700; text-transform: uppercase; }
+    .consignment strong { display: block; margin: 2mm 0; font: 400 19pt Georgia, serif; }
+    .terms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+    .terms-card { padding: 5mm; border: 1px solid #dfcbb3; border-radius: 3mm; background: rgba(255,255,255,.55); break-inside: avoid; }
+    .terms-card p { margin: 2.2mm 0; color: #5f4b3b; font-size: 8.5pt; line-height: 1.45; }
+    .footer { position: static; width: 100%; margin-top: 8mm; padding: 6mm 7mm; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12mm; border: 1px solid #d8bea0; border-radius: 3mm; background: #fffaf3; break-inside: avoid; page-break-inside: avoid; }
+    .footer div { display: flex; flex-direction: column; gap: 1mm; min-width: 42mm; color: #5b402e; font-size: 8.5pt; line-height: 1.35; }
+    .footer p { margin: 0; padding-left: 8mm; border-left: 1px solid #d8bea0; color: #8b653f; font: italic 10pt/1.45 Georgia, serif; text-align: center; }
+    .closing { padding: 14mm 18mm 35mm; }
+    .closing h2 { margin: 6mm 0 4mm; }
+    .closing .investment { padding: 6mm; }
+    .closing .consignment { margin-top: 4mm; padding: 4mm; }
+    .closing .terms-grid { gap: 5mm; }
+    .closing .terms-card { padding: 4.5mm; }
+    .closing .terms-card p { margin: 1.6mm 0; font-size: 8pt; line-height: 1.34; }
+    .closing .footer { position: absolute; left: 18mm; right: 18mm; bottom: 10mm; width: auto; margin: 0; padding: 4mm 5mm; min-height: 21mm; }
+    .print-note { display: none; }
+    @media screen {
+      body { background: #2a160d; padding: 20px 0; }
+      .page { margin: 0 auto 20px; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+      .print-note { display: block; position: sticky; top: 0; z-index: 10; width: 210mm; margin: 0 auto 12px; padding: 10px 14px; border-radius: 8px; background: #fff; color: #4b2d1c; text-align: center; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+    }
+    @media print {
+      html, body { width: 210mm; margin: 0 !important; padding: 0 !important; }
+      .print-note { display: none !important; }
+      .page { width: 210mm !important; height: 297mm !important; min-height: 297mm !important; max-height: 297mm !important; margin: 0 !important; box-shadow: none !important; break-after: page !important; page-break-after: always !important; overflow: hidden !important; }
+      .page:last-child { break-after: auto !important; page-break-after: auto !important; }
+      .closing { padding: 14mm 18mm 35mm !important; }
+      .closing .footer { position: absolute !important; left: 18mm !important; right: 18mm !important; bottom: 10mm !important; width: auto !important; margin: 0 !important; break-inside: avoid !important; page-break-inside: avoid !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="print-note">Na janela de impressão, escolha “Salvar como PDF”.</div>
+
+  <section class="page cover">
+    <img src="${escapeHtml(absoluteLogoUrl)}" alt="Roda Festa" />
+    <div class="eyebrow">Proposta comercial</div>
+    <div style="margin-top:4mm;color:#8c5a27;font-size:8pt;font-weight:700;letter-spacing:.12em;">${escapeHtml(currentPlanningCode)}</div>
+    <h1>${escapeHtml(eventDisplayName)}</h1>
+    <h2>${escapeHtml(clientDisplayName)}</h2>
+    <div class="meta">
+      <span>${escapeHtml(formatDate(eventDate))}</span>
+      <span>${escapeHtml(`${adults} adultos${olderChildren > 0 ? ` • ${olderChildren} crianças 7+` : ""}${children > 0 ? ` • ${children} crianças 0–6` : ""}`)}</span>
+      <span>${escapeHtml(`${duration} horas`)}</span>
+    </div>
+  </section>
+
+  <section class="page">
+    <div class="brandline"><strong>RODA FESTA</strong><span>Gastronomia que encanta</span></div>
+    <h2>Resumo do evento</h2>
+    <div class="facts">
+      <div class="fact"><span>Código</span><strong>${escapeHtml(currentPlanningCode)}</strong></div>
+      <div class="fact"><span>Cliente</span><strong>${escapeHtml(clientDisplayName)}</strong></div>
+      <div class="fact"><span>Telefone</span><strong>${escapeHtml(phone || "Não informado")}</strong></div>
+      <div class="fact"><span>Data</span><strong>${escapeHtml(formatDate(eventDate))}</strong></div>
+      <div class="fact"><span>Evento</span><strong>${escapeHtml(eventDisplayName)}</strong></div>
+      <div class="fact"><span>Convidados</span><strong>${escapeHtml(`${adults} adultos${olderChildren > 0 ? `, ${olderChildren} crianças 7+` : ""}${children > 0 ? ` e ${children} crianças 0–6` : ""}`)}</strong></div>
+      <div class="fact"><span>Estrutura</span><strong>${escapeHtml(`${generatedSuggestion.carts.totalCarts} ${generatedSuggestion.carts.totalCarts === 1 ? "carrinho" : "carrinhos"}`)}</strong></div>
+    </div>
+    <h2 style="font-size:20pt;margin-top:10mm;">Cardápio e quantidades</h2>
+    ${stationPages}
+  </section>
+
+  <section class="page closing">
+    <div class="brandline"><strong>RODA FESTA</strong><span>Proposta comercial</span></div>
+    <h2>Investimento</h2>
+    <div class="investment">
+      <span>Investimento contratado</span>
+      <strong>${escapeHtml(formatCurrency(generatedSuggestion.investment.total))}</strong>
+      <small>Bebidas em consignação não estão incluídas neste valor.</small>
+    </div>
+    ${consignmentEstimate > 0 ? `
+      <div class="consignment">
+        <span>Estimativa de consignação</span>
+        <strong>${escapeHtml(formatCurrency(consignmentEstimate))}</strong>
+        <p>Cobrança em até 2 dias úteis após o evento, apenas das unidades efetivamente consumidas.</p>
+      </div>` : ""}
+
+    <h2 style="font-size:20pt;">Condições comerciais e operacionais</h2>
+    <div class="terms-grid">
+      <div class="terms-card">
+        <h3>Condições comerciais</h3>
+        <p><strong>Validade:</strong> ${escapeHtml(COMMERCIAL_TERMS.validity)}.</p>
+        <p><strong>Pagamento:</strong> ${escapeHtml(COMMERCIAL_TERMS.paymentMethod)}.</p>
+        <p><strong>Reserva:</strong> ${escapeHtml(COMMERCIAL_TERMS.reservation)}</p>
+        <p><strong>Saldo:</strong> ${escapeHtml(COMMERCIAL_TERMS.balance)}</p>
+        <p><strong>Consignação:</strong> ${escapeHtml(COMMERCIAL_TERMS.consignment)}</p>
+        <p><strong>Área de atendimento:</strong> ${escapeHtml(COMMERCIAL_TERMS.serviceArea)}</p>
+        ${cancellationHtml}
+      </div>
+      <div class="terms-card">
+        <h3>Condições operacionais</h3>
+        ${electricalHtml}
+        <p>Ao término do evento, todos os alimentos contratados e não consumidos serão entregues aos anfitriões.</p>
+        ${hasDesserts ? "<p>Para doces e bolos, o cliente deverá disponibilizar mesa ou aparador e responsabilizar-se pela montagem e exposição.</p>" : ""}
+      </div>
+    </div>
+    <footer class="footer">
+      <div><strong>Roda Festa</strong><span>${escapeHtml(COMMERCIAL_TERMS.contact)}</span><span>${escapeHtml(COMMERCIAL_TERMS.instagram)}</span></div>
+      <p>Agradecemos a oportunidade de fazer parte deste momento especial.</p>
+    </footer>
+  </section>
+
+  <script>
+    window.addEventListener("load", () => {
+      window.setTimeout(() => window.print(), 350);
+    });
+  <\/script>
+</body>
+</html>`;
+
+    proposalWindow.document.open();
+    proposalWindow.document.write(proposalHtml);
+    proposalWindow.document.close();
   }
 
   function handleOpenWhatsApp() {
-    const message = [
-      "Olá, Roda Festa!",
-      `Gostaria de conversar sobre a proposta do evento de ${clientName.trim() || "meu evento"}.`,
-      eventDate ? `Data: ${formatDate(eventDate)}.` : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
+    const currentPlanningCode = generatedSuggestion ? ensurePlanningCode() : planningCode;
+    const consignmentEstimate = generatedSuggestion
+      ? getConsignmentEstimate(generatedSuggestion.items)
+      : 0;
+
+    const message = generatedSuggestion
+      ? [
+          "Olá!",
+          "",
+          "Concluí meu planejamento no Roda Festa Planner e gostaria de solicitar minha proposta oficial.",
+          "",
+          `Código: ${currentPlanningCode}`,
+          `Cliente: ${clientName.trim() || "Não informado"}`,
+          `Evento: ${selectedEventData?.label || "Evento"}`,
+          `Data: ${formatDate(eventDate)}`,
+          `Convidados: ${realGuests} no total`,
+          `Investimento estimado: ${formatCurrency(generatedSuggestion.investment.total)}`,
+          `Estimativa de consignação: ${consignmentEstimate > 0 ? formatCurrency(consignmentEstimate) : "Sem consignação"}`,
+          "",
+          "Peço, por favor, a revisão das informações e o preparo da proposta oficial.",
+        ].join("\n")
+      : [
+          "Olá, Roda Festa!",
+          `Gostaria de conversar sobre o evento de ${clientName.trim() || "meu evento"}.`,
+          eventDate ? `Data: ${formatDate(eventDate)}.` : "",
+        ].filter(Boolean).join(" ");
 
     window.open(
       `https://wa.me/5514998960208?text=${encodeURIComponent(message)}`,
@@ -921,6 +1388,18 @@ export default function PlanningBook() {
       "noopener,noreferrer"
     );
   }
+
+  async function handleRequestOfficialProposal() {
+    if (!generatedSuggestion || isClosingBook) return;
+
+    ensurePlanningCode();
+    setIsClosingBook(true);
+    await wait(900);
+    setShowCompleted(true);
+    setIsClosingBook(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
 
   function renderBriefing() {
     return (
@@ -1020,73 +1499,51 @@ export default function PlanningBook() {
           </div>
         </div>
 
-        <div className="planning-book__section">
-          <span className="planning-book__chapter">Convidados</span>
-          <h2>Quantas pessoas participarão?</h2>
+        <div className="planning-book__section planning-book__guest-section">
+          <span className="planning-book__chapter">Capítulo 1 · Convidados</span>
+          <h2>Quem estará na festa?</h2>
+          <p className="planning-book__section-intro">Separe os convidados por faixa etária para montarmos uma proposta mais precisa.</p>
 
-          <div className="planning-book__counter-row">
-            <div>
-              <strong>Adultos</strong>
-              <span>Consumo integral</span>
+          <div className="planning-book__guest-grid">
+            <div className="planning-book__counter-row">
+              <div>
+                <strong>Adultos</strong>
+                <span>18 anos ou mais</span>
+              </div>
+              <div className="planning-book__counter">
+                <button type="button" onClick={() => handleAdultChange(adults - 1)}>−</button>
+                <input type="number" min="0" max="100" inputMode="numeric" aria-label="Quantidade de adultos" value={adults} onFocus={(event) => event.target.select()} onChange={(event) => handleAdultChange(event.target.value)} />
+                <button type="button" onClick={() => handleAdultChange(adults + 1)}>+</button>
+              </div>
             </div>
 
-            <div className="planning-book__counter">
-              <button type="button" onClick={() => handleAdultChange(adults - 1)}>
-                −
-              </button>
-              <input
-                type="number"
-                min="0"
-                max="100"
-                inputMode="numeric"
-                aria-label="Quantidade de adultos"
-                title="Clique e digite a quantidade de adultos"
-                value={adults}
-                onFocus={(event) => event.target.select()}
-                onChange={(event) => handleAdultChange(event.target.value)}
-              />
-              <button type="button" onClick={() => handleAdultChange(adults + 1)}>
-                +
-              </button>
-            </div>
-          </div>
-
-          <div className="planning-book__counter-row">
-            <div>
-              <strong>Crianças</strong>
-              <span>Cada criança equivale a meio adulto</span>
+            <div className="planning-book__counter-row">
+              <div>
+                <strong>Crianças até 6 anos</strong>
+                <span>Até 6 anos</span>
+              </div>
+              <div className="planning-book__counter">
+                <button type="button" onClick={() => handleChildrenChange(children - 1)}>−</button>
+                <input type="number" min="0" max="100" inputMode="numeric" aria-label="Crianças de até 6 anos" value={children} onFocus={(event) => event.target.select()} onChange={(event) => handleChildrenChange(event.target.value)} />
+                <button type="button" onClick={() => handleChildrenChange(children + 1)}>+</button>
+              </div>
             </div>
 
-            <div className="planning-book__counter">
-              <button
-                type="button"
-                onClick={() => handleChildrenChange(children - 1)}
-              >
-                −
-              </button>
-              <input
-                type="number"
-                min="0"
-                max="100"
-                inputMode="numeric"
-                aria-label="Quantidade de crianças"
-                title="Clique e digite a quantidade de crianças"
-                value={children}
-                onFocus={(event) => event.target.select()}
-                onChange={(event) => handleChildrenChange(event.target.value)}
-              />
-              <button
-                type="button"
-                onClick={() => handleChildrenChange(children + 1)}
-              >
-                +
-              </button>
+            <div className="planning-book__counter-row">
+              <div>
+                <strong>Crianças acima de 6 anos</strong>
+                <span>Mais de 6 anos</span>
+              </div>
+              <div className="planning-book__counter">
+                <button type="button" onClick={() => handleOlderChildrenChange(olderChildren - 1)}>−</button>
+                <input type="number" min="0" max="100" inputMode="numeric" aria-label="Crianças acima de 6 anos" value={olderChildren} onFocus={(event) => event.target.select()} onChange={(event) => handleOlderChildrenChange(event.target.value)} />
+                <button type="button" onClick={() => handleOlderChildrenChange(olderChildren + 1)}>+</button>
+              </div>
             </div>
           </div>
 
-          <div className="planning-book__equivalent">
-            <span>Para o dimensionamento</span>
-            <strong>{equivalentGuests} convidados equivalentes</strong>
+          <div className="planning-book__guest-summary planning-book__guest-summary--public">
+            <div><span>Total de convidados</span><strong>{realGuests}</strong></div>
           </div>
         </div>
 
@@ -1121,6 +1578,64 @@ export default function PlanningBook() {
           </div>
         </div>
 
+        <div className="planning-book__section planning-book__menu-selection">
+          <span className="planning-book__chapter">Capítulo 2 · Seu cardápio</span>
+          <h2>O que você gostaria de servir?</h2>
+          <p className="planning-book__section-intro">
+            Escolha as categorias e os produtos que combinam com a sua festa. A Roda Festa usará essas preferências para recomendar as quantidades ideais.
+          </p>
+
+          <div className="planning-book__menu-summary">
+            <div><span>Categorias escolhidas</span><strong>{selectedMenuCategoriesCount}</strong></div>
+            <div><span>Produtos escolhidos</span><strong>{selectedProductIds.length}</strong></div>
+          </div>
+
+          <div className="planning-book__menu-categories">
+            {menuCategories.map((category) => {
+              const categoryProductIds = category.products.map((product) => product.id);
+              const selectedCount = categoryProductIds.filter((id) => selectedProductIds.includes(id)).length;
+              const isExpanded = expandedMenuCategories.includes(category.id);
+              const isSelected = selectedCount > 0;
+
+              return (
+                <section key={category.id} className={["planning-book__menu-category", isSelected ? "planning-book__menu-category--selected" : ""].filter(Boolean).join(" ")}>
+                  <div className="planning-book__menu-category-header">
+                    <button type="button" className="planning-book__menu-category-toggle" onClick={() => toggleMenuCategory(category)}>
+                      <span className="planning-book__menu-check" aria-hidden="true">{isSelected ? "✓" : "+"}</span>
+                      <span><strong>{category.title}</strong><small>{category.note}</small></span>
+                    </button>
+                    <button type="button" className="planning-book__menu-expand" aria-expanded={isExpanded} onClick={() => setExpandedMenuCategories((current) => current.includes(category.id) ? current.filter((id) => id !== category.id) : [...current, category.id])}>
+                      {isExpanded ? "Fechar" : "Escolher produtos"}
+                    </button>
+                  </div>
+
+                  {isExpanded && (
+                    <div className="planning-book__menu-products">
+                      {category.products.map((product) => {
+                        const checked = selectedProductIds.includes(product.id);
+                        return (
+                          <label key={product.id} className={["planning-book__menu-product", checked ? "planning-book__menu-product--selected" : ""].filter(Boolean).join(" ")}>
+                            <input type="checkbox" checked={checked} onChange={() => toggleMenuProduct(product, category.id)} />
+                            <span>
+                              <strong>{product.name}</strong>
+                              {product.description && <small>{product.description}</small>}
+                              <em>{product.priceUnit === "portion150g" ? `R$ ${product.unitPrice.toFixed(2).replace(".", ",")} / 150 g` : product.priceUnit === "portion120g" ? `R$ ${product.unitPrice.toFixed(2).replace(".", ",")} / 120 g` : `R$ ${product.unitPrice.toFixed(2).replace(".", ",")} / un`}</em>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+              );
+            })}
+          </div>
+
+          {selectedProductIds.length === 0 && (
+            <p className="planning-book__menu-guidance">Escolha pelo menos um produto para gerar sua recomendação.</p>
+          )}
+        </div>
+
         <div className="planning-book__section">
           <span className="planning-book__chapter">Serviços opcionais</span>
           <h2>O que deseja incluir?</h2>
@@ -1138,12 +1653,6 @@ export default function PlanningBook() {
                 setChecked: setIncludeDisposables,
                 title: "Descartáveis",
                 text: "Pratos, copos, guardanapos e talheres.",
-              },
-              {
-                checked: includeBeverages,
-                setChecked: setIncludeBeverages,
-                title: "Bebidas",
-                text: "Em consignação, cobradas conforme o consumo.",
               },
             ].map((choice) => (
               <label key={choice.title} className="planning-book__choice">
@@ -1262,10 +1771,12 @@ export default function PlanningBook() {
           <h3>Uma estrutura pensada para receber bem.</h3>
           <p>
             Planejamos esta sugestão para {adults} {adults === 1 ? "adulto" : "adultos"}
-            {children > 0 ? ` e ${children} ${children === 1 ? "criança" : "crianças"}` : ""},
+            {olderChildren > 0 ? `, ${olderChildren} ${olderChildren === 1 ? "criança acima de 6 anos" : "crianças acima de 6 anos"}` : ""}
+            {children > 0 ? ` e ${children} ${children === 1 ? "criança de até 6 anos" : "crianças de até 6 anos"}` : ""},
             com {duration} horas de atendimento.
           </p>
         </div>
+
 
         <section className="planning-book__recommendation-section">
           <span>Estrutura recomendada</span>
@@ -1353,6 +1864,22 @@ export default function PlanningBook() {
             investimento e a visualização serão recalculados automaticamente.
           </p>
           <div>
+            {stations.some((station) => station.id === "fried") ? (
+              <button
+                type="button"
+                className="planning-book__optional-group-toggle is-active"
+                onClick={() => handleRemoveOptionalGroup("fried")}
+              >
+                <span>✓ Petiscos</span>
+                <small>Retirar categoria</small>
+              </button>
+            ) : (
+              <button type="button" onClick={() => handleAddOptionalGroup("fried")}>
+                <span>+ Petiscos</span>
+                <small>Adicionar categoria</small>
+              </button>
+            )}
+
             {stations.some((station) => station.id === "hotSandwiches") ? (
               <button
                 type="button"
@@ -1789,15 +2316,16 @@ export default function PlanningBook() {
       <div className="planning-book__final-summary">
         <div className="planning-book__final-summary-intro">
           <span className="planning-book__eyebrow">Resumo final</span>
-          <h2>Sua proposta está pronta.</h2>
-          <p>Revise os detalhes abaixo. O PDF utilizará exatamente esta composição.</p>
+          <h2>Seu planejamento está pronto.</h2>
+          <p>Revise os detalhes abaixo antes de solicitar a análise da nossa especialista.</p>
+          {planningCode && <strong className="planning-book__planning-code">{planningCode}</strong>}
         </div>
 
         <section className="planning-book__final-event-grid">
           <div><span>Cliente</span><strong>{clientName.trim() || "Não informado"}</strong></div>
           <div><span>Evento</span><strong>{selectedEventData?.label || "Evento"}</strong></div>
           <div><span>Data</span><strong>{formatDate(eventDate)}</strong></div>
-          <div><span>Convidados</span><strong>{adults} adultos{children > 0 ? ` + ${children} crianças` : ""}</strong></div>
+          <div><span>Convidados</span><strong>{realGuests} no total</strong><small>{adults} adultos{olderChildren > 0 ? ` + ${olderChildren} crianças 7+` : ""}{children > 0 ? ` + ${children} crianças 0–6` : ""}</small></div>
           <div><span>Duração</span><strong>{duration} horas</strong></div>
           <div><span>Estrutura</span><strong>{generatedSuggestion.carts.totalCarts} {generatedSuggestion.carts.totalCarts === 1 ? "carrinho" : "carrinhos"}</strong></div>
         </section>
@@ -1860,11 +2388,11 @@ export default function PlanningBook() {
         </details>
 
         <div className="planning-book__final-actions">
-          <button type="button" className="planning-book__final-action planning-book__final-action--secondary" onClick={handleOpenWhatsApp}>
-            Falar no WhatsApp
+          <button type="button" className="planning-book__final-action planning-book__final-action--secondary" onClick={handlePrintProposal}>
+            Gerar planejamento em PDF
           </button>
-          <button type="button" className="planning-book__final-action" onClick={handlePrintProposal}>
-            Gerar proposta em PDF <span aria-hidden="true">→</span>
+          <button type="button" className="planning-book__final-action" onClick={handleRequestOfficialProposal} disabled={isClosingBook}>
+            {isClosingBook ? "Finalizando planejamento..." : "Solicitar proposta oficial"} <span aria-hidden="true">→</span>
           </button>
         </div>
       </div>
@@ -1880,11 +2408,13 @@ export default function PlanningBook() {
     eventLabel: selectedEventData?.label ?? "Evento",
     adults,
     children,
+    olderChildren,
     equivalentGuests,
     duration,
     includeWaiters,
     includeDisposables,
     includeBeverages,
+    selectedMenuDetails,
   };
 
   function renderSheetHeader() {
@@ -1963,7 +2493,114 @@ export default function PlanningBook() {
   }
 
   return (
-    <main className="planning-book">
+    <main className={[
+      "planning-book",
+      showWelcome ? "planning-book--welcome" : "",
+      isOpeningBook ? "planning-book--opening" : "",
+      isClosingBook ? "planning-book--closing" : "",
+      showCompleted ? "planning-book--completed" : "",
+    ].filter(Boolean).join(" ")}>
+      {showWelcome && (
+        <section className="planning-welcome" aria-label="Abrir planejamento Roda Festa">
+          <div className="planning-welcome__ambient" aria-hidden="true" />
+          <form className="planning-welcome__book" onSubmit={handleOpenPlanningBook}>
+            <div className="planning-welcome__spine" aria-hidden="true" />
+            <div className="planning-welcome__cover">
+              <div className="planning-welcome__ornament" aria-hidden="true">✦</div>
+              <div className="planning-welcome__logo-crop">
+                <img src={rodaFestaLogoCreme} alt="Roda Festa" />
+              </div>
+              <span className="planning-welcome__kicker">Gastronomia que encanta</span>
+              <div className="planning-welcome__title">
+                <h1><strong>Meu</strong><em>Planejamento</em></h1>
+                <p>Toda grande festa começa com um bom planejamento.</p>
+              </div>
+
+              <div className="planning-welcome__fields">
+                <label className={welcomeErrors.clientName ? "has-error" : ""}>
+                  <span>Nome</span>
+                  <input required aria-invalid={Boolean(welcomeErrors.clientName)} type="text" value={clientName} placeholder="Como podemos chamar você?" autoComplete="name" onChange={(event) => { setClientName(event.target.value); setWelcomeErrors((current) => ({ ...current, clientName: "" })); }} />
+                  {welcomeErrors.clientName && <small>{welcomeErrors.clientName}</small>}
+                </label>
+                <label className={welcomeErrors.phone ? "has-error" : ""}>
+                  <span>Telefone</span>
+                  <input required aria-invalid={Boolean(welcomeErrors.phone)} type="tel" value={phone} placeholder="(00) 00000-0000" autoComplete="tel" onChange={(event) => { setPhone(event.target.value); setWelcomeErrors((current) => ({ ...current, phone: "" })); }} />
+                  {welcomeErrors.phone && <small>{welcomeErrors.phone}</small>}
+                </label>
+                <label className={welcomeErrors.eventDate ? "has-error" : ""}>
+                  <span>Data do evento</span>
+                  <input required aria-invalid={Boolean(welcomeErrors.eventDate)} type="date" min={minimumEventDate} value={eventDate} onChange={(event) => { setEventDate(event.target.value); setWelcomeErrors((current) => ({ ...current, eventDate: "" })); }} />
+                  {welcomeErrors.eventDate && <small>{welcomeErrors.eventDate}</small>}
+                </label>
+              </div>
+
+              <button type="submit" className="planning-welcome__action" disabled={isOpeningBook}>
+                <span>{isOpeningBook ? "Abrindo seu planejamento" : "Iniciar meu planejamento"}</span>
+                <b aria-hidden="true">{isOpeningBook ? "•••" : "→"}</b>
+              </button>
+              <div className="planning-welcome__wheel" aria-hidden="true">
+                <svg viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="43" />
+                  <circle cx="50" cy="50" r="9" />
+                  {[0,45,90,135].map((angle) => <line key={angle} x1="50" y1="14" x2="50" y2="86" transform={`rotate(${angle} 50 50)`} />)}
+                </svg>
+              </div>
+              <small className="planning-welcome__edition">Uma experiência criada pela Roda Festa</small>
+            </div>
+          </form>
+        </section>
+      )}
+
+      {showCompleted && generatedSuggestion && (
+        <section className="planning-completed" aria-label="Planejamento concluído">
+          <div className="planning-completed__card">
+            <div className="planning-completed__logo-crop">
+              <img src={rodaFestaLogoCreme} alt="Roda Festa" />
+            </div>
+            <span className="planning-completed__eyebrow">Planejamento enviado para revisão</span>
+            <h1>Seu planejamento foi concluído.</h1>
+            <p>Nossa especialista revisará todas as informações antes de preparar sua proposta oficial.</p>
+
+            <div className="planning-completed__code">
+              <span>Código do planejamento</span>
+              <strong>{planningCode}</strong>
+            </div>
+
+            <div className="planning-completed__summary">
+              <div><span>Cliente</span><strong>{clientName.trim()}</strong></div>
+              <div><span>Evento</span><strong>{selectedEventData?.label || "Evento"}</strong></div>
+              <div><span>Data</span><strong>{formatDate(eventDate)}</strong></div>
+              <div><span>Convidados</span><strong>{realGuests}</strong></div>
+              <div><span>Investimento estimado</span><strong>{formatCurrency(generatedSuggestion.investment.total)}</strong></div>
+              <div><span>Consignação estimada</span><strong>{getConsignmentEstimate(generatedSuggestion.items) > 0 ? formatCurrency(getConsignmentEstimate(generatedSuggestion.items)) : "Sem consignação"}</strong></div>
+            </div>
+
+            <div className="planning-completed__actions">
+              <button type="button" className="planning-completed__secondary" onClick={handlePrintProposal}>
+                Baixar planejamento em PDF
+              </button>
+              <button type="button" className="planning-completed__primary" onClick={handleOpenWhatsApp}>
+                Enviar pelo WhatsApp <span aria-hidden="true">→</span>
+              </button>
+            </div>
+
+            <small>Guarde o código acima para acompanhar seu atendimento.</small>
+          </div>
+        </section>
+      )}
+
+      <button
+        type="button"
+        className="planning-book__whatsapp-float"
+        onClick={handleOpenWhatsApp}
+        aria-label="Fale com uma especialista da Roda Festa pelo WhatsApp"
+      >
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16 4.3A11.5 11.5 0 0 0 6.2 21.8L4.8 27l5.3-1.4A11.5 11.5 0 1 0 16 4.3Zm0 20.9c-2 0-3.9-.6-5.5-1.7l-.4-.2-3.1.8.8-3-.2-.4A9.3 9.3 0 1 1 16 25.2Zm5.1-7c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-1 1.1-.2.2-.4.2-.7.1-1.8-.9-3-1.7-4.2-3.8-.3-.5.3-.5.9-1.7.1-.2 0-.4 0-.6l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.9 0 1.7 1.2 3.3 1.4 3.5.2.2 2.4 3.7 5.8 5.2.8.3 1.4.6 1.9.7.8.3 1.6.2 2.2.1.7-.1 1.7-.7 1.9-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3Z" />
+        </svg>
+        <span><strong>Fale com a especialista</strong><small>Atendimento pelo WhatsApp</small></span>
+      </button>
+
       <div className="planning-book__app-signature" aria-label="Roda Festa — Planejamento inteligente para eventos">
         <strong>RODA FESTA</strong>
         <span>Planejamento inteligente para eventos</span>
@@ -2124,7 +2761,7 @@ export default function PlanningBook() {
                 canGoBack={navigation.canGoBack}
                 onBack={navigation.goBack}
                 onRecommendationHome={navigation.goToSuggestion}
-                onRestart={handleRestartPlanning}
+                onSummary={navigation.goToSummary}
               />
             )}
           </article>
@@ -2290,21 +2927,30 @@ export default function PlanningBook() {
             ))}
           </section>
 
-          <section className="proposal-print__page">
+          <section className="proposal-print__page proposal-print__page--closing">
             <div className="proposal-print__brandline"><strong>RODA FESTA</strong><span>Proposta comercial</span></div>
             <h2>Investimento e condições</h2>
-            <div className="proposal-print__investment">
-              <span>Investimento contratado</span>
-              <strong>{formatCurrency(generatedSuggestion.investment.total)}</strong>
-              <small>Bebidas em consignação não estão incluídas neste valor.</small>
-            </div>
-            {getConsignmentEstimate(generatedSuggestion.items) > 0 && (
-              <div className="proposal-print__consignment">
-                <span>Estimativa de consignação</span>
-                <strong>{formatCurrency(getConsignmentEstimate(generatedSuggestion.items))}</strong>
-                <p>Cobrança em até 2 dias úteis após o evento, apenas das unidades consumidas.</p>
+            <div className="proposal-print__financial-grid proposal-print__financial-grid--with-consignment">
+              <div className="proposal-print__investment">
+                <span>Investimento contratado</span>
+                <strong>{formatCurrency(generatedSuggestion.investment.total)}</strong>
+                <small>Bebidas em consignação não estão incluídas neste valor.</small>
               </div>
-            )}
+              <div className={`proposal-print__consignment ${getConsignmentEstimate(generatedSuggestion.items) > 0 ? "" : "proposal-print__consignment--empty"}`.trim()}>
+                <span>Estimativa de consignação</span>
+                {getConsignmentEstimate(generatedSuggestion.items) > 0 ? (
+                  <>
+                    <strong>{formatCurrency(getConsignmentEstimate(generatedSuggestion.items))}</strong>
+                    <p>Cobrança posterior apenas das unidades efetivamente consumidas.</p>
+                  </>
+                ) : (
+                  <>
+                    <strong>Sem bebidas</strong>
+                    <p>Este planejamento não possui bebidas em consignação.</p>
+                  </>
+                )}
+              </div>
+            </div>
             <div className="proposal-print__terms">
               <h3>Condições comerciais</h3>
               <p><strong>Validade:</strong> 5 dias.</p>
@@ -2326,6 +2972,52 @@ export default function PlanningBook() {
           </section>
         </article>
       )}
-    </main>
+          {pendingProductAddition && (
+        <div className="planning-book__choice-modal" role="dialog" aria-modal="true" aria-labelledby="choice-modal-title">
+          <div className="planning-book__choice-modal-card">
+            <span className="planning-book__eyebrow">Adicionar novo sabor</span>
+            <h3 id="choice-modal-title">{pendingProductAddition.product.name}</h3>
+            <p>
+              A quantidade recomendada para <strong>{pendingProductAddition.product.commercialCategory}</strong> já foi atingida.
+              Como deseja incluir este novo item?
+            </p>
+
+            <button type="button" className="planning-book__choice-option" onClick={redistributeWithPendingProduct}>
+              <strong>Redistribuir a quantidade recomendada</strong>
+              <span>Manter o total da categoria e dividir novamente entre todos os sabores.</span>
+            </button>
+
+            <div className="planning-book__choice-extra">
+              <strong>Acrescentar além da recomendação</strong>
+              <span>Informe a quantidade adicional. O campo começa com o lote mínimo deste item.</span>
+              <input
+                type="number"
+                min={pendingProductAddition.product.lotSize || 1}
+                step={pendingProductAddition.product.lotSize || 1}
+                value={pendingProductAddition.extraQuantity}
+                onChange={(event) => setPendingProductAddition((current) => ({
+                  ...current,
+                  extraQuantity: event.target.value,
+                }))}
+              />
+              <button
+                type="button"
+                onClick={() => confirmProductAddition(
+                  pendingProductAddition.product,
+                  pendingProductAddition.extraQuantity
+                )}
+              >
+                Acrescentar esta quantidade
+              </button>
+            </div>
+
+            <button type="button" className="planning-book__choice-cancel" onClick={() => setPendingProductAddition(null)}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+</main>
   );
 }

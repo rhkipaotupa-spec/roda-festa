@@ -3,7 +3,7 @@ export default function BookFooter({
   canGoBack = false,
   onBack,
   onRecommendationHome,
-  onRestart,
+  onSummary,
 }) {
   if (currentSheet === "briefing") return null;
 
@@ -35,16 +35,7 @@ export default function BookFooter({
         {currentSheet === "summary" && "Resumo final"}
       </span>
 
-      {isRecommendationHome ? (
-        <button
-          type="button"
-          className="book-button book-button--ghost book-button--compact"
-          onClick={onRestart}
-        >
-          <span aria-hidden="true">↶</span>
-          Refazer planejamento
-        </button>
-      ) : (
+      {currentSheet === "summary" ? (
         <button
           type="button"
           className="book-button book-button--ghost book-button--compact"
@@ -52,6 +43,15 @@ export default function BookFooter({
         >
           <span aria-hidden="true">⌂</span>
           Voltar à recomendação
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="book-button book-button--ghost book-button--compact"
+          onClick={onSummary}
+        >
+          <span aria-hidden="true">→</span>
+          Ir para o resumo final
         </button>
       )}
     </footer>

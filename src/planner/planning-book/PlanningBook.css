@@ -7889,9 +7889,9 @@ button.planning-book__cart-allocation-item:focus-visible {
   .proposal-print__consignment strong { display: block; margin: 2mm 0; font: 400 19pt Georgia,serif; }
   .proposal-print__consignment p,
   .proposal-print__terms p { margin: 2.2mm 0; color: #5f4b3b; font: 8.5pt/1.45 Arial,sans-serif; }
-  .proposal-print__footer { position: absolute; left: 20mm; right: 20mm; bottom: 18mm; display: flex; align-items: end; justify-content: space-between; gap: 15mm; padding-top: 5mm; border-top: 1px solid #d8bea0; }
-  .proposal-print__footer div { display: flex; flex-direction: column; gap: 1mm; color: #5b402e; font: 8.5pt Arial,sans-serif; }
-  .proposal-print__footer p { max-width: 78mm; margin: 0; color: #8b653f; font: italic 10pt/1.4 Georgia,serif; text-align: right; }
+  .proposal-print__footer { position: static; width: 100%; margin-top: 8mm; padding: 6mm 7mm; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12mm; border: 1px solid #d8bea0; border-radius: 3mm; background: #fffaf3; break-inside: avoid; page-break-inside: avoid; }
+  .proposal-print__footer div { display: flex; flex-direction: column; gap: 1mm; min-width: 42mm; color: #5b402e; font: 8.5pt/1.35 Arial,sans-serif; }
+  .proposal-print__footer p { margin: 0; padding-left: 8mm; border-left: 1px solid #d8bea0; color: #8b653f; font: italic 10pt/1.45 Georgia,serif; text-align: center; }
   .proposal-print__page:last-child { page-break-after: auto; }
 }
 
@@ -8014,5 +8014,2691 @@ button.planning-book__cart-allocation-item:focus-visible {
   .proposal-print__cover {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+  }
+}
+
+
+/* =========================================================
+   V14.3 - CTA FINAL E RODAPE DO PDF
+   ========================================================= */
+
+/* A acao principal da pagina 2 conduz ao fechamento da proposta. */
+.book-footer .book-button--ghost {
+  white-space: nowrap;
+}
+
+/* Mantem o encerramento do PDF dentro da area segura da pagina. */
+@media print {
+  .proposal-print__page--closing {
+    min-height: 297mm !important;
+    padding-bottom: 18mm !important;
+  }
+
+  .proposal-print__page--closing .proposal-print__footer {
+    position: static !important;
+    width: 100%;
+    margin-top: 8mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* =========================================================
+   V15.0 - CAPA PREMIUM E ABERTURA DO LIVRO
+   ========================================================= */
+.planning-welcome {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  overflow: hidden;
+  perspective: 1800px;
+  background:
+    radial-gradient(ellipse at 50% 10%, rgba(187,126,65,.18), transparent 42%),
+    linear-gradient(145deg, #090403 0%, #201008 48%, #080302 100%);
+}
+
+.planning-welcome__ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 78%, rgba(0,0,0,.72), transparent 36%),
+    repeating-linear-gradient(24deg, rgba(255,255,255,.012) 0 1px, transparent 1px 9px);
+}
+
+.planning-welcome__book {
+  position: relative;
+  width: min(560px, 92vw);
+  min-height: min(760px, 90vh);
+  margin: 0;
+  border: 0;
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 42px 55px rgba(0,0,0,.62));
+  transition: transform 920ms cubic-bezier(.2,.82,.2,1), opacity 420ms ease;
+}
+
+.planning-welcome__spine {
+  position: absolute;
+  top: 2%;
+  bottom: 2%;
+  left: -20px;
+  z-index: -1;
+  width: 34px;
+  border-radius: 15px 3px 3px 15px;
+  background: linear-gradient(90deg,#150805,#4e2514 45%,#1a0b06);
+  box-shadow: inset -7px 0 12px rgba(0,0,0,.55), inset 2px 0 2px rgba(255,220,175,.08);
+}
+
+.planning-welcome__cover {
+  position: relative;
+  display: flex;
+  min-height: inherit;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(32px, 5vh, 58px) clamp(26px, 6vw, 64px) 32px;
+  overflow: hidden;
+  border: 1px solid rgba(194,133,68,.48);
+  border-radius: 12px 26px 26px 12px;
+  color: #f3e2c6;
+  background:
+    radial-gradient(ellipse at 20% 8%, rgba(255,221,177,.08), transparent 31%),
+    repeating-radial-gradient(circle at 18% 18%, rgba(255,255,255,.024) 0 .7px, transparent .9px 4px),
+    repeating-linear-gradient(21deg, rgba(255,228,190,.018) 0 1px, transparent 1px 8px),
+    linear-gradient(145deg,#4a2516 0%,#32170e 42%,#1b0b07 100%);
+  box-shadow: inset 0 0 0 8px rgba(8,3,2,.26), inset 0 1px 0 rgba(255,231,196,.09);
+}
+
+.planning-welcome__cover::before,
+.planning-welcome__cover::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border-radius: 16px;
+}
+.planning-welcome__cover::before { inset: 13px; border: 1px solid rgba(210,154,84,.34); }
+.planning-welcome__cover::after { inset: 22px; border: 1px dashed rgba(214,162,91,.2); }
+
+.planning-welcome__ornament { position: relative; z-index: 1; color: #c79655; font-size: 15px; }
+.planning-welcome__cover > img { position: relative; z-index: 1; width: min(230px, 55%); max-height: 110px; margin: 14px 0 8px; object-fit: contain; filter: sepia(.78) saturate(.55) brightness(1.25); }
+.planning-welcome__kicker { position: relative; z-index: 1; color: rgba(238,211,170,.68); font: 800 8px/1.4 Arial,sans-serif; letter-spacing: .2em; text-transform: uppercase; }
+
+.planning-welcome__title { position: relative; z-index: 1; margin: clamp(28px,5vh,52px) 0 22px; text-align: center; }
+.planning-welcome__title small { color: #c99a5c; font: italic 16px Georgia,serif; }
+.planning-welcome__title h1 { margin: 4px 0 9px; color: #f5e6cf; font: 400 clamp(39px,7vw,59px)/.95 Georgia,serif; letter-spacing: -.045em; }
+.planning-welcome__title p { max-width: 310px; margin: 0 auto; color: rgba(239,218,187,.66); font: 12px/1.55 Arial,sans-serif; }
+
+.planning-welcome__fields { position: relative; z-index: 1; display: grid; width: 100%; gap: 13px; }
+.planning-welcome__fields label { display: grid; gap: 5px; }
+.planning-welcome__fields span { color: rgba(232,202,160,.64); font: 800 8px Arial,sans-serif; letter-spacing: .15em; text-transform: uppercase; }
+.planning-welcome__fields input {
+  width: 100%;
+  padding: 11px 2px 10px;
+  border: 0;
+  border-bottom: 1px solid rgba(222,175,111,.28);
+  border-radius: 0;
+  outline: 0;
+  color: #f6e8d2;
+  background: transparent;
+  font: 16px Georgia,serif;
+  color-scheme: dark;
+}
+.planning-welcome__fields input::placeholder { color: rgba(239,216,182,.26); }
+.planning-welcome__fields input:focus { border-color: #c99653; }
+
+.planning-welcome__action {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 56px;
+  margin-top: 24px;
+  padding: 0 22px;
+  border: 1px solid rgba(235,197,139,.34);
+  border-radius: 999px;
+  color: #3a1e12;
+  background: linear-gradient(135deg,#ead0a7,#c99857);
+  font: 800 10px Arial,sans-serif;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 15px 30px rgba(0,0,0,.27);
+}
+.planning-welcome__action:hover { transform: translateY(-2px); }
+.planning-welcome__action:disabled { cursor: wait; opacity: .85; }
+.planning-welcome__edition { position: relative; z-index: 1; margin-top: auto; padding-top: 19px; color: rgba(224,192,148,.44); font: 7px Arial,sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+
+.planning-book--opening .planning-welcome__book { transform: translateX(-8%) rotateY(-72deg) scale(.92); opacity: .12; transform-origin: left center; }
+.planning-book--opening .planning-welcome { animation: planning-welcome-fade 920ms ease both; }
+@keyframes planning-welcome-fade { 0%,60% { opacity: 1; } 100% { opacity: 0; } }
+
+@media (max-width: 640px) {
+  .planning-welcome { padding: 14px; align-items: center; }
+  .planning-welcome__book { width: min(94vw,430px); min-height: min(720px,94vh); }
+  .planning-welcome__cover { padding: 28px 28px 24px; }
+  .planning-welcome__title { margin: 24px 0 18px; }
+  .planning-welcome__cover > img { width: 190px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planning-welcome__book,
+  .planning-book--opening .planning-welcome { transition: none; animation: none; }
+}
+
+/* V15.0 - fecha a proposta sem empurrar um rodape isolado para outra folha. */
+@media print {
+  .planning-welcome { display: none !important; }
+  .proposal-print__page--closing { padding-top: 16mm !important; padding-bottom: 13mm !important; }
+  .proposal-print__page--closing h2 { margin-top: 6mm !important; margin-bottom: 5mm !important; }
+  .proposal-print__page--closing h3 { margin-top: 5mm !important; margin-bottom: 2.5mm !important; }
+  .proposal-print__page--closing .proposal-print__investment { padding: 6mm !important; }
+  .proposal-print__page--closing .proposal-print__consignment { margin-top: 3.5mm !important; padding: 4mm !important; }
+  .proposal-print__page--closing .proposal-print__terms p { margin: 1.4mm 0 !important; font-size: 8pt !important; line-height: 1.32 !important; }
+  .proposal-print__page--closing .proposal-print__footer {
+    margin-top: 5mm !important;
+    padding: 4.5mm 6mm !important;
+    gap: 7mm !important;
+  }
+  .proposal-print__page--closing .proposal-print__footer p { font-size: 9pt !important; line-height: 1.3 !important; }
+}
+
+/* =========================================================
+   V15.1 - CAPA REFINADA, RODA ASSINATURA E VALIDACAO
+   ========================================================= */
+.planning-welcome__cover > img {
+  width: min(228px, 54%);
+  max-height: 112px;
+  margin: 10px 0 7px;
+  filter:
+    sepia(1)
+    saturate(2.15)
+    hue-rotate(350deg)
+    brightness(1.36)
+    contrast(1.12)
+    drop-shadow(0 2px 10px rgba(211,157,83,.2));
+  opacity: .96;
+}
+
+.planning-welcome__kicker {
+  color: rgba(232,193,135,.76);
+  font-size: 8px;
+  letter-spacing: .24em;
+}
+
+.planning-welcome__wheel {
+  position: relative;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  margin-top: 18px;
+  border: 1px solid rgba(219,166,91,.72);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(205,143,69,.04), 0 0 18px rgba(213,154,78,.12);
+  animation: planning-wheel-spin 18s linear infinite;
+}
+.planning-welcome__wheel::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(224,174,102,.92) 0 2deg, transparent 2deg 45deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 4px, #000 4.5px);
+  mask: radial-gradient(circle, transparent 0 4px, #000 4.5px);
+}
+.planning-welcome__wheel::after {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d9a45f;
+  transform: translate(-50%,-50%);
+  box-shadow: 0 0 8px rgba(221,169,95,.36);
+}
+@keyframes planning-wheel-spin { to { transform: rotate(360deg); } }
+
+.planning-welcome__title {
+  margin: clamp(18px,3vh,30px) 0 21px;
+}
+.planning-welcome__title h1 {
+  max-width: 420px;
+  margin: 0 0 10px;
+  font-size: clamp(38px,6.5vw,57px);
+  line-height: .94;
+  letter-spacing: -.05em;
+}
+.planning-welcome__title h1 em {
+  display: block;
+  margin-bottom: 4px;
+  color: #d4a15e;
+  font: italic 400 .46em/1.1 Georgia,serif;
+  letter-spacing: .01em;
+}
+
+.planning-welcome__fields input,
+.planning-welcome__fields input:hover,
+.planning-welcome__fields input:focus,
+.planning-welcome__fields input:active {
+  appearance: none;
+  -webkit-appearance: none;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+.planning-welcome__fields input:-webkit-autofill,
+.planning-welcome__fields input:-webkit-autofill:hover,
+.planning-welcome__fields input:-webkit-autofill:focus,
+.planning-welcome__fields input:-webkit-autofill:active {
+  -webkit-text-fill-color: #f6e8d2 !important;
+  caret-color: #f6e8d2;
+  transition: background-color 9999s ease-out 0s;
+  box-shadow: 0 0 0 1000px transparent inset !important;
+}
+.planning-welcome__fields label > small {
+  margin-top: -1px;
+  color: #efb38d;
+  font: 9px/1.35 Arial,sans-serif;
+  letter-spacing: .02em;
+}
+.planning-welcome__fields label.has-error input {
+  border-bottom-color: rgba(235,130,91,.9);
+}
+
+.planning-book--opening .planning-welcome__wheel {
+  animation-duration: .55s;
+  filter: drop-shadow(0 0 8px rgba(225,171,94,.45));
+}
+
+@media (max-width: 640px) {
+  .planning-welcome__wheel { margin-top: 12px; }
+  .planning-welcome__title { margin: 15px 0 17px; }
+  .planning-welcome__title h1 { font-size: clamp(35px,12vw,48px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planning-welcome__wheel { animation: none; }
+}
+
+/* =========================================================
+   V15.2 - CAPA EDITORIAL E PDF COMPACTO COM CONSIGNACAO
+   ========================================================= */
+.planning-welcome__logo-crop {
+  position: relative;
+  z-index: 1;
+  width: min(220px, 52%);
+  height: 92px;
+  margin: 8px 0 2px;
+  overflow: hidden;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,231,182,.28))
+    drop-shadow(0 5px 12px rgba(0,0,0,.42));
+}
+.planning-welcome__logo-crop::after {
+  content: "";
+  position: absolute;
+  inset: 5px 8px 8px;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(232,185,112,.15), transparent 68%);
+  mix-blend-mode: screen;
+}
+.planning-welcome__logo-crop img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  margin: 0;
+  object-fit: contain;
+  object-position: center top;
+  transform: translateY(-2px) scale(1.04);
+  transform-origin: center top;
+  clip-path: inset(0 0 22% 0);
+  filter:
+    sepia(1)
+    saturate(2.5)
+    hue-rotate(349deg)
+    brightness(1.48)
+    contrast(1.14);
+  opacity: 1;
+}
+
+.planning-welcome__kicker {
+  margin-top: -7px;
+  color: #e2b974;
+  text-shadow: 0 1px 0 rgba(255,238,205,.12), 0 3px 14px rgba(0,0,0,.38);
+}
+
+.planning-welcome__wheel {
+  position: relative;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  margin: 8px 0 0;
+  overflow: visible;
+  fill: none;
+  stroke: #d8a55f;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 7px rgba(218,164,91,.26));
+  animation: planning-wheel-spin 18s linear infinite;
+}
+.planning-welcome__wheel circle:nth-child(2) {
+  fill: #d8a55f;
+  stroke: none;
+}
+
+.planning-welcome__title {
+  margin: clamp(14px,2.2vh,24px) 0 20px;
+}
+.planning-welcome__title h1 {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  margin: 0 0 11px;
+  letter-spacing: 0;
+}
+.planning-welcome__title h1 span {
+  display: flex;
+  align-items: center;
+  width: min(260px,72vw);
+  gap: 12px;
+  color: #d8aa68;
+  font: 700 10px/1 Arial,sans-serif;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+}
+.planning-welcome__title h1 span::before,
+.planning-welcome__title h1 span::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg,transparent,rgba(217,166,95,.58));
+}
+.planning-welcome__title h1 span::after {
+  background: linear-gradient(90deg,rgba(217,166,95,.58),transparent);
+}
+.planning-welcome__title h1 strong {
+  color: #f5e6cf;
+  font: 400 clamp(38px,6.2vw,56px)/.96 Georgia,serif;
+  letter-spacing: -.045em;
+  text-shadow: 0 1px 0 rgba(255,255,255,.08), 0 5px 18px rgba(0,0,0,.34);
+}
+
+@media (max-width: 640px) {
+  .planning-welcome__logo-crop { width: 188px; height: 80px; }
+  .planning-welcome__wheel { width: 30px; height: 30px; margin-top: 6px; }
+  .planning-welcome__title h1 strong { font-size: clamp(34px,11vw,47px); }
+}
+
+@media print {
+  .proposal-print__financial-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 3mm !important;
+    margin: 0 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  .proposal-print__financial-grid--with-consignment {
+    grid-template-columns: 1.18fr .82fr !important;
+    align-items: stretch !important;
+  }
+  .proposal-print__financial-grid .proposal-print__investment,
+  .proposal-print__financial-grid .proposal-print__consignment {
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 4.2mm 5mm !important;
+  }
+  .proposal-print__financial-grid .proposal-print__investment strong,
+  .proposal-print__financial-grid .proposal-print__consignment strong {
+    margin: 1.3mm 0 !important;
+    font-size: 22pt !important;
+    line-height: 1 !important;
+  }
+  .proposal-print__financial-grid .proposal-print__investment small,
+  .proposal-print__financial-grid .proposal-print__consignment p {
+    margin: 1mm 0 0 !important;
+    font-size: 7.4pt !important;
+    line-height: 1.24 !important;
+  }
+  .proposal-print__page--closing .proposal-print__terms h3 {
+    margin-top: 3.8mm !important;
+  }
+  .proposal-print__page--closing .proposal-print__footer {
+    margin-top: 4mm !important;
+  }
+}
+
+
+/* =========================================================
+   V15.3 - MARCA INTEGRAL, CTA COERENTE E PDF ESTAVEL
+   ========================================================= */
+/* Mantem o simbolo e o nome Roda Festa completos, ocultando apenas
+   a assinatura pequena que ja aparece em destaque logo abaixo. */
+.planning-welcome__logo-crop {
+  width: min(224px, 54%);
+  height: 108px;
+  margin: 4px 0 0;
+  overflow: hidden;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,239,204,.4))
+    drop-shadow(0 3px 0 rgba(92,47,18,.58))
+    drop-shadow(0 9px 18px rgba(0,0,0,.48));
+}
+.planning-welcome__logo-crop img {
+  width: 100%;
+  transform: translateY(-1px) scale(1.02);
+  clip-path: inset(0 0 10% 0);
+  filter:
+    sepia(1)
+    saturate(2.8)
+    hue-rotate(348deg)
+    brightness(1.58)
+    contrast(1.2);
+}
+.planning-welcome__logo-crop::after {
+  inset: 0 5px 10px;
+  background:
+    linear-gradient(145deg, rgba(255,226,170,.16), transparent 42%),
+    radial-gradient(ellipse at 50% 38%, rgba(235,187,112,.2), transparent 66%);
+}
+
+/* Titulo editorial, sem selo ou linhas que competem com a marca. */
+.planning-welcome__title {
+  margin: clamp(12px,2vh,20px) 0 19px;
+}
+.planning-welcome__title h1 {
+  display: block;
+  margin: 0 0 10px;
+  text-align: center;
+}
+.planning-welcome__title h1 span {
+  display: block;
+  width: auto;
+  margin: 0 0 1px;
+  color: #d8aa68;
+  font: italic 400 clamp(20px,3vw,27px)/1 Georgia,serif;
+  letter-spacing: .015em;
+  text-transform: none;
+  text-shadow: 0 1px 0 rgba(255,255,255,.08), 0 4px 12px rgba(0,0,0,.34);
+}
+.planning-welcome__title h1 span::before,
+.planning-welcome__title h1 span::after { display: none; }
+.planning-welcome__title h1 strong {
+  display: block;
+  color: #f5e6cf;
+  font: 400 clamp(40px,6vw,57px)/.98 Georgia,serif;
+  letter-spacing: -.042em;
+  text-shadow: 0 1px 0 rgba(255,255,255,.08), 0 6px 20px rgba(0,0,0,.38);
+}
+
+@media (max-width: 640px) {
+  .planning-welcome__logo-crop { width: 194px; height: 94px; }
+  .planning-welcome__title h1 span { font-size: 20px; }
+  .planning-welcome__title h1 strong { font-size: clamp(35px,11vw,47px); }
+}
+
+/* O PDF usa sempre a mesma grade, com ou sem bebidas, evitando
+   mudancas de altura e quebras de pagina entre cenarios. */
+@media print {
+  .proposal-print__page--closing {
+    padding-top: 16mm !important;
+    padding-bottom: 13mm !important;
+  }
+  .proposal-print__page--closing h2 {
+    margin: 6mm 0 4.5mm !important;
+  }
+  .proposal-print__financial-grid,
+  .proposal-print__financial-grid--with-consignment {
+    grid-template-columns: 1.18fr .82fr !important;
+    gap: 3mm !important;
+  }
+  .proposal-print__financial-grid .proposal-print__investment,
+  .proposal-print__financial-grid .proposal-print__consignment {
+    min-height: 34mm !important;
+    padding: 3.5mm 4.5mm !important;
+  }
+  .proposal-print__financial-grid .proposal-print__investment strong,
+  .proposal-print__financial-grid .proposal-print__consignment strong {
+    margin: 1mm 0 !important;
+    font-size: 20pt !important;
+  }
+  .proposal-print__consignment--empty strong {
+    font-size: 16pt !important;
+  }
+  .proposal-print__page--closing .proposal-print__terms h3 {
+    margin: 3mm 0 1.6mm !important;
+  }
+  .proposal-print__page--closing .proposal-print__terms p {
+    margin: 1.45mm 0 !important;
+    font-size: 7.8pt !important;
+    line-height: 1.34 !important;
+  }
+  .proposal-print__page--closing .proposal-print__footer {
+    margin-top: 3mm !important;
+    padding: 4mm 5mm !important;
+  }
+}
+
+/* =========================================================
+   V15.4 - MARCA ORIGINAL E CONTATO HUMANO
+   ========================================================= */
+.planning-welcome__logo-crop {
+  width: min(236px, 58%);
+  height: 150px;
+  margin: 0 0 2px;
+  overflow: visible;
+  display: grid;
+  place-items: center;
+  filter: none;
+}
+.planning-welcome__logo-crop img {
+  width: 100%;
+  max-height: 150px;
+  object-fit: contain;
+  transform: none;
+  clip-path: none;
+  opacity: .96;
+  filter:
+    sepia(1)
+    saturate(2.15)
+    hue-rotate(347deg)
+    brightness(1.48)
+    contrast(1.22)
+    drop-shadow(0 1px 0 rgba(255,235,194,.55))
+    drop-shadow(0 3px 0 rgba(82,42,16,.72))
+    drop-shadow(0 8px 14px rgba(0,0,0,.42));
+}
+.planning-welcome__logo-crop::after {
+  content: "";
+  position: absolute;
+  inset: 18% 15% 10%;
+  pointer-events: none;
+  background:
+    linear-gradient(145deg, rgba(255,226,169,.13), transparent 45%),
+    repeating-linear-gradient(110deg, rgba(255,255,255,.025) 0 1px, transparent 1px 4px);
+  mix-blend-mode: screen;
+  opacity: .62;
+}
+.planning-welcome__wheel { display: none !important; }
+
+.planning-book__whatsapp-float {
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 54px;
+  padding: 9px 15px 9px 10px;
+  border: 1px solid rgba(220,169,92,.42);
+  border-radius: 999px;
+  color: #f7ead6;
+  background: linear-gradient(145deg, rgba(58,28,17,.96), rgba(31,15,10,.97));
+  box-shadow: 0 14px 34px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.07);
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.planning-book__whatsapp-float:hover {
+  transform: translateY(-2px);
+  border-color: rgba(232,188,116,.75);
+  box-shadow: 0 18px 38px rgba(0,0,0,.44), 0 0 0 4px rgba(205,145,70,.08);
+}
+.planning-book__whatsapp-float svg {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  padding: 6px;
+  border-radius: 50%;
+  fill: currentColor;
+  color: #f1c77e;
+  background: rgba(211,151,67,.12);
+  box-shadow: inset 0 0 0 1px rgba(231,184,107,.3);
+}
+.planning-book__whatsapp-float span { display: grid; text-align: left; line-height: 1.1; }
+.planning-book__whatsapp-float strong { font-size: 12px; letter-spacing: .01em; }
+.planning-book__whatsapp-float small { margin-top: 3px; color: rgba(247,234,214,.68); font-size: 9px; }
+
+@media (max-width: 760px) {
+  .planning-welcome__logo-crop { width: 204px; height: 130px; }
+  .planning-welcome__logo-crop img { max-height: 130px; }
+  .planning-book__whatsapp-float {
+    right: 12px;
+    bottom: 12px;
+    width: 52px;
+    height: 52px;
+    min-height: 52px;
+    padding: 8px;
+    justify-content: center;
+  }
+  .planning-book__whatsapp-float span { display: none; }
+  .planning-book__whatsapp-float svg { width: 36px; height: 36px; flex-basis: 36px; }
+}
+
+@media print {
+  .planning-book__whatsapp-float { display: none !important; }
+}
+
+/* =========================================================
+   V15.5 — CAPA DEFINITIVA E CONVIDADOS POR FAIXA ETÁRIA
+   ========================================================= */
+.planning-welcome__logo-crop {
+  width: min(230px, 62%);
+  height: 118px;
+  margin-top: 4px;
+  overflow: visible;
+  filter: drop-shadow(0 7px 10px rgba(0,0,0,.38));
+}
+.planning-welcome__logo-crop::after { display: none !important; }
+.planning-welcome__logo-crop img {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
+  filter: sepia(.34) saturate(.88) brightness(.98) contrast(1.08) drop-shadow(0 1px 0 rgba(255,237,205,.25));
+}
+.planning-welcome__kicker {
+  margin-top: 4px;
+  color: #e2bd82;
+  font: 600 13px/1.2 Georgia, serif;
+  letter-spacing: .08em;
+  text-transform: none;
+}
+.planning-welcome__wheel {
+  display: grid !important;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin: 16px auto 5px;
+  color: #d9ad69;
+  animation: planning-wheel-spin 18s linear infinite;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.42));
+}
+.planning-welcome__wheel svg { width: 100%; height: 100%; overflow: visible; }
+.planning-welcome__wheel circle,
+.planning-welcome__wheel line { fill: none; stroke: currentColor; stroke-width: 4; stroke-linecap: round; }
+.planning-welcome__wheel circle:nth-child(2) { fill: #d9ad69; stroke-width: 2; }
+@keyframes planning-wheel-spin { to { transform: rotate(360deg); } }
+.planning-book--opening .planning-welcome__wheel { animation-duration: .65s; }
+.planning-welcome__title { margin: 8px 0 18px; }
+.planning-welcome__planner-label {
+  display: block;
+  color: rgba(224,190,139,.67);
+  font: 800 8px/1 Arial,sans-serif;
+  letter-spacing: .28em;
+}
+.planning-welcome__title h1 {
+  display: grid;
+  gap: 2px;
+  margin: 9px 0 8px;
+  letter-spacing: 0;
+}
+.planning-welcome__title h1 strong {
+  color: #f1dfc5;
+  font: 400 clamp(31px,5.4vw,45px)/1 Georgia,serif;
+  letter-spacing: -.035em;
+}
+.planning-welcome__title h1 em {
+  color: #d8aa68;
+  font: italic 400 clamp(25px,4.6vw,38px)/1.05 Georgia,serif;
+}
+.planning-welcome__title p { max-width: 290px; color: rgba(239,218,187,.7); }
+
+.planning-book__section-intro {
+  margin: -6px 0 14px;
+  color: #806853;
+  font: 13px/1.5 Arial,sans-serif;
+}
+.planning-book__guest-grid { display: grid; gap: 10px; }
+.planning-book__guest-section .planning-book__counter-row {
+  min-height: 66px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(123,84,50,.13);
+  border-radius: 13px;
+  background: rgba(255,255,255,.32);
+}
+.planning-book__guest-section .planning-book__counter-row span { max-width: 220px; }
+.planning-book__guest-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 11px;
+}
+.planning-book__guest-summary > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: #5b3422;
+  color: #f5e8d4;
+  box-shadow: 0 8px 18px rgba(65,35,20,.13);
+}
+.planning-book__guest-summary span { font: 700 10px/1.2 Arial,sans-serif; text-transform: uppercase; letter-spacing: .08em; opacity: .75; }
+.planning-book__guest-summary strong { font: 700 23px/1 Georgia,serif; }
+.planning-book__guest-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 9px;
+  padding: 10px 12px;
+  border-radius: 11px;
+  background: rgba(181,130,68,.10);
+  color: #6c533f;
+}
+.planning-book__guest-note > span { display: grid; place-items: center; flex: 0 0 19px; height: 19px; border: 1px solid currentColor; border-radius: 50%; font: 700 11px Arial,sans-serif; }
+.planning-book__guest-note p { margin: 0; font: 11px/1.45 Arial,sans-serif; }
+.book-header__metrics { grid-template-columns: repeat(5,minmax(0,1fr)); }
+@media (max-width:760px) {
+  .planning-welcome__logo-crop { width: 190px; height: 94px; }
+  .planning-welcome__wheel { width: 34px; height: 34px; margin-top: 10px; }
+  .planning-welcome__title h1 strong { font-size: 31px; }
+  .planning-welcome__title h1 em { font-size: 27px; }
+  .planning-book__guest-summary { grid-template-columns: 1fr; }
+  .book-header__metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+
+/* =========================================================
+   V15.6 — CAPA PROPORCIONAL E PDF SEM PAGINA ORFA
+   Regra final: estes estilos prevalecem sobre experimentos anteriores.
+   ========================================================= */
+
+/* CAPA: marca proporcional, creme e integrada ao couro. */
+.planning-welcome__logo-crop {
+  position: relative !important;
+  width: clamp(132px, 24vw, 164px) !important;
+  height: 112px !important;
+  margin: 2px auto 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: visible !important;
+  filter: none !important;
+}
+
+.planning-welcome__logo-crop::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 14% 9% 8% !important;
+  pointer-events: none !important;
+  border-radius: 40% !important;
+  background: radial-gradient(ellipse at 50% 42%, rgba(255,231,190,.10), transparent 68%) !important;
+  mix-blend-mode: screen !important;
+  opacity: .55 !important;
+}
+
+.planning-welcome__logo-crop img {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  transform: none !important;
+  clip-path: none !important;
+  opacity: .94 !important;
+  filter:
+    sepia(1)
+    saturate(.62)
+    hue-rotate(348deg)
+    brightness(1.78)
+    contrast(.90)
+    drop-shadow(0 1px 0 rgba(255,245,222,.20))
+    drop-shadow(0 3px 4px rgba(19,8,4,.44)) !important;
+}
+
+.planning-welcome__kicker {
+  margin: 1px 0 0 !important;
+  color: #e0bd82 !important;
+  font: 700 9px/1.2 Arial, sans-serif !important;
+  letter-spacing: .31em !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,.34) !important;
+}
+
+/* A roda volta como assinatura, sem competir com a marca. */
+.planning-welcome__wheel {
+  display: block !important;
+  width: 30px !important;
+  height: 30px !important;
+  margin: 9px auto 0 !important;
+  fill: none !important;
+  stroke: #d7ab6b !important;
+  stroke-width: 1.55 !important;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.30)) !important;
+  animation: planning-wheel-spin 18s linear infinite !important;
+}
+
+.planning-welcome__title {
+  margin: 14px 0 18px !important;
+  text-align: center !important;
+}
+
+.planning-welcome__planner-label {
+  display: block !important;
+  margin-bottom: 9px !important;
+  color: rgba(224,189,130,.78) !important;
+  font: 700 8px/1 Arial, sans-serif !important;
+  letter-spacing: .34em !important;
+}
+
+.planning-welcome__title h1 {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 1px !important;
+  margin: 0 0 9px !important;
+}
+
+.planning-welcome__title h1 strong {
+  color: #f0dfc4 !important;
+  font: 400 clamp(42px, 6vw, 56px)/.94 Georgia, serif !important;
+  letter-spacing: -.045em !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.08), 0 7px 20px rgba(0,0,0,.38) !important;
+}
+
+.planning-welcome__title h1 em {
+  margin-top: 4px !important;
+  color: #d9ad6c !important;
+  font: italic 400 clamp(17px, 2.5vw, 23px)/1.1 Georgia, serif !important;
+  letter-spacing: .01em !important;
+}
+
+.planning-welcome__title p {
+  max-width: 330px !important;
+  margin: 0 auto !important;
+  color: rgba(245,229,205,.68) !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+}
+
+@media (max-width: 640px) {
+  .planning-welcome__logo-crop { width: 138px !important; height: 98px !important; }
+  .planning-welcome__wheel { width: 27px !important; height: 27px !important; margin-top: 7px !important; }
+  .planning-welcome__title h1 strong { font-size: clamp(38px, 12vw, 48px) !important; }
+  .planning-welcome__title h1 em { font-size: 18px !important; }
+}
+
+/* PDF: logo discreta e proporcional na capa. */
+@media print {
+  .proposal-print__cover,
+  .proposal-print__page {
+    box-sizing: border-box !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    height: 297mm !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
+  }
+
+  .proposal-print__cover img {
+    width: 34mm !important;
+    height: 30mm !important;
+    max-width: 34mm !important;
+    max-height: 30mm !important;
+    object-fit: contain !important;
+    margin: 0 0 10mm !important;
+    opacity: .92 !important;
+    filter:
+      sepia(1)
+      saturate(.72)
+      hue-rotate(347deg)
+      brightness(1.18)
+      contrast(.95) !important;
+  }
+
+  /* A ultima pagina usa fluxo vertical fixo e puxa o rodape para dentro do A4. */
+  .proposal-print__page--closing {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 13mm 18mm 11mm !important;
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  .proposal-print__page--closing .proposal-print__brandline {
+    padding-bottom: 3mm !important;
+  }
+
+  .proposal-print__page--closing h2 {
+    margin: 4mm 0 3mm !important;
+    font-size: 21pt !important;
+  }
+
+  .proposal-print__financial-grid,
+  .proposal-print__financial-grid--with-consignment {
+    grid-template-columns: 1.18fr .82fr !important;
+    gap: 3mm !important;
+    margin: 0 !important;
+  }
+
+  .proposal-print__financial-grid .proposal-print__investment,
+  .proposal-print__financial-grid .proposal-print__consignment {
+    min-height: 29mm !important;
+    height: 29mm !important;
+    padding: 3.2mm 4mm !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .proposal-print__financial-grid .proposal-print__investment strong,
+  .proposal-print__financial-grid .proposal-print__consignment strong {
+    margin: .8mm 0 !important;
+    font-size: 18pt !important;
+    line-height: 1 !important;
+  }
+
+  .proposal-print__financial-grid .proposal-print__investment small,
+  .proposal-print__financial-grid .proposal-print__consignment p {
+    margin: .7mm 0 0 !important;
+    font-size: 7pt !important;
+    line-height: 1.18 !important;
+  }
+
+  .proposal-print__page--closing .proposal-print__terms {
+    margin: 0 !important;
+  }
+
+  .proposal-print__page--closing .proposal-print__terms h3 {
+    margin: 2.8mm 0 1.1mm !important;
+    font-size: 8.6pt !important;
+  }
+
+  .proposal-print__page--closing .proposal-print__terms p {
+    margin: .9mm 0 !important;
+    font-size: 7pt !important;
+    line-height: 1.2 !important;
+  }
+
+  .proposal-print__page--closing .proposal-print__footer {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-height: 21mm !important;
+    margin: auto 0 0 !important;
+    padding: 3.2mm 5mm !important;
+    grid-template-columns: 42mm 1fr !important;
+    gap: 7mm !important;
+    box-sizing: border-box !important;
+  }
+
+  .proposal-print__page--closing .proposal-print__footer div {
+    min-width: 0 !important;
+    font-size: 7.4pt !important;
+    line-height: 1.22 !important;
+  }
+
+  .proposal-print__page--closing .proposal-print__footer p {
+    padding-left: 6mm !important;
+    font-size: 8.3pt !important;
+    line-height: 1.25 !important;
+  }
+}
+
+/* =========================================================
+   V15.7 — AJUSTE CIRURGICO DA MARCA NA CAPA
+   Logo menor, creme e com separacao real da assinatura.
+   ========================================================= */
+.planning-welcome__logo-crop {
+  width: 116px !important;
+  height: 94px !important;
+  margin: 4px auto 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  filter: drop-shadow(0 3px 5px rgba(18,7,3,.34)) !important;
+}
+
+.planning-welcome__logo-crop::after {
+  display: none !important;
+}
+
+.planning-welcome__logo-crop img {
+  display: block !important;
+  width: 108px !important;
+  height: auto !important;
+  max-width: 108px !important;
+  max-height: 88px !important;
+  object-fit: contain !important;
+  opacity: .96 !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,244,220,.16))
+    drop-shadow(0 2px 3px rgba(17,7,3,.42)) !important;
+}
+
+.planning-welcome__kicker {
+  position: relative !important;
+  z-index: 2 !important;
+  display: block !important;
+  margin: 9px 0 0 !important;
+  color: #d8af73 !important;
+  font: 700 8px/1.25 Arial, sans-serif !important;
+  letter-spacing: .29em !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+}
+
+.planning-welcome__wheel {
+  margin-top: 11px !important;
+}
+
+@media (max-width: 640px) {
+  .planning-welcome__logo-crop {
+    width: 106px !important;
+    height: 86px !important;
+  }
+  .planning-welcome__logo-crop img {
+    width: 98px !important;
+    max-width: 98px !important;
+    max-height: 80px !important;
+  }
+  .planning-welcome__kicker {
+    margin-top: 8px !important;
+    font-size: 7px !important;
+    letter-spacing: .25em !important;
+  }
+}
+
+
+/* =========================================================
+   V15.8 — CAPA MAIS LIMPA: MEU PLANEJAMENTO
+   ========================================================= */
+.planning-welcome__planner-label { display: none !important; }
+.planning-welcome__title { margin: 12px 0 18px !important; }
+.planning-welcome__title h1 {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 0 !important;
+  margin: 0 0 10px !important;
+}
+.planning-welcome__title h1 strong {
+  color: #d9ad6c !important;
+  font: italic 400 clamp(22px, 3.1vw, 30px)/1 Georgia, serif !important;
+  letter-spacing: .01em !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,.32) !important;
+}
+.planning-welcome__title h1 em {
+  margin-top: -1px !important;
+  color: #f0dfc4 !important;
+  font: normal 400 clamp(40px, 6vw, 54px)/.98 Georgia, serif !important;
+  letter-spacing: -.04em !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.07), 0 7px 20px rgba(0,0,0,.36) !important;
+}
+@media (max-width: 640px) {
+  .planning-welcome__title h1 strong { font-size: 22px !important; }
+  .planning-welcome__title h1 em { font-size: clamp(38px, 11vw, 47px) !important; }
+}
+
+/* =========================================================
+   V15.9 — RODA ABAIXO DO BOTAO DA CAPA
+   ========================================================= */
+.planning-welcome__action + .planning-welcome__wheel {
+  width: 34px !important;
+  height: 34px !important;
+  margin: 16px auto 0 !important;
+  flex: 0 0 auto !important;
+}
+
+@media (max-width: 640px) {
+  .planning-welcome__action + .planning-welcome__wheel {
+    width: 30px !important;
+    height: 30px !important;
+    margin-top: 13px !important;
+  }
+}
+
+/* =========================================================
+   AJUSTE FINAL — CAPA E PDF
+   - roda permanece abaixo do botao da capa
+   - logo do PDF em marrom suave
+   - rodape da ultima pagina preso dentro do A4
+   ========================================================= */
+@media print {
+  .proposal-print__cover img {
+    width: 32mm !important;
+    height: 28mm !important;
+    max-width: 32mm !important;
+    max-height: 28mm !important;
+    opacity: .96 !important;
+    /* Converte a arte branca para um marrom quente e discreto. */
+    filter:
+      brightness(0)
+      saturate(100%)
+      invert(31%)
+      sepia(27%)
+      saturate(1336%)
+      hue-rotate(343deg)
+      brightness(88%)
+      contrast(90%) !important;
+  }
+
+  .proposal-print__page--closing {
+    position: relative !important;
+    display: block !important;
+    padding: 12mm 18mm 37mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  .proposal-print__page--closing .proposal-print__footer {
+    position: absolute !important;
+    left: 18mm !important;
+    right: 18mm !important;
+    bottom: 10mm !important;
+    width: auto !important;
+    min-height: 20mm !important;
+    margin: 0 !important;
+    padding: 3mm 5mm !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: 42mm 1fr !important;
+    gap: 7mm !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .proposal-print__page--closing .proposal-print__terms {
+    margin-bottom: 0 !important;
+  }
+}
+
+/* =========================================================
+   V16.0 — CAPA PREMIUM APROVADA (06/08/2026)
+   Refinamento visual baseado na referência final da Roda Festa.
+   Mantém lógica, validações, animação e demais páginas intactas.
+   ========================================================= */
+.planning-book--welcome {
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(91, 46, 24, .27) 0%, rgba(22, 10, 6, .18) 42%, rgba(4, 2, 1, .92) 100%),
+    repeating-linear-gradient(118deg, rgba(255,255,255,.012) 0 1px, transparent 1px 7px),
+    #100704;
+}
+
+.planning-welcome {
+  padding: clamp(16px, 2.5vh, 30px);
+  background:
+    radial-gradient(circle at 50% 44%, rgba(91,45,22,.2), transparent 54%),
+    linear-gradient(145deg, rgba(20,8,4,.35), rgba(2,1,1,.74));
+}
+
+.planning-welcome__ambient {
+  background:
+    radial-gradient(ellipse at 50% 84%, rgba(0,0,0,.76), transparent 39%),
+    radial-gradient(circle at 16% 18%, rgba(151,81,42,.08), transparent 33%),
+    repeating-linear-gradient(28deg, rgba(255,255,255,.012) 0 1px, transparent 1px 9px);
+}
+
+.planning-welcome__book {
+  width: min(730px, 92vw);
+  min-height: min(900px, 94vh);
+  filter: drop-shadow(0 48px 68px rgba(0,0,0,.72));
+}
+
+.planning-welcome__spine {
+  top: 1.5%;
+  bottom: 1.5%;
+  left: -25px;
+  width: 42px;
+  border-radius: 22px 5px 5px 22px;
+  background:
+    linear-gradient(90deg,#100503 0%,#5b2c17 38%,#291108 72%,#100503 100%);
+  box-shadow:
+    inset -9px 0 15px rgba(0,0,0,.62),
+    inset 3px 0 3px rgba(255,213,155,.09),
+    -11px 4px 20px rgba(0,0,0,.38);
+}
+
+.planning-welcome__cover {
+  min-height: inherit;
+  padding: clamp(34px, 4.5vh, 50px) clamp(52px, 7vw, 92px) clamp(25px, 3.5vh, 40px);
+  border: 1px solid rgba(195,126,54,.68);
+  border-radius: 18px 34px 34px 18px;
+  background:
+    radial-gradient(circle at 13% 18%, transparent 0 2px, rgba(225,173,113,.026) 2.5px 3px, transparent 3.5px 9px),
+    radial-gradient(ellipse at 20% 5%, rgba(255,208,146,.10), transparent 31%),
+    radial-gradient(ellipse at 78% 92%, rgba(0,0,0,.30), transparent 50%),
+    repeating-radial-gradient(circle at 18% 18%, rgba(255,255,255,.021) 0 .7px, transparent .9px 4px),
+    repeating-linear-gradient(22deg, rgba(255,229,190,.016) 0 1px, transparent 1px 8px),
+    linear-gradient(145deg,#5a2d1a 0%,#3b1b10 40%,#210d08 100%);
+  box-shadow:
+    inset 0 0 0 8px rgba(12,5,3,.30),
+    inset 0 0 45px rgba(0,0,0,.40),
+    inset 0 1px 0 rgba(255,232,198,.12),
+    0 0 0 1px rgba(62,27,12,.86);
+}
+
+.planning-welcome__cover::before {
+  inset: 17px;
+  border: 1px solid rgba(218,151,74,.52);
+  border-radius: 22px;
+  box-shadow: inset 0 0 0 1px rgba(67,29,13,.48);
+}
+
+.planning-welcome__cover::after {
+  inset: 28px;
+  border: 1px dashed rgba(222,159,81,.48);
+  border-radius: 17px;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,.46));
+}
+
+.planning-welcome__ornament {
+  margin-top: 4px;
+  color: #e3b56f;
+  font-size: 18px;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(255,236,200,.2), 0 4px 10px rgba(0,0,0,.45);
+}
+
+.planning-welcome__logo-crop {
+  width: min(252px, 56%);
+  height: 144px;
+  margin: 8px 0 0;
+  filter: drop-shadow(0 8px 14px rgba(0,0,0,.38));
+}
+
+.planning-welcome__logo-crop img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter:
+    sepia(.46)
+    saturate(1.32)
+    brightness(1.16)
+    contrast(1.10)
+    drop-shadow(0 1px 0 rgba(255,239,206,.35));
+}
+
+.planning-welcome__kicker {
+  margin-top: -2px;
+  color: #e0ad62;
+  font: 700 10px/1.2 Arial, sans-serif;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0,0,0,.45);
+}
+
+.planning-welcome__title {
+  margin: clamp(35px, 5vh, 56px) 0 clamp(31px, 4vh, 46px);
+}
+
+.planning-welcome__title h1 {
+  margin: 0 0 16px;
+}
+
+.planning-welcome__title h1 strong {
+  display: block;
+  margin-bottom: 0;
+  color: #dba85f !important;
+  font: italic 400 clamp(30px, 4.1vw, 43px)/.95 Georgia, serif !important;
+  letter-spacing: .01em !important;
+  text-shadow: 0 2px 9px rgba(0,0,0,.42) !important;
+}
+
+.planning-welcome__title h1 em {
+  display: block;
+  margin: 0 !important;
+  color: #f4e6cf !important;
+  font: normal 700 clamp(54px, 7.2vw, 78px)/.93 Georgia, serif !important;
+  letter-spacing: -.055em !important;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.12),
+    0 8px 24px rgba(0,0,0,.44) !important;
+}
+
+.planning-welcome__title p {
+  max-width: 490px;
+  color: rgba(244,226,197,.86);
+  font: 17px/1.45 Arial, sans-serif;
+  text-shadow: 0 2px 7px rgba(0,0,0,.48);
+}
+
+.planning-welcome__fields {
+  gap: 20px;
+}
+
+.planning-welcome__fields label {
+  gap: 8px;
+}
+
+.planning-welcome__fields span {
+  color: #dfa95f;
+  font: 800 11px/1 Arial, sans-serif;
+  letter-spacing: .19em;
+}
+
+.planning-welcome__fields input {
+  min-height: 47px;
+  padding: 7px 4px 11px;
+  border-bottom: 1px solid rgba(216,149,68,.58);
+  color: #f7ead7;
+  font: 21px/1.25 Georgia, serif;
+  text-shadow: 0 1px 3px rgba(0,0,0,.36);
+}
+
+.planning-welcome__fields input::placeholder {
+  color: rgba(231,202,164,.41);
+  opacity: 1;
+}
+
+.planning-welcome__fields input:focus {
+  border-bottom-color: #e0ac64;
+  filter: drop-shadow(0 4px 8px rgba(215,150,71,.10));
+}
+
+.planning-welcome__action {
+  min-height: 76px;
+  margin-top: 32px;
+  padding: 0 40px 0 48px;
+  border: 1px solid rgba(255,225,174,.53);
+  color: #32160d;
+  background:
+    linear-gradient(105deg,#f1d5aa 0%,#e4b76f 56%,#cc9147 100%);
+  font: 900 16px/1 Arial, sans-serif;
+  letter-spacing: .12em;
+  box-shadow:
+    0 18px 34px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.52),
+    inset 0 -1px 0 rgba(107,51,17,.28);
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.planning-welcome__action:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.035);
+  box-shadow:
+    0 22px 42px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,255,255,.58),
+    0 0 0 4px rgba(218,158,83,.08);
+}
+
+.planning-welcome__action b {
+  font-size: 29px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.planning-welcome__action + .planning-welcome__wheel {
+  display: grid !important;
+  width: 56px !important;
+  height: 56px !important;
+  margin: 24px auto 0 !important;
+  color: #dda85d;
+  border: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.48)) drop-shadow(0 0 9px rgba(218,158,81,.16));
+}
+
+.planning-welcome__wheel::before,
+.planning-welcome__wheel::after {
+  display: none !important;
+}
+
+.planning-welcome__wheel circle,
+.planning-welcome__wheel line {
+  stroke-width: 3.25;
+}
+
+.planning-welcome__edition {
+  margin-top: auto;
+  padding-top: 19px;
+  color: rgba(224,188,139,.56);
+  font-size: 8px;
+  letter-spacing: .18em;
+}
+
+@media (max-height: 930px) and (min-width: 641px) {
+  .planning-welcome__book { min-height: min(820px, 94vh); width: min(650px, 90vw); }
+  .planning-welcome__cover { padding-top: 28px; padding-bottom: 22px; }
+  .planning-welcome__logo-crop { width: 222px; height: 118px; }
+  .planning-welcome__title { margin: 22px 0 24px; }
+  .planning-welcome__title h1 em { font-size: clamp(50px, 6.4vw, 65px) !important; }
+  .planning-welcome__fields { gap: 14px; }
+  .planning-welcome__fields input { min-height: 39px; font-size: 18px; }
+  .planning-welcome__action { min-height: 64px; margin-top: 23px; font-size: 14px; }
+  .planning-welcome__action + .planning-welcome__wheel { width: 46px !important; height: 46px !important; margin-top: 16px !important; }
+}
+
+@media (max-width: 640px) {
+  .planning-welcome { padding: 10px; }
+  .planning-welcome__book {
+    width: min(96vw, 440px);
+    min-height: min(750px, 96dvh);
+  }
+  .planning-welcome__spine { left: -11px; width: 24px; }
+  .planning-welcome__cover {
+    padding: 25px 30px 21px;
+    border-radius: 12px 24px 24px 12px;
+  }
+  .planning-welcome__cover::before { inset: 10px; border-radius: 16px; }
+  .planning-welcome__cover::after { inset: 18px; border-radius: 13px; }
+  .planning-welcome__ornament { font-size: 14px; }
+  .planning-welcome__logo-crop { width: 184px; height: 102px; margin-top: 2px; }
+  .planning-welcome__kicker { font-size: 8px; letter-spacing: .25em; }
+  .planning-welcome__title { margin: 23px 0 21px; }
+  .planning-welcome__title h1 { margin-bottom: 10px; }
+  .planning-welcome__title h1 strong { font-size: 25px !important; }
+  .planning-welcome__title h1 em { font-size: clamp(42px, 12.8vw, 55px) !important; }
+  .planning-welcome__title p { max-width: 330px; font-size: 12px; }
+  .planning-welcome__fields { gap: 12px; }
+  .planning-welcome__fields label { gap: 5px; }
+  .planning-welcome__fields span { font-size: 8px; }
+  .planning-welcome__fields input { min-height: 37px; font-size: 16px; padding-bottom: 8px; }
+  .planning-welcome__action {
+    min-height: 58px;
+    margin-top: 21px;
+    padding: 0 24px 0 28px;
+    font-size: 11px;
+    letter-spacing: .10em;
+  }
+  .planning-welcome__action b { font-size: 22px; }
+  .planning-welcome__action + .planning-welcome__wheel {
+    width: 39px !important;
+    height: 39px !important;
+    margin-top: 14px !important;
+  }
+  .planning-welcome__edition { padding-top: 10px; font-size: 6px; }
+}
+
+/* =========================================================
+   V16.1 - HOTFIX ABERTURA DO LIVRO
+   Restaura o comportamento aprovado: antes do clique, somente
+   a capa fica visivel. Ao confirmar, a capa gira e revela o livro.
+   Nao altera estrutura, validacoes, motor ou paginas internas.
+   ========================================================= */
+.planning-welcome {
+  background:
+    radial-gradient(circle at 50% 44%, rgba(91,45,22,.20), transparent 54%),
+    linear-gradient(145deg, rgba(20,8,4,.35), rgba(2,1,1,.74)),
+    #100704;
+}
+
+.planning-welcome__book {
+  transform-origin: left center;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.planning-book--opening .planning-welcome__book {
+  transform: translateX(-8%) rotateY(-72deg) scale(.92);
+  opacity: .12;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planning-book--opening .planning-welcome__book {
+    transform: none;
+    opacity: 0;
+  }
+}
+
+/* =========================================================
+   V16.2 - CAPA COM RESPIRO E RODA PROXIMA AO RODAPE
+   Ajuste estritamente visual sobre a capa aprovada.
+   Nao altera JSX, validacoes, abertura do livro ou paginas internas.
+   ========================================================= */
+@media (min-width: 641px) {
+  .planning-welcome__book {
+    width: min(650px, 90vw);
+    min-height: min(850px, 94vh);
+  }
+
+  .planning-welcome__cover {
+    padding: clamp(34px, 4.4vh, 48px) clamp(58px, 7vw, 82px) 24px;
+  }
+
+  .planning-welcome__ornament {
+    margin-top: 0;
+  }
+
+  .planning-welcome__logo-crop {
+    width: min(232px, 52%);
+    height: 128px;
+    margin-top: 8px;
+  }
+
+  .planning-welcome__kicker {
+    margin-top: 2px;
+  }
+
+  .planning-welcome__title {
+    margin: clamp(28px, 4vh, 42px) 0 clamp(30px, 4vh, 42px);
+  }
+
+  .planning-welcome__title h1 {
+    margin-bottom: 15px;
+  }
+
+  .planning-welcome__title h1 strong {
+    font-size: clamp(29px, 3.6vw, 39px) !important;
+  }
+
+  .planning-welcome__title h1 em {
+    font-size: clamp(57px, 7vw, 75px) !important;
+  }
+
+  .planning-welcome__title p {
+    max-width: 480px;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .planning-welcome__fields {
+    gap: 23px;
+  }
+
+  .planning-welcome__fields label {
+    gap: 9px;
+  }
+
+  .planning-welcome__fields input {
+    min-height: 50px;
+    padding-bottom: 13px;
+  }
+
+  .planning-welcome__action {
+    min-height: 74px;
+    margin-top: 36px;
+  }
+
+  .planning-welcome__action + .planning-welcome__wheel {
+    width: 54px !important;
+    height: 54px !important;
+    margin: auto auto 0 !important;
+    padding-top: clamp(28px, 4.2vh, 48px);
+    box-sizing: content-box;
+  }
+
+  .planning-welcome__edition {
+    margin-top: 12px;
+    padding-top: 0;
+    padding-bottom: 2px;
+  }
+}
+
+@media (max-height: 860px) and (min-width: 641px) {
+  .planning-welcome__book {
+    width: min(610px, 89vw);
+    min-height: min(790px, 95vh);
+  }
+
+  .planning-welcome__cover {
+    padding: 27px 64px 20px;
+  }
+
+  .planning-welcome__logo-crop {
+    width: 205px;
+    height: 108px;
+  }
+
+  .planning-welcome__title {
+    margin: 21px 0 24px;
+  }
+
+  .planning-welcome__title h1 em {
+    font-size: 60px !important;
+  }
+
+  .planning-welcome__fields {
+    gap: 15px;
+  }
+
+  .planning-welcome__fields input {
+    min-height: 40px;
+    padding-bottom: 9px;
+    font-size: 18px;
+  }
+
+  .planning-welcome__action {
+    min-height: 62px;
+    margin-top: 24px;
+  }
+
+  .planning-welcome__action + .planning-welcome__wheel {
+    width: 44px !important;
+    height: 44px !important;
+    padding-top: 18px;
+  }
+
+  .planning-welcome__edition {
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  .planning-welcome__cover {
+    padding-bottom: 16px;
+  }
+
+  .planning-welcome__title {
+    margin-bottom: 24px;
+  }
+
+  .planning-welcome__fields {
+    gap: 15px;
+  }
+
+  .planning-welcome__action {
+    margin-top: 25px;
+  }
+
+  .planning-welcome__action + .planning-welcome__wheel {
+    margin: auto auto 0 !important;
+    padding-top: 22px;
+    box-sizing: content-box;
+  }
+
+  .planning-welcome__edition {
+    margin-top: 8px;
+    padding-top: 0;
+  }
+}
+
+/* =========================================================
+   V16.3 - RODA NO PROPRIO EIXO, FILETES LATERAIS E TITULO
+   Ajuste visual pontual da capa. Preserva abertura, campos,
+   validacoes, motor e todas as paginas internas.
+   ========================================================= */
+
+/* O suporte da roda permanece completamente parado. Somente o SVG gira. */
+.planning-welcome__action + .planning-welcome__wheel {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: visible !important;
+  animation: none !important;
+  transform: none !important;
+}
+
+.planning-welcome__action + .planning-welcome__wheel svg {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible !important;
+  animation: planning-wheel-axis-spin 18s linear infinite !important;
+  transform-box: fill-box !important;
+  transform-origin: center center !important;
+  will-change: transform;
+}
+
+@keyframes planning-wheel-axis-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Filetes horizontais elegantes, independentes da rotacao da roda. */
+.planning-welcome__action + .planning-welcome__wheel::before,
+.planning-welcome__action + .planning-welcome__wheel::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  top: 50% !important;
+  width: clamp(64px, 10vw, 104px) !important;
+  height: 1px !important;
+  transform: translateY(-50%) !important;
+  pointer-events: none !important;
+  opacity: .82 !important;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(221, 168, 93, .88) 0 5px,
+      transparent 5px 9px
+    ) !important;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.38));
+}
+
+.planning-welcome__action + .planning-welcome__wheel::before {
+  right: calc(100% + 20px) !important;
+}
+
+.planning-welcome__action + .planning-welcome__wheel::after {
+  left: calc(100% + 20px) !important;
+}
+
+/* Planejamento um pouco menor, mantendo a hierarquia aprovada. */
+@media (min-width: 641px) {
+  .planning-welcome__title h1 em {
+    font-size: clamp(52px, 6.35vw, 68px) !important;
+    letter-spacing: -.045em !important;
+  }
+}
+
+@media (max-height: 860px) and (min-width: 641px) {
+  .planning-welcome__title h1 em {
+    font-size: 55px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .planning-welcome__title h1 em {
+    font-size: clamp(39px, 11.7vw, 50px) !important;
+  }
+
+  .planning-welcome__action + .planning-welcome__wheel::before,
+  .planning-welcome__action + .planning-welcome__wheel::after {
+    width: clamp(42px, 13vw, 62px) !important;
+  }
+
+  .planning-welcome__action + .planning-welcome__wheel::before {
+    right: calc(100% + 13px) !important;
+  }
+
+  .planning-welcome__action + .planning-welcome__wheel::after {
+    left: calc(100% + 13px) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planning-welcome__action + .planning-welcome__wheel svg {
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   V16.4 - FILETES DA RODA E ASSINATURA DO RODAPE
+   Ajuste pontual solicitado. Preserva toda a logica existente.
+   ========================================================= */
+
+/* Filetes simetricos, finos e com acabamento suave nas extremidades. */
+.planning-welcome__action + .planning-welcome__wheel::before,
+.planning-welcome__action + .planning-welcome__wheel::after {
+  top: 50% !important;
+  width: clamp(78px, 12vw, 122px) !important;
+  height: 1px !important;
+  opacity: .9 !important;
+  transform: translateY(-50%) !important;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(221, 168, 93, .22) 8%,
+    rgba(221, 168, 93, .88) 34%,
+    rgba(221, 168, 93, .88) 66%,
+    rgba(221, 168, 93, .22) 92%,
+    transparent 100%
+  ) !important;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .34)) !important;
+}
+
+.planning-welcome__action + .planning-welcome__wheel::before {
+  right: calc(100% + 17px) !important;
+}
+
+.planning-welcome__action + .planning-welcome__wheel::after {
+  left: calc(100% + 17px) !important;
+}
+
+/* Sobe a assinatura para que nao encoste na costura inferior da capa. */
+.planning-welcome__edition {
+  position: relative !important;
+  z-index: 2 !important;
+  margin-top: 14px !important;
+  margin-bottom: 15px !important;
+  padding: 0 !important;
+  line-height: 1.35 !important;
+}
+
+@media (max-height: 860px) and (min-width: 641px) {
+  .planning-welcome__action + .planning-welcome__wheel::before,
+  .planning-welcome__action + .planning-welcome__wheel::after {
+    width: clamp(68px, 10vw, 100px) !important;
+  }
+
+  .planning-welcome__edition {
+    margin-top: 11px !important;
+    margin-bottom: 13px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .planning-welcome__action + .planning-welcome__wheel::before,
+  .planning-welcome__action + .planning-welcome__wheel::after {
+    width: clamp(50px, 15vw, 76px) !important;
+  }
+
+  .planning-welcome__action + .planning-welcome__wheel::before {
+    right: calc(100% + 11px) !important;
+  }
+
+  .planning-welcome__action + .planning-welcome__wheel::after {
+    left: calc(100% + 11px) !important;
+  }
+
+  .planning-welcome__edition {
+    margin-top: 10px !important;
+    margin-bottom: 13px !important;
+  }
+}
+
+/* =========================================================
+   V16.5 - CORRECAO FINAL DOS FILETES DA RODA
+   Apenas o ornamento lateral foi corrigido. A roda continua
+   fixa na posicao e gira somente no proprio eixo.
+   ========================================================= */
+
+/*
+ * O proprio suporte passa a ocupar a largura total do ornamento.
+ * As duas linhas sao desenhadas no fundo do suporte, o que impede
+ * que uma delas seja cortada ou fique desalinhada pelo flex/layout.
+ */
+.planning-welcome__action + .planning-welcome__wheel {
+  width: clamp(230px, 31vw, 300px) !important;
+  height: 48px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(221, 168, 93, .20) 8%,
+      rgba(221, 168, 93, .88) 28%,
+      rgba(221, 168, 93, .88) 100%
+    ) left center / calc(50% - 39px) 1px no-repeat,
+    linear-gradient(
+      90deg,
+      rgba(221, 168, 93, .88) 0%,
+      rgba(221, 168, 93, .88) 72%,
+      rgba(221, 168, 93, .20) 92%,
+      transparent 100%
+    ) right center / calc(50% - 39px) 1px no-repeat !important;
+}
+
+/* Desativa os pseudo-elementos antigos para evitar sobreposicao. */
+.planning-welcome__action + .planning-welcome__wheel::before,
+.planning-welcome__action + .planning-welcome__wheel::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Mantem a roda centralizada e com o mesmo tamanho aprovado. */
+.planning-welcome__action + .planning-welcome__wheel svg {
+  width: 46px !important;
+  height: 46px !important;
+  flex: 0 0 46px !important;
+}
+
+@media (max-height: 860px) and (min-width: 641px) {
+  .planning-welcome__action + .planning-welcome__wheel {
+    width: clamp(210px, 28vw, 270px) !important;
+    height: 44px !important;
+    background-size: calc(50% - 36px) 1px, calc(50% - 36px) 1px !important;
+  }
+
+  .planning-welcome__action + .planning-welcome__wheel svg {
+    width: 42px !important;
+    height: 42px !important;
+    flex-basis: 42px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .planning-welcome__action + .planning-welcome__wheel {
+    width: min(76vw, 245px) !important;
+    height: 40px !important;
+    background-size: calc(50% - 31px) 1px, calc(50% - 31px) 1px !important;
+  }
+
+  .planning-welcome__action + .planning-welcome__wheel svg {
+    width: 38px !important;
+    height: 38px !important;
+    flex-basis: 38px !important;
+  }
+}
+
+/* =========================================================
+   V16.6 - ALINHAMENTO VERTICAL DOS FILETES
+   Ajuste pontual: desce somente os filetes para que atravessem
+   visualmente o centro da roda. Nenhum outro elemento foi alterado.
+   ========================================================= */
+.planning-welcome__action + .planning-welcome__wheel {
+  background-position:
+    left calc(50% + 7px),
+    right calc(50% + 7px) !important;
+}
+
+@media (max-height: 860px) and (min-width: 641px) {
+  .planning-welcome__action + .planning-welcome__wheel {
+    background-position:
+      left calc(50% + 6px),
+      right calc(50% + 6px) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .planning-welcome__action + .planning-welcome__wheel {
+    background-position:
+      left calc(50% + 5px),
+      right calc(50% + 5px) !important;
+  }
+}
+
+/* =========================================================
+   V16.8 - SOLICITACAO DE PROPOSTA OFICIAL
+   Encerramento da jornada do cliente, sem alterar o motor,
+   a capa aprovada, a Cena Viva ou a composicao do PDF.
+   ========================================================= */
+
+.planning-book__planning-code {
+  display: inline-flex;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border: 1px solid rgba(157, 99, 45, .35);
+  border-radius: 999px;
+  color: #7c4a25;
+  background: rgba(255, 249, 239, .78);
+  font-size: .76rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.planning-book__final-action:disabled {
+  cursor: wait;
+  opacity: .7;
+}
+
+.planning-book--closing .planning-book__book {
+  pointer-events: none;
+  transform-origin: center left;
+  animation: planningBookClose 900ms cubic-bezier(.72, 0, .2, 1) both;
+}
+
+.planning-book--closing .planning-book__whatsapp-float,
+.planning-book--completed .planning-book__whatsapp-float,
+.planning-book--completed .planning-book__app-signature,
+.planning-book--completed .planning-book__book {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes planningBookClose {
+  0% {
+    opacity: 1;
+    transform: perspective(1800px) rotateY(0deg) scale(1);
+    filter: brightness(1);
+  }
+  55% {
+    opacity: .92;
+    transform: perspective(1800px) rotateY(-17deg) scale(.94);
+    filter: brightness(.84);
+  }
+  100% {
+    opacity: 0;
+    transform: perspective(1800px) rotateY(-72deg) scale(.82);
+    filter: brightness(.55);
+  }
+}
+
+.planning-completed {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(152, 91, 45, .22), transparent 42%),
+    linear-gradient(145deg, #130b07 0%, #241108 52%, #0d0805 100%);
+  animation: planningCompletedReveal 560ms ease-out both;
+}
+
+.planning-completed__card {
+  width: min(760px, 100%);
+  padding: clamp(34px, 6vw, 64px);
+  border: 1px solid rgba(219, 158, 81, .62);
+  border-radius: 28px;
+  background:
+    linear-gradient(rgba(62, 27, 13, .94), rgba(39, 17, 9, .97)),
+    radial-gradient(circle at 25% 10%, rgba(255,255,255,.08), transparent 30%);
+  box-shadow: 0 34px 90px rgba(0, 0, 0, .58), inset 0 0 0 8px rgba(82, 42, 20, .42);
+  color: #f1dfc4;
+  text-align: center;
+}
+
+.planning-completed__logo-crop {
+  width: 144px;
+  height: 106px;
+  margin: 0 auto 8px;
+  overflow: hidden;
+}
+
+.planning-completed__logo-crop img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.planning-completed__eyebrow {
+  display: block;
+  margin-top: 12px;
+  color: #dfa95f;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+.planning-completed h1 {
+  margin: 18px 0 12px;
+  color: #fff2dc;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.15rem, 5vw, 3.7rem);
+  font-weight: 400;
+  line-height: 1.02;
+}
+
+.planning-completed__card > p {
+  max-width: 610px;
+  margin: 0 auto;
+  color: rgba(241, 223, 196, .78);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.planning-completed__code {
+  display: grid;
+  gap: 8px;
+  width: min(420px, 100%);
+  margin: 28px auto;
+  padding: 18px 22px;
+  border: 1px solid rgba(223, 169, 95, .48);
+  border-radius: 16px;
+  background: rgba(13, 7, 4, .32);
+}
+
+.planning-completed__code span {
+  color: #c99552;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.planning-completed__code strong {
+  color: #fff0d1;
+  font-size: clamp(1.25rem, 4vw, 1.8rem);
+  letter-spacing: .11em;
+}
+
+.planning-completed__summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 auto 28px;
+  text-align: left;
+}
+
+.planning-completed__summary > div {
+  min-height: 84px;
+  padding: 15px;
+  border: 1px solid rgba(220, 166, 91, .22);
+  border-radius: 12px;
+  background: rgba(255, 246, 228, .045);
+}
+
+.planning-completed__summary span {
+  display: block;
+  margin-bottom: 7px;
+  color: #c99552;
+  font-size: .64rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.planning-completed__summary strong {
+  display: block;
+  color: #f5e6ce;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: .98rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.planning-completed__actions {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 12px;
+}
+
+.planning-completed__actions button {
+  min-height: 58px;
+  padding: 14px 20px;
+  border-radius: 999px;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.planning-completed__actions button:hover {
+  transform: translateY(-2px);
+}
+
+.planning-completed__secondary {
+  border: 1px solid rgba(224, 174, 104, .62);
+  background: transparent;
+  color: #f0d7b1;
+}
+
+.planning-completed__primary {
+  border: 1px solid #f1c27a;
+  background: linear-gradient(135deg, #f6d59b, #d99a42);
+  color: #351707;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, .24);
+}
+
+.planning-completed__card > small {
+  display: block;
+  margin-top: 18px;
+  color: rgba(238, 215, 181, .58);
+  font-size: .72rem;
+}
+
+@keyframes planningCompletedReveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 680px) {
+  .planning-completed {
+    place-items: start center;
+    padding: 18px 12px;
+  }
+
+  .planning-completed__card {
+    padding: 28px 18px;
+    border-radius: 22px;
+  }
+
+  .planning-completed__summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .planning-completed__actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planning-book--closing .planning-book__book,
+  .planning-completed {
+    animation-duration: 1ms !important;
+  }
+}
+
+/* =========================================================
+   V17.0 — ESCOLHA DE CATEGORIAS E PRODUTOS
+   ========================================================= */
+.planning-book__menu-selection {
+  position: relative;
+}
+
+.planning-book__menu-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0 20px;
+}
+
+.planning-book__menu-summary > div {
+  padding: 14px 16px;
+  border: 1px solid rgba(121, 75, 42, .18);
+  border-radius: 14px;
+  background: rgba(255, 250, 239, .55);
+}
+
+.planning-book__menu-summary span,
+.planning-book__menu-summary strong {
+  display: block;
+}
+
+.planning-book__menu-summary span {
+  color: #7b624e;
+  font-size: .72rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.planning-book__menu-summary strong {
+  margin-top: 5px;
+  color: #5a2e18;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+}
+
+.planning-book__menu-categories {
+  display: grid;
+  gap: 14px;
+}
+
+.planning-book__menu-category {
+  overflow: hidden;
+  border: 1px solid rgba(114, 67, 36, .18);
+  border-radius: 17px;
+  background: rgba(255, 252, 244, .58);
+  box-shadow: 0 8px 20px rgba(72, 42, 23, .06);
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.planning-book__menu-category--selected {
+  border-color: rgba(168, 112, 58, .48);
+  box-shadow: 0 10px 26px rgba(91, 50, 25, .1);
+}
+
+.planning-book__menu-category-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+}
+
+.planning-book__menu-category-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.planning-book__menu-category-toggle > span:last-child,
+.planning-book__menu-category-toggle strong,
+.planning-book__menu-category-toggle small {
+  display: block;
+}
+
+.planning-book__menu-category-toggle strong {
+  color: #5b301c;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+}
+
+.planning-book__menu-category-toggle small {
+  margin-top: 4px;
+  color: #816a58;
+  font-size: .75rem;
+  line-height: 1.4;
+}
+
+.planning-book__menu-check {
+  display: grid;
+  flex: 0 0 31px;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  border: 1px solid rgba(146, 93, 49, .45);
+  border-radius: 50%;
+  background: #fffaf0;
+  color: #865022;
+  font-weight: 800;
+}
+
+.planning-book__menu-category--selected .planning-book__menu-check {
+  border-color: #aa713a;
+  background: linear-gradient(135deg, #efd39c, #c88d49);
+  color: #45210f;
+}
+
+.planning-book__menu-expand {
+  min-width: 124px;
+  padding: 9px 12px;
+  border: 1px solid rgba(139, 88, 45, .28);
+  border-radius: 999px;
+  background: transparent;
+  color: #744523;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  cursor: pointer;
+}
+
+.planning-book__menu-products {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0 14px 14px;
+  animation: menuProductsReveal .22s ease both;
+}
+
+.planning-book__menu-product {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  min-height: 92px;
+  padding: 13px;
+  border: 1px solid rgba(121, 75, 42, .16);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .48);
+  cursor: pointer;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+
+.planning-book__menu-product:hover {
+  transform: translateY(-1px);
+}
+
+.planning-book__menu-product--selected {
+  border-color: rgba(165, 105, 52, .55);
+  background: rgba(237, 214, 174, .35);
+}
+
+.planning-book__menu-product input {
+  flex: 0 0 auto;
+  margin-top: 3px;
+  accent-color: #9b6532;
+}
+
+.planning-book__menu-product span,
+.planning-book__menu-product strong,
+.planning-book__menu-product small,
+.planning-book__menu-product em {
+  display: block;
+}
+
+.planning-book__menu-product strong {
+  color: #56301e;
+  font-size: .8rem;
+  line-height: 1.35;
+}
+
+.planning-book__menu-product small {
+  margin-top: 4px;
+  color: #806b5b;
+  font-size: .68rem;
+  line-height: 1.35;
+}
+
+.planning-book__menu-product em {
+  margin-top: 8px;
+  color: #9a622e;
+  font-size: .67rem;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.planning-book__menu-guidance {
+  margin: 14px 0 0;
+  color: #995126;
+  font-size: .76rem;
+  text-align: center;
+}
+
+@keyframes menuProductsReveal {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 760px) {
+  .planning-book__menu-category-header,
+  .planning-book__menu-products {
+    grid-template-columns: 1fr;
+  }
+
+  .planning-book__menu-expand {
+    width: 100%;
+  }
+}
+
+
+/* V17.1 — distribuição por categoria e aviso de lote */
+.planning-book__guest-summary--public {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.planning-book__allocation-notice {
+  margin: 16px 0 22px;
+  padding: 16px 18px;
+  border: 1px solid rgba(176, 112, 34, 0.35);
+  border-radius: 14px;
+  background: rgba(176, 112, 34, 0.08);
+}
+
+.planning-book__allocation-notice strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #8a541d;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.planning-book__allocation-notice p,
+.planning-book__allocation-notice li {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.planning-book__allocation-notice ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+
+/* =========================================================
+   V17.2 — RESUMO DO CARDÁPIO E ADIÇÃO INTELIGENTE
+   ========================================================= */
+.book-header__menu-selection {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(128, 80, 40, .16);
+  border-radius: 14px;
+  background: rgba(255, 250, 241, .5);
+}
+.book-header__menu-title {
+  display: block;
+  margin-bottom: 9px;
+  color: #986224;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.book-header__menu-selection > div { display: grid; gap: 8px; }
+.book-header__menu-selection section {
+  padding-left: 10px;
+  border-left: 2px solid rgba(166, 103, 39, .55);
+}
+.book-header__menu-selection section strong {
+  display: block;
+  color: #59311e;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 12px;
+}
+.book-header__menu-selection section p {
+  margin: 3px 0 0;
+  color: rgba(65, 43, 29, .72);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.45;
+}
+.planning-book__choice-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(22, 10, 5, .72);
+  backdrop-filter: blur(8px);
+}
+.planning-book__choice-modal-card {
+  width: min(520px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  padding: 28px;
+  border: 1px solid rgba(207, 151, 78, .48);
+  border-radius: 22px;
+  background: #fff8ed;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .36);
+}
+.planning-book__choice-modal-card h3 {
+  margin: 7px 0 8px;
+  color: #512914;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.55rem;
+}
+.planning-book__choice-modal-card > p {
+  margin: 0 0 18px;
+  color: #705746;
+  line-height: 1.55;
+}
+.planning-book__choice-option,
+.planning-book__choice-extra {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid rgba(141, 87, 38, .24);
+  border-radius: 15px;
+  background: rgba(255,255,255,.62);
+  text-align: left;
+}
+button.planning-book__choice-option { cursor: pointer; }
+.planning-book__choice-option strong,
+.planning-book__choice-extra strong,
+.planning-book__choice-option span,
+.planning-book__choice-extra span { display: block; }
+.planning-book__choice-option strong,
+.planning-book__choice-extra strong { color: #5b2f18; font-size: .92rem; }
+.planning-book__choice-option span,
+.planning-book__choice-extra span { margin-top: 5px; color: #7a6656; font-size: .78rem; line-height: 1.45; }
+.planning-book__choice-extra { margin-top: 12px; }
+.planning-book__choice-extra input {
+  width: 100%;
+  margin: 12px 0 9px;
+  padding: 12px;
+  border: 1px solid rgba(126, 78, 40, .28);
+  border-radius: 10px;
+  background: #fff;
+}
+.planning-book__choice-extra button {
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #5a2a14;
+  color: #fff8ed;
+  font-weight: 800;
+  cursor: pointer;
+}
+.planning-book__choice-cancel {
+  display: block;
+  margin: 14px auto 0;
+  border: 0;
+  background: transparent;
+  color: #80593d;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* =========================================================
+   V17.2.1 — HOTFIX RESUMO DO CARDÁPIO
+   Evita que as categorias estiquem e garante rolagem até o CTA.
+   ========================================================= */
+.book-header__menu-selection > div {
+  align-content: start;
+  grid-auto-rows: max-content;
+}
+
+.book-header__menu-selection section {
+  min-height: 0 !important;
+  height: auto !important;
+  align-self: start;
+}
+
+/* A inclusão do cardápio escolhido aumentou o conteúdo da primeira folha.
+   Enquanto a recomendação ainda está fechada, a folha precisa voltar a rolar. */
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .planning-book__questions--context
+  .planning-book__questions-scroll {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-gutter: stable;
+  padding-bottom: 28px !important;
+}
+
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .planning-book__context-stack {
+  height: auto !important;
+  min-height: 100%;
+}
+
+.planning-book__book:has(.planning-book__suggestion-closed)
+  .planning-book__context-bottom {
+  margin-top: 12px !important;
+}
+
+@media (max-width: 760px) {
+  .book-header__menu-selection {
+    padding: 12px 14px;
+  }
+
+  .book-header__menu-selection > div {
+    gap: 10px;
+  }
+
+  .book-header__menu-selection section {
+    padding: 0 0 0 10px;
+  }
+}
+
+/* =========================================================
+   V17.2.2 — HOTFIX CARDÁPIO ESCOLHIDO COMPACTO
+   Remove a distribuição vertical que esticava cada categoria.
+   ========================================================= */
+.book-header__menu-selection > div {
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 10px !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+.book-header__menu-selection section {
+  display: block !important;
+  flex: 0 0 auto !important;
+  width: 100%;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 7px 0 7px 11px !important;
+  align-self: auto !important;
+}
+
+.book-header__menu-selection section strong {
+  line-height: 1.25;
+}
+
+.book-header__menu-selection section p {
+  margin-top: 2px !important;
+  line-height: 1.35 !important;
+}
+
+@media (max-width: 760px) {
+  .book-header__menu-selection > div {
+    gap: 7px !important;
+  }
+
+  .book-header__menu-selection section {
+    padding-block: 6px !important;
   }
 }

@@ -36,9 +36,7 @@ function SceneOne() {
             <div className="scene-one-actions">
               <a
                 className="scene-one-primary-button"
-                href="https://wa.me/5514998960208"
-                target="_blank"
-                rel="noreferrer"
+                href="/planning-book"
               >
                 Planejar meu evento
               </a>
