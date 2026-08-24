@@ -14,3 +14,15 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Governanca do projeto
+
+O Planner usa documentação persistente em `docs/` para não depender apenas de memória de conversa:
+
+- `docs/FINDINGS.md` - riscos, vulnerabilidades, bugs e melhorias;
+- `docs/DECISIONS.md` - regras de produto/arquitetura;
+- `docs/ROADMAP.md` - próximos caminhos;
+- `docs/WORKLOG.md` - registro cronológico;
+- `docs/SNAPSHOT-PROTOCOL.md` - fechamento diário e checkpoints.
+
+Com a working tree limpa, `npm run snapshot` gera um checkpoint ZIP identificado pelo commit Git.

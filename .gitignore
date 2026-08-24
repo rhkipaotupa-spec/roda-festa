@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local checkpoints / generated snapshots
+snapshots/
+*.local-snapshot.zip
+.env
+.env.*
+!.env.example

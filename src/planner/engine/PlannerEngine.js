@@ -66,22 +66,6 @@ function getActiveServices() {
   );
 }
 
-function findItemById(itemId) {
-  return (
-    getActiveItems().find(
-      (item) => item.id === itemId
-    ) ?? null
-  );
-}
-
-function findServiceById(serviceId) {
-  return (
-    getActiveServices().find(
-      (service) => service.id === serviceId
-    ) ?? null
-  );
-}
-
 /*
 |--------------------------------------------------------------------------
 | Recomendação e seleção de produtos

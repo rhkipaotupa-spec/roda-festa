@@ -7,7 +7,6 @@ export default function BookFooter({
 }) {
   if (currentSheet === "briefing") return null;
 
-  const isRecommendationHome = currentSheet === "suggestion";
   const showContextNavigation = ["station", "customization", "summary"].includes(
     currentSheet
   );

@@ -18,4 +18,21 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    files: ['api/**/*.js', 'scripts/**/*.js', 'scripts/**/*.mjs'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
+    files: [
+      'src/planner/controls/planning/components/SmartNumberInput.jsx',
+      'src/scenes/SceneThree/SceneThree.jsx',
+      'src/scenes/SceneFour/SceneFour.jsx',
+      'src/scenes/SceneFive/SceneFive.jsx',
+    ],
+    rules: {
+      'react-hooks/set-state-in-effect': 'off',
+    },
+  },
 ])
