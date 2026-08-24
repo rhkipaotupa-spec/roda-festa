@@ -576,36 +576,33 @@ export function calculateInvestment({
   );
 
   /*
-   * Bebidas são fornecidas em consignação. O carrinho continua fazendo
-   * parte da estrutura visual e operacional, mas não compõe o investimento
-   * inicial estimado. Por isso, somente grupos de carrinho com itens não
-   * consignados entram no valor-base e nas horas adicionais.
+   * Regra comercial Roda Festa:
+   * todo carrinho que faz parte da estrutura do evento é cobrado, inclusive
+   * o carrinho de bebidas em consignação. A consignação exclui apenas o valor
+   * das bebidas do investimento inicial; ela não torna a estrutura gratuita.
+   *
+   * IMPORTANTE: totalCarts vem de calculateCarts() e é a fonte única para
+   * estrutura exibida, equipe e cobrança. Não reconstruir a quantidade de
+   * carrinhos a partir dos itens aqui, pois isso pode fazer o preço divergir
+   * da estrutura mostrada ao cliente.
    */
-  const billableCartGroups = new Set(
-    items
-      .filter(
-        (item) =>
-          Number(item.quantity) > 0 &&
-          item.countsAsMainCart !== false &&
-          !item.consignment
-      )
-      .map((item) => item.operationalGroup)
-  );
-
-  const billableTotalCarts = Math.min(
-    Number(totalCarts) || 0,
-    billableCartGroups.size
+  const chargedTotalCarts = Math.max(
+    0,
+    Math.min(
+      Number(totalCarts) || 0,
+      PLANNING_PARAMETERS.service.maxCarts
+    )
   );
 
   const cartsValue =
-    billableTotalCarts *
+    chargedTotalCarts *
     PLANNING_PARAMETERS.service
       .cartBasePrice;
 
   const additionalHours =
     calculateAdditionalHours({
       serviceHours,
-      totalCarts: billableTotalCarts,
+      totalCarts: chargedTotalCarts,
     });
 
   const waitersValue =
@@ -624,7 +621,9 @@ export function calculateInvestment({
   return {
     productsValue,
     cartsValue,
-    billableTotalCarts,
+    chargedTotalCarts,
+    // Mantido temporariamente por compatibilidade com consumidores antigos.
+    billableTotalCarts: chargedTotalCarts,
     additionalHoursValue:
       additionalHours.value,
     waitersValue,

@@ -10702,3 +10702,599 @@ button.planning-book__choice-option { cursor: pointer; }
     padding-block: 6px !important;
   }
 }
+
+/* =========================================================
+   V18.0 — MOBILE RESPONSIVE FOUNDATION
+   Mobile is treated as its own reading/interaction mode.
+   Desktop rules above remain the source of truth >= 761px.
+   ========================================================= */
+
+@media (max-width: 760px) {
+  :root {
+    --mobile-page-x: clamp(16px, 5vw, 24px);
+    --mobile-section-gap: 22px;
+    --mobile-control-height: 52px;
+    --mobile-radius: 16px;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-padding-top: 12px;
+  }
+
+  body {
+    overscroll-behavior-x: none;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button,
+  [role="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  .planning-book {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .planning-book__app-signature {
+    min-height: 48px;
+    padding: 15px var(--mobile-page-x) 12px;
+  }
+
+  .planning-book__book,
+  .book-core,
+  .planning-book__questions,
+  .planning-book__summary,
+  .planning-book__scene {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .planning-book__questions,
+  .planning-book__summary {
+    padding: 26px var(--mobile-page-x) 30px;
+  }
+
+  .planning-book__questions {
+    min-height: auto;
+  }
+
+  .planning-book__summary {
+    min-height: auto;
+    border-top-width: 6px;
+  }
+
+  .planning-book__chapter,
+  .planning-book__section,
+  .planning-book__recommendation-section,
+  .planning-book__final-section,
+  .planning-book__station-sheet,
+  .planning-book__customization-sheet {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .planning-book__chapter + .planning-book__chapter,
+  .planning-book__section + .planning-book__section {
+    margin-top: var(--mobile-section-gap);
+  }
+
+  .planning-book__title,
+  .book-header h2,
+  .planning-book__summary-header h2,
+  .planning-book__station-sheet h2,
+  .planning-book__final-section-heading h2 {
+    overflow-wrap: anywhere;
+  }
+
+  .planning-book__intro,
+  .planning-book__section-intro,
+  .planning-book__station-intro,
+  .planning-book__final-summary-intro {
+    max-width: 100%;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  /* Forms become a comfortable single-column flow. */
+  .planning-book__fields,
+  .planning-welcome__fields,
+  .planning-book__guest-grid,
+  .planning-book__event-options,
+  .planning-book__menu-summary,
+  .planning-book__station-cards,
+  .planning-book__final-event-grid,
+  .planning-book__final-financial,
+  .planning-book__final-actions,
+  .planning-book__choices,
+  .planning-book__customization-groups,
+  .planning-book__customization-items,
+  .planning-book__station-items,
+  .planning-book__optional-groups {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .planning-book__field,
+  .planning-book__field label,
+  .planning-book__field input,
+  .planning-book__field select,
+  .planning-book__field textarea {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .planning-book__field input,
+  .planning-book__field select,
+  .planning-book__field textarea,
+  .planning-book__choice-extra input {
+    min-height: var(--mobile-control-height);
+    padding: 12px 14px;
+    border-radius: 12px;
+  }
+
+  .planning-book__event-option,
+  .planning-book__choice,
+  .planning-book__menu-category,
+  .planning-book__menu-product,
+  .planning-book__station-card,
+  .planning-book__customization-item,
+  .planning-book__cart-allocation-item,
+  .planning-book__final-event-grid > div {
+    border-radius: var(--mobile-radius);
+  }
+
+  .planning-book__event-option {
+    min-height: 84px;
+    padding: 16px;
+  }
+
+  .planning-book__counter-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    width: 100%;
+  }
+
+  .planning-book__counter-row > span,
+  .planning-book__counter-row > div:first-child {
+    min-width: 0;
+  }
+
+  .planning-book__counter {
+    min-width: 116px;
+    justify-content: flex-end;
+  }
+
+  .planning-book__counter button,
+  .planning-book__quantity-control button {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+
+  /* Header: compact, readable and non-cramped. */
+  .book-header {
+    min-width: 0;
+  }
+
+  .book-header__topline {
+    gap: 14px;
+  }
+
+  .book-header__actions {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 8px;
+  }
+
+  .book-header__actions .book-button {
+    justify-content: center;
+    min-height: 46px;
+  }
+
+  .book-header__identity,
+  .book-header__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .book-header__identity > div,
+  .book-header__metrics > div {
+    padding: 11px 12px;
+  }
+
+  .book-header__identity strong,
+  .book-header__metrics strong,
+  .book-header__phone {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .book-header__services {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .book-header__services > span {
+    width: 100%;
+  }
+
+  .book-header__saved-note {
+    align-items: flex-start;
+    padding: 14px;
+  }
+
+  .book-header__menu-selection {
+    padding: 12px !important;
+  }
+
+  /* Progress behaves like a horizontal stepper, not a squeezed desktop row. */
+  .book-progress {
+    width: calc(100% + (var(--mobile-page-x) * 2));
+    margin-inline: calc(var(--mobile-page-x) * -1);
+    padding: 4px var(--mobile-page-x) 10px;
+    gap: 0;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .book-progress__step {
+    flex: 0 0 94px !important;
+    min-width: 94px;
+    scroll-snap-align: center;
+  }
+
+  .book-progress__label {
+    max-width: 88px;
+    white-space: normal;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  /* Recommendation cards: image/number column becomes top row instead of a tiny side rail. */
+  .planning-book__structure-card,
+  .planning-book__allocation-card,
+  .planning-book__station-card,
+  .planning-book__recommendation-card {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .planning-book__structure-hero {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .planning-book__structure-hero-count {
+    min-width: 70px;
+  }
+
+  .planning-book__cart-allocation {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .planning-book__cart-allocation-item {
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .planning-book__station-item,
+  .planning-book__customization-item {
+    min-width: 0;
+    padding: 14px;
+  }
+
+  .planning-book__station-item > *,
+  .planning-book__customization-item > * {
+    min-width: 0;
+  }
+
+  .planning-book__quantity-control {
+    width: 100%;
+    max-width: 100%;
+    justify-content: space-between;
+  }
+
+  .planning-book__remove-item {
+    min-height: 44px;
+  }
+
+  /* Menu: category heading and CTA stay readable on narrow screens. */
+  .planning-book__menu-summary {
+    gap: 8px;
+  }
+
+  .planning-book__menu-summary > div {
+    padding: 12px 14px;
+  }
+
+  .planning-book__menu-category-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .planning-book__menu-category-toggle {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .planning-book__menu-category-toggle > span:last-child {
+    min-width: 0;
+  }
+
+  .planning-book__menu-expand {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+  }
+
+  .planning-book__menu-products {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 0 12px 12px;
+  }
+
+  .planning-book__menu-product {
+    min-height: 0;
+    padding: 14px;
+  }
+
+  /* Bottom actions remain reachable but no longer cover too much content. */
+  .planning-book__questions-footer {
+    width: calc(100% + (var(--mobile-page-x) * 2));
+    margin: 20px calc(var(--mobile-page-x) * -1) -30px;
+    padding: 12px var(--mobile-page-x) calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .planning-book__generate,
+  .planning-book__reveal-suggestion,
+  .planning-book__primary-action,
+  .planning-book__final-action,
+  .book-button {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--mobile-control-height);
+    white-space: normal;
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  .planning-book__customization-docked-action {
+    position: static !important;
+    width: 100%;
+    margin-top: 18px;
+  }
+
+  .planning-book__investment-footer {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .planning-book__recommendation-investment {
+    padding: 16px;
+  }
+
+  .book-footer {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 8px;
+    padding-top: 8px;
+  }
+
+  .book-footer__spacer {
+    display: none;
+  }
+
+  .book-footer__current {
+    order: -1;
+    padding: 4px 0;
+  }
+
+  /* Scene becomes a visual conclusion, without desktop overlay collisions. */
+  .planning-book__scene {
+    min-height: auto;
+    padding: 0;
+    border-top-width: 6px;
+  }
+
+  .planning-book__event-scene {
+    min-height: 430px;
+    height: 62dvh;
+    max-height: 620px;
+  }
+
+  .planning-book__scene-overlay {
+    position: relative !important;
+    inset: auto !important;
+    width: 100%;
+    max-width: none !important;
+    padding: 24px var(--mobile-page-x) calc(28px + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, rgba(13,7,5,.94), #0d0705 78%);
+  }
+
+  .planning-book__scene-overlay h2,
+  .planning-book__scene-overlay p {
+    max-width: 100% !important;
+  }
+
+  .planning-book__scene-overlay h2 {
+    font-size: clamp(30px, 9vw, 42px) !important;
+  }
+
+  .planning-book__scene-selections {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .planning-book__scene-selection-list {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .planning-book__scene-selection-list button,
+  .planning-book__scene-delivery,
+  .planning-book__scene-guidance {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .planning-book__scene-brandmark {
+    right: var(--mobile-page-x);
+    bottom: 18px;
+    width: min(42vw, 170px);
+  }
+
+  .planning-book__asset-scene-row {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .planning-book__asset-scene-object img {
+    max-width: 100%;
+  }
+
+  /* Modal turns into a bottom sheet on phones. */
+  .planning-book__choice-modal {
+    align-items: end;
+    place-items: end stretch;
+    padding: 0;
+  }
+
+  .planning-book__choice-modal-card {
+    width: 100%;
+    max-width: none;
+    max-height: min(88dvh, 760px);
+    padding: 24px var(--mobile-page-x) calc(22px + env(safe-area-inset-bottom));
+    border-radius: 24px 24px 0 0;
+    overscroll-behavior: contain;
+  }
+
+  .planning-book__choice-option,
+  .planning-book__choice-extra {
+    padding: 15px;
+  }
+
+  .planning-book__choice-extra button {
+    min-height: 48px;
+  }
+
+  /* Completion screen keeps all key information above the fold as much as possible. */
+  .planning-completed {
+    padding: 0;
+    place-items: start stretch;
+  }
+
+  .planning-completed__card {
+    width: 100%;
+    min-height: 100dvh;
+    padding: 28px var(--mobile-page-x) calc(28px + env(safe-area-inset-bottom));
+    border: 0;
+    border-radius: 0;
+  }
+
+  .planning-completed__summary {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .planning-completed__actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .planning-completed__actions button {
+    min-height: 52px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --mobile-page-x: 16px;
+  }
+
+  .book-header__identity,
+  .book-header__metrics,
+  .planning-completed__summary {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .book-header__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .book-header__metrics > div:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .planning-book__counter-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .planning-book__counter {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .planning-book__scene-metrics {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .planning-book__event-scene {
+    min-height: 380px;
+    height: 56dvh;
+  }
+
+  .planning-book__choice-modal-card h3 {
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .book-progress__step {
+    flex-basis: 84px !important;
+    min-width: 84px;
+  }
+
+  .book-progress__label {
+    max-width: 78px;
+    font-size: 10px;
+  }
+
+  .planning-book__questions,
+  .planning-book__summary {
+    padding-top: 22px;
+  }
+
+  .planning-book__event-scene {
+    min-height: 340px;
+  }
+}
+
+@media (max-width: 760px) and (orientation: landscape) and (max-height: 520px) {
+  .planning-book__event-scene {
+    min-height: 310px;
+    height: 78dvh;
+  }
+
+  .planning-book__choice-modal-card {
+    max-height: 94dvh;
+  }
+}
