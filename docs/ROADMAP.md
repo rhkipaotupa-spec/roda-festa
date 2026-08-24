@@ -1,107 +1,71 @@
-# ROADMAP — SITE RODA-FESTA
+# Roda Festa - ROADMAP técnico do Planner
 
-**Atualizado em:** 03/08/2026
+## Agora - estabilização V19
 
-## Fase 1 — Welcome
+- Validar build e lint no Windows.
+- Testar a jornada completa em desktop estreito e celular real.
+- Revalidar preços, quantidades, carrinhos, horas adicionais, garçons, descartáveis e consignação.
+- Validar PDF contra o resumo exibido.
+- Configurar e testar a via interna de proposta na Vercel.
+- Criar regressões determinísticas para o motor comercial.
 
-**Status:** concluída e congelada.
+## Próxima fundação - integridade comercial
 
-- identidade premium;
-- CTA;
-- transição de 5 segundos;
-- movimentos suaves.
+- Mover validação/recalculo de preço oficial para o servidor.
+- Persistir snapshot da proposta em armazenamento durável.
+- Versionar catálogo/preços para preservar propostas históricas.
+- Implementar rate limiting e controles anti-abuso na submissão.
+- Definir estados do atendimento: novo, em revisão, proposta enviada, confirmado, cancelado, realizado.
 
-### Futuro registrado
+## Depois - limpeza arquitetural
 
-- livro fechado abrindo e revelando o Planning Book.
+- Inventariar código legado do Planner.
+- Remover duplicações somente após prova de não uso.
+- Consolidar motor/catálogo/cena em módulos canônicos.
+- Eliminar `.bak`, sandboxes e implementações antigas do bundle de produção quando seguro.
 
-## Fase 2 — Planning Book base
+## Futuro - Central da Especialista
 
-**Status:** aproximadamente 90%.
+- Lista de planejamentos.
+- Busca por código, cliente e data.
+- Revisão de quantidades e categorias.
+- Recalculo oficial.
+- Histórico imutável das versões enviadas.
+- Geração/envio de proposta oficial.
+- Conversão de proposta em evento operacional.
 
-Concluído:
+## Próxima sessão - 25/08/2026
 
-- layout do livro;
-- páginas com funções distintas;
-- campos de entrada;
-- motor de cálculo;
-- análise progressiva;
-- recomendação consultiva;
-- botão fixo na página 1;
-- investimento fixo na página 2;
-- integração inicial com EventScene.
+### P0 - homologação V19.5
+- [x] aplicar update V19.5;
+- [x] build + lint;
+- [x] repetir smoke financeiro crítico de carrinhos/hora adicional;
+- [ ] QA mobile 320/360/390/430 px;
+- [ ] validar data ontem/hoje/amanhã;
+- [ ] validar counters sem overflow;
+- [ ] validar welcome clássico e header;
+- [ ] homologar personalização completa da recomendação;
+- [ ] validar PDF em desktop e celular.
 
-Pendente:
+### P0 - PDF canônico e via interna
+- gerar PDF pelo sistema, não depender de “Salvar como PDF” do navegador;
+- cliente e Roda Festa devem receber o mesmo artefato;
+- persistir a via interna de forma durável;
+- registrar identificador/hash para comprovar equivalência;
+- falha de envio/armazenamento interno deve ficar visível.
 
-- cardápio detalhado com quantidades e valores;
-- ações finais abaixo do investimento;
-- escrita mais progressiva da recomendação;
-- validações e máscaras de dados;
-- revisão responsiva.
+### P0 - autoridade comercial
+- criar matriz automatizada completa de preços/regras;
+- mover autoridade de preço para o servidor;
+- bloquear divergência entre snapshot, tela e proposta.
 
-## Fase 3 — Cena Viva 2.0
+### P1 - segurança e higiene
+- tratar `npm audit` de forma controlada;
+- mapear legado realmente usado;
+- resolver aviso de `colors.css` vazio sem alterar site institucional aprovado.
 
-**Status:** próxima prioridade.
 
-Entregas:
-
-1. `SceneDirector.js`;
-2. `SceneLayoutEngine.js` refeito;
-3. `EventScene.jsx` simplificado;
-4. `Cart.jsx` com poucos produtos grandes;
-5. `EventScene.css` com profundidade e atmosfera;
-6. tooltip elegante;
-7. decoração por evento;
-8. animações em camadas.
-
-Critério de aprovação:
-
-> O cliente deve conseguir imaginar a festa acontecendo, e não apenas visualizar carrinhos isolados.
-
-## Fase 4 — Escrita Viva
-
-- recomendação escrita por blocos;
-- cena nasce sincronizada com os blocos;
-- carrinhos aparecem quando a estrutura é mencionada;
-- equipe aparece quando o atendimento é mencionado;
-- produtos aparecem quando o cardápio é apresentado;
-- investimento é revelado por último.
-
-## Fase 5 — Personalização do cardápio
-
-- virada de página;
-- adicionar/remover produtos;
-- editar quantidades;
-- recalcular estrutura;
-- recalcular investimento;
-- indicador de equilíbrio;
-- versões do planejamento.
-
-## Fase 6 — Proposta comercial
-
-- gerar proposta em PDF;
-- mesma identidade do Planning Book;
-- código de planejamento;
-- dados do cliente;
-- análise;
-- estrutura;
-- cardápio;
-- serviços;
-- investimento;
-- envio por WhatsApp ou fluxo comercial.
-
-## Fase 7 — Operação interna
-
-- transformar proposta aprovada em ordem de serviço;
-- checklist do evento;
-- agenda;
-- produção;
-- logística;
-- financeiro;
-- histórico.
-
-## Visão de longo prazo
-
-O Planning Book poderá evoluir para o primeiro módulo do Simplify Eventos, mantendo a visão:
-
-**Transformamos a operação em informação.**
+### Checkpoint de retomada
+- Commit técnico V19.5: `46870b17f48c6dc36051971bf1a12267f4367d29`.
+- Build/lint/smoke crítico verdes antes do fechamento documental.
+- Snapshot só deve ser gerado após commit documental e working tree limpa.
