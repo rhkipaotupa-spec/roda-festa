@@ -185,3 +185,11 @@ A finalidade é permitir reconstruir de forma auditável:
 - Tratar `snake_case` persistido e `camelCase` normalizado como formatos de entrada válidos do read model, sem duplicar regra comercial.
 - Não ativar persistência remota e não executar migrations como parte da V19.7D.
 - Considerar a unidade concluída somente após testes, lint e build verdes.
+
+## V19.7E — Decisões — `2852f946e2f9430afdc247f093ba2c421c035ecb`
+
+- Criar primeiro um contrato Admin derivado e testável antes de expor qualquer endpoint administrativo.
+- Não recalcular totais ou reconciliação na camada de query; transportar fatos já produzidos pela camada autoritativa.
+- Não criar listagem administrativa global antes da definição de autenticação/autorização Admin.
+- Manter persistência remota desligada e não executar migrations nesta unidade.
+- Considerar a V19.7E concluída com 48/48 testes, lint e build verdes.

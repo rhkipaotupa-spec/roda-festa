@@ -446,3 +446,11 @@ Após D1, a nova regressão falhou porque uma sessão com recomendação persist
 
 ### GREEN final
 A validação final encerrou com 44/44 testes aprovados, lint aprovado e build de produção aprovado. O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com esta unidade.
+
+## V19.7E — Resultado de validação — `2852f946e2f9430afdc247f093ba2c421c035ecb`
+
+A unidade foi aplicada sem modificar arquivos existentes: foram adicionados apenas o contrato `planning-admin-journey-query.js`, seu changelog e sua suíte específica de testes.
+
+A validação passou diretamente em GREEN: 48/48 testes, lint aprovado e build de produção aprovado. O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+Não houve endpoint Admin, ativação de banco remoto ou execução de migration.

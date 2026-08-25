@@ -265,3 +265,11 @@ Entregue:
 - baseline final 44/44 + lint + build.
 
 A persistência remota continua deliberadamente desligada e nenhuma migration foi executada. A próxima unidade deve partir deste checkpoint limpo, sem antecipar ativação de infraestrutura.
+
+## Checkpoint concluído — V19.7E Admin Journey Query
+
+Status: **concluído** no commit `2852f946e2f9430afdc247f093ba2c421c035ecb`.
+
+Entregue o contrato de leitura preparado para a futura Central Admin: resumo comercial, status, histórico, reconciliação e detalhe explicável com snapshots.
+
+Próximo limite arquitetural: qualquer consulta administrativa global deverá nascer somente depois de uma fronteira explícita de autenticação/autorização. Persistência remota permanece desligada.

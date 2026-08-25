@@ -232,3 +232,16 @@ Sequência de validação:
 7. Commit técnico criado e working tree confirmada limpa.
 
 Nenhuma persistência remota foi ativada e nenhuma migration foi executada.
+
+## 2026-08-25 — V19.7E Admin Journey Query
+
+Checkpoint técnico fechado em `2852f946e2f9430afdc247f093ba2c421c035ecb` (`feat: add admin-ready planning journey query contract`).
+
+- aplicação adicionou somente 3 arquivos;
+- nenhum endpoint administrativo foi criado;
+- nenhum banco remoto foi ativado;
+- nenhuma migration foi executada;
+- suíte acumulada: 48/48;
+- lint: verde;
+- build: verde;
+- working tree limpa após o commit.

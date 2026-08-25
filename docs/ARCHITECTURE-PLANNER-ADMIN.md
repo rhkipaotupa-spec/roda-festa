@@ -396,3 +396,21 @@ O fluxo de leitura foi conectado de ponta a ponta: client same-origin → API �
 
 ### Baseline de fechamento
 Checkpoint técnico: `ce536b4ec42824eb904fdb4fcfb1353c4a2105eb`. Validação final: 44/44 testes, lint verde e build de produção verde.
+
+## V19.7E — Admin Journey Query — checkpoint `2852f946e2f9430afdc247f093ba2c421c035ecb`
+
+A V19.7E adiciona um contrato derivado de leitura para a futura Central Admin, construído sobre o Journey Read Model da V19.7D. O objetivo é disponibilizar uma representação administrativa estável e explicável sem misturar consulta com regra comercial ou reconstrução histórica.
+
+### Contrato entregue
+- resumo de sessão/evento e status;
+- total recomendado, total final e total efetivo;
+- quantidade de itens e quantidade de mudanças;
+- reconciliação comercial transportada como fato histórico;
+- visão detalhada com snapshots de entrada, recomendação e proposta final;
+- isolamento por clone para impedir mutação dos snapshots de origem.
+
+### Limite de segurança
+A unidade deliberadamente não cria endpoint administrativo global, listagem de sessões ou bypass de ownership. A futura exposição administrativa deverá ficar atrás de autenticação e autorização explícitas. Persistência remota continua desligada e nenhuma migration foi executada.
+
+### Baseline
+Checkpoint técnico `2852f946e2f9430afdc247f093ba2c421c035ecb`: 48/48 testes, lint verde e build de produção verde.
