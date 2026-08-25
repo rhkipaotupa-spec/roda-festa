@@ -169,3 +169,28 @@
 - A unidade consolida Commercial Ledger canônico, histórico recomendação x final, recálculo server-side e regressões comerciais automatizadas.
 - Próxima unidade arquitetural: PlanningSession server-side e persistência durável, antes de construir a Central Admin visual.
 - A documentação desta unidade será commitada separadamente após registrar o hash técnico, mantendo a regra de reconciliação antes de snapshot.
+
+### V19.7A - Fundacao desacoplada de PlanningSession
+
+- A tentativa de reativar o projeto Supabase do Roda Festa revelou limite de projetos gratuitos ativos.
+- Foi decidido nao pausar, reutilizar ou alterar `simplify` nem `simplify-runtime-security`; infraestrutura do Simplify permanece independente e protegida.
+- A V19.7 original nao foi aplicada ao repositorio oficial.
+- A unidade foi reformulada como V19.7A, sem ativacao de banco e sem alteracao do fluxo atual da cliente.
+- Criado contrato provider-agnostic de repositorio de `PlanningSession`.
+- Criado adapter em memoria para testes, sem permissao para funcionar como fallback silencioso de producao.
+- Criado adapter Supabase isolado, fail-high sem configuracao.
+- Criadas primitivas de seguranca para token anonimo, hash, cookie e validacao de origem.
+- Migration `20260825_v19_7_planning_sessions.sql` foi versionada, mas nao executada.
+- Nenhum secret foi solicitado, documentado ou commitado.
+
+### Validacao oficial V19.7A no Windows
+
+- `npm test`: 20 testes executados, 20 aprovados, 0 falhas.
+- `npm run lint`: verde, zero erros.
+- `npm run build`: verde, 125 modulos transformados.
+- Permanece apenas o aviso conhecido de `src/styles/colors.css` vazio.
+- Cobertura nova inclui idempotencia, ownership, concorrencia/finalizacao, token/hash, cookie seguro, origem confiavel e comportamento fail-high do adapter Supabase.
+- Commit tecnico: `452be928190ad66b924a710f12d98d2b1a6f3964`.
+- Mensagem: `feat: add provider-agnostic planning session persistence foundation`.
+- Working tree confirmada limpa apos o commit tecnico.
+- Proxima acao: commit documental desta reconciliacao; depois integrar gradualmente PlanningSession ao Planner sem banco remoto.

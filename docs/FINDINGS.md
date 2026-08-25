@@ -371,3 +371,41 @@ Registro técnico cumulativo do projeto. Este arquivo é a fonte documental para
 - **Autoridade comercial:** preço enviado pelo navegador não é aceito como verdade oficial; a API reconstrói o cálculo com catálogo confiável.
 - **Limitações deliberadamente abertas:** PlanningSession e persistência server-side durável; event log persistente; PDF canônico idêntico cliente/Roda Festa; autenticação/autorizações do Admin; matriz comercial completa de todas as combinações; rate limiting/idempotência e demais hardenings.
 - **Regra de governança:** este commit técnico deve ser seguido por commit documental que registre este hash antes de qualquer snapshot de fechamento.
+
+## RF-031 - Limite de infraestrutura externa nao pode criar acoplamento com o Simplify
+
+- **Severidade:** P0
+- **Area:** Infraestrutura / isolamento entre produtos
+- **Estado:** MITIGADO POR DECISAO ARQUITETURAL EM 25/08/2026
+- **Detectado em:** 2026-08-25
+- **Evidencia:** o projeto Supabase `Roda Festa` encontra-se pausado e a organizacao atingiu o limite de projetos gratuitos ativos. Os ambientes ativos pertencem ao Simplify, incluindo ambiente dedicado de runtime/security.
+- **Risco:** pausar ou reaproveitar infraestrutura do Simplify para liberar capacidade do Roda Festa poderia reduzir isolamento de testes, disponibilidade ou seguranca do projeto prioritario.
+- **Decisao:** nenhum ambiente do Simplify sera pausado, removido, reutilizado ou reconfigurado para viabilizar o Roda Festa.
+- **Mitigacao:** a V19.7 foi repartida; a V19.7A implementa a abstracao de persistencia sem ativar banco remoto. A conexao duravel real sera promovida somente quando houver infraestrutura propria aprovada.
+- **Regressao de processo:** pacotes de atualizacao nao podem executar migration automaticamente nem exigir secrets para aplicar uma fundacao ainda nao ativada.
+
+## RF-032 - Acoplamento prematuro do dominio ao Supabase reduziria portabilidade e testabilidade
+
+- **Severidade:** P1
+- **Area:** Arquitetura / persistencia
+- **Estado:** CORRIGIDO NA FUNDACAO V19.7A
+- **Detectado em:** 2026-08-25
+- **Situacao:** a primeira proposta da V19.7 pressupunha ativacao imediata de persistencia Supabase.
+- **Risco:** dominio de sessao ficar condicionado a disponibilidade/configuracao de um fornecedor, dificultando testes isolados e futura migracao.
+- **Correcao:** criado contrato de repositorio provider-agnostic com adapter em memoria para testes e adapter Supabase isolado.
+- **Regra:** ausencia de configuracao de producao deve falhar alto; nunca usar memoria como fallback silencioso de producao.
+- **Migration:** `infra/migrations/20260825_v19_7_planning_sessions.sql` esta versionada, mas deliberadamente nao aplicada.
+
+## Checkpoint tecnico V19.7A - Abstracao de Persistencia de PlanningSession
+
+- **Data:** 2026-08-25
+- **Branch:** `planner/v19-mobile-first`
+- **Commit tecnico:** `452be928190ad66b924a710f12d98d2b1a6f3964`
+- **Mensagem:** `feat: add provider-agnostic planning session persistence foundation`
+- **Validacao oficial no Windows:** `npm test` com 20/20 testes verdes; `npm run lint` verde; `npm run build` verde com 125 modulos transformados.
+- **Aviso nao bloqueante preservado:** `src/styles/colors.css` continua vazio e importado, ja registrado em RF-011.
+- **Cobertura nova:** contrato de adapter; idempotencia de criacao; preservacao da recomendacao original; ownership por `sessionId + tokenHash`; controle de versao/finalizacao; token anonimo de alta entropia; cookie HttpOnly/SameSite/Secure em producao; validacao de origem; adapter Supabase fail-high sem configuracao; service role restrita a request server-side e filtragem de posse.
+- **Escopo deliberadamente NAO ativado:** banco remoto, migration, secrets, alteracao do fluxo atual da cliente e persistencia duravel de producao.
+- **Estado da working tree apos commit tecnico:** limpa.
+- **Proxima unidade:** integrar gradualmente o contrato de PlanningSession ao fluxo do Planner sem banco real, preservando comportamento atual e mantendo a ativacao de persistencia remota como gate separado.
+- **Governanca:** este checkpoint tecnico deve ser seguido por commit documental que registre este hash antes de snapshot.

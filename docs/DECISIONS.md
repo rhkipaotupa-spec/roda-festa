@@ -132,3 +132,28 @@ Regras permanentes:
 - `validate-update.cmd` executa os gates técnicos aplicáveis antes de commit;
 - histórico oficial fica em Git + documentação + snapshots, não em cópias de pastas;
 - após aplicação/validação/commit, a pasta temporária pode ser removida.
+
+## 2026-08-25 - Persistencia do Roda Festa nao pode depender da infraestrutura do Simplify
+
+O Roda Festa nao deve exigir pausa, exclusao, reconfiguracao ou reducao de seguranca de nenhum ambiente do Simplify para viabilizar seu desenvolvimento.
+
+Regras permanentes:
+
+- os projetos `simplify` e `simplify-runtime-security` sao infraestrutura independente e nao sao recurso disponivel para liberar capacidade do Roda Festa;
+- eventual upgrade de plano/provedor sera decisao futura de custo-beneficio, nunca atalho para contornar limite durante desenvolvimento;
+- migrations do Roda Festa nao devem ser executadas em banco do Simplify;
+- credenciais, service role keys, connection strings e secrets nao entram em Git, documentacao ou pacotes de atualizacao.
+
+## 2026-08-25 - Dominio de PlanningSession desacoplado do provedor de persistencia
+
+A camada de dominio da jornada nao deve depender diretamente de Supabase.
+
+A V19.7A estabelece um contrato de repositorio para `PlanningSession`, com adapters substituiveis. O adapter em memoria existe somente para testes/controlabilidade e nao e persistencia de producao. O adapter Supabase permanece preparado, porem inativo ate existir infraestrutura aprovada.
+
+Consequencias:
+
+- regra de negocio e seguranca podem ser testadas sem banco remoto;
+- troca futura de provedor nao exige reescrever o dominio;
+- ausencia de configuracao de producao deve falhar alto, nunca cair silenciosamente para memoria;
+- migration pode permanecer versionada sem ser aplicada;
+- ativacao de persistencia real sera uma unidade separada, explicitamente validada.

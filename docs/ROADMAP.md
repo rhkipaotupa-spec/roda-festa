@@ -192,3 +192,33 @@ Depois da fundação:
 6. commit documental;
 7. working tree limpa;
 8. snapshot somente depois.
+
+## Checkpoint parcial da Fase 2 - V19.7A (25/08/2026)
+
+**Estado:** fundacao de persistencia desacoplada concluida; persistencia duravel de producao ainda nao ativada.
+
+Entregue:
+
+- [x] contrato provider-agnostic de repositorio de `PlanningSession`;
+- [x] adapter em memoria exclusivo para testes/controlabilidade;
+- [x] adapter Supabase isolado e fail-high quando nao configurado;
+- [x] token anonimo de alta entropia e persistencia somente de hash;
+- [x] ownership por `sessionId + tokenHash`;
+- [x] propriedades de cookie seguro;
+- [x] validacao de origem para mutacoes;
+- [x] controle de versao/concorrencia e bloqueio de segunda finalizacao divergente;
+- [x] migration PostgreSQL/Supabase versionada;
+- [x] 20/20 testes verdes, lint verde e build verde no Windows oficial;
+- [x] isolamento explicito: nenhuma infraestrutura do Simplify e alterada para viabilizar o Roda Festa.
+
+Ainda pendente para concluir a Fase 2:
+
+- [ ] integrar criacao/recuperacao de PlanningSession ao fluxo real do Planner;
+- [ ] persistir InputSnapshot, RecommendationSnapshot, mudancas e FinalProposalSnapshot por backend;
+- [ ] ativar infraestrutura duravel propria do Roda Festa;
+- [ ] aplicar migration somente apos aprovacao explicita da infraestrutura;
+- [ ] definir backup, retencao e recuperacao;
+- [ ] provar fechamento/reabertura sem perda da verdade comercial;
+- [ ] disponibilizar consulta backend para o futuro Admin.
+
+**Checkpoint tecnico:** `452be928190ad66b924a710f12d98d2b1a6f3964`.

@@ -311,3 +311,41 @@ Ainda não implementado nesta unidade:
 - coleta pós-evento.
 
 Esses itens permanecem nas próximas fases do ROADMAP e não devem ser simulados com `localStorage` como solução definitiva.
+
+## 7. Evolucao V19.7A - Porta de persistencia e isolamento de infraestrutura
+
+A implementacao de `PlanningSession` passa a obedecer a uma porta de persistencia independente do fornecedor.
+
+Camadas:
+
+`Planner/API -> PlanningSessionRepository -> Adapter -> Persistencia`
+
+Adapters inicialmente existentes:
+
+- `memory`: somente testes e execucao controlada; nunca fallback silencioso de producao;
+- `supabase`: implementacao server-side preparada para futura ativacao, exigindo configuracao explicita.
+
+Invariantes da fundacao:
+
+1. token anonimo e gerado com alta entropia;
+2. persistencia recebe somente hash do token;
+3. posse exige combinacao de identificador da sessao e hash;
+4. cookie de sessao e HttpOnly, SameSite e Secure em producao;
+5. mutacoes exigem origem confiavel;
+6. criacao e idempotente;
+7. mutacoes usam versao esperada para detectar concorrencia;
+8. recomendacao original nao pode ser sobrescrita;
+9. segunda finalizacao divergente e bloqueada;
+10. credencial privilegiada de provedor so pode trafegar server-side;
+11. ausencia de configuracao de persistencia real falha alto;
+12. migration nunca e executada automaticamente por pacote de atualizacao.
+
+### 7.1 Estado apos o checkpoint V19.7A
+
+Checkpoint tecnico: `452be928190ad66b924a710f12d98d2b1a6f3964`.
+
+Validacao oficial: 20/20 testes, lint verde e build verde no Windows.
+
+A fundacao existe, mas ainda nao representa persistencia duravel de producao. O fluxo atual da cliente permanece inalterado. A migration Supabase/PostgreSQL esta versionada e inativa.
+
+A ativacao futura do banco do Roda Festa sera uma unidade separada e nao podera exigir qualquer alteracao nos ambientes do Simplify.
