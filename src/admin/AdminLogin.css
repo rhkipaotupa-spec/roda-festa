@@ -1,0 +1,122 @@
+.rf-admin-login {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 18px;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.18), transparent 38%),
+    linear-gradient(145deg, #55252a 0%, #7a3437 48%, #9a5145 100%);
+  color: #2b2020;
+}
+
+.rf-admin-login__card {
+  width: min(100%, 430px);
+  padding: 34px 26px 28px;
+  border-radius: 28px;
+  background: #fffaf2;
+  box-shadow: 0 24px 70px rgba(31, 14, 14, 0.28);
+}
+
+.rf-admin-login__brand {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 24px;
+  border-radius: 18px;
+  background: #6f2f33;
+  color: #fffaf2;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.rf-admin-login__eyebrow {
+  margin: 0 0 7px;
+  color: #8a4a3e;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.rf-admin-login h1 {
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 2.7rem);
+  line-height: 1;
+}
+
+.rf-admin-login__intro {
+  margin: 16px 0 28px;
+  color: #665957;
+  line-height: 1.55;
+}
+
+.rf-admin-login__form {
+  display: grid;
+  gap: 18px;
+}
+
+.rf-admin-login__form label {
+  display: grid;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.rf-admin-login__form input {
+  width: 100%;
+  min-height: 50px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border: 1px solid #d8ccc2;
+  border-radius: 14px;
+  background: #fff;
+  color: #2b2020;
+  font: inherit;
+  outline: none;
+}
+
+.rf-admin-login__form input:focus {
+  border-color: #7a3437;
+  box-shadow: 0 0 0 3px rgba(122, 52, 55, 0.12);
+}
+
+.rf-admin-login__form button {
+  min-height: 52px;
+  margin-top: 4px;
+  border: 0;
+  border-radius: 15px;
+  background: #6f2f33;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.rf-admin-login__notice {
+  margin: 20px 0 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: #f2e8dc;
+  color: #65433c;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.rf-admin-login__security {
+  margin: 22px 0 0;
+  color: #877975;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+@media (min-width: 720px) {
+  .rf-admin-login {
+    padding: 48px;
+  }
+
+  .rf-admin-login__card {
+    padding: 44px 42px 36px;
+  }
+}

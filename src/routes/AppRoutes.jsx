@@ -9,6 +9,7 @@ import Planner from "../planner/Planner";
 import PlanningSandbox from "../planner/sandbox/PlanningSandbox";
 import BookCoverSandbox from "../planner/book/BookCoverSandbox";
 import PlanningBook from "../planner/planning-book/PlanningBook";
+import AdminLogin from "../admin/AdminLogin";
 
 function AppRoutes() {
   return (
@@ -43,6 +44,12 @@ function AppRoutes() {
         <Route
           path="/planning-book"
           element={<PlanningBook />}
+        />
+
+        {/* Primeira superficie visual administrativa */}
+        <Route
+          path="/admin"
+          element={<AdminLogin />}
         />
 
       </Routes>
