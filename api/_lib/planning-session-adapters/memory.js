@@ -45,6 +45,18 @@ export function createMemoryPlanningSessionAdapter() {
       return clone(record);
     },
 
+    async appendChanges({ sessionId, tokenHash, changes, expectedVersion }) {
+      const record = records.get(sessionId);
+      if (!record || record.anonymous_session_token_hash !== tokenHash) throw new Error("planning_session_not_found");
+      if (record.final_proposal_snapshot) throw new Error("planning_session_already_finalized");
+      if (Number(record.version) !== Number(expectedVersion)) throw new Error("planning_session_concurrent_update");
+      const accepted = clone(changes || []);
+      record.planning_changes.push(...accepted);
+      record.version += 1;
+      record.last_activity_at = new Date().toISOString();
+      return { appended: accepted.length, session: clone(record) };
+    },
+
     async finalize({ sessionId, tokenHash, finalSnapshot, changes, expectedVersion }) {
       const record = records.get(sessionId);
       if (!record || record.anonymous_session_token_hash !== tokenHash) throw new Error("planning_session_not_found");

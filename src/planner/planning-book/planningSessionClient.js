@@ -30,6 +30,7 @@ async function postPlanningSession(payload, fetchImpl = globalThis.fetch) {
   return { available: true, ...body };
 }
 
+
 function comparableRecommendation(snapshot) {
   return {
     versions: snapshot?.versions || null,
@@ -58,4 +59,8 @@ export async function startPlanningSession(input, { fetchImpl = globalThis.fetch
 
 export async function finalizePlanningSession({ sessionId, expectedVersion, finalSnapshot }, { fetchImpl = globalThis.fetch } = {}) {
   return postPlanningSession({ action: "finalize", sessionId, expectedVersion, finalSnapshot }, fetchImpl);
+}
+
+export async function recordPlanningChanges({ sessionId, expectedVersion, changes }, { fetchImpl = globalThis.fetch } = {}) {
+  return postPlanningSession({ action: "changes", sessionId, expectedVersion, changes }, fetchImpl);
 }

@@ -50,6 +50,25 @@ export function createSupabasePlanningSessionAdapter({ env = process.env, fetchI
       return rows?.[0] || null;
     },
 
+    async appendChanges({ sessionId, tokenHash, changes, expectedVersion }) {
+      const current = await this.getOwned({ sessionId, tokenHash });
+      if (!current) throw new Error("planning_session_not_found");
+      if (current.final_proposal_snapshot) throw new Error("planning_session_already_finalized");
+      if (Number(current.version) !== Number(expectedVersion)) throw new Error("planning_session_concurrent_update");
+      const nextChanges = [...(current.planning_changes || []), ...(changes || [])];
+      const rows = await request(`planning_sessions?id=${eq(sessionId)}&anonymous_session_token_hash=${eq(tokenHash)}&version=${eq(expectedVersion)}&final_proposal_snapshot=is.null&select=*`, {
+        method: "PATCH", prefer: "return=representation",
+        body: { planning_changes: nextChanges, version: Number(expectedVersion) + 1, last_activity_at: new Date().toISOString() },
+      });
+      if (!rows?.[0]) {
+        const after = await this.getOwned({ sessionId, tokenHash });
+        if (!after) throw new Error("planning_session_not_found");
+        if (after.final_proposal_snapshot) throw new Error("planning_session_already_finalized");
+        throw new Error("planning_session_concurrent_update");
+      }
+      return { appended: (changes || []).length, session: rows[0] };
+    },
+
     async finalize({ sessionId, tokenHash, finalSnapshot, changes, expectedVersion }) {
       const rows = await request(`planning_sessions?id=${eq(sessionId)}&anonymous_session_token_hash=${eq(tokenHash)}&version=${eq(expectedVersion)}&final_proposal_snapshot=is.null&select=*`, {
         method: "PATCH", prefer: "return=representation",

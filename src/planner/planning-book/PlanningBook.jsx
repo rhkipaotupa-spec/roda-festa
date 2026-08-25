@@ -19,6 +19,7 @@ import {
   areRecommendationSnapshotsEquivalent,
   finalizePlanningSession,
   isPlanningSessionPersistenceEnabled,
+  recordPlanningChanges,
   startPlanningSession,
 } from "./planningSessionClient.js";
 
@@ -449,6 +450,22 @@ export default function PlanningBook() {
     goTo(3);
   }
 
+  function queuePlanningChanges(changes) {
+    if (!planningSessionPersistenceEnabled || !changes?.length || !planningSessionStartRef.current) return;
+    planningSessionStartRef.current = Promise.resolve(planningSessionStartRef.current)
+      .then(async (current) => {
+        if (!current?.ok || !current.session?.id) return current;
+        const result = await recordPlanningChanges({
+          sessionId: current.session.id,
+          expectedVersion: current.session.version,
+          changes,
+        });
+        if (!result.available) return { ok: false, error: result.reason || "planning_persistence_unavailable" };
+        return { ok: true, session: { id: result.sessionId, version: result.version } };
+      })
+      .catch((error) => ({ ok: false, error: error?.message || "planning_change_record_failed" }));
+  }
+
   function addProductToSuggestion(product) {
     if (!suggestion || suggestion.items.some((item) => item.id === product.id)) return;
     const lot = Number(product.lotSize) || 1;
@@ -460,16 +477,23 @@ export default function PlanningBook() {
       estimatedValue: product.consignment ? 0 : quantity * Number(product.unitPrice || 0),
     };
     const items = [...suggestion.items, nextItem];
+    const categoryWasAbsent = !suggestion.items.some((item) => item.commercialCategory === product.commercialCategory);
     setSelectedProductIds((current) => [...new Set([...current, product.id])]);
     setSuggestion(rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
+    queuePlanningChanges([
+      ...(categoryWasAbsent ? [{ type: "CATEGORY_ADDED", category: product.commercialCategory }] : []),
+      { type: "ITEM_ADDED", productId: product.id, afterQuantity: quantity },
+    ]);
     setEditingCategory(product.commercialCategory);
   }
 
   function removeItemFromSuggestion(itemId) {
     if (!suggestion) return;
+    const removed = suggestion.items.find((item) => item.id === itemId);
     const items = suggestion.items.filter((item) => item.id !== itemId);
     setSelectedProductIds((current) => current.filter((id) => id !== itemId));
     setSuggestion(rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
+    if (removed) queuePlanningChanges([{ type: "ITEM_REMOVED", productId: itemId, beforeQuantity: removed.quantity }]);
     if (replacingItemId === itemId) setReplacingItemId("");
   }
 
@@ -479,6 +503,7 @@ export default function PlanningBook() {
     const items = suggestion.items.filter((item) => item.commercialCategory !== categoryName);
     setSelectedProductIds((current) => current.filter((id) => !removedIds.has(id)));
     setSuggestion(rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
+    queuePlanningChanges([{ type: "CATEGORY_REMOVED", category: categoryName }]);
     setEditingCategory("");
     setReplacingItemId("");
   }
@@ -497,6 +522,13 @@ export default function PlanningBook() {
     const items = suggestion.items.map((item) => item.id === currentItemId ? replacement : item);
     setSelectedProductIds((current) => [...new Set(current.filter((id) => id !== currentItemId).concat(product.id))]);
     setSuggestion(rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
+    queuePlanningChanges([{
+      type: "ITEM_REPLACED",
+      fromProductId: currentItemId,
+      toProductId: product.id,
+      beforeQuantity: currentItem.quantity,
+      afterQuantity: quantity,
+    }]);
     setReplacingItemId("");
     setEditingCategory(product.commercialCategory);
   }
@@ -507,18 +539,29 @@ export default function PlanningBook() {
     if (!current) return;
     const lot = Number(current.lotSize) || 1;
     const normalized = Math.max(0, Math.round((Number(nextQuantity) || 0) / lot) * lot);
+    if (normalized === Number(current.quantity || 0)) return;
     const items = suggestion.items
       .map((item) => item.id === itemId
         ? { ...item, quantity: normalized, estimatedValue: item.consignment ? 0 : normalized * Number(item.unitPrice || 0) }
         : item)
       .filter((item) => Number(item.quantity) > 0);
     setSuggestion(rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
+    queuePlanningChanges([{
+      type: normalized > 0 ? "ITEM_QUANTITY_CHANGED" : "ITEM_REMOVED",
+      productId: itemId,
+      beforeQuantity: current.quantity,
+      afterQuantity: normalized,
+    }]);
   }
 
   function syncOptionalServices(nextWaiters, nextDisposables) {
+    const changes = [];
+    if (nextWaiters !== includeWaiters) changes.push({ type: nextWaiters ? "SERVICE_ADDED" : "SERVICE_REMOVED", service: "WAITERS" });
+    if (nextDisposables !== includeDisposables) changes.push({ type: nextDisposables ? "SERVICE_ADDED" : "SERVICE_REMOVED", service: "DISPOSABLES" });
     setIncludeWaiters(nextWaiters);
     setIncludeDisposables(nextDisposables);
     if (suggestion) setSuggestion(rebuildSuggestion(suggestion, suggestion.items, duration, nextWaiters, nextDisposables));
+    queuePlanningChanges(changes);
   }
 
   function buildSnapshot(code) {

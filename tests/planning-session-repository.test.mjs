@@ -54,3 +54,22 @@ test("clientRequestId nao pode ser reivindicado por outro token, mas um token po
   const secondJourney = await repo.create({ id:"s3", clientRequestId:"r2", tokenHash:"owner", inputSnapshot:{}, recommendationSnapshot:[] });
   assert.equal(secondJourney.created, true);
 });
+
+
+test("planning changes sao append-only, ordenados e protegidos por versao", async () => {
+  const { repo } = setup();
+  await repo.create({ id:"s1", clientRequestId:"r1", tokenHash:"owner", inputSnapshot:{}, recommendationSnapshot:[] });
+  const first = await repo.appendChanges({ sessionId:"s1", tokenHash:"owner", expectedVersion:1, changes:[{ id:"c1", type:"ITEM_ADDED" }] });
+  assert.equal(first.session.version, 2);
+  assert.deepEqual(first.session.planning_changes.map(c => c.id), ["c1"]);
+  await assert.rejects(() => repo.appendChanges({ sessionId:"s1", tokenHash:"owner", expectedVersion:1, changes:[{ id:"stale", type:"ITEM_REMOVED" }] }), /concurrent_update/);
+  const second = await repo.appendChanges({ sessionId:"s1", tokenHash:"owner", expectedVersion:2, changes:[{ id:"c2", type:"ITEM_REMOVED" }] });
+  assert.deepEqual(second.session.planning_changes.map(c => c.id), ["c1", "c2"]);
+});
+
+test("timeline nao aceita novas mudancas depois da finalizacao", async () => {
+  const { repo } = setup();
+  await repo.create({ id:"s1", clientRequestId:"r1", tokenHash:"owner", inputSnapshot:{}, recommendationSnapshot:[] });
+  await repo.finalize({ sessionId:"s1", tokenHash:"owner", expectedVersion:1, finalSnapshot:{ code:"RF-1" }, changes:[] });
+  await assert.rejects(() => repo.appendChanges({ sessionId:"s1", tokenHash:"owner", expectedVersion:2, changes:[{ id:"late", type:"ITEM_ADDED" }] }), /already_finalized/);
+});

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createPlanningSessionRepository } from "../api/_lib/planning-session-repository.js";
 import { createMemoryPlanningSessionAdapter } from "../api/_lib/planning-session-adapters/memory.js";
-import { startPlanningSessionCommand, finalizePlanningSessionCommand } from "../api/planning-sessions.js";
+import { appendPlanningChangesCommand, startPlanningSessionCommand, finalizePlanningSessionCommand } from "../api/planning-sessions.js";
 
 function repo() { return createPlanningSessionRepository(createMemoryPlanningSessionAdapter()); }
 function startBody() {
@@ -82,4 +82,29 @@ test("finalizacao rejeita mudanca de contexto que nao pertence a mesma recomenda
     body: { sessionId: "session-1", expectedVersion: 1, finalSnapshot: { code: "RF-990825-00002", eventDate: "2099-08-26", eventType: "infantil", adults:20, olderChildren:0, children:0, duration:4, items:[] } },
     token: "token-owner", repository,
   }), /planning_context_mismatch:eventDate/);
+});
+
+
+test("timeline normaliza ator e timestamp no servidor e preserva ordem", async () => {
+  const repository = repo();
+  await startPlanningSessionCommand({ body:startBody(), token:"token-owner", repository, idFactory:()=>"session-1" });
+  let n = 0;
+  const result = await appendPlanningChangesCommand({
+    body:{ sessionId:"session-1", expectedVersion:1, changes:[
+      { type:"ITEM_QUANTITY_CHANGED", productId:"coxinha-frango-catupiry", beforeQuantity:25, afterQuantity:50 },
+      { type:"SERVICE_ADDED", service:"WAITERS" },
+    ] },
+    token:"token-owner", repository, now:new Date("2026-08-25T15:00:00.000Z"), idFactory:()=>`change-${++n}`,
+  });
+  assert.equal(result.version, 2);
+  assert.deepEqual(result.changes.map(c=>c.id), ["change-1","change-2"]);
+  assert.ok(result.changes.every(c=>c.actor === "CLIENT" && c.recordedAt === "2026-08-25T15:00:00.000Z"));
+});
+
+test("timeline rejeita tipo, produto e ownership invalidos", async () => {
+  const repository = repo();
+  await startPlanningSessionCommand({ body:startBody(), token:"token-owner", repository, idFactory:()=>"session-1" });
+  await assert.rejects(() => appendPlanningChangesCommand({ body:{sessionId:"session-1",expectedVersion:1,changes:[{type:"CLICK"}]}, token:"token-owner", repository }), /invalid_planning_change_type/);
+  await assert.rejects(() => appendPlanningChangesCommand({ body:{sessionId:"session-1",expectedVersion:1,changes:[{type:"ITEM_ADDED",productId:"nao-existe"}]}, token:"token-owner", repository }), /unknown_product/);
+  await assert.rejects(() => appendPlanningChangesCommand({ body:{sessionId:"session-1",expectedVersion:1,changes:[{type:"SERVICE_ADDED",service:"WAITERS"}]}, token:"intruder", repository }), /not_found/);
 });

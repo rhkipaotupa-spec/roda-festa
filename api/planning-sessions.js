@@ -22,6 +22,12 @@ const MAX_BODY_BYTES = 120_000;
 const MAX_PRODUCTS = 100;
 const EVENT_TYPES = new Set(["infantil", "casamento", "corporativo"]);
 const PRODUCT_BY_ID = new Map(Object.values(PRODUCTS).map((product) => [product.id, product]));
+const PLANNING_CHANGE_TYPES = new Set([
+  "ITEM_QUANTITY_CHANGED", "ITEM_ADDED", "ITEM_REMOVED", "ITEM_REPLACED",
+  "CATEGORY_ADDED", "CATEGORY_REMOVED", "SERVICE_ADDED", "SERVICE_REMOVED",
+]);
+const PLANNING_SERVICES = new Set(["WAITERS", "DISPOSABLES"]);
+const MAX_CHANGE_BATCH = 50;
 
 function localBusinessDate(now = new Date()) {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -161,6 +167,59 @@ export async function startPlanningSessionCommand({ body, token, repository, idF
   };
 }
 
+function normalizePlanningChange(change, { now = new Date(), idFactory = () => crypto.randomUUID() } = {}) {
+  const type = String(change?.type || "");
+  if (!PLANNING_CHANGE_TYPES.has(type)) throw new Error("invalid_planning_change_type");
+  const normalized = { id: idFactory(), type, actor: "CLIENT", recordedAt: now.toISOString() };
+
+  if (type.startsWith("ITEM_")) {
+    const productId = String(change.productId || "").trim();
+    const fromProductId = String(change.fromProductId || "").trim();
+    const toProductId = String(change.toProductId || "").trim();
+    for (const id of [productId, fromProductId, toProductId].filter(Boolean)) {
+      if (!PRODUCT_BY_ID.has(id)) throw new Error(`unknown_product:${id}`);
+    }
+    if (type === "ITEM_REPLACED") {
+      if (!fromProductId || !toProductId || fromProductId === toProductId) throw new Error("invalid_item_replacement");
+      normalized.fromProductId = fromProductId;
+      normalized.toProductId = toProductId;
+    } else {
+      if (!productId) throw new Error("invalid_product_change");
+      normalized.productId = productId;
+    }
+    if (change.beforeQuantity != null) normalized.beforeQuantity = normalizeNonNegativeInteger(change.beforeQuantity, 100000);
+    if (change.afterQuantity != null) normalized.afterQuantity = normalizeNonNegativeInteger(change.afterQuantity, 100000);
+    if ((change.beforeQuantity != null && normalized.beforeQuantity === null) || (change.afterQuantity != null && normalized.afterQuantity === null)) throw new Error("invalid_change_quantity");
+  }
+
+  if (type.startsWith("CATEGORY_")) {
+    const category = String(change.category || "").trim().slice(0, 120);
+    if (!category) throw new Error("invalid_change_category");
+    normalized.category = category;
+  }
+
+  if (type.startsWith("SERVICE_")) {
+    const service = String(change.service || "").trim().toUpperCase();
+    if (!PLANNING_SERVICES.has(service)) throw new Error("invalid_change_service");
+    normalized.service = service;
+  }
+  return normalized;
+}
+
+export async function appendPlanningChangesCommand({ body, token, repository, now = new Date(), idFactory = () => crypto.randomUUID() }) {
+  const sessionId = String(body?.sessionId || "").trim();
+  const expectedVersion = Number(body?.expectedVersion);
+  const rawChanges = Array.isArray(body?.changes) ? body.changes : [];
+  if (!sessionId || !Number.isInteger(expectedVersion) || expectedVersion < 1 || !token) throw new Error("invalid_change_context");
+  if (rawChanges.length === 0 || rawChanges.length > MAX_CHANGE_BATCH) throw new Error("invalid_change_batch");
+  const tokenHash = hashSessionToken(token);
+  const owned = await repository.getOwned({ sessionId, tokenHash });
+  if (!owned) throw new Error("planning_session_not_found");
+  const changes = rawChanges.map((change) => normalizePlanningChange(change, { now, idFactory }));
+  const result = await repository.appendChanges({ sessionId, tokenHash, changes, expectedVersion });
+  return { sessionId, version: Number(result.session.version), appended: result.appended, changes };
+}
+
 export async function finalizePlanningSessionCommand({ body, token, repository }) {
   const sessionId = String(body?.sessionId || "").trim();
   const expectedVersion = Number(body?.expectedVersion);
@@ -243,6 +302,11 @@ export default async function handler(request, response) {
         response.setHeader("Set-Cookie", buildPlanningSessionCookie(token, { secure }));
       }
       return response.status(result.created ? 201 : 200).json({ ok: true, ...result });
+    }
+
+    if (action === "changes") {
+      const result = await appendPlanningChangesCommand({ body: request.body, token, repository });
+      return response.status(200).json({ ok: true, ...result });
     }
 
     if (action === "finalize") {

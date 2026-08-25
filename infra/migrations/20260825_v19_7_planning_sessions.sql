@@ -91,3 +91,6 @@ drop trigger if exists planning_sessions_protect_history on public.planning_sess
 create trigger planning_sessions_protect_history
 before update on public.planning_sessions
 for each row execute function public.protect_planning_session_history();
+
+-- V19.7C: planning_changes permanece JSONB append-only pela API com optimistic locking por version.
+-- A proposta final continua imutavel; a timeline e evidencia de jornada e nao autoridade financeira.

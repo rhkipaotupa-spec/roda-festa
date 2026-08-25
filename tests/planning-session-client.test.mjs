@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { areRecommendationSnapshotsEquivalent, finalizePlanningSession, isPlanningSessionPersistenceEnabled, startPlanningSession } from "../src/planner/planning-book/planningSessionClient.js";
+import { areRecommendationSnapshotsEquivalent, finalizePlanningSession, isPlanningSessionPersistenceEnabled, recordPlanningChanges, startPlanningSession } from "../src/planner/planning-book/planningSessionClient.js";
 
 test("integracao fica desligada por padrao", () => {
   assert.equal(isPlanningSessionPersistenceEnabled({}), false);
@@ -35,4 +35,15 @@ test("frontend detecta divergencia entre recomendacao exibida e recomendacao aut
   assert.equal(areRecommendationSnapshotsEquivalent(base, structuredClone(base)), true);
   const changed = structuredClone(base); changed.items[0].quantity = 20;
   assert.equal(areRecommendationSnapshotsEquivalent(base, changed), false);
+});
+
+
+test("cliente envia timeline em batch com versao otimista e cookie same-origin", async () => {
+  let request;
+  const fetchImpl = async (url, init) => { request = { url, init, body: JSON.parse(init.body) }; return { ok:true, status:200, json:async()=>({ok:true,sessionId:"s1",version:3,appended:1}) }; };
+  const result = await recordPlanningChanges({ sessionId:"s1", expectedVersion:2, changes:[{type:"SERVICE_ADDED",service:"WAITERS"}] }, { fetchImpl });
+  assert.equal(result.version, 3);
+  assert.equal(request.body.action, "changes");
+  assert.equal(request.body.expectedVersion, 2);
+  assert.equal(request.init.credentials, "same-origin");
 });
