@@ -158,20 +158,21 @@ Consequencias:
 - migration pode permanecer versionada sem ser aplicada;
 - ativacao de persistencia real sera uma unidade separada, explicitamente validada.
 
-## 2026-08-25 - PlanningSession entra no fluxo somente atras de gate explicito
+## 2026-08-25 - PlanningChange é timeline de negócio append-only
 
-A integracao do Planner com `PlanningSession` pode existir antes da persistencia remota, mas deve permanecer desligada por padrao enquanto nao houver infraestrutura duravel aprovada.
+O histórico da jornada deve registrar mudanças comercialmente relevantes sem sobrescrever fatos anteriores.
 
-Regras:
+A timeline de `PlanningChange` segue estas regras:
 
-- runtime desabilitado deve responder indisponibilidade de forma explicita;
-- memoria nao e fallback de producao;
-- migration versionada nao significa migration aplicada;
-- ativacao futura exige unidade propria de infraestrutura, validacao e rollback;
-- frontend nao pode fingir que historico foi persistido quando o backend estiver indisponivel.
+- eventos são append-only;
+- ordem é preservada;
+- cada evento recebe ator e timestamp normalizados no servidor;
+- o navegador não é autoridade de timestamp, ator ou sequência;
+- ownership exige a mesma identidade segura da `PlanningSession`;
+- mutações usam versão esperada para detectar concorrência;
+- novas mudanças são bloqueadas após a finalização;
+- a timeline explica a jornada, mas não substitui o cálculo financeiro autoritativo do servidor.
 
-## 2026-08-25 - Recomendacao autoritativa nasce no servidor
+A finalidade é permitir reconstruir de forma auditável:
 
-O snapshot de recomendacao usado como evidencia historica e financeira deve ser produzido/recalculado pela camada autoritativa do servidor. O navegador pode exibir e comparar a recomendacao, mas nao define sua verdade comercial.
-
-A finalizacao deve partir da recomendacao persistida/guardada, recalcular o final e derivar o delta no servidor. Ownership, versao esperada e idempotencia fazem parte do contrato da sessao.
+`entrada -> recomendação original -> alterações -> proposta final`.

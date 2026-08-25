@@ -350,32 +350,29 @@ A fundacao existe, mas ainda nao representa persistencia duravel de producao. O 
 
 A ativacao futura do banco do Roda Festa sera uma unidade separada e nao podera exigir qualquer alteracao nos ambientes do Simplify.
 
-## 8. Evolucao V19.7B - Integracao controlada da PlanningSession
+## 8. Evolução V19.7C - Timeline explicável de PlanningChange
 
-A porta de persistencia da V19.7A passa a ser consumida pelo fluxo real por meio de runtime e endpoint dedicados, sem promover a infraestrutura a producao.
+A jornada passa a possuir uma sequência de mudanças de negócio entre a recomendação e a proposta final.
 
-Fluxo logico:
+Modelo conceitual:
 
-`Planner -> planningSessionClient -> /api/planning-sessions -> runtime -> repository -> adapter`
+`PlanningSession -> RecommendationSnapshot -> PlanningChange[] -> FinalProposalSnapshot`
 
-### 8.1 Start
+Propriedades obrigatórias da timeline:
 
-O servidor recebe contexto e escolhas, valida produtos e produz a recomendacao autoritativa. O navegador nao e fonte da verdade financeira. A sessao guarda a recomendacao original como evidencia imutavel.
+1. append-only;
+2. ordem determinística;
+3. ator normalizado no servidor;
+4. timestamp gerado/normalizado no servidor;
+5. ownership herdado da sessão segura;
+6. controle otimista por versão;
+7. validação de tipo e referências de produto;
+8. bloqueio de mutações após finalização;
+9. nenhuma linha da timeline é autoridade de preço;
+10. leitura futura do Admin deve usar os fatos históricos congelados, não recalcular o passado.
 
-### 8.2 Finalize
+Checkpoint técnico V19.7C: `a9e6bf89e1e8799a0d9625a9e2731a624f4c447b`.
 
-A finalizacao identifica a sessao pelo contrato de ownership, exige versao esperada, parte da recomendacao guardada, recalcula a proposta final e deriva o delta no servidor. Retry identico deve ser idempotente; proposta divergente posterior deve ser bloqueada.
+Validação oficial: 38/38 testes, lint verde e build verde no Windows.
 
-### 8.3 Gate operacional
-
-Enquanto nao houver persistencia duravel aprovada:
-
-- integracao permanece desligada por padrao;
-- runtime disabled falha de forma explicita;
-- memoria exige opt-in e nao pode operar em producao;
-- migration permanece apenas versionada;
-- nenhum secret e necessario para o fluxo padrao atual;
-- ativacao de banco remoto sera unidade separada.
-
-Checkpoint tecnico V19.7B: `258b4e5e077443529a70b850e0227c1028d6a4f8`.
-Baseline: 33/33 testes, lint verde e build verde com 126 modulos no Windows oficial.
+A persistência remota continua desativada. A timeline está preparada arquiteturalmente, mas sua durabilidade real só será considerada concluída quando a infraestrutura própria do Roda Festa for ativada e validada.

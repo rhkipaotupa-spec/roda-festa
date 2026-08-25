@@ -195,32 +195,25 @@
 - Working tree confirmada limpa apos o commit tecnico.
 - Proxima acao: commit documental desta reconciliacao; depois integrar gradualmente PlanningSession ao Planner sem banco remoto.
 
-### V19.7B - PlanningSession Flow Integration
+### V19.7C - PlanningChange / timeline explicável
 
-- Integracao criada sobre a base documental limpa `c26553630b9de7b3425524879201f97a8ecc9d3a`.
-- Persistencia permaneceu desligada por padrao durante toda a unidade.
-- Nenhuma migration foi executada e nenhum secret/banco remoto foi ativado.
-- Criados runtime, endpoint de PlanningSession e cliente do Planner.
-- Recomendacao passa a ter contraparte autoritativa calculada no servidor.
-- Finalizacao usa recomendacao guardada, recalcula o final e deriva delta no servidor.
-- Foram adicionadas protecoes de ownership, versao esperada, idempotencia, retry e divergencia de contexto/recomendacao.
-- Adapter em memoria permanece apenas para testes e exige opt-in, sendo proibido em producao.
+- Unidade aplicada sobre a base documental e técnica limpa da V19.7B.
+- Criada timeline de mudanças comercialmente relevantes entre recomendação e proposta final.
+- Eventos passam a ser append-only, ordenados e protegidos por ownership e versão.
+- Ator e timestamp são normalizados no servidor.
+- Cliente envia mudanças em batch com cookie same-origin e versão otimista.
+- API rejeita tipos, produtos e ownership inválidos.
+- Novas mudanças são bloqueadas após finalização.
+- A timeline não substitui o cálculo autoritativo de preço/estrutura/total.
 
-### Reds e hotfixes da V19.7B
+### Validação oficial V19.7C no Windows
 
-- Primeira validacao: 33/33 testes verdes; lint RED `no-useless-assignment` em `planningSessionClient.js`.
-- Hotfix V19.7B1 removeu atribuicao redundante sem mudar regra de negocio.
-- Segunda validacao: 33/33 testes verdes; lint RED `no-empty` no tratamento de resposta nao-JSON.
-- Hotfix V19.7B2 documentou o `catch`, preservando semantica.
-- Os REDs intermediarios nao foram aceitos como checkpoint.
-
-### Baseline final oficial V19.7B
-
-- `npm test`: 33 executados, 33 aprovados, 0 falhas.
-- `npm run lint`: verde.
-- `npm run build`: verde; 126 modulos transformados.
-- Aviso conhecido: `src/styles/colors.css` vazio.
-- Commit tecnico: `258b4e5e077443529a70b850e0227c1028d6a4f8`.
-- Mensagem: `feat: integrate planning session flow behind disabled persistence gate`.
-- Working tree confirmada limpa apos o commit tecnico.
-- Proxima acao obrigatoria: commit documental desta reconciliacao antes de snapshot/proxima unidade.
+- `npm test`: 38 testes executados, 38 aprovados, 0 falhas.
+- `npm run lint`: verde, zero erros.
+- `npm run build`: verde, 126 módulos transformados.
+- Permanece apenas o aviso conhecido de `src/styles/colors.css` vazio.
+- `git diff --cached --check` detectou apenas uma linha em branco extra no EOF da migration; normalização aplicada sem mudança funcional e check final limpo.
+- Commit técnico: `a9e6bf89e1e8799a0d9625a9e2731a624f4c447b`.
+- Mensagem: `feat: add append-only planning change timeline`.
+- Working tree confirmada limpa após o commit técnico.
+- Persistência remota continua desligada e nenhuma migration foi executada.

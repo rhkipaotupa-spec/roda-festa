@@ -410,46 +410,28 @@ Registro técnico cumulativo do projeto. Este arquivo é a fonte documental para
 - **Proxima unidade:** integrar gradualmente o contrato de PlanningSession ao fluxo do Planner sem banco real, preservando comportamento atual e mantendo a ativacao de persistencia remota como gate separado.
 - **Governanca:** este checkpoint tecnico deve ser seguido por commit documental que registre este hash antes de snapshot.
 
-## RF-033 - Integracao de PlanningSession precisa permanecer fail-closed enquanto persistencia remota estiver inativa
+## RF-033 - Histórico de alterações precisava ser append-only e explicável
 
-- **Severidade:** P0
-- **Area:** Persistencia / integridade historica
-- **Estado:** MITIGADO NA V19.7B
+- **Severidade:** P1
+- **Área:** Histórico / auditoria / PlanningSession
+- **Estado:** CORRIGIDO NA FUNDAÇÃO V19.7C
 - **Detectado em:** 2026-08-25
-- **Risco:** integrar a sessao ao Planner antes de existir persistencia duravel poderia criar falsa impressao de historico salvo ou promover memoria a persistencia de producao.
-- **Correcao:** integracao introduzida atras de gate desligado por padrao; runtime informa indisponibilidade explicitamente; adapter em memoria exige opt-in e e proibido em producao.
-- **Regra:** ausencia de persistencia real nunca pode ser mascarada por fallback silencioso.
+- **Situação:** até a V19.7B havia recomendação autoritativa e finalização controlada, mas ainda faltava uma timeline persistível de mudanças relevantes entre esses dois marcos.
+- **Risco:** sem sequência append-only, uma futura área Admin poderia mostrar apenas estado inicial e final, sem explicar como a cliente chegou ao resultado.
+- **Correção:** implementado `PlanningChange` em batch com ordenação, ator/timestamp server-side, ownership, controle otimista por versão e bloqueio após finalização.
+- **Regra:** eventos históricos não são sobrescritos nem usados como autoridade financeira. Preço e total final continuam sendo reconstruídos pelo servidor.
+- **Regressão:** testes cobrem ordem, append-only, ownership, tipo/produto inválido, conflito de versão e bloqueio pós-finalização.
 
-## RF-034 - Recomendacao e proposta final nao podem confiar em verdade financeira enviada pelo navegador
-
-- **Severidade:** P0
-- **Area:** Integridade comercial / API
-- **Estado:** PROTEGIDO POR REGRESSAO NA V19.7B
-- **Detectado em:** 2026-08-25
-- **Correcao:** inicio da sessao cria recomendacao autoritativa no servidor; finalizacao usa a recomendacao guardada, recalcula a proposta final e deriva o delta server-side.
-- **Protecoes:** produto inexistente e rejeitado; sessao alheia e rejeitada; mudanca de contexto que nao pertence a mesma recomendacao e rejeitada; frontend detecta divergencia entre recomendacao exibida e autoritativa.
-
-## RF-035 - Retries, ownership e concorrencia precisam ser deterministas
-
-- **Severidade:** P0
-- **Area:** Idempotencia / autorizacao relacional
-- **Estado:** PROTEGIDO POR TESTES NA V19.7B
-- **Detectado em:** 2026-08-25
-- **Cobertura:** `clientRequestId` nao pode ser reivindicado por outro token; um token pode possuir varias sessoes; ownership depende de sessao e token; finalizacao usa versao esperada; retry da mesma finalizacao e idempotente; segunda proposta divergente permanece bloqueada.
-
-## Evidencia de validacao intermediaria V19.7B
-
-A primeira validacao oficial confirmou 33/33 testes verdes, mas o lint bloqueou o checkpoint com `no-useless-assignment` em `planningSessionClient.js`. O hotfix V19.7B1 removeu a atribuicao redundante sem alterar comportamento. Na segunda validacao, os 33/33 testes permaneceram verdes, mas o lint encontrou `no-empty` no mesmo tratamento de resposta nao-JSON. O hotfix V19.7B2 documentou o bloco `catch` sem alterar semantica. Nenhum desses estados intermediarios foi tratado como baseline verde.
-
-## Checkpoint tecnico V19.7B - PlanningSession Flow Integration
+## Checkpoint técnico V19.7C - PlanningChange Timeline
 
 - **Data:** 2026-08-25
 - **Branch:** `planner/v19-mobile-first`
-- **Commit tecnico:** `258b4e5e077443529a70b850e0227c1028d6a4f8`
-- **Mensagem:** `feat: integrate planning session flow behind disabled persistence gate`
-- **Validacao final oficial no Windows:** `npm test` com 33/33 testes verdes; `npm run lint` verde; `npm run build` verde com 126 modulos transformados.
-- **Aviso nao bloqueante preservado:** `src/styles/colors.css` continua vazio e importado.
-- **Persistencia:** gate desligado por padrao; nenhuma migration executada; nenhum secret configurado; banco remoto nao ativado.
-- **Infraestrutura:** nenhum ambiente do Simplify foi alterado.
-- **Working tree apos commit tecnico:** limpa.
-- **Governanca:** este hash tecnico foi reconciliado documentalmente antes de qualquer snapshot posterior.
+- **Commit técnico:** `a9e6bf89e1e8799a0d9625a9e2731a624f4c447b`
+- **Mensagem:** `feat: add append-only planning change timeline`
+- **Validação oficial no Windows:** `npm test` com 38/38 testes verdes; `npm run lint` verde; `npm run build` verde com 126 módulos transformados.
+- **Cobertura nova:** timeline normaliza ator/timestamp no servidor; rejeita tipo, produto e ownership inválidos; cliente envia batch com versão otimista; repository preserva ordem append-only; novas mudanças são bloqueadas após finalização.
+- **Higiene pré-commit:** `git diff --cached --check` detectou uma linha em branco extra no EOF da migration; o arquivo foi normalizado sem mudança funcional e o check final ficou limpo.
+- **Persistência remota:** continua DESLIGADA por padrão.
+- **Migration:** permanece versionada e NÃO executada.
+- **Estado da working tree após commit técnico:** limpa.
+- **Próxima unidade:** reconstrução/consulta explicável da jornada para preparar o futuro Admin, ainda sem ativar banco remoto.

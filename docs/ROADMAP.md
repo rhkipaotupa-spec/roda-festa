@@ -223,32 +223,30 @@ Ainda pendente para concluir a Fase 2:
 
 **Checkpoint tecnico:** `452be928190ad66b924a710f12d98d2b1a6f3964`.
 
-## Checkpoint parcial da Fase 2 - V19.7B (25/08/2026)
+## Checkpoint parcial da Fase 3 - V19.7C (25/08/2026)
 
-**Estado:** fluxo de `PlanningSession` integrado atras de gate desligado; persistencia duravel continua pendente.
+**Estado:** fundação de timeline explicável concluída; consulta persistida de produção ainda depende da ativação futura da infraestrutura própria do Roda Festa.
 
 Entregue:
 
-- [x] endpoint de `PlanningSession` para start/finalize;
-- [x] runtime de persistencia com estado disabled explicito;
-- [x] cliente same-origin para integracao do Planner;
-- [x] recomendacao autoritativa server-side no inicio da sessao;
-- [x] finalizacao baseada na recomendacao guardada, com recalc e delta server-side;
-- [x] rejeicao de produto inexistente, sessao alheia e mudanca indevida de contexto;
-- [x] deteccao frontend de divergencia da recomendacao;
-- [x] idempotencia por `clientRequestId` e retry da mesma finalizacao;
-- [x] ownership e versao esperada protegidos por regressao;
-- [x] memory adapter proibido em producao;
-- [x] 33/33 testes, lint e build verdes no Windows oficial;
-- [x] nenhuma migration executada e nenhum banco remoto ativado.
+- [x] `PlanningChange` append-only;
+- [x] ator normalizado no servidor;
+- [x] timestamp normalizado no servidor;
+- [x] ordem preservada;
+- [x] ownership por sessão/token;
+- [x] batch de mudanças com versão otimista;
+- [x] rejeição de tipo/produto inválido;
+- [x] bloqueio de novas mudanças após finalização;
+- [x] 38/38 testes verdes;
+- [x] lint verde;
+- [x] build verde com 126 módulos;
+- [x] migration mantida somente como artefato versionado, sem execução.
 
-Ainda pendente:
+Próximo passo recomendado:
 
-- [ ] escolher/aprovar infraestrutura duravel propria do Roda Festa;
-- [ ] aplicar migration em ambiente aprovado;
-- [ ] provar persistencia real de InputSnapshot, RecommendationSnapshot, eventos e FinalProposalSnapshot;
-- [ ] provar fechamento/reabertura e recuperacao sem perda;
-- [ ] definir backup, retencao e restauracao;
-- [ ] disponibilizar leitura historica segura para a futura Central Admin.
+- [ ] construir projeção de leitura da jornada: entrada, recomendação, timeline e final;
+- [ ] garantir que a leitura não recalcule fatos históricos;
+- [ ] preparar contrato de consulta para o futuro Admin;
+- [ ] manter persistência remota desligada até infraestrutura própria ser aprovada.
 
-**Checkpoint tecnico:** `258b4e5e077443529a70b850e0227c1028d6a4f8`.
+**Checkpoint técnico:** `a9e6bf89e1e8799a0d9625a9e2731a624f4c447b`.
