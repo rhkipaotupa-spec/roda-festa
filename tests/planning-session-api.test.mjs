@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createPlanningSessionRepository } from "../api/_lib/planning-session-repository.js";
 import { createMemoryPlanningSessionAdapter } from "../api/_lib/planning-session-adapters/memory.js";
-import { appendPlanningChangesCommand, startPlanningSessionCommand, finalizePlanningSessionCommand } from "../api/planning-sessions.js";
+import { appendPlanningChangesCommand, startPlanningSessionCommand, finalizePlanningSessionCommand, readPlanningJourneyCommand } from "../api/planning-sessions.js";
 
 function repo() { return createPlanningSessionRepository(createMemoryPlanningSessionAdapter()); }
 function startBody() {
@@ -107,4 +107,34 @@ test("timeline rejeita tipo, produto e ownership invalidos", async () => {
   await assert.rejects(() => appendPlanningChangesCommand({ body:{sessionId:"session-1",expectedVersion:1,changes:[{type:"CLICK"}]}, token:"token-owner", repository }), /invalid_planning_change_type/);
   await assert.rejects(() => appendPlanningChangesCommand({ body:{sessionId:"session-1",expectedVersion:1,changes:[{type:"ITEM_ADDED",productId:"nao-existe"}]}, token:"token-owner", repository }), /unknown_product/);
   await assert.rejects(() => appendPlanningChangesCommand({ body:{sessionId:"session-1",expectedVersion:1,changes:[{type:"SERVICE_ADDED",service:"WAITERS"}]}, token:"intruder", repository }), /not_found/);
+});
+
+
+test("read command retorna jornada protegida por ownership sem recalcular historico", async () => {
+  const repository = repo();
+  const started = await startPlanningSessionCommand({
+    body: startBody(),
+    token: "token-owner",
+    repository,
+    idFactory: () => "session-read",
+  });
+
+  const result = await readPlanningJourneyCommand({
+    body: { sessionId: started.sessionId },
+    token: "token-owner",
+    repository,
+  });
+
+  assert.equal(result.journey.sessionId, "session-read");
+  assert.equal(result.journey.status, "RECOMMENDED");
+  assert.equal(result.journey.recommendationSnapshot.totalCarts, 3);
+
+  await assert.rejects(
+    () => readPlanningJourneyCommand({
+      body: { sessionId: started.sessionId },
+      token: "intruder",
+      repository,
+    }),
+    /planning_session_not_found/,
+  );
 });

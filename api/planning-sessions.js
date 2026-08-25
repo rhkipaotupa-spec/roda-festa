@@ -220,6 +220,22 @@ export async function appendPlanningChangesCommand({ body, token, repository, no
   return { sessionId, version: Number(result.session.version), appended: result.appended, changes };
 }
 
+export async function readPlanningJourneyCommand({ body, token, repository }) {
+  const sessionId = String(body?.sessionId || "").trim();
+  if (!sessionId || !token) throw new Error("invalid_read_context");
+
+  const journey = await repository.getJourney({
+    sessionId,
+    tokenHash: hashSessionToken(token),
+  });
+  if (!journey) throw new Error("planning_session_not_found");
+
+  return {
+    sessionId,
+    journey,
+  };
+}
+
 export async function finalizePlanningSessionCommand({ body, token, repository }) {
   const sessionId = String(body?.sessionId || "").trim();
   const expectedVersion = Number(body?.expectedVersion);
@@ -306,6 +322,11 @@ export default async function handler(request, response) {
 
     if (action === "changes") {
       const result = await appendPlanningChangesCommand({ body: request.body, token, repository });
+      return response.status(200).json({ ok: true, ...result });
+    }
+
+    if (action === "read") {
+      const result = await readPlanningJourneyCommand({ body: request.body, token, repository });
       return response.status(200).json({ ok: true, ...result });
     }
 

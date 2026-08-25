@@ -64,3 +64,8 @@ export async function finalizePlanningSession({ sessionId, expectedVersion, fina
 export async function recordPlanningChanges({ sessionId, expectedVersion, changes }, { fetchImpl = globalThis.fetch } = {}) {
   return postPlanningSession({ action: "changes", sessionId, expectedVersion, changes }, fetchImpl);
 }
+
+
+export async function readPlanningJourney(sessionId, { fetchImpl = globalThis.fetch } = {}) {
+  return postPlanningSession({ action: "read", sessionId }, fetchImpl);
+}

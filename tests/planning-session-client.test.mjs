@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { areRecommendationSnapshotsEquivalent, finalizePlanningSession, isPlanningSessionPersistenceEnabled, recordPlanningChanges, startPlanningSession } from "../src/planner/planning-book/planningSessionClient.js";
+import { areRecommendationSnapshotsEquivalent, finalizePlanningSession, isPlanningSessionPersistenceEnabled, readPlanningJourney, recordPlanningChanges, startPlanningSession } from "../src/planner/planning-book/planningSessionClient.js";
 
 test("integracao fica desligada por padrao", () => {
   assert.equal(isPlanningSessionPersistenceEnabled({}), false);
@@ -45,5 +45,25 @@ test("cliente envia timeline em batch com versao otimista e cookie same-origin",
   assert.equal(result.version, 3);
   assert.equal(request.body.action, "changes");
   assert.equal(request.body.expectedVersion, 2);
+  assert.equal(request.init.credentials, "same-origin");
+});
+
+
+test("cliente consulta jornada com cookie same-origin e sem token no payload", async () => {
+  let request;
+  const fetchImpl = async (url, init) => {
+    request = { url, init, body: JSON.parse(init.body) };
+    return new Response(JSON.stringify({
+      ok: true,
+      sessionId: "s1",
+      journey: { sessionId: "s1", status: "RECOMMENDED" },
+    }), { status: 200, headers: { "Content-Type": "application/json" } });
+  };
+
+  const result = await readPlanningJourney("s1", { fetchImpl });
+  assert.equal(result.journey.status, "RECOMMENDED");
+  assert.equal(request.body.action, "read");
+  assert.equal(request.body.sessionId, "s1");
+  assert.equal(Object.prototype.hasOwnProperty.call(request.body, "token"), false);
   assert.equal(request.init.credentials, "same-origin");
 });
