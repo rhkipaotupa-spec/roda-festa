@@ -435,3 +435,14 @@ Registro técnico cumulativo do projeto. Este arquivo é a fonte documental para
 - **Migration:** permanece versionada e NÃO executada.
 - **Estado da working tree após commit técnico:** limpa.
 - **Próxima unidade:** reconstrução/consulta explicável da jornada para preparar o futuro Admin, ainda sem ativar banco remoto.
+
+## V19.7D — Achados e regressões — `ce536b4ec42824eb904fdb4fcfb1353c4a2105eb`
+
+### RED D1 — integração incompleta da leitura
+A primeira validação preservou 41/41 testes, mas o lint encontrou dois problemas: referência fora de escopo no adapter em memória e import de leitura não utilizado na API. O achado mostrou que a função de leitura existia sem estar corretamente conectada ao endpoint. A correção removeu o caminho incorreto e integrou a ação `read` ao repository/API, acrescentando regressões de ownership e chamada same-origin.
+
+### RED D2 — divergência entre shape persistido e shape normalizado
+Após D1, a nova regressão falhou porque uma sessão com recomendação persistida era reconstruída como `STARTED`, e não `RECOMMENDED`. A causa foi a diferença entre campos persistidos em `snake_case` e os campos esperados em `camelCase`. O read model foi corrigido para compreender ambos os formatos e ganhou teste específico para impedir recorrência.
+
+### GREEN final
+A validação final encerrou com 44/44 testes aprovados, lint aprovado e build de produção aprovado. O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com esta unidade.

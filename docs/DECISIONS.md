@@ -176,3 +176,12 @@ A timeline de `PlanningChange` segue estas regras:
 A finalidade é permitir reconstruir de forma auditável:
 
 `entrada -> recomendação original -> alterações -> proposta final`.
+
+## V19.7D — Decisões — `ce536b4ec42824eb904fdb4fcfb1353c4a2105eb`
+
+- Adotar um Journey Read Model explícito para reconstrução da jornada sem recalcular fatos históricos.
+- Manter separação entre escrita/transação e leitura/explicabilidade.
+- Exigir ownership também na leitura da jornada.
+- Tratar `snake_case` persistido e `camelCase` normalizado como formatos de entrada válidos do read model, sem duplicar regra comercial.
+- Não ativar persistência remota e não executar migrations como parte da V19.7D.
+- Considerar a unidade concluída somente após testes, lint e build verdes.

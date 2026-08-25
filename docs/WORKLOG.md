@@ -217,3 +217,18 @@
 - Mensagem: `feat: add append-only planning change timeline`.
 - Working tree confirmada limpa após o commit técnico.
 - Persistência remota continua desligada e nenhuma migration foi executada.
+
+## 2026-08-25 — V19.7D Journey Read Model
+
+Checkpoint técnico fechado em `ce536b4ec42824eb904fdb4fcfb1353c4a2105eb` (`feat: add explainable planning journey read model`).
+
+Sequência de validação:
+1. V19.7D aplicada com persistência remota desligada e sem migration.
+2. Primeira suíte: 41/41 testes verdes; lint RED por integração incompleta.
+3. Hotfix V19.7D1: conexão efetiva do read path e regressões de ownership/same-origin.
+4. Nova suíte: 42/43; RED funcional mostrou incompatibilidade entre `snake_case` persistido e `camelCase` esperado.
+5. Hotfix V19.7D2: read model passou a aceitar ambos os shapes e ganhou regressão dedicada.
+6. Validação final: 44/44 testes, lint verde, build verde.
+7. Commit técnico criado e working tree confirmada limpa.
+
+Nenhuma persistência remota foi ativada e nenhuma migration foi executada.

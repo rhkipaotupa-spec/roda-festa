@@ -250,3 +250,18 @@ Próximo passo recomendado:
 - [ ] manter persistência remota desligada até infraestrutura própria ser aprovada.
 
 **Checkpoint técnico:** `a9e6bf89e1e8799a0d9625a9e2731a624f4c447b`.
+
+## Checkpoint concluído — V19.7D Journey Read Model
+
+Status: **concluído** no commit `ce536b4ec42824eb904fdb4fcfb1353c4a2105eb`.
+
+Entregue:
+- reconstrução explicável da jornada;
+- leitura de entrada, recomendação, timeline e proposta final;
+- ownership na leitura;
+- integração client/API/repository;
+- compatibilidade entre shape persistido e normalizado;
+- regressões específicas para integridade e segurança;
+- baseline final 44/44 + lint + build.
+
+A persistência remota continua deliberadamente desligada e nenhuma migration foi executada. A próxima unidade deve partir deste checkpoint limpo, sem antecipar ativação de infraestrutura.

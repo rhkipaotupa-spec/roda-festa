@@ -376,3 +376,23 @@ Checkpoint técnico V19.7C: `a9e6bf89e1e8799a0d9625a9e2731a624f4c447b`.
 Validação oficial: 38/38 testes, lint verde e build verde no Windows.
 
 A persistência remota continua desativada. A timeline está preparada arquiteturalmente, mas sua durabilidade real só será considerada concluída quando a infraestrutura própria do Roda Festa for ativada e validada.
+
+## V19.7D — Journey Read Model — checkpoint `ce536b4ec42824eb904fdb4fcfb1353c4a2105eb`
+
+A V19.7D introduz uma camada explícita de leitura da jornada do planejamento, separando reconstrução histórica de cálculo comercial. O read model deve reconstruir os fatos já persistidos — entrada, recomendação autoritativa, timeline append-only e proposta final — sem recalcular ou reinterpretar retroativamente o histórico.
+
+### Invariantes consolidadas
+- A leitura é protegida por ownership da sessão.
+- O servidor é a fronteira autoritativa da leitura.
+- O read model não muta os snapshots de origem.
+- Uma proposta final sem recomendação histórica correspondente é inválida.
+- A timeline preserva ordenação e fatos históricos.
+- O read model aceita tanto a forma normalizada `camelCase` quanto a forma persistida `snake_case` retornada pelos adapters.
+- Persistência remota permanece desligada por padrão.
+- Nenhuma migration foi executada nesta unidade.
+
+### Integração
+O fluxo de leitura foi conectado de ponta a ponta: client same-origin → API → repository → adapter → Journey Read Model. O token anônimo permanece fora do payload do navegador e a posse continua derivada do cookie/token tratado no servidor.
+
+### Baseline de fechamento
+Checkpoint técnico: `ce536b4ec42824eb904fdb4fcfb1353c4a2105eb`. Validação final: 44/44 testes, lint verde e build de produção verde.
