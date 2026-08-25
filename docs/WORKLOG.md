@@ -118,3 +118,54 @@
 - O checkpoint inclui a refatoração V19 mobile-first, baseline de lint, API de submissão, infraestrutura de snapshot, recuperação da personalização comercial, correções de PDF V19.4 e hardening visual/mobile V19.5.
 - Permanecem deliberadamente fora desse checkpoint técnico os documentos de governança e fechamento, que serão registrados em commit documental separado.
 - Próxima ação de fechamento: commit documental, confirmação de working tree limpa e somente então `npm run snapshot`.
+
+## 2026-08-25 - Fundação comercial, histórica e Admin
+
+### Direção de produto confirmada
+
+- Cliente não deve ser obrigada a criar login para gerar proposta.
+- Histórico deve funcionar por sessão server-side anônima, vinculável futuramente a telefone/e-mail e recuperável por link mágico/código.
+- Admin será área separada no mesmo produto, com autenticação obrigatória e autorização server-side.
+- Admin deve responder: entrada, sugestão original, alterações, final, PDF e pós-evento.
+- Admin deve possuir agenda e tabela comercial versionada.
+- Reconciliação financeira interna deve discriminar cada produto/serviço e fechar exatamente no orçamento final.
+- Dados de festas reais serão solicitados quando a arquitetura estiver pronta para calibração; nenhum dado ausente será inventado.
+
+### Unidade técnica iniciada
+
+- Criado `commercialLedger.js` como representação financeira canônica.
+- `calculateInvestment()` passa a derivar agregados e total do ledger reconciliado.
+- Adicionadas versões `RF-REC-1.0.0`, `RF-COM-1.0.0` e `RF-PRICE-2026-08-24`.
+- Criado `planningHistory.js` para congelar recomendação original e derivar mudanças relevantes até o final.
+- `PlanningBook` passa a incluir recomendação original, delta, ledger e reconciliação no snapshot final.
+- API de submissão passa a recalcular produtos/preços/carrinhos/serviços no servidor e rejeitar divergências comerciais.
+- Criada suíte automatizada Node Test Runner para RF-001, consignação, horas adicionais, serviços, histórico e adulteração de payload.
+- Criados documentos `ARCHITECTURE-PLANNER-ADMIN.md`, `TEST-MATRIX-COMMERCIAL.md` e `REAL-EVENT-CALIBRATION.md`.
+
+### Próximas validações desta unidade
+
+- `npm ci`;
+- `npm test`;
+- `npm run lint`;
+- `npm run build`;
+- revisão dos resultados;
+- somente depois preparar pacote de atualização para aplicação no repositório oficial.
+
+### Validação no ambiente de preparação
+
+- `node --test tests/*.test.mjs`: 11/11 testes verdes.
+- Cobertura inclui regra RF-001 no motor e no recálculo server-side, consignação, horas adicionais, ledger, garçons/descartáveis, adulteração de preço/total, lote comercial, calendário de São Paulo e delta recomendação x final.
+- `node --check` verde para módulos JS novos/alterados de domínio e API.
+- `npm ci` no ambiente de preparação excedeu o tempo disponível antes de concluir; portanto `npm run lint` e `npm run build` desta unidade devem ser executados no Windows oficial antes do commit técnico. Não interpretar essa limitação como validação verde de build/lint.
+
+### Checkpoint técnico V19.6 - 2026-08-25
+
+- Pacote V19.6 aplicado pelo novo fluxo padronizado de atualização local.
+- `npm test`: 11 testes executados, 11 aprovados, 0 falhas.
+- `npm run lint`: verde, zero erros.
+- `npm run build`: verde; 125 módulos transformados. Permanece somente o aviso conhecido de `src/styles/colors.css` vazio.
+- Commit técnico criado: `c0f69ec134a7a2d7d698241959274d4cb3ece071`.
+- Mensagem: `feat: add commercial ledger, history tracking and regression tests`.
+- A unidade consolida Commercial Ledger canônico, histórico recomendação x final, recálculo server-side e regressões comerciais automatizadas.
+- Próxima unidade arquitetural: PlanningSession server-side e persistência durável, antes de construir a Central Admin visual.
+- A documentação desta unidade será commitada separadamente após registrar o hash técnico, mantendo a regra de reconciliação antes de snapshot.

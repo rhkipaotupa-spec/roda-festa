@@ -282,3 +282,92 @@ Registro técnico cumulativo do projeto. Este arquivo é a fonte documental para
 - **Escopo do checkpoint:** refatoração mobile-first V19, baseline técnico/lint, API de submissão, snapshot via Node/CMD, recuperação da personalização comercial V19.4, correções de PDF V19.4 e hardening visual/mobile V19.5.
 - **Pendências P0 que permanecem abertas:** RF-003 (autoridade financeira no servidor), RF-016 (QA completo da personalização), RF-017 (QA real do PDF), RF-020/RF-021 (QA real de data e responsividade), RF-022 (PDF canônico idêntico para cliente e Roda Festa) e RF-023 (matriz financeira completa).
 - **Regra de fechamento:** este checkpoint técnico só pode ser incluído em snapshot depois do commit documental que registra este hash e deixa a working tree limpa.
+
+## RF-024 - Snapshot final não preservava adequadamente sugestão original e delta da cliente
+
+- **Severidade:** P0
+- **Área:** Histórico / recomendação / aprendizado
+- **Estado:** CORRIGIDO PARCIALMENTE EM 25/08/2026
+- **Detectado em:** 2026-08-25
+- **Evidência:** o snapshot V19.5 gravava essencialmente o estado final da proposta. A recomendação inicial era substituída em memória conforme a cliente editava quantidades, itens e categorias.
+- **Impacto:** sem a sugestão original e o delta até o final, a Roda Festa perde a principal evidência para calibrar o algoritmo com eventos reais.
+- **Correção desta unidade:** o Planner passa a congelar `RecommendationSnapshot` quando gera a sugestão e a anexá-lo ao snapshot final, junto de `changesFromRecommendation` para inclusões, remoções e alterações de quantidade.
+- **Limitação restante:** o delta ainda é derivado no fechamento e não substitui um event log server-side persistente com ator/motivo/timestamp.
+- **Próxima evolução:** `PlanningSession` + `PlanningChange[]` duráveis no backend.
+
+## RF-025 - Orçamento não possuía ledger canônico discriminado e reconciliável
+
+- **Severidade:** P0
+- **Área:** Integridade financeira / auditoria
+- **Estado:** CORRIGIDO NA FUNDAÇÃO EM 25/08/2026
+- **Detectado em:** 2026-08-25
+- **Evidência:** o motor retornava totais agregados (`productsValue`, `cartsValue`, etc.), mas não existia uma lista canônica de linhas financeiras capaz de demonstrar cada componente do orçamento e provar que a soma fechava no total aprovado.
+- **Risco:** inconsistências como o bug RF-001 podem passar despercebidas quando estrutura e preço são calculados/apresentados por caminhos diferentes.
+- **Correção:** criado `commercialLedger.js`, com linhas de produto, carrinhos, horas adicionais, garçons e descartáveis; consignação fica em conjunto separado. O total contratado passa a ser derivado da soma das linhas.
+- **Invariante:** `SUM(contractedLines.subtotal) === investment.total` e diferença de reconciliação deve ser `R$ 0,00`.
+- **Uso futuro:** Admin exibirá exatamente esse ledger discriminado e bloqueará proposta inconsistente.
+
+## RF-026 - Frontend ainda era autoridade prática dos números enviados à API
+
+- **Severidade:** P0
+- **Área:** Segurança / integridade comercial
+- **Estado:** MITIGADO EM 25/08/2026 - PERSISTÊNCIA AINDA PENDENTE
+- **Detectado em:** 2026-08-25
+- **Relação:** aprofunda RF-003.
+- **Evidência:** `/api/planning-submissions` aceitava `unitPrice`, `estimatedValue`, `investmentTotal` e `totalCarts` do navegador e os utilizava na via interna.
+- **Correção desta unidade:** a API reconstrói produtos por ID usando catálogo confiável, recalcula convidados, carrinhos, garçons, descartáveis, ledger e total; preço unitário enviado pelo navegador é ignorado. Divergência de total/carrinhos, produto desconhecido ou quantidade fora de lote causa rejeição.
+- **Limitação restante:** ainda não existe persistência durável nem controle anti-replay/rate limiting suficiente. O e-mail não é fonte de verdade de longo prazo.
+
+## RF-027 - Não existe identidade durável de jornada para cliente sem login
+
+- **Severidade:** P1
+- **Área:** Sessão / histórico / continuidade
+- **Estado:** ABERTO
+- **Detectado em:** 2026-08-25
+- **Situação:** `localStorage` e código local permitem continuidade limitada ao navegador, mas não oferecem identidade server-side confiável para rastrear uma jornada em múltiplas etapas/dispositivos.
+- **Decisão:** cliente não terá login obrigatório. Será criada `PlanningSession` anônima no servidor, vinculável posteriormente a telefone/e-mail e recuperável no futuro por link mágico/código temporário.
+- **Critério:** histórico comercial não pode depender apenas de storage do navegador.
+
+## RF-028 - Admin futuro exige autenticação e autorização antes de exposição de dados
+
+- **Severidade:** P0
+- **Área:** Segurança / Admin
+- **Estado:** ABERTO - GATE DE IMPLEMENTAÇÃO
+- **Detectado em:** 2026-08-25
+- **Situação:** a Central Admin terá clientes, agenda, preços, propostas, histórico e auditoria.
+- **Regra:** `/admin` não pode ser protegido apenas por obscuridade de URL ou checagem client-side.
+- **Requisitos mínimos:** autenticação, autorização server-side, sessão segura, proteção CSRF para mutações, auditoria de alterações de preço/proposta e princípio do menor privilégio.
+- **Perfis planejados:** `OWNER`, `COMMERCIAL`, `OPERATION`; primeira fase pode usar apenas `OWNER`.
+
+## RF-029 - Regressões comerciais dependiam de smokes manuais
+
+- **Severidade:** P0
+- **Área:** Qualidade / regras de negócio
+- **Estado:** CORRIGIDO NA FUNDAÇÃO EM 25/08/2026
+- **Detectado em:** 2026-08-25
+- **Evidência:** RF-001 foi detectado pela conferência manual de uma proposta real. Os smokes posteriores eram comandos ad hoc no terminal.
+- **Correção:** criada suíte automatizada com Node Test Runner cobrindo ledger, três grupos/carrinhos, consignação, hora adicional, garçons, descartáveis, histórico e validação comercial server-side.
+- **Comandos:** `npm test` e `npm run test:commercial`.
+- **Regra:** novo bug comercial relevante exige teste de regressão antes ou junto da correção.
+
+## RF-030 - Ausência de versionamento explícito do recomendador, regras e tabela aplicada
+
+- **Severidade:** P1
+- **Área:** Rastreabilidade / histórico
+- **Estado:** CORRIGIDO NA FUNDAÇÃO EM 25/08/2026
+- **Detectado em:** 2026-08-25
+- **Correção:** adicionadas versões explícitas `RF-REC-1.0.0`, `RF-COM-1.0.0` e `RF-PRICE-2026-08-24` ao motor e aos snapshots.
+- **Regra:** proposta histórica deve registrar a versão efetivamente usada; nunca inferir a versão pela data nem recalcular histórico com regras atuais.
+
+## Checkpoint técnico V19.6 - Fundação Comercial e Histórica
+
+- **Data:** 2026-08-25
+- **Branch:** `planner/v19-mobile-first`
+- **Commit técnico:** `c0f69ec134a7a2d7d698241959274d4cb3ece071`
+- **Mensagem:** `feat: add commercial ledger, history tracking and regression tests`
+- **Validação oficial no Windows:** `npm test` com 11/11 testes verdes; `npm run lint` verde; `npm run build` verde com 125 módulos transformados.
+- **Cobertura confirmada:** RF-001 em motor e recálculo server-side; consignação; horas adicionais; ledger; garçons; descartáveis; adulteração de preço/total; lote comercial; calendário de São Paulo; delta recomendação x final.
+- **Invariante financeira protegida:** o ledger discriminado deve reconciliar em diferença zero com o total oficial; estrutura exibida e estrutura cobrada não podem divergir.
+- **Autoridade comercial:** preço enviado pelo navegador não é aceito como verdade oficial; a API reconstrói o cálculo com catálogo confiável.
+- **Limitações deliberadamente abertas:** PlanningSession e persistência server-side durável; event log persistente; PDF canônico idêntico cliente/Roda Festa; autenticação/autorizações do Admin; matriz comercial completa de todas as combinações; rate limiting/idempotência e demais hardenings.
+- **Regra de governança:** este commit técnico deve ser seguido por commit documental que registre este hash antes de qualquer snapshot de fechamento.

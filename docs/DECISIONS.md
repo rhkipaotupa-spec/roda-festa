@@ -75,3 +75,60 @@ O Planner deve bloquear no componente e também na lógica qualquer data anterio
 ## 2026-08-24 - Via interna deve ser o mesmo PDF canônico entregue ao cliente
 
 Não basta receber apenas JSON/snapshot ou uma reconstrução posterior. O sistema deve gerar um artefato canônico a partir do snapshot imutável e usar exatamente esse artefato para a via do cliente e a via interna da Roda Festa. A implementação final deve permitir prova de equivalência por identificador/hash e persistência durável.
+
+## 2026-08-25 - Cliente sem login obrigatório; jornada identificada por sessão server-side
+
+A geração de proposta deve continuar com baixo atrito. A cliente não será obrigada a criar usuário/senha para usar o Planner.
+
+A arquitetura futura criará uma `PlanningSession` anônima no servidor. Telefone/e-mail podem vincular a sessão a um contato. Recuperação em outro dispositivo poderá usar link mágico/código temporário.
+
+Login tradicional poderá ser oferecido no futuro, mas não é pré-requisito arquitetural para histórico confiável.
+
+## 2026-08-25 - Admin no mesmo produto, com autenticação obrigatória
+
+A Central Roda Festa fará parte do mesmo produto e backend, em rota dedicada `/admin`, evitando duplicação de catálogo, regras e infraestrutura.
+
+O Admin terá autenticação e autorização server-side antes de qualquer dado real ser exposto. A primeira fase pode ter apenas perfil `OWNER`; arquitetura preserva expansão para `COMMERCIAL` e `OPERATION`.
+
+## 2026-08-25 - Commercial Ledger é a fonte financeira canônica
+
+O orçamento oficial passa a ser representado por linhas discriminadas de produto/serviço. O total é consequência da soma dessas linhas.
+
+Planner, Admin, PDF e integrações não devem recalcular o orçamento de forma independente.
+
+Uma proposta nova só é íntegra quando a reconciliação do ledger resulta em diferença zero.
+
+## 2026-08-25 - Servidor é autoridade do preço oficial
+
+O navegador transmite escolhas e quantidades, não a verdade financeira.
+
+Na submissão oficial, o servidor reconstrói os produtos pelo catálogo confiável e recalcula estrutura, serviços e total. Valores enviados pelo frontend são apenas comparáveis; divergências devem ser rejeitadas e auditadas.
+
+## 2026-08-25 - Recomendação original é evidência imutável
+
+Quando o motor produz uma sugestão, essa versão deve ser congelada antes de qualquer edição. A proposta final não substitui a recomendação original.
+
+O histórico futuro deve permitir comparar entrada, recomendação, alterações, final e pós-evento.
+
+## 2026-08-25 - Eventos reais calibram o motor, mas não o alteram automaticamente
+
+A base real é evidência para versões candidatas do recomendador. Nenhum evento isolado muda automaticamente a regra em produção.
+
+Novas versões devem ser simuladas retrospectivamente e revisadas pela Roda Festa antes de promoção.
+
+## 2026-08-25 - Padrão oficial de atualização local
+
+O projeto oficial existe somente em `C:\Projetos\roda-festa`.
+
+Toda atualização gerada externamente deve ser aplicada por uma única pasta temporária descartável: `C:\Temp\rf-update`.
+
+Regras permanentes:
+
+- antes de cada nova atualização, limpar/recriar `C:\Temp\rf-update`;
+- não criar clones `roda-festa-vXX` em `C:\Projetos`;
+- pacotes devem ser autocontidos e preferencialmente trazer `apply-update.cmd` e `validate-update.cmd`;
+- `apply-update.cmd` deve validar branch, commit-base e working tree antes de alterar arquivos;
+- aplicar somente arquivos completos explicitamente previstos, sem `/MIR` destrutivo e sem edição parcial;
+- `validate-update.cmd` executa os gates técnicos aplicáveis antes de commit;
+- histórico oficial fica em Git + documentação + snapshots, não em cópias de pastas;
+- após aplicação/validação/commit, a pasta temporária pode ser removida.
