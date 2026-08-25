@@ -351,3 +351,22 @@ Entregue:
 - 92/92 testes, lint e build verdes.
 
 Próximo passo recomendado: criar a primeira experiência visual de login Admin sobre esta boundary HTTP, ainda sem abrir consultas administrativas globais e sem ativar persistência remota.
+
+## Checkpoint concluído — V19.7K Admin Login Shell
+
+Status: **concluído** no commit `5381ffc5de873781b6e976de53537b98190837ca`.
+
+Entregue:
+- primeira rota visual `/admin`;
+- login shell mobile-first;
+- campos de e-mail e senha;
+- comportamento deliberadamente não autenticado;
+- isolamento das rotas públicas;
+- 96/96 testes, lint e build verdes;
+- validação manual real em iPhone.
+
+Dívida visual registrada:
+- substituir placeholder `RF` pelo logo/branding oficial;
+- realizar refinamento visual posteriormente.
+
+Próxima direção: conectar progressivamente o shell à fundação de autenticação já construída, sem inserir credenciais fixas no frontend e sem antecipar abertura de consultas administrativas globais.

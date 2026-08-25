@@ -518,3 +518,23 @@ A V19.7J adiciona a superfície HTTP mínima de autenticação administrativa so
 
 ### Baseline
 Checkpoint técnico `3334f7444650b2d93001e1f7d9bd75ec0251d0ef` com 92/92 testes, lint verde e build de produção verde.
+
+## V19.7K — Admin Login Shell — checkpoint `5381ffc5de873781b6e976de53537b98190837ca`
+
+A V19.7K introduz a primeira superfície visual administrativa em `/admin`, preservando a separação entre experiência pública e área Admin.
+
+### Estado arquitetural
+- rota `/admin` adicionada ao roteamento existente;
+- shell de login isolado em `src/admin/`;
+- experiência mobile-first e acessível;
+- nenhuma autenticação simulada via frontend;
+- nenhuma credencial, usuário ou secret fixo no código;
+- nenhuma consulta administrativa global;
+- nenhum banco remoto ou migration ativados nesta unidade.
+
+### Validação
+Baseline técnico: 96/96 testes, lint verde e build de produção verde.
+
+Também houve validação visual real em iPhone pela rede local. A rota `/admin` carregou corretamente, os campos puderam ser preenchidos e o botão exibiu a mensagem deliberada de que credenciais reais ainda não estavam ativadas.
+
+O placeholder visual `RF` permanece provisório. Branding/logo oficial e refinamento visual ficam registrados como evolução futura, sem bloquear a evolução funcional.

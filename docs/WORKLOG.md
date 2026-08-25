@@ -346,3 +346,28 @@ Checkpoint técnico fechado em `3334f7444650b2d93001e1f7d9bd75ec0251d0ef` (`feat
 - nenhuma migration;
 - commit técnico criado;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-25 — V19.7K Admin Login Shell
+
+Checkpoint técnico: `5381ffc5de873781b6e976de53537b98190837ca` (`feat: add admin login shell`).
+
+A unidade foi aplicada sobre árvore limpa após restaurar `src/planner.zip`, cuja deleção local acidental havia sido detectada pelo guard do pacote.
+
+Validação automatizada:
+- 96/96 testes;
+- lint verde;
+- build verde.
+
+Validação manual:
+- Vite exposto na rede local;
+- endereço de rede atualizado para `192.168.0.124:5173`;
+- `/admin` acessado com sucesso em iPhone;
+- formulário preenchido;
+- botão `Entrar` exibiu corretamente a mensagem de que credenciais reais ainda não estavam ativadas.
+
+Decisão de produto:
+- funcionalidade aprovada para este estágio;
+- placeholder `RF` e acabamento visual não bloqueiam a evolução;
+- branding/logo oficial será refinado posteriormente.
+
+Após o commit técnico, `git status --short` ficou sem saída.

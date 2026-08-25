@@ -555,3 +555,31 @@ Validação:
 - nenhum login visual, secret, endpoint Admin global, banco remoto ou migration foi criado.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7K — Evidência e resultado — `5381ffc5de873781b6e976de53537b98190837ca`
+
+A unidade criou a primeira experiência visual Admin.
+
+Escopo técnico:
+- `src/admin/AdminLogin.jsx`;
+- `src/admin/AdminLogin.css`;
+- atualização de `src/routes/AppRoutes.jsx`;
+- changelog V19.7K;
+- teste estrutural do shell Admin.
+
+Evidências:
+- 96/96 testes aprovados;
+- lint aprovado;
+- build de produção aprovado;
+- rota `/admin` preserva as rotas públicas;
+- frontend não contém login real nem `fetch` de autenticação nesta unidade;
+- não há credencial/secret fixo;
+- shell possui características mobile-first e acessíveis;
+- teste manual realizado em iPhone pela rede local com sucesso;
+- preenchimento dos campos e ação `Entrar` produziram a mensagem prevista de indisponibilidade de credenciais reais.
+
+Observação visual não bloqueante:
+- placeholder `RF` não representa o branding final;
+- logo oficial e refinamentos estéticos ficam para etapa futura.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.

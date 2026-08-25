@@ -245,3 +245,14 @@ A finalidade é permitir reconstruir de forma auditável:
 - Não expor token bruto, tokenHash ou credential nas respostas.
 - Não criar login visual, secrets, endpoint Admin global, banco remoto ou migration nesta unidade.
 - Considerar a unidade concluída somente com 92/92 testes, lint e build verdes.
+
+## V19.7K — Decisões — `5381ffc5de873781b6e976de53537b98190837ca`
+
+- Introduzir `/admin` primeiro como shell visual, sem fingir autenticação real.
+- Preservar todas as rotas públicas existentes.
+- Priorizar funcionalidade e arquitetura antes do refinamento de branding.
+- Não embutir credenciais, usuários ou secrets no frontend.
+- Não conectar ainda o formulário a um mecanismo real de credenciais.
+- Manter dashboard, consulta global de jornadas, banco remoto e migrations fora desta unidade.
+- Registrar o placeholder `RF` como provisório; logo oficial e acabamento visual serão refinados posteriormente.
+- Considerar a unidade aprovada após baseline 96/96 + lint + build e teste visual real no celular.
