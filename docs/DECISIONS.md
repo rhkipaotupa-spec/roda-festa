@@ -157,3 +157,21 @@ Consequencias:
 - ausencia de configuracao de producao deve falhar alto, nunca cair silenciosamente para memoria;
 - migration pode permanecer versionada sem ser aplicada;
 - ativacao de persistencia real sera uma unidade separada, explicitamente validada.
+
+## 2026-08-25 - PlanningSession entra no fluxo somente atras de gate explicito
+
+A integracao do Planner com `PlanningSession` pode existir antes da persistencia remota, mas deve permanecer desligada por padrao enquanto nao houver infraestrutura duravel aprovada.
+
+Regras:
+
+- runtime desabilitado deve responder indisponibilidade de forma explicita;
+- memoria nao e fallback de producao;
+- migration versionada nao significa migration aplicada;
+- ativacao futura exige unidade propria de infraestrutura, validacao e rollback;
+- frontend nao pode fingir que historico foi persistido quando o backend estiver indisponivel.
+
+## 2026-08-25 - Recomendacao autoritativa nasce no servidor
+
+O snapshot de recomendacao usado como evidencia historica e financeira deve ser produzido/recalculado pela camada autoritativa do servidor. O navegador pode exibir e comparar a recomendacao, mas nao define sua verdade comercial.
+
+A finalizacao deve partir da recomendacao persistida/guardada, recalcular o final e derivar o delta no servidor. Ownership, versao esperada e idempotencia fazem parte do contrato da sessao.

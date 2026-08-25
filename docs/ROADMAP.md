@@ -222,3 +222,33 @@ Ainda pendente para concluir a Fase 2:
 - [ ] disponibilizar consulta backend para o futuro Admin.
 
 **Checkpoint tecnico:** `452be928190ad66b924a710f12d98d2b1a6f3964`.
+
+## Checkpoint parcial da Fase 2 - V19.7B (25/08/2026)
+
+**Estado:** fluxo de `PlanningSession` integrado atras de gate desligado; persistencia duravel continua pendente.
+
+Entregue:
+
+- [x] endpoint de `PlanningSession` para start/finalize;
+- [x] runtime de persistencia com estado disabled explicito;
+- [x] cliente same-origin para integracao do Planner;
+- [x] recomendacao autoritativa server-side no inicio da sessao;
+- [x] finalizacao baseada na recomendacao guardada, com recalc e delta server-side;
+- [x] rejeicao de produto inexistente, sessao alheia e mudanca indevida de contexto;
+- [x] deteccao frontend de divergencia da recomendacao;
+- [x] idempotencia por `clientRequestId` e retry da mesma finalizacao;
+- [x] ownership e versao esperada protegidos por regressao;
+- [x] memory adapter proibido em producao;
+- [x] 33/33 testes, lint e build verdes no Windows oficial;
+- [x] nenhuma migration executada e nenhum banco remoto ativado.
+
+Ainda pendente:
+
+- [ ] escolher/aprovar infraestrutura duravel propria do Roda Festa;
+- [ ] aplicar migration em ambiente aprovado;
+- [ ] provar persistencia real de InputSnapshot, RecommendationSnapshot, eventos e FinalProposalSnapshot;
+- [ ] provar fechamento/reabertura e recuperacao sem perda;
+- [ ] definir backup, retencao e restauracao;
+- [ ] disponibilizar leitura historica segura para a futura Central Admin.
+
+**Checkpoint tecnico:** `258b4e5e077443529a70b850e0227c1028d6a4f8`.
