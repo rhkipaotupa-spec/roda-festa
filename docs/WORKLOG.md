@@ -261,3 +261,21 @@ Checkpoint técnico fechado em `58bba0cb009d2823efa65d615fe9799990e74924` (`feat
 - nenhuma migration;
 - commit técnico criado;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-25 — V19.7G Admin Authentication Contract
+
+Checkpoint técnico fechado em `2e08ee32042de8cd5614091a49371975b7761c37` (`feat: add admin authentication contract`).
+
+- base inicial: `ddc6caec202c037d8e7b0cf2d11aa82a18e44c6d`;
+- V19.7G aplicada sobre working tree limpa;
+- exatamente 3 arquivos novos;
+- suíte acumulada: 63/63;
+- lint: verde;
+- build: verde;
+- nenhum login real;
+- nenhum secret;
+- nenhum endpoint Admin global;
+- nenhum banco remoto;
+- nenhuma migration;
+- commit técnico criado;
+- working tree confirmada limpa após o commit.

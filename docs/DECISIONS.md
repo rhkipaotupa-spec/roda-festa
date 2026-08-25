@@ -202,3 +202,14 @@ A finalidade é permitir reconstruir de forma auditável:
 - Não criar login, sessão Admin real ou listagem administrativa nesta unidade.
 - Não ativar banco remoto e não executar migrations.
 - Considerar a unidade concluída somente com 55/55 testes, lint e build verdes.
+
+## V19.7G — Decisões — `2e08ee32042de8cd5614091a49371975b7761c37`
+
+- Separar autenticação de autorização: autenticação produz principal; Authorization Boundary decide acesso.
+- Não confiar em role, capability ou identidade fornecida pelo navegador.
+- Resolver sessão administrativa exclusivamente server-side.
+- Fazer a camada de autenticação nascer provider-agnostic, sem escolher prematuramente um provedor de identidade.
+- Rejeitar sessão expirada e configuração de tempo de vida inválida.
+- Definir cookie administrativo HttpOnly, SameSite=Lax e Secure em produção.
+- Não criar login real, secrets, endpoint Admin global, banco remoto ou migration nesta unidade.
+- Considerar a unidade concluída somente com 63/63 testes, lint e build verdes.

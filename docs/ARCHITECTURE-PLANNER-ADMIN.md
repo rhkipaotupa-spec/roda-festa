@@ -433,3 +433,23 @@ A V19.7F introduz uma fronteira explícita de autorização administrativa antes
 
 ### Baseline
 Checkpoint técnico `58bba0cb009d2823efa65d615fe9799990e74924` com 55/55 testes, lint verde e build de produção verde.
+
+## V19.7G — Admin Authentication Contract — checkpoint `2e08ee32042de8cd5614091a49371975b7761c37`
+
+A V19.7G introduz o contrato de autenticação administrativa que precede qualquer integração com um provedor real de identidade. A autenticação produz um principal confiável a partir de uma sessão resolvida exclusivamente no servidor; a Authorization Boundary permanece responsável por decidir o acesso.
+
+### Propriedades consolidadas
+- token administrativo obtido somente do cookie configurado;
+- ausência de resolver de sessão falha alto;
+- ausência de cookie permanece não autenticada;
+- role e capabilities vêm somente da sessão confiável resolvida no servidor;
+- sessões expiradas e tempos de vida inválidos são rejeitados;
+- contrato de cookie nasce HttpOnly, SameSite=Lax e Secure em produção;
+- principal autenticado alimenta a Authorization Boundary sem acoplamento ao provedor;
+- nenhum login real, usuário/senha ou secret foi criado;
+- nenhum endpoint Admin global foi criado;
+- persistência remota continua desligada;
+- nenhuma migration foi executada.
+
+### Baseline
+Checkpoint técnico `2e08ee32042de8cd5614091a49371975b7761c37` com 63/63 testes, lint verde e build de produção verde.

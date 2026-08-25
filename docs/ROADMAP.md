@@ -288,3 +288,18 @@ Entregue:
 - 55/55 testes, lint e build verdes.
 
 Próximo passo recomendado: conectar uma autenticação Admin real a essa boundary antes de expor consultas administrativas globais. A implementação deverá preservar o princípio de mínimo privilégio e não depender da infraestrutura do Simplify.
+
+## Checkpoint concluído — V19.7G Admin Authentication Contract
+
+Status: **concluído** no commit `2e08ee32042de8cd5614091a49371975b7761c37`.
+
+Entregue:
+- contrato provider-agnostic de autenticação administrativa;
+- resolução server-side de sessão;
+- principal administrativo confiável;
+- rejeição de expiração/TTL inválido;
+- contrato seguro de cookie;
+- composição com a Authorization Boundary;
+- 63/63 testes, lint e build verdes.
+
+Próximo passo recomendado: integrar um mecanismo real de autenticação/sessão administrativa ao contrato, mantendo secrets fora do repositório e sem expor ainda consultas administrativas globais até que a integração esteja protegida e testada.
