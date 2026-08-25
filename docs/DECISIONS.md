@@ -233,3 +233,15 @@ A finalidade é permitir reconstruir de forma auditável:
 - Não expor token bruto nem tokenHash nos resultados da composição.
 - Não criar login visual, secrets, endpoint Admin global, banco remoto ou migration nesta unidade.
 - Considerar a unidade concluída somente com 82/82 testes, lint e build verdes.
+
+## V19.7J — Decisões — `3334f7444650b2d93001e1f7d9bd75ec0251d0ef`
+
+- Criar primeiro uma boundary HTTP mínima antes da UI de login.
+- Manter `credentialVerifier` injetado e server-side, sem credenciais fixas no código.
+- Restringir login/logout/refresh a POST e exigir Origin confiável.
+- Emitir cookie administrativo somente via `Set-Cookie`, com HttpOnly, SameSite=Lax, Path=/admin e Secure em produção.
+- Revogar sessão no logout e rotacionar token no refresh.
+- Ignorar role/capabilities fornecidas pelo cliente e confiar somente na identidade verificada server-side.
+- Não expor token bruto, tokenHash ou credential nas respostas.
+- Não criar login visual, secrets, endpoint Admin global, banco remoto ou migration nesta unidade.
+- Considerar a unidade concluída somente com 92/92 testes, lint e build verdes.

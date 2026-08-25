@@ -322,3 +322,27 @@ Checkpoint técnico fechado em `b9b847c0ebf117451ae25a2aa2e1309ccd505d8c` (`feat
 - nenhuma migration;
 - commit técnico criado;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-25 — V19.7J Admin Authentication HTTP Boundary
+
+Checkpoint técnico fechado em `3334f7444650b2d93001e1f7d9bd75ec0251d0ef` (`feat: add admin authentication http boundary`).
+
+- base inicial: `16ad59fa34b1e877faec341b721b146af27e0c74`;
+- V19.7J aplicada sobre working tree limpa;
+- exatamente 3 arquivos novos;
+- suíte acumulada: 92/92;
+- lint: verde;
+- build: verde;
+- login/logout/refresh HTTP implementados;
+- Origin e POST-only cobertos;
+- logout revoga sessão;
+- refresh rotaciona token;
+- role/capabilities fornecidas pelo cliente não são confiadas;
+- token bruto, tokenHash e credential não são expostos;
+- nenhum login visual;
+- nenhum secret;
+- nenhum endpoint Admin global;
+- nenhum banco remoto;
+- nenhuma migration;
+- commit técnico criado;
+- working tree confirmada limpa após o commit.

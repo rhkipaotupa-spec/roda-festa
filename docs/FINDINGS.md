@@ -533,3 +533,25 @@ Validação:
 - nenhum login visual, secret, endpoint Admin global, banco remoto ou migration foi criado.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7J — Resultado de validação — `3334f7444650b2d93001e1f7d9bd75ec0251d0ef`
+
+A unidade adicionou exatamente três arquivos novos:
+- `api/_lib/admin-auth-http-boundary.js`;
+- changelog da V19.7J;
+- suíte de testes da boundary HTTP.
+
+Validação:
+- 92/92 testes aprovados;
+- lint aprovado;
+- build de produção aprovado;
+- Origin confiável coberto por testes;
+- métodos diferentes de POST são rejeitados;
+- credencial inválida não cria sessão;
+- role/capabilities do cliente são ignoradas;
+- logout revoga e limpa cookie;
+- refresh rotaciona token e invalida o anterior;
+- respostas não expõem token bruto, tokenHash ou credential;
+- nenhum login visual, secret, endpoint Admin global, banco remoto ou migration foi criado.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.

@@ -333,3 +333,21 @@ Entregue:
 - 82/82 testes, lint e build verdes.
 
 Próximo passo recomendado: construir a superfície HTTP mínima de autenticação administrativa (login/logout/session refresh) atrás desta composição, sem expor ainda consultas administrativas globais e sem ativar persistência remota antes da infraestrutura própria estar aprovada.
+
+## Checkpoint concluído — V19.7J Admin Authentication HTTP Boundary
+
+Status: **concluído** no commit `3334f7444650b2d93001e1f7d9bd75ec0251d0ef`.
+
+Entregue:
+- login/logout/refresh HTTP server-side;
+- verifier de credencial injetado;
+- proteção de Origin;
+- métodos POST-only;
+- cookie administrativo seguro;
+- revogação no logout;
+- rotação no refresh;
+- proteção contra role/capability forjada;
+- não exposição de token/tokenHash/credential;
+- 92/92 testes, lint e build verdes.
+
+Próximo passo recomendado: criar a primeira experiência visual de login Admin sobre esta boundary HTTP, ainda sem abrir consultas administrativas globais e sem ativar persistência remota.

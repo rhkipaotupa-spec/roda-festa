@@ -495,3 +495,26 @@ A V19.7I compõe, exclusivamente server-side, as três fundações administrativ
 
 ### Baseline
 Checkpoint técnico `b9b847c0ebf117451ae25a2aa2e1309ccd505d8c` com 82/82 testes, lint verde e build de produção verde.
+
+## V19.7J — Admin Authentication HTTP Boundary — checkpoint `3334f7444650b2d93001e1f7d9bd75ec0251d0ef`
+
+A V19.7J adiciona a superfície HTTP mínima de autenticação administrativa sobre as fundações já consolidadas de Authentication Contract, Session Repository, Authentication Composition e Authorization Boundary.
+
+### Propriedades consolidadas
+- login HTTP server-side com `credentialVerifier` injetado;
+- logout com revogação imediata da sessão;
+- refresh com rotação do token e invalidação do token anterior;
+- mutações restritas a POST;
+- proteção de Origin em login/logout/refresh;
+- emissão e limpeza do cookie `rf_admin_session`;
+- cookie HttpOnly, SameSite=Lax, Path=/admin e Secure em produção;
+- role/capabilities fornecidas pelo navegador são ignoradas;
+- respostas não expõem token bruto, tokenHash ou credential;
+- nenhum login visual foi criado;
+- nenhum usuário/senha real ou secret foi adicionado;
+- nenhum endpoint Admin global de jornadas foi criado;
+- nenhum banco remoto foi ativado;
+- nenhuma migration foi executada.
+
+### Baseline
+Checkpoint técnico `3334f7444650b2d93001e1f7d9bd75ec0251d0ef` com 92/92 testes, lint verde e build de produção verde.
