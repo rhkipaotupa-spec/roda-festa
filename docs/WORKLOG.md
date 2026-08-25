@@ -245,3 +245,19 @@ Checkpoint técnico fechado em `2852f946e2f9430afdc247f093ba2c421c035ecb` (`feat
 - lint: verde;
 - build: verde;
 - working tree limpa após o commit.
+
+## 2026-08-25 — V19.7F Admin Authorization Boundary
+
+Checkpoint técnico fechado em `58bba0cb009d2823efa65d615fe9799990e74924` (`feat: add admin authorization boundary`).
+
+- V19.7F aplicada sobre working tree limpa;
+- apenas 3 arquivos novos;
+- suíte acumulada: 55/55;
+- lint: verde;
+- build: verde;
+- nenhum login real;
+- nenhum endpoint Admin global;
+- nenhum banco remoto;
+- nenhuma migration;
+- commit técnico criado;
+- working tree confirmada limpa após o commit.

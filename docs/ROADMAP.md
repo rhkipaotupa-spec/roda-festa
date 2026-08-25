@@ -273,3 +273,18 @@ Status: **concluído** no commit `2852f946e2f9430afdc247f093ba2c421c035ecb`.
 Entregue o contrato de leitura preparado para a futura Central Admin: resumo comercial, status, histórico, reconciliação e detalhe explicável com snapshots.
 
 Próximo limite arquitetural: qualquer consulta administrativa global deverá nascer somente depois de uma fronteira explícita de autenticação/autorização. Persistência remota permanece desligada.
+
+## Checkpoint concluído — V19.7F Admin Authorization Boundary
+
+Status: **concluído** no commit `58bba0cb009d2823efa65d615fe9799990e74924`.
+
+Entregue:
+- principal administrativo normalizado;
+- autorização fail-closed;
+- roles explícitas;
+- capabilities por operação;
+- bloqueio de conta inativa;
+- boundary reutilizável para futuras APIs Admin;
+- 55/55 testes, lint e build verdes.
+
+Próximo passo recomendado: conectar uma autenticação Admin real a essa boundary antes de expor consultas administrativas globais. A implementação deverá preservar o princípio de mínimo privilégio e não depender da infraestrutura do Simplify.

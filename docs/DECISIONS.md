@@ -193,3 +193,12 @@ A finalidade é permitir reconstruir de forma auditável:
 - Não criar listagem administrativa global antes da definição de autenticação/autorização Admin.
 - Manter persistência remota desligada e não executar migrations nesta unidade.
 - Considerar a V19.7E concluída com 48/48 testes, lint e build verdes.
+
+## V19.7F — Decisões — `58bba0cb009d2823efa65d615fe9799990e74924`
+
+- Criar a fronteira de autorização antes de qualquer endpoint administrativo global.
+- Adotar comportamento fail-closed na ausência de autenticação, role válida ou capability necessária.
+- Centralizar roles/capabilities em um boundary reutilizável, evitando regras espalhadas pela API.
+- Não criar login, sessão Admin real ou listagem administrativa nesta unidade.
+- Não ativar banco remoto e não executar migrations.
+- Considerar a unidade concluída somente com 55/55 testes, lint e build verdes.

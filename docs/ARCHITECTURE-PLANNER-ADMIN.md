@@ -414,3 +414,22 @@ A unidade deliberadamente não cria endpoint administrativo global, listagem de 
 
 ### Baseline
 Checkpoint técnico `2852f946e2f9430afdc247f093ba2c421c035ecb`: 48/48 testes, lint verde e build de produção verde.
+
+## V19.7F — Admin Authorization Boundary — checkpoint `58bba0cb009d2823efa65d615fe9799990e74924`
+
+A V19.7F introduz uma fronteira explícita de autorização administrativa antes da criação de qualquer endpoint Admin global. A regra de acesso deixa de ser uma preocupação dispersa e passa a existir como componente reutilizável, fail-closed e testável.
+
+### Propriedades consolidadas
+- principal administrativo normalizado;
+- ausência de principal bloqueia acesso;
+- roles administrativas são explícitas;
+- conta inativa é bloqueada;
+- capability pode ser exigida por operação;
+- a boundary pode ser reutilizada por futuras rotas sem duplicar regra;
+- não há login real nem sessão administrativa nesta unidade;
+- nenhum endpoint Admin global foi criado;
+- persistência remota continua desligada;
+- nenhuma migration foi executada.
+
+### Baseline
+Checkpoint técnico `58bba0cb009d2823efa65d615fe9799990e74924` com 55/55 testes, lint verde e build de produção verde.
