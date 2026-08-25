@@ -18,3 +18,17 @@ test("adapter Supabase envia service role apenas no request server-side e filtra
   }});
   assert.equal(await adapter.getOwned({ sessionId: "s1", tokenHash: "hash-correto" }), null);
 });
+
+test("adapter Supabase trata retry da mesma finalizacao como idempotente", async () => {
+  const env = { SUPABASE_URL: "https://db.example", SUPABASE_SERVICE_ROLE_KEY: "server-secret" };
+  let calls = 0;
+  const adapter = createSupabasePlanningSessionAdapter({ env, fetchImpl: async (_url, options) => {
+    calls += 1;
+    if (options.method === "PATCH") return new Response(JSON.stringify([]), { status: 200 });
+    return new Response(JSON.stringify([{ id:"s1", version:2, final_proposal_snapshot:{code:"RF-990825-00001"} }]), { status:200 });
+  }});
+  const result = await adapter.finalize({ sessionId:"s1", tokenHash:"owner", finalSnapshot:{code:"RF-990825-00001"}, changes:[], expectedVersion:1 });
+  assert.equal(result.idempotent, true);
+  assert.equal(result.finalized, false);
+  assert.equal(calls, 2);
+});

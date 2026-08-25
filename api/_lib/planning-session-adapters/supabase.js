@@ -55,7 +55,17 @@ export function createSupabasePlanningSessionAdapter({ env = process.env, fetchI
         method: "PATCH", prefer: "return=representation",
         body: { status: "FINALIZED", final_proposal_snapshot: finalSnapshot, planning_changes: changes, version: Number(expectedVersion) + 1, last_activity_at: new Date().toISOString(), finalized_at: new Date().toISOString() },
       });
-      if (!rows?.[0]) throw new Error("planning_session_concurrent_update");
+      if (!rows?.[0]) {
+        const current = await this.getOwned({ sessionId, tokenHash });
+        if (!current) throw new Error("planning_session_not_found");
+        if (current.final_proposal_snapshot) {
+          if (current.final_proposal_snapshot.code === finalSnapshot.code) {
+            return { finalized: false, session: current, idempotent: true };
+          }
+          throw new Error("planning_session_already_finalized");
+        }
+        throw new Error("planning_session_concurrent_update");
+      }
       return { finalized: true, session: rows[0], idempotent: false };
     },
 

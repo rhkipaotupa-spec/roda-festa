@@ -45,3 +45,12 @@ test("finalizacao usa versao esperada, e segunda proposta diferente e bloqueada"
   assert.equal(replay.idempotent, true);
   await assert.rejects(() => repo.finalize({ sessionId: "s1", tokenHash: "owner", finalSnapshot: { code: "RF-2" }, changes: [], expectedVersion: 2 }), /already_finalized/);
 });
+
+
+test("clientRequestId nao pode ser reivindicado por outro token, mas um token pode ter varias sessoes", async () => {
+  const { repo } = setup();
+  await repo.create({ id:"s1", clientRequestId:"r1", tokenHash:"owner", inputSnapshot:{}, recommendationSnapshot:[] });
+  await assert.rejects(() => repo.create({ id:"s2", clientRequestId:"r1", tokenHash:"intruder", inputSnapshot:{}, recommendationSnapshot:[] }), /idempotency_conflict/);
+  const secondJourney = await repo.create({ id:"s3", clientRequestId:"r2", tokenHash:"owner", inputSnapshot:{}, recommendationSnapshot:[] });
+  assert.equal(secondJourney.created, true);
+});

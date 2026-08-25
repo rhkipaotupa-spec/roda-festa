@@ -7,7 +7,7 @@ create extension if not exists pgcrypto;
 create table if not exists public.planning_sessions (
   id uuid primary key default gen_random_uuid(),
   client_request_id text not null unique,
-  anonymous_session_token_hash text not null unique,
+  anonymous_session_token_hash text not null,
   status text not null default 'ACTIVE' check (status in ('ACTIVE','FINALIZED','ABANDONED','EXPIRED')),
   source text not null default 'planner-web',
   client_name text,
@@ -28,6 +28,7 @@ create table if not exists public.planning_sessions (
 );
 
 create index if not exists planning_sessions_status_idx on public.planning_sessions(status);
+create index if not exists planning_sessions_token_hash_idx on public.planning_sessions(anonymous_session_token_hash);
 create index if not exists planning_sessions_last_activity_idx on public.planning_sessions(last_activity_at desc);
 create index if not exists planning_sessions_phone_idx on public.planning_sessions(phone) where phone is not null;
 create unique index if not exists planning_sessions_proposal_code_uidx

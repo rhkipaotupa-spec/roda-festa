@@ -8,9 +8,12 @@ export function createMemoryPlanningSessionAdapter() {
 
   return {
     async create({ id, clientRequestId, tokenHash, source = "planner-web", inputSnapshot, recommendationSnapshot }) {
-      const key = `${clientRequestId}:${tokenHash}`;
-      const existingId = requestIndex.get(key);
-      if (existingId) return { created: false, session: clone(records.get(existingId)) };
+      const existingId = requestIndex.get(clientRequestId);
+      if (existingId) {
+        const existing = records.get(existingId);
+        if (existing.anonymous_session_token_hash !== tokenHash) throw new Error("planning_session_idempotency_conflict");
+        return { created: false, session: clone(existing) };
+      }
 
       const now = new Date().toISOString();
       const record = {
@@ -32,7 +35,7 @@ export function createMemoryPlanningSessionAdapter() {
         finalized_at: null,
       };
       records.set(id, record);
-      requestIndex.set(key, id);
+      requestIndex.set(clientRequestId, id);
       return { created: true, session: clone(record) };
     },
 

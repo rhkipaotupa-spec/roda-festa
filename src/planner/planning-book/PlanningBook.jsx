@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import "./PlanningBook.css";
 
@@ -15,6 +15,12 @@ import {
   generatePlanningSuggestion,
 } from "./engine/planningRules";
 import { createRecommendationSnapshot, compareRecommendationToFinal } from "./engine/planningHistory.js";
+import {
+  areRecommendationSnapshotsEquivalent,
+  finalizePlanningSession,
+  isPlanningSessionPersistenceEnabled,
+  startPlanningSession,
+} from "./planningSessionClient.js";
 
 import rodaFestaLogo from "./assets/logo-roda-festa.png";
 import rodaFestaLogoCreme from "./assets/logo-roda-festa-creme.png";
@@ -315,6 +321,8 @@ export default function PlanningBook() {
   const [formNotice, setFormNotice] = useState("");
   const [editingCategory, setEditingCategory] = useState("");
   const [replacingItemId, setReplacingItemId] = useState("");
+  const planningSessionStartRef = useRef(null);
+  const planningSessionPersistenceEnabled = isPlanningSessionPersistenceEnabled();
 
   const eventData = EVENT_OPTIONS.find((item) => item.id === selectedEvent);
   const realGuests = adults + olderChildren + children;
@@ -412,6 +420,32 @@ export default function PlanningBook() {
 
     setInitialRecommendationSnapshot(recommendationSnapshot);
     setSuggestion(generated);
+
+    if (planningSessionPersistenceEnabled) {
+      const startPromise = startPlanningSession({
+        clientName: clientName.trim(),
+        phone,
+        eventType: selectedEvent,
+        eventDate,
+        adults,
+        olderChildren,
+        children,
+        duration,
+        selectedProductIds,
+        includeWaiters,
+        includeDisposables,
+      }).then((result) => {
+        if (!result.available) return { ok: false, error: result.reason || "planning_persistence_unavailable" };
+        if (!areRecommendationSnapshotsEquivalent(recommendationSnapshot, result.recommendation)) {
+          return { ok: false, error: "planning_recommendation_mismatch" };
+        }
+        return { ok: true, session: { id: result.sessionId, version: result.version } };
+      }).catch((error) => ({ ok: false, error: error?.message || "planning_session_start_failed" }));
+      planningSessionStartRef.current = startPromise;
+    } else {
+      planningSessionStartRef.current = null;
+    }
+
     goTo(3);
   }
 
@@ -569,6 +603,30 @@ export default function PlanningBook() {
     const code = planningCode || createPlanningCode();
     if (!planningCode) setPlanningCode(code);
     const snapshot = buildSnapshot(code);
+
+    if (planningSessionPersistenceEnabled) {
+      try {
+        const startResult = await planningSessionStartRef.current;
+        if (!startResult?.ok) throw new Error(startResult?.error || "planning_session_missing");
+        const session = startResult.session;
+        if (!session?.id) throw new Error("planning_session_missing");
+        const finalized = await finalizePlanningSession({
+          sessionId: session.id,
+          expectedVersion: session.version,
+          finalSnapshot: snapshot,
+        });
+        if (!finalized.available) throw new Error(finalized.reason || "planning_persistence_unavailable");
+        planningSessionStartRef.current = Promise.resolve({
+          ok: true,
+          session: { id: finalized.sessionId, version: finalized.version },
+        });
+      } catch {
+        setSubmitStatus("error");
+        setSubmitMessage("Não foi possível registrar a proposta com segurança. Nenhuma finalização foi confirmada; tente novamente.");
+        return;
+      }
+    }
+
     const internalCopySent = await submitInternalCopy(snapshot);
 
     setSubmitStatus(internalCopySent ? "sent" : "local-only");
