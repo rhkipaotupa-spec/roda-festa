@@ -303,3 +303,19 @@ Entregue:
 - 63/63 testes, lint e build verdes.
 
 Próximo passo recomendado: integrar um mecanismo real de autenticação/sessão administrativa ao contrato, mantendo secrets fora do repositório e sem expor ainda consultas administrativas globais até que a integração esteja protegida e testada.
+
+## Checkpoint concluído — V19.7H Admin Session Repository
+
+Status: **concluído** no commit `eb1713d82f937ceaf0dbe94f736336cff3a8e135`.
+
+Entregue:
+- repository provider-agnostic de sessão administrativa;
+- token opaco e armazenamento somente de hash;
+- resolução segura;
+- expiração server-side;
+- revogação;
+- rotação;
+- adapter de memória restrito a testes;
+- 72/72 testes, lint e build verdes.
+
+Próximo passo recomendado: conectar o Admin Authentication Contract ao Admin Session Repository por uma composição server-side, ainda sem login visual e sem endpoint administrativo global.

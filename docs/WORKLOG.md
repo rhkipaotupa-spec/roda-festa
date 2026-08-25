@@ -279,3 +279,24 @@ Checkpoint técnico fechado em `2e08ee32042de8cd5614091a49371975b7761c37` (`feat
 - nenhuma migration;
 - commit técnico criado;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-25 — V19.7H Admin Session Repository
+
+Checkpoint técnico fechado em `eb1713d82f937ceaf0dbe94f736336cff3a8e135` (`feat: add admin session repository`).
+
+- base inicial: `8c629305d268d29c71e87765bb45f0f084b9d3bd`;
+- V19.7H aplicada sobre working tree limpa;
+- exatamente 4 arquivos novos;
+- suíte acumulada: 72/72;
+- lint: verde;
+- build: verde;
+- token bruto não persistido;
+- expiração, revogação e rotação cobertas por testes;
+- adapter de memória bloqueado em produção por padrão;
+- nenhum login real;
+- nenhum secret;
+- nenhum endpoint Admin global;
+- nenhum banco remoto;
+- nenhuma migration;
+- commit técnico criado;
+- working tree confirmada limpa após o commit.

@@ -487,3 +487,27 @@ Validação:
 - nenhuma migration executada.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7H — Resultado de validação — `eb1713d82f937ceaf0dbe94f736336cff3a8e135`
+
+A unidade adicionou quatro arquivos novos:
+- `api/_lib/admin-session-repository.js`;
+- `api/_lib/admin-session-adapters/memory.js`;
+- changelog da V19.7H;
+- suíte de testes do repository.
+
+Validação:
+- 72/72 testes aprovados;
+- lint aprovado;
+- build de produção aprovado;
+- token bruto não é persistido;
+- sessão expirada deixa de autenticar;
+- revogação invalida imediatamente;
+- rotação invalida token anterior;
+- adapter em memória é bloqueado em produção por padrão;
+- nenhum login real ou secret criado;
+- nenhum endpoint Admin global criado;
+- nenhum banco remoto ativado;
+- nenhuma migration executada.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.

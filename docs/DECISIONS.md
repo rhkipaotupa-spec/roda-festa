@@ -213,3 +213,13 @@ A finalidade é permitir reconstruir de forma auditável:
 - Definir cookie administrativo HttpOnly, SameSite=Lax e Secure em produção.
 - Não criar login real, secrets, endpoint Admin global, banco remoto ou migration nesta unidade.
 - Considerar a unidade concluída somente com 63/63 testes, lint e build verdes.
+
+## V19.7H — Decisões — `eb1713d82f937ceaf0dbe94f736336cff3a8e135`
+
+- Persistir somente hash de token administrativo, nunca o token bruto.
+- Tratar sessão administrativa como domínio próprio, independente do provedor futuro.
+- Exigir expiração server-side e revogação imediata.
+- Implementar rotação de token invalidando o token anterior.
+- Proibir adapter em memória em produção por padrão.
+- Não criar login real, secrets, endpoint Admin global, banco remoto ou migration nesta unidade.
+- Considerar a unidade concluída somente com 72/72 testes, lint e build verdes.

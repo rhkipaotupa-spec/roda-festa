@@ -453,3 +453,23 @@ A V19.7G introduz o contrato de autenticação administrativa que precede qualqu
 
 ### Baseline
 Checkpoint técnico `2e08ee32042de8cd5614091a49371975b7761c37` com 63/63 testes, lint verde e build de produção verde.
+
+## V19.7H — Admin Session Repository — checkpoint `eb1713d82f937ceaf0dbe94f736336cff3a8e135`
+
+A V19.7H adiciona a fundação provider-agnostic de armazenamento e ciclo de vida de sessões administrativas, preservando a separação entre autenticação, autorização e persistência.
+
+### Propriedades consolidadas
+- token administrativo opaco com alta entropia;
+- persistência somente do hash do token;
+- criação, resolução, revogação e rotação de sessão;
+- expiração validada server-side;
+- token anterior invalidado após rotação;
+- principal resolvido nunca expõe `tokenHash`;
+- adapter em memória restrito a testes e proibido em produção por padrão;
+- nenhum login real, usuário/senha ou secret foi criado;
+- nenhum endpoint Admin global foi criado;
+- nenhum banco remoto foi ativado;
+- nenhuma migration foi executada.
+
+### Baseline
+Checkpoint técnico `eb1713d82f937ceaf0dbe94f736336cff3a8e135` com 72/72 testes, lint verde e build de produção verde.
