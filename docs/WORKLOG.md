@@ -300,3 +300,25 @@ Checkpoint técnico fechado em `eb1713d82f937ceaf0dbe94f736336cff3a8e135` (`feat
 - nenhuma migration;
 - commit técnico criado;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-25 — V19.7I Admin Authentication Composition
+
+Checkpoint técnico fechado em `b9b847c0ebf117451ae25a2aa2e1309ccd505d8c` (`feat: compose admin authentication session and authorization`).
+
+- base inicial: `874d734c5e69c3d49d245bb3b328d063d2394c89`;
+- V19.7I aplicada sobre working tree limpa;
+- exatamente 3 arquivos novos;
+- suíte acumulada: 82/82;
+- lint: verde;
+- build: verde;
+- Authentication Contract, Session Repository e Authorization Boundary compostos server-side;
+- tentativa de forjar role/capabilities coberta por regressão;
+- expiração, revogação e rotação cobertas de ponta a ponta;
+- token bruto e tokenHash não expostos;
+- nenhum login visual;
+- nenhum secret;
+- nenhum endpoint Admin global;
+- nenhum banco remoto;
+- nenhuma migration;
+- commit técnico criado;
+- working tree confirmada limpa após o commit.

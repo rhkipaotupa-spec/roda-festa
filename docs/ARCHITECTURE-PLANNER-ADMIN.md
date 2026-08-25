@@ -473,3 +473,25 @@ A V19.7H adiciona a fundação provider-agnostic de armazenamento e ciclo de vid
 
 ### Baseline
 Checkpoint técnico `eb1713d82f937ceaf0dbe94f736336cff3a8e135` com 72/72 testes, lint verde e build de produção verde.
+
+## V19.7I — Admin Authentication Composition — checkpoint `b9b847c0ebf117451ae25a2aa2e1309ccd505d8c`
+
+A V19.7I compõe, exclusivamente server-side, as três fundações administrativas já existentes: Admin Authentication Contract, Admin Session Repository e Admin Authorization Boundary.
+
+### Propriedades consolidadas
+- cookie opaco é a única credencial apresentada pelo navegador;
+- token é resolvido pelo Session Repository;
+- role e capabilities vêm exclusivamente da sessão confiável;
+- o principal normalizado alimenta a Authorization Boundary;
+- ausência de cookie, token desconhecido, sessão expirada ou revogada falham fechados;
+- capability insuficiente continua bloqueada;
+- rotação invalida o token anterior;
+- tentativa de forjar role/capabilities no cookie não atravessa a composição;
+- resultado autorizado não expõe token bruto nem tokenHash;
+- nenhum login visual foi criado;
+- nenhum endpoint Admin global foi criado;
+- nenhum banco remoto foi ativado;
+- nenhuma migration foi executada.
+
+### Baseline
+Checkpoint técnico `b9b847c0ebf117451ae25a2aa2e1309ccd505d8c` com 82/82 testes, lint verde e build de produção verde.

@@ -223,3 +223,13 @@ A finalidade é permitir reconstruir de forma auditável:
 - Proibir adapter em memória em produção por padrão.
 - Não criar login real, secrets, endpoint Admin global, banco remoto ou migration nesta unidade.
 - Considerar a unidade concluída somente com 72/72 testes, lint e build verdes.
+
+## V19.7I — Decisões — `b9b847c0ebf117451ae25a2aa2e1309ccd505d8c`
+
+- Compor autenticação, sessão e autorização em uma única camada server-side sem fundir responsabilidades.
+- Manter o navegador restrito ao cookie opaco de sessão.
+- Derivar role/capabilities somente de sessão confiável resolvida no servidor.
+- Preservar fail-closed para ausência de cookie, token inválido, sessão expirada/revogada e capability insuficiente.
+- Não expor token bruto nem tokenHash nos resultados da composição.
+- Não criar login visual, secrets, endpoint Admin global, banco remoto ou migration nesta unidade.
+- Considerar a unidade concluída somente com 82/82 testes, lint e build verdes.

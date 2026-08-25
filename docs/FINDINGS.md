@@ -511,3 +511,25 @@ Validação:
 - nenhuma migration executada.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7I — Resultado de validação — `b9b847c0ebf117451ae25a2aa2e1309ccd505d8c`
+
+A unidade adicionou exatamente três arquivos novos:
+- `api/_lib/admin-authentication-composition.js`;
+- changelog da V19.7I;
+- suíte de testes da composição.
+
+Validação:
+- 82/82 testes aprovados;
+- lint aprovado;
+- build de produção aprovado;
+- cookie opaco resolve sessão e alimenta a boundary;
+- role/capabilities forjadas no cookie são ignoradas;
+- ausência de cookie e token desconhecido falham fechados;
+- revogação e expiração bloqueiam imediatamente;
+- rotação invalida token anterior;
+- capability ausente continua bloqueada;
+- token bruto e tokenHash não são expostos;
+- nenhum login visual, secret, endpoint Admin global, banco remoto ou migration foi criado.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.

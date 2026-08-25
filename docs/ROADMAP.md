@@ -319,3 +319,17 @@ Entregue:
 - 72/72 testes, lint e build verdes.
 
 Próximo passo recomendado: conectar o Admin Authentication Contract ao Admin Session Repository por uma composição server-side, ainda sem login visual e sem endpoint administrativo global.
+
+## Checkpoint concluído — V19.7I Admin Authentication Composition
+
+Status: **concluído** no commit `b9b847c0ebf117451ae25a2aa2e1309ccd505d8c`.
+
+Entregue:
+- composição server-side de Authentication Contract + Session Repository + Authorization Boundary;
+- fail-closed de autenticação e autorização;
+- proteção contra role/capability forjada no cliente;
+- revogação, expiração e rotação respeitadas de ponta a ponta;
+- não exposição de token/tokenHash;
+- 82/82 testes, lint e build verdes.
+
+Próximo passo recomendado: construir a superfície HTTP mínima de autenticação administrativa (login/logout/session refresh) atrás desta composição, sem expor ainda consultas administrativas globais e sem ativar persistência remota antes da infraestrutura própria estar aprovada.
