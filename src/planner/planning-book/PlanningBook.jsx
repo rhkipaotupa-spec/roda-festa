@@ -4,6 +4,7 @@ import "./PlanningBook.css";
 
 import {
   PRODUCTS,
+  ENGINE_VERSIONS,
   calculateCarts,
   calculateDisposables,
   calculateInvestment,
@@ -13,6 +14,7 @@ import {
   evaluateSuggestion,
   generatePlanningSuggestion,
 } from "./engine/planningRules";
+import { createRecommendationSnapshot, compareRecommendationToFinal } from "./engine/planningHistory.js";
 
 import rodaFestaLogo from "./assets/logo-roda-festa.png";
 import rodaFestaLogoCreme from "./assets/logo-roda-festa-creme.png";
@@ -305,6 +307,7 @@ export default function PlanningBook() {
   const [selectedProductIds, setSelectedProductIds] = useState([]);
   const [expandedCategory, setExpandedCategory] = useState("");
   const [suggestion, setSuggestion] = useState(null);
+  const [initialRecommendationSnapshot, setInitialRecommendationSnapshot] = useState(null);
   const [planningCode, setPlanningCode] = useState("");
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState("idle");
@@ -392,6 +395,22 @@ export default function PlanningBook() {
       additionalProductIds: [],
     });
 
+    const recommendationSnapshot = createRecommendationSnapshot({
+      suggestion: generated,
+      context: {
+        eventType: selectedEvent,
+        eventDate,
+        adults,
+        olderChildren,
+        children,
+        realGuests,
+        equivalentGuests,
+        duration,
+      },
+      versions: generated.versions || ENGINE_VERSIONS,
+    });
+
+    setInitialRecommendationSnapshot(recommendationSnapshot);
     setSuggestion(generated);
     goTo(3);
   }
@@ -469,10 +488,31 @@ export default function PlanningBook() {
   }
 
   function buildSnapshot(code) {
+    const finalItems = (suggestion?.items || []).map((item) => ({
+      id: item.id,
+      name: item.name,
+      commercialCategory: item.commercialCategory,
+      operationalGroup: item.operationalGroup,
+      quantity: item.quantity,
+      quantityLabel: getQuantityLabel(item),
+      unitPrice: item.unitPrice,
+      priceUnit: item.priceUnit || "unit",
+      consignment: Boolean(item.consignment),
+      estimatedValue: item.estimatedValue || 0,
+    }));
+    const changes = compareRecommendationToFinal(initialRecommendationSnapshot, finalItems);
+    const ledger = suggestion?.investment?.ledger || null;
+    const reconciliation = suggestion?.investment?.reconciliation || null;
+
+    if (reconciliation && !reconciliation.ok) {
+      throw new Error("commercial_reconciliation_failed_before_snapshot");
+    }
+
     return {
-      schemaVersion: 1,
+      schemaVersion: 2,
       code,
       createdAt: new Date().toISOString(),
+      versions: suggestion?.versions || ENGINE_VERSIONS,
       clientName: clientName.trim(),
       phone,
       eventDate,
@@ -492,18 +532,11 @@ export default function PlanningBook() {
       investment: suggestion?.investment || {},
       investmentTotal: suggestion?.investment.total || 0,
       consignmentTotal,
-      items: (suggestion?.items || []).map((item) => ({
-        id: item.id,
-        name: item.name,
-        commercialCategory: item.commercialCategory,
-        operationalGroup: item.operationalGroup,
-        quantity: item.quantity,
-        quantityLabel: getQuantityLabel(item),
-        unitPrice: item.unitPrice,
-        priceUnit: item.priceUnit || "unit",
-        consignment: Boolean(item.consignment),
-        estimatedValue: item.estimatedValue || 0,
-      })),
+      items: finalItems,
+      recommendationOriginal: initialRecommendationSnapshot,
+      changesFromRecommendation: changes,
+      commercialLedger: ledger,
+      commercialReconciliation: reconciliation,
       logoUrl: new URL(rodaFestaLogo, window.location.href).href,
     };
   }
@@ -540,7 +573,7 @@ export default function PlanningBook() {
 
     setSubmitStatus(internalCopySent ? "sent" : "local-only");
     setSubmitMessage(internalCopySent
-      ? "Proposta registrada. A Roda Festa recebeu a mesma versão do seu planejamento."
+      ? "Proposta registrada e validada comercialmente. A via documental canônica ainda será consolidada na próxima fase."
       : "Proposta pronta. A cópia local foi preservada; o envio interno precisa da integração de e-mail da produção.");
     goTo(5);
   }
@@ -572,7 +605,7 @@ export default function PlanningBook() {
     setClientName(""); setPhone(""); setEventDate(""); setSelectedEvent("");
     setAdults(0); setOlderChildren(0); setChildren(0); setDuration(4);
     setIncludeWaiters(false); setIncludeDisposables(false); setSelectedProductIds([]);
-    setExpandedCategory(""); setSuggestion(null); setPlanningCode("");
+    setExpandedCategory(""); setSuggestion(null); setInitialRecommendationSnapshot(null); setPlanningCode("");
     setSubmitStatus("idle"); setSubmitMessage(""); setFormNotice(""); setEditingCategory(""); setReplacingItemId(""); setErrors({}); goTo(0);
   }
 

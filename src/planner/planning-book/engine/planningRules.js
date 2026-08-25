@@ -1,3 +1,5 @@
+import { buildCommercialLedger, reconcileCommercialLedger } from "./commercialLedger.js";
+
 /* =========================================================
    RODA FESTA — MOTOR DE RECOMENDAÇÕES
 
@@ -20,6 +22,12 @@
 /* =========================================================
    PARÂMETROS GERAIS
    ========================================================= */
+
+export const ENGINE_VERSIONS = {
+  recommendation: "RF-REC-1.0.0",
+  commercialRules: "RF-COM-1.0.0",
+  priceBook: "RF-PRICE-2026-08-24",
+};
 
 export const PLANNING_PARAMETERS = {
   attendedCity: "Tupã/SP",
@@ -567,67 +575,33 @@ export function calculateInvestment({
   waiters,
   disposables,
 }) {
-  const productsValue = items.reduce(
-    (total, item) =>
-      total +
-      (Number(item.estimatedValue) || 0),
-    0
-  );
+  const ledger = buildCommercialLedger({
+    items,
+    totalCarts,
+    serviceHours,
+    waiters,
+    disposables,
+    parameters: PLANNING_PARAMETERS,
+  });
 
-  /*
-   * Regra comercial Roda Festa:
-   * todo carrinho que faz parte da estrutura do evento é cobrado, inclusive
-   * o carrinho de bebidas em consignação. A consignação exclui apenas o valor
-   * das bebidas do investimento inicial; ela não torna a estrutura gratuita.
-   *
-   * IMPORTANTE: totalCarts vem de calculateCarts() e é a fonte única para
-   * estrutura exibida, equipe e cobrança. Não reconstruir a quantidade de
-   * carrinhos a partir dos itens aqui, pois isso pode fazer o preço divergir
-   * da estrutura mostrada ao cliente.
-   */
-  const chargedTotalCarts = Math.max(
-    0,
-    Math.min(
-      Number(totalCarts) || 0,
-      PLANNING_PARAMETERS.service.maxCarts
-    )
-  );
-
-  const cartsValue =
-    chargedTotalCarts *
-    PLANNING_PARAMETERS.service
-      .cartBasePrice;
-
-  const additionalHours =
-    calculateAdditionalHours({
-      serviceHours,
-      totalCarts: chargedTotalCarts,
-    });
-
-  const waitersValue =
-    Number(waiters?.value) || 0;
-
-  const disposablesValue =
-    Number(disposables?.value) || 0;
-
-  const total =
-    productsValue +
-    cartsValue +
-    additionalHours.value +
-    waitersValue +
-    disposablesValue;
+  const reconciliation = reconcileCommercialLedger(ledger);
+  if (!reconciliation.ok) {
+    throw new Error("commercial_ledger_reconciliation_failed");
+  }
 
   return {
-    productsValue,
-    cartsValue,
-    chargedTotalCarts,
+    productsValue: ledger.totals.productsValue,
+    cartsValue: ledger.totals.cartsValue,
+    chargedTotalCarts: ledger.structure.chargedTotalCarts,
     // Mantido temporariamente por compatibilidade com consumidores antigos.
-    billableTotalCarts: chargedTotalCarts,
-    additionalHoursValue:
-      additionalHours.value,
-    waitersValue,
-    disposablesValue,
-    total,
+    billableTotalCarts: ledger.structure.chargedTotalCarts,
+    additionalHoursValue: ledger.totals.additionalHoursValue,
+    waitersValue: ledger.totals.waitersValue,
+    disposablesValue: ledger.totals.disposablesValue,
+    total: ledger.totals.contractedTotal,
+    ledger,
+    reconciliation,
+    versions: { ...ENGINE_VERSIONS },
   };
 }
 
@@ -806,6 +780,7 @@ export function generatePlanningSuggestion({
     });
 
   return {
+    versions: { ...ENGINE_VERSIONS },
     guests: {
       adults,
       children,
