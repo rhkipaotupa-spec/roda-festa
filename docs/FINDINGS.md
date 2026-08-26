@@ -768,3 +768,31 @@ A infraestrutura HTTP está ligada ao runtime real, mas a operação permanece d
 Nenhuma migration, tabela remota, usuário/senha real, hash real, secret versionado ou ligação do formulário visual foi criada.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7S — Contrato SQL Admin validado — `e969d23880aaf805c609255511b60b916aab5e67`
+
+### Entregue
+- contrato SQL em `supabase/admin/001_admin_persistence_contract.sql`;
+- `admin_users` com identificador normalizado e único;
+- material de verificação separado e sem senha bruta;
+- `admin_sessions` com token hash único e sem token bruto;
+- constraints temporais e de versionamento;
+- índices necessários aos adapters;
+- RLS habilitado;
+- privilégios de `anon` e `authenticated` removidos;
+- nenhuma policy aberta para clientes.
+
+### Evidência final
+- 154/154 testes aprovados;
+- lint aprovado;
+- build de produção aprovado;
+- contrato SQL coberto por testes estruturais;
+- nenhuma execução remota realizada;
+- nenhuma migration aplicada;
+- nenhuma tabela remota criada;
+- nenhum usuário/senha real;
+- nenhum hash/salt real;
+- nenhum secret versionado;
+- runtime inalterado.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.

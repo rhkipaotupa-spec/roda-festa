@@ -480,3 +480,15 @@ Entregue:
 - 147/147 testes, lint e build verdes.
 
 Próximo passo: materializar de forma controlada a persistência Admin necessária (`admin_users` e `admin_sessions`) e preparar o primeiro provisionamento real sem versionar secrets.
+
+## Checkpoint concluído — V19.7S Admin Persistence Schema Contract
+
+Status: **concluído** no commit `e969d23880aaf805c609255511b60b916aab5e67`.
+
+Entregue:
+- contrato SQL versionado para `admin_users` e `admin_sessions`;
+- invariantes, unicidade e índices;
+- RLS habilitado e acesso de cliente fechado;
+- 154/154 testes, lint e build verdes.
+
+Próximo passo: revisar/materializar esse contrato no ambiente Supabase real de forma controlada, ainda sem criar usuário ou senha real no Git.

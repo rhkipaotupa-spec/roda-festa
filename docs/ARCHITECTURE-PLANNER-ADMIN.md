@@ -706,3 +706,22 @@ A V19.7R liga o endpoint `api/admin-login.js` ao runtime Admin persistente conso
 
 ### Baseline
 Checkpoint técnico `ff5f597dd40ed6f31a95d99d14c2cf3012dc026c` com 147/147 testes, lint verde e build de produção verde.
+
+## V19.7S — Admin Persistence Schema Contract — checkpoint `e969d23880aaf805c609255511b60b916aab5e67`
+
+A V19.7S versiona o contrato SQL de persistência Admin derivado dos adapters e testes já aprovados, sem executar nada remotamente.
+
+### Propriedades consolidadas
+- `admin_users` com identificador normalizado e único;
+- material de verificação separado em algoritmo, salt, hash e key length;
+- ausência deliberada de senha bruta;
+- `admin_sessions` com `token_hash` único e ausência de token bruto;
+- constraints temporais e de versionamento;
+- índices compatíveis com os lookups dos adapters;
+- RLS habilitado;
+- privilégios removidos de `anon` e `authenticated`;
+- nenhuma policy aberta para clientes;
+- nenhuma execução SQL remota, migration aplicada, tabela remota criada, usuário/senha real, hash/salt real, secret ou alteração de runtime.
+
+### Baseline
+Checkpoint técnico `e969d23880aaf805c609255511b60b916aab5e67` com 154/154 testes, lint verde e build de produção verde.

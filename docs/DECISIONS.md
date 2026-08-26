@@ -336,3 +336,14 @@ A finalidade é permitir reconstruir de forma auditável:
 - Preservar o HTTP handler existente para adaptação request/response e cookie.
 - Não criar migration, tabelas remotas, usuário/senha real, hash real, secrets ou ligação do frontend nesta unidade.
 - Considerar a unidade concluída somente com 147/147 testes, lint e build verdes.
+
+## V19.7S — Decisões — `e969d23880aaf805c609255511b60b916aab5e67`
+
+- Derivar o schema exclusivamente dos contratos já aprovados dos adapters Admin.
+- Versionar o SQL antes de qualquer execução remota.
+- Não armazenar senha bruta nem token bruto.
+- Tornar `identifier` e `token_hash` únicos.
+- Habilitar RLS e remover privilégios de `anon` e `authenticated`.
+- Não criar policy aberta para clientes.
+- Não executar migration remota, criar tabela real, credencial real ou secret nesta unidade.
+- Considerar a unidade concluída somente com 154/154 testes, lint e build verdes.

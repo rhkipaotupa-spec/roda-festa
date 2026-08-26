@@ -557,3 +557,30 @@ Checkpoint técnico fechado em `ff5f597dd40ed6f31a95d99d14c2cf3012dc026c` (`feat
 - nenhum secret versionado;
 - formulário visual ainda não ligado ao endpoint;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-26 — V19.7S Admin Persistence Schema Contract
+
+Checkpoint técnico fechado em `e969d23880aaf805c609255511b60b916aab5e67` (`feat: define admin persistence schema contract`).
+
+- base inicial: `8e90d11ada723b8b745e92708d071a4c90e8dbd2`;
+- exatamente 3 arquivos novos;
+- contrato SQL Admin versionado;
+- `admin_users` e `admin_sessions` especificados;
+- senha bruta ausente;
+- token bruto ausente;
+- identificador e token hash únicos;
+- constraints temporais e versionamento definidos;
+- RLS habilitado;
+- privilégios de `anon` e `authenticated` removidos;
+- nenhuma policy aberta;
+- suíte acumulada: 154/154;
+- lint: verde;
+- build: verde;
+- nenhuma execução SQL remota;
+- nenhuma migration aplicada;
+- nenhuma tabela remota criada;
+- nenhum usuário/senha real;
+- nenhum hash/salt real;
+- nenhum secret;
+- runtime inalterado;
+- working tree confirmada limpa após o commit.
