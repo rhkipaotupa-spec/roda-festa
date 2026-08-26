@@ -295,3 +295,12 @@ A finalidade é permitir reconstruir de forma auditável:
 - Não diferenciar publicamente usuário inexistente de senha incorreta.
 - Não criar usuário/senha real, secrets, `fetch` no frontend, banco remoto ou migration nesta unidade.
 - Considerar a unidade concluída somente com 121/121 testes, lint e build verdes.
+
+## V19.7O — Decisões — `bbd9ddf422822890d296216e33b12223b606760f`
+
+- Preservar explicitamente `/api/*` antes do fallback da SPA na Vercel.
+- Não avançar para wiring real do login enquanto a topologia de deploy não mantiver a API acessível.
+- Proteger por teste a ordem entre regra de API e fallback SPA.
+- Não introduzir `builds` ou `routes` legados.
+- Não criar runtime real, credenciais, secrets, `fetch` no frontend, banco remoto ou migration nesta unidade.
+- Considerar a unidade concluída somente com 124/124 testes, lint e build verdes.

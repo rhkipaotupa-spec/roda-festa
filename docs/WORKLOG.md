@@ -462,3 +462,23 @@ Checkpoint técnico fechado em `640100e906652d98c725ac1e9d13ba48842062ed` (`feat
 - nenhum banco remoto;
 - nenhuma migration;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-26 — V19.7O Vercel API Routing Boundary
+
+Checkpoint técnico fechado em `bbd9ddf422822890d296216e33b12223b606760f` (`fix: preserve vercel api routing before spa fallback`).
+
+- base inicial: `7747c475e7ae6a5f32ddcb7057beacee476f2094`;
+- `vercel.json` ajustado para preservar `/api/*`;
+- fallback SPA mantido depois da API;
+- teste de ordem e isolamento adicionado;
+- nenhuma configuração legada `builds` ou `routes`;
+- suíte acumulada: 124/124;
+- lint: verde;
+- build: verde;
+- nenhum runtime real;
+- nenhum usuário/senha real;
+- nenhum secret;
+- nenhum `fetch` no frontend;
+- nenhum banco remoto;
+- nenhuma migration;
+- working tree confirmada limpa após o commit.

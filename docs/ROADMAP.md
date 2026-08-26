@@ -427,3 +427,15 @@ Entregue:
 - 121/121 testes, lint e build verdes.
 
 Próximo passo: wiring server-side do runtime real de login Admin, sem embutir credenciais ou secrets no Git. Somente depois conectar o `AdminLogin.jsx` ao endpoint.
+
+## Checkpoint concluído — V19.7O Vercel API Routing Boundary
+
+Status: **concluído** no commit `bbd9ddf422822890d296216e33b12223b606760f`.
+
+Entregue:
+- preservação explícita do namespace `/api/*`;
+- fallback SPA mantido em ordem segura;
+- testes contra regressão de roteamento;
+- 124/124 testes, lint e build verdes.
+
+Próximo passo: wiring server-side do runtime real do login Admin, agora sobre uma topologia de deploy que preserva a API. Continuar sem credenciais ou secrets versionados.

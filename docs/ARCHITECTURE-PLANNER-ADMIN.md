@@ -621,3 +621,22 @@ A V19.7N cria a primeira porta HTTP concreta do login Admin em `api/admin-login.
 
 ### Baseline
 Checkpoint técnico `640100e906652d98c725ac1e9d13ba48842062ed` com 121/121 testes, lint verde e build de produção verde.
+
+## V19.7O — Vercel API Routing Boundary — checkpoint `bbd9ddf422822890d296216e33b12223b606760f`
+
+A V19.7O preserva explicitamente o namespace `/api/*` antes do fallback SPA no `vercel.json`, evitando que funções serverless Admin sejam engolidas pelo rewrite global para `index.html`.
+
+### Propriedades consolidadas
+- rewrite explícito `/api/(.*) -> /api/$1`;
+- fallback SPA mantido depois da regra de API;
+- ordem das regras protegida por testes;
+- nenhuma configuração legada `builds` ou `routes`;
+- nenhum runtime Admin real ativado;
+- nenhum usuário/senha real;
+- nenhum secret;
+- nenhum `fetch` no frontend;
+- nenhum banco remoto;
+- nenhuma migration.
+
+### Baseline
+Checkpoint técnico `bbd9ddf422822890d296216e33b12223b606760f` com 124/124 testes, lint verde e build de produção verde.

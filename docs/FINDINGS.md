@@ -672,3 +672,26 @@ Validação:
 Nenhum usuário/senha real, secret, `fetch` no frontend, banco remoto ou migration foi criado.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7O — Roteamento Vercel da API preservado — `bbd9ddf422822890d296216e33b12223b606760f`
+
+### FATO CONFIRMADO
+O `vercel.json` anterior possuía apenas o fallback global `/(.*) -> /index.html`. Com a criação de `api/admin-login.js`, isso representava risco de o namespace `/api/*` ser interceptado pela SPA.
+
+### Correção
+- regra explícita `/api/(.*) -> /api/$1` adicionada antes do fallback;
+- fallback SPA preservado;
+- testes de regressão adicionados para ordem e isolamento;
+- nenhuma configuração legada `builds` ou `routes` foi introduzida.
+
+### Evidência final
+- 124/124 testes aprovados;
+- lint aprovado;
+- build de produção aprovado;
+- namespace `/api/*` preservado;
+- fallback SPA continua ativo depois da API;
+- working tree limpa após o commit técnico.
+
+Nenhum runtime real, usuário/senha real, secret, `fetch` no frontend, banco remoto ou migration foi criado.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
