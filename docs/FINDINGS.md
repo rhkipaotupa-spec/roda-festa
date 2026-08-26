@@ -719,3 +719,28 @@ O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação c
 Nenhuma migration, tabela remota, usuário/senha real, hash real, secret, wiring do runtime ou `fetch` no frontend foi criado.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7Q — Runtime Admin persistente composto — `ea839646658293301b812006dff7adc5a6438329`
+
+### Entregue
+- `api/_lib/admin-runtime.js`;
+- composição explícita da cadeia Admin persistente;
+- validação fail-high para ausência de Supabase;
+- validação de `fetch` server-side;
+- ausência de fallback para adapter de memória;
+- objeto público sem env/service-role;
+- teste ponta a ponta com adapters Supabase reais e transporte simulado.
+
+### Evidência final
+- 142/142 testes aprovados;
+- lint aprovado;
+- build de produção aprovado;
+- login ponta a ponta fecha com identity store + verifier + session adapter + repository + auth + login composition;
+- token bruto não é persistido;
+- service-role não aparece no objeto público do runtime.
+
+O endpoint `api/admin-login.js` ainda permanece desligado do runtime.
+
+Nenhuma migration, tabela remota, usuário/senha real, hash real, secret versionado ou `fetch` no frontend foi criado.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.

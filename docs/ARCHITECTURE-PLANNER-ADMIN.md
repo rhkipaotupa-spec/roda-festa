@@ -660,3 +660,31 @@ A V19.7P cria os adapters server-side de persistência necessários para identid
 
 ### Baseline
 Checkpoint técnico `8db1e991f62329da29fc580ec79d5a776c9d241b` com 136/136 testes, lint verde e build de produção verde.
+
+## V19.7Q — Admin Runtime Composition — checkpoint `ea839646658293301b812006dff7adc5a6438329`
+
+A V19.7Q compõe, em uma factory server-side única, os adapters persistentes da V19.7P com verifier, repository, autorização, autenticação e login.
+
+### Cadeia consolidada
+`Supabase admin_users`
+→ `Identity Store`
+→ `Credential Verifier`
+→ `Supabase admin_sessions`
+→ `Session Repository`
+→ `Authorization Boundary`
+→ `Authentication Composition`
+→ `Login Composition`
+
+### Propriedades consolidadas
+- configuração Supabase ausente falha alto;
+- `fetch` server-side inválido falha alto;
+- não existe fallback para o adapter Admin em memória;
+- `SUPABASE_SERVICE_ROLE_KEY` não é exposta no objeto público do runtime;
+- runtime público expõe apenas composições necessárias;
+- teste integrado comprova login ponta a ponta com adapters Supabase reais sob transporte simulado;
+- token bruto permanece fora do registro persistido;
+- endpoint `api/admin-login.js` ainda não foi ligado ao runtime;
+- nenhuma migration, tabela remota, usuário/senha real, hash real, secret versionado ou `fetch` no frontend foi introduzido.
+
+### Baseline
+Checkpoint técnico `ea839646658293301b812006dff7adc5a6438329` com 142/142 testes, lint verde e build de produção verde.

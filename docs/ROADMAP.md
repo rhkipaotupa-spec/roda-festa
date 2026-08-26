@@ -453,3 +453,17 @@ Entregue:
 - 136/136 testes, lint e build verdes.
 
 Próximo passo: compor estes adapters em um runtime Admin real, ainda sem criar usuário/senha real ou versionar secrets.
+
+## Checkpoint concluído — V19.7Q Admin Runtime Composition
+
+Status: **concluído** no commit `ea839646658293301b812006dff7adc5a6438329`.
+
+Entregue:
+- runtime Admin persistente composto server-side;
+- fail-high sem configuração persistente;
+- nenhum fallback de memória;
+- service-role fora do objeto público;
+- login integrado ponta a ponta em teste;
+- 142/142 testes, lint e build verdes.
+
+Próximo passo: ligar `api/admin-login.js` ao runtime persistente de forma fail-closed quando configuração/tabelas ainda não estiverem disponíveis, ainda sem criar credenciais reais no Git.

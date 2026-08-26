@@ -315,3 +315,14 @@ A finalidade é permitir reconstruir de forma auditável:
 - Não expor corpo remoto nem segredo em erros.
 - Não criar migration, tabelas remotas, usuário/senha real, hash real, secret, wiring do runtime ou `fetch` no frontend nesta unidade.
 - Considerar a unidade concluída somente com 136/136 testes, lint e build verdes.
+
+## V19.7Q — Decisões — `ea839646658293301b812006dff7adc5a6438329`
+
+- Centralizar a montagem do runtime Admin em uma factory server-side.
+- Exigir configuração persistente e `fetch` válido já na criação do runtime.
+- Proibir fallback implícito para sessão Admin em memória.
+- Não expor env ou service-role no objeto público do runtime.
+- Integrar identity store, verifier, session repository, authorization boundary, authentication composition e login composition em uma cadeia explícita.
+- Não ligar ainda o handler padrão `api/admin-login.js`.
+- Não criar migration, tabelas remotas, usuário/senha real, hash real, secrets ou `fetch` no frontend nesta unidade.
+- Considerar a unidade concluída somente com 142/142 testes, lint e build verdes.

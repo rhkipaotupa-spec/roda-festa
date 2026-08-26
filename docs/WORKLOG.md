@@ -507,3 +507,30 @@ Checkpoint técnico fechado em `8db1e991f62329da29fc580ec79d5a776c9d241b` (`feat
 - nenhum wiring de runtime;
 - nenhum `fetch` no frontend;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-26 — V19.7Q Admin Runtime Composition
+
+Checkpoint técnico fechado em `ea839646658293301b812006dff7adc5a6438329` (`feat: compose persistent admin runtime`).
+
+- base inicial: `ff160acb678cd786bef02d9ec55bbe83eacfe4a4`;
+- exatamente 3 arquivos novos;
+- runtime Admin persistente criado;
+- identity store conectado ao verifier;
+- session adapter conectado ao repository;
+- authorization boundary conectada à authentication composition;
+- login composition fechando a cadeia;
+- fail-high sem Supabase;
+- sem fallback para memória;
+- service-role não exposta publicamente;
+- teste integrado ponta a ponta aprovado;
+- suíte acumulada: 142/142;
+- lint: verde;
+- build: verde;
+- endpoint ainda não ativado;
+- nenhuma migration;
+- nenhuma tabela remota criada;
+- nenhum usuário/senha real;
+- nenhum hash real;
+- nenhum secret versionado;
+- nenhum `fetch` no frontend;
+- working tree confirmada limpa após o commit.
