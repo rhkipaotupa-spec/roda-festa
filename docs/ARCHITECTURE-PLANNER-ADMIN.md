@@ -582,3 +582,23 @@ A V19.7M compõe explicitamente o verifier server-side de credenciais da V19.7L 
 
 ### Baseline
 Checkpoint técnico `0b474af7a12871fa56dcd01a1da71056b0fa773e` com 111/111 testes, lint verde e build de produção verde.
+
+## V19.7M1 — Real Boundary Composition Fix — checkpoint `7f43a827e5ead6e63d10022412e08130ddfb479b`
+
+A V19.7M1 corrige a composição do login Admin para respeitar a interface real da `createAdminAuthHttpBoundary()`.
+
+### Situação anterior
+A V19.7M havia sido validada com uma boundary de teste que aceitava o verifier como segundo argumento de `login()`. A boundary real recebe `credentialVerifier` durante sua construção.
+
+### Correção consolidada
+- `createAdminLoginComposition()` passa a construir a HTTP Boundary com o verifier confiável;
+- o request do navegador não participa da injeção de dependências;
+- testes unitários foram alinhados à interface real;
+- novo teste de integração usa verifier real + HTTP Boundary real + repository real + authentication composition real;
+- a cadeia credencial → verifier → boundary → sessão → cookie foi comprovada;
+- credencial incorreta não cria sessão;
+- proteção de Origin continua ocorrendo antes da autenticação;
+- nenhum usuário/senha real, secret, endpoint novo, `fetch` no frontend, banco remoto ou migration foi introduzido.
+
+### Baseline
+Checkpoint técnico `7f43a827e5ead6e63d10022412e08130ddfb479b` com 114/114 testes, lint verde e build de produção verde.

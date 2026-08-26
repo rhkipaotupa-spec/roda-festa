@@ -624,3 +624,28 @@ Validação:
 - nenhum usuário/senha real, secret, endpoint novo, `fetch` no frontend, banco remoto ou migration foi criado.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7M1 — Incompatibilidade de composição identificada e corrigida — `7f43a827e5ead6e63d10022412e08130ddfb479b`
+
+### FATO CONFIRMADO
+A V19.7M utilizava em seus testes uma boundary falsa cuja interface permitia receber o verifier como segundo argumento de `login()`. A HTTP Boundary real recebe `credentialVerifier` na construção.
+
+### Risco
+Sem correção, o primeiro endpoint Admin poderia ser criado sobre uma integração apenas aparentemente compatível.
+
+### Correção
+- composição atualizada para construir a HTTP Boundary com o verifier confiável;
+- testes unitários alinhados ao contrato real;
+- teste de integração real adicionado.
+
+### Evidência final
+- integração real credencial → verifier → boundary → sessão → cookie: verde;
+- credencial incorreta não cria sessão: verde;
+- Origin não confiável é bloqueado antes da autenticação: verde;
+- baseline acumulado: 114/114;
+- lint: verde;
+- build: verde.
+
+Nenhum usuário/senha real, secret, endpoint novo, `fetch` no frontend, banco remoto ou migration foi criado.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.

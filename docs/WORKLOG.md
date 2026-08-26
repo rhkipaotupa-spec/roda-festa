@@ -417,3 +417,26 @@ Checkpoint técnico fechado em `0b474af7a12871fa56dcd01a1da71056b0fa773e` (`feat
 - nenhuma migration;
 - commit técnico criado;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-26 — V19.7M1 Real Boundary Composition Fix
+
+Checkpoint técnico fechado em `7f43a827e5ead6e63d10022412e08130ddfb479b` (`fix: align admin login composition with real http boundary`).
+
+- base inicial: `be1634d416f7ef58e7f49ed740bcd5cd317d5e79`;
+- incompatibilidade de interface identificada antes da criação do endpoint V19.7N;
+- `admin-login-composition.js` corrigido;
+- testes unitários da composição atualizados;
+- novo teste de integração real adicionado;
+- integração credencial → verifier → boundary → sessão → cookie comprovada;
+- credencial incorreta não cria sessão;
+- Origin continua protegido antes da autenticação;
+- suíte acumulada: 114/114;
+- lint: verde;
+- build: verde;
+- nenhum usuário/senha real;
+- nenhum secret;
+- nenhum endpoint HTTP novo;
+- nenhum `fetch` no frontend;
+- nenhum banco remoto;
+- nenhuma migration;
+- working tree confirmada limpa após o commit.

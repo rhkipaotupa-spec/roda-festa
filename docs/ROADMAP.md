@@ -400,3 +400,16 @@ Entregue:
 - 111/111 testes, lint e build verdes.
 
 Próximo passo recomendado: expor uma rota controlada que use esta composição e, somente depois, ligar o formulário `/admin` a esse endpoint sem inserir credenciais fixas no frontend.
+
+## Checkpoint concluído — V19.7M1 Real Boundary Composition Fix
+
+Status: **concluído** no commit `7f43a827e5ead6e63d10022412e08130ddfb479b`.
+
+Entregue:
+- correção da interface entre Admin Login Composition e HTTP Boundary real;
+- injeção correta do verifier na construção da boundary;
+- teste de integração real ponta a ponta até emissão e resolução do cookie;
+- proteção preservada contra credencial incorreta e Origin não confiável;
+- 114/114 testes, lint e build verdes.
+
+Próximo passo: retomar a V19.7N — criar o primeiro endpoint HTTP controlado de login Admin sobre esta composição já comprovada.

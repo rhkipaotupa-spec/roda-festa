@@ -275,3 +275,13 @@ A finalidade é permitir reconstruir de forma auditável:
 - Preservar a resposta da HTTP Boundary sem vazar dependências internas.
 - Não criar usuário/senha real, secret, endpoint novo, `fetch` no frontend, banco remoto ou migration nesta unidade.
 - Considerar a unidade concluída somente com 111/111 testes, lint e build verdes.
+
+## V19.7M1 — Decisões — `7f43a827e5ead6e63d10022412e08130ddfb479b`
+
+- Não avançar para o endpoint V19.7N enquanto a composição não estivesse comprovada contra a HTTP Boundary real.
+- Injetar `credentialVerifier` na construção da boundary, conforme o contrato real.
+- Manter o request do cliente fora da composição de dependências de autenticação.
+- Exigir teste de integração real para a cadeia credencial → verifier → boundary → sessão → cookie.
+- Preservar fail-closed para credencial incorreta e Origin não confiável.
+- Não criar credenciais reais, secrets, endpoint novo, `fetch` no frontend, banco remoto ou migration nesta correção.
+- Considerar a correção concluída somente com 114/114 testes, lint e build verdes.
