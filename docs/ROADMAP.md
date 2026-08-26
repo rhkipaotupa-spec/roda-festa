@@ -514,3 +514,9 @@ Concluída operacionalmente e aprovada por postflight completo. Próxima unidade
 Checkpoint técnico `e935a474f09f2466c7fda18678d2684084b4e1e3`.
 
 Próximo passo, somente após reconciliação documental: executar controladamente o gerador local com a credencial digitada apenas no terminal, materializar o primeiro Admin no Supabase Roda Festa, verificar o resultado e apagar imediatamente o SQL temporário.
+
+## V19.7W — Primeiro Admin provisionado — concluído operacionalmente
+
+Base: `2edd24c560becdcad58b730b010d4de0b43ebb16`.
+
+O primeiro Admin `OWNER` ativo existe no banco real. O próximo passo é provar o login funcional real usando o endpoint persistente já construído, sem expor a senha em histórico de terminal, Git ou chat.

@@ -835,3 +835,21 @@ Checkpoint técnico aprovado com 168/168 testes, lint e build verdes.
 O mecanismo normaliza identidade, exige senha forte interativa, gera material de verificação com salt criptográfico, não grava senha bruta e produz SQL temporário one-time. Testes comprovam ausência de service-role, connection string e escrita remota.
 
 Nenhuma credencial real foi criada ou inserida nesta unidade.
+
+## V19.7W — Primeiro Admin real comprovado
+
+### Pré-condição
+`admin_users` continha `0` registros.
+
+### Operação
+Bootstrap one-time executado com sucesso no Supabase Roda Festa.
+
+### Pós-condição
+Consulta segura comprovou:
+- `admin_count = 1`;
+- `role = OWNER`;
+- `all_active = true`.
+
+O arquivo temporário sensível foi apagado e conferido como inexistente.
+
+Nenhuma senha, hash, salt, token, service-role key ou connection string foi documentada.

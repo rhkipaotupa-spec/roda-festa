@@ -627,3 +627,19 @@ Checkpoint técnico `e935a474f09f2466c7fda18678d2684084b4e1e3` (`feat: add secur
 - nenhum Admin real provisionado;
 - nenhuma credencial real documentada;
 - working tree limpa após o commit.
+
+## 2026-08-26 — V19.7W — Primeiro Admin real
+
+Partindo do checkpoint `2edd24c560becdcad58b730b010d4de0b43ebb16` e com working tree limpa:
+
+- `admin_count` pré-bootstrap: 0;
+- bootstrap one-time gerado localmente;
+- senha permaneceu apenas no terminal;
+- SQL temporário executado no Supabase com sucesso;
+- arquivo temporário apagado e confirmado `APAGADO`;
+- `admin_count` pós-bootstrap: 1;
+- `role`: OWNER;
+- `active`: true;
+- HEAD local permaneceu `2edd24c560becdcad58b730b010d4de0b43ebb16`;
+- working tree permaneceu limpa;
+- prova funcional de login real ainda pendente.

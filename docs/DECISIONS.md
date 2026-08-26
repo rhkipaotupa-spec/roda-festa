@@ -373,3 +373,15 @@ O provisionamento do primeiro Admin permanece uma unidade separada.
 - Recusar bootstrap quando `admin_users` já possuir qualquer registro.
 - Manter a credencial real fora de Git, documentação e chat.
 - Somente executar o bootstrap real depois da reconciliação documental deste checkpoint.
+
+## V19.7W — Decisão de provisionamento do primeiro Admin
+
+Na base `2edd24c560becdcad58b730b010d4de0b43ebb16`, o primeiro Admin real foi provisionado somente após:
+- schema Admin materializado e validado;
+- bootstrap seguro versionado e testado;
+- reconciliação documental da V19.7V;
+- confirmação prévia de `admin_count = 0`.
+
+O SQL temporário de bootstrap foi apagado imediatamente após a execução e não deve ser preservado ou compartilhado.
+
+A existência do registro não encerra a autenticação: o login real deverá ser provado separadamente.

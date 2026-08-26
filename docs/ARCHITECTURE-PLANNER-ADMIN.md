@@ -760,3 +760,20 @@ Foi introduzido um mecanismo local, one-time e fail-high para preparar o provisi
 Propriedades validadas: entrada de senha interativa sem eco; confirmação e política mínima; hashing com salt aleatório; SQL sensível somente em diretório temporário; nenhuma senha bruta no SQL; recusa se já existir Admin; ausência de service-role, connection string e chamadas remotas no gerador.
 
 Baseline: 168/168 testes, lint e build verdes.
+
+## V19.7W — Primeiro Admin real provisionado
+
+Base local antes da operação remota: `2edd24c560becdcad58b730b010d4de0b43ebb16`.
+
+O primeiro Admin do Roda Festa foi provisionado no Supabase por bootstrap one-time gerado localmente, sem escrita remota automática pelo gerador.
+
+### Evidência operacional
+- contagem pré-bootstrap: `0`;
+- bootstrap executado no SQL Editor: sucesso;
+- arquivo SQL temporário sensível apagado e existência conferida como `APAGADO`;
+- contagem pós-bootstrap: `1`;
+- papel: `OWNER`;
+- estado: ativo (`true`);
+- nenhum hash, salt, senha ou secret foi registrado na documentação ou Git.
+
+A prova funcional de login real ainda permanece pendente e deve ser tratada como etapa separada.
