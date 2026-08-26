@@ -561,3 +561,15 @@ Próximo passo:
 5. executar `Ctrl+R`;
 6. confirmar restauração da sessão;
 7. iniciar a primeira superfície administrativa de orçamentos.
+
+## Pós-V19.7ZA — Próxima unidade
+
+Restauração de sessão no navegador: concluída.
+
+Próxima prioridade:
+1. criar a primeira superfície autenticada de Orçamentos no Admin;
+2. listar planejamentos/orçamentos reais persistidos;
+3. permitir abrir o detalhe sem recalcular snapshots históricos;
+4. preparar filtros/status;
+5. incluir arquivamento reversível;
+6. manter exclusão destrutiva fora do fluxo normal.

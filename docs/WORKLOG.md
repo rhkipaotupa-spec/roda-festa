@@ -691,3 +691,18 @@ Checkpoint técnico `ccf21c72b88af85cab27828a917d5cddeea7daf5` (`fix: widen admi
 - build verde;
 - working tree limpa após commit;
 - smoke de navegador ainda pendente.
+
+## 2026-08-26 — Smoke real V19.7ZA
+
+Prova real concluída no Preview.
+
+Fluxo:
+- novo login realizado;
+- sessão ativa confirmada;
+- `Ctrl+R`;
+- sessão permaneceu autenticada;
+- frontend exibiu `Sessão administrativa restaurada com segurança.`
+
+Resultado: V19.7ZA aprovada em navegador real.
+
+Próxima unidade de produto: Admin de Orçamentos.

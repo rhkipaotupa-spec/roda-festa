@@ -827,3 +827,17 @@ Correção consolidada:
 - JavaScript continua sem acesso ao cookie;
 - logout/limpeza usa o mesmo path do cookie de sessão;
 - teste de regressão cobre `/admin` e `/api/admin-session`.
+
+## V19.7ZA — Prova real de restauração no navegador
+
+Smoke real concluído com sucesso no Preview da branch `planner/v19-mobile-first`.
+
+Sequência comprovada:
+- login administrativo real;
+- cookie `rf_admin_session` emitido sob o contrato atualizado;
+- `Ctrl+R`;
+- chamada de restauração da sessão;
+- interface permaneceu autenticada;
+- mensagem exibida: `Sessão administrativa restaurada com segurança.`
+
+A restauração da sessão administrativa no navegador deixa de ser pendência arquitetural desta etapa.

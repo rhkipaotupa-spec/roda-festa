@@ -907,3 +907,18 @@ Baseline:
 - build verde.
 
 Prova de navegador ainda pendente após deploy desta correção.
+
+## V19.7ZA — Prova real de navegador concluída
+
+Resultado: GREEN.
+
+Evidência observada no Preview:
+- autenticação concluída;
+- após `Ctrl+R`, a sessão foi restaurada sem solicitar novas credenciais;
+- interface exibiu `Sessão administrativa restaurada com segurança.`
+
+Conclusão:
+- o ajuste do cookie para `Path=/` resolveu a incompatibilidade entre `/admin` e `/api/admin-session`;
+- a V19.7ZA está aprovada também em smoke real de navegador.
+
+Próxima frente: primeira superfície administrativa real de Orçamentos.

@@ -412,3 +412,15 @@ Na base `85af4708f436f0533ed83edcf869ee915018cd25`, o login real foi provado loc
 - Adotar `Path=/` para o cookie administrativo porque `/admin` e `/api/admin-*` precisam compartilhar a mesma sessão e não possuem um prefixo comum mais restrito.
 - Compensar o escopo de path com as proteções existentes: HttpOnly, SameSite=Lax, Secure em produção, token opaco, autorização server-side e proteção de origin nas mutações.
 - Não considerar a restauração concluída até um novo login em Preview emitir o cookie atualizado e sobreviver a `Ctrl+R`.
+
+## V19.7ZA — Decisão após prova real
+
+A restauração de sessão administrativa foi aprovada em navegador real.
+
+A próxima unidade funcional deve iniciar a área administrativa autenticada de Orçamentos, reutilizando:
+- sessão Admin já validada;
+- read models já existentes;
+- persistência real;
+- histórico da jornada sem recalcular snapshots.
+
+Arquivamento reversível permanece como requisito funcional da futura listagem administrativa.
