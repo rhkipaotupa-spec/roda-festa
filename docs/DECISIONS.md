@@ -424,3 +424,35 @@ A próxima unidade funcional deve iniciar a área administrativa autenticada de 
 - histórico da jornada sem recalcular snapshots.
 
 Arquivamento reversível permanece como requisito funcional da futura listagem administrativa.
+
+## 2026-08-26 — Fechamento V19.8A–V19.8C
+
+### D — Admin é ambiente de trabalho persistente
+
+A área `/admin` deixa de ser tratada como simples tela de login e passa a ser o ambiente principal de trabalho administrativo. A usuária pode navegar para o Planning para simular/criar orçamento e retornar ao Admin sem perder o contexto administrativo.
+
+### D — Identidade visual consolidada
+
+Fica aprovada e congelada, para Admin e Planning administrativo, a identidade:
+- marrom escuro como cor principal;
+- creme/papel como base;
+- dourado como destaque;
+- abandono do vinho antigo como cor dominante.
+
+Mudanças futuras devem preservar essa direção salvo decisão explícita posterior.
+
+### D — Restauração de sessão não deve exibir formulário antes da resposta server-side
+
+Enquanto `GET /api/admin-session` estiver em andamento, a interface deve mostrar estado neutro de verificação. O formulário de login só deve aparecer quando o servidor confirmar ausência de sessão válida.
+
+### D — Planning em modo administrativo deve oferecer retorno explícito
+
+Quando aberto com `?admin=1&return=/admin`, o Planning deve indicar “Modo administrativo” e oferecer “Voltar ao Admin”. O destino de retorno deve ser restrito a caminho interno.
+
+### D — Proteção Vercel Preview é separada da autenticação Roda Festa
+
+A tela “Log in to Vercel” em celular pertence à proteção do deployment Preview e ocorre antes do carregamento da aplicação. Não deve ser contornada com alterações inseguras no login Admin do Roda Festa.
+
+### D — Histórico alimenta análise, não aprendizado automático
+
+Orçamentos reais devem preservar sugestão, alterações e validação final para futura calibração. Nenhum dado histórico altera automaticamente o motor em produção.

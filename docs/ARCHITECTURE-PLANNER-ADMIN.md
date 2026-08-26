@@ -841,3 +841,65 @@ Sequência comprovada:
 - mensagem exibida: `Sessão administrativa restaurada com segurança.`
 
 A restauração da sessão administrativa no navegador deixa de ser pendência arquitetural desta etapa.
+
+## 2026-08-26 — Estado implementado após V19.8C
+
+### Central Admin read-only de Orçamentos
+
+A primeira superfície operacional do Admin foi materializada:
+- `/admin` restaura sessão por endpoint same-origin;
+- `GET /api/admin-quotes` lista jornadas persistidas somente após autenticação Admin;
+- leitura usa `planning_sessions` server-side;
+- summaries/details preservam snapshots históricos sem recálculo;
+- ausência de registros é um estado válido e explícito.
+
+### PlanningSession real no Supabase
+
+A tabela `public.planning_sessions`, prevista desde a fundação V19.7, foi materializada no projeto Supabase Roda Festa em 2026-08-26 após smoke do Admin revelar sua ausência.
+
+Verificações realizadas:
+- existência confirmada;
+- RLS confirmado ativo;
+- contagem inicial confirmada em zero.
+
+A API deixou de falhar com `admin_quotes_unavailable` e passou a responder lista vazia válida.
+
+A arquitetura continua exigindo serviço server-side com credencial privilegiada; navegador não deve acessar a tabela diretamente.
+
+### Navegação administrativa
+
+O Admin pode abrir o Planning com contexto explícito:
+`/planning-book?admin=1&return=/admin`.
+
+Nesse contexto:
+- Planning exibe “Modo administrativo”;
+- “Voltar ao Admin” permanece disponível durante a jornada;
+- retorno aceita apenas caminho interno;
+- sessão Admin continua protegida por cookie HttpOnly e não é lida pelo JavaScript.
+
+### Estado de restauração Admin
+
+A UI possui três estados distintos:
+1. verificação de sessão;
+2. login quando não autenticado;
+3. workspace quando autenticado.
+
+O formulário não é renderizado durante a verificação server-side, evitando flash visual e reduzindo ambiguidade de estado.
+
+### Identidade visual aprovada
+
+Admin e Planning passam a compartilhar:
+- marrom escuro;
+- creme/papel;
+- dourado;
+- tipografia editorial + controles funcionais.
+
+O vinho histórico deixa de ser a cor dominante do ambiente administrativo.
+
+### Próxima prova arquitetural obrigatória
+
+Criar uma jornada real após a materialização de `planning_sessions` e verificar ponta a ponta:
+
+`InputSnapshot -> RecommendationSnapshot -> PlanningChange[] -> FinalProposalSnapshot -> Admin read model`.
+
+Somente após essa prova o histórico deve ser usado como base para experimentos de calibração do recomendador.

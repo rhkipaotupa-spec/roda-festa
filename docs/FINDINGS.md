@@ -922,3 +922,55 @@ Conclusão:
 - a V19.7ZA está aprovada também em smoke real de navegador.
 
 Próxima frente: primeira superfície administrativa real de Orçamentos.
+
+## 2026-08-26 — Fechamento V19.8A–V19.8C
+
+### RF — `planning_sessions` ausente no banco real bloqueava Admin de Orçamentos — RESOLVIDO
+
+**Evidência real:** `GET /api/admin-quotes` autenticado retornou `{"ok":false,"error":"admin_quotes_unavailable"}`.
+
+**Diagnóstico:** `to_regclass('public.planning_sessions')` retornou `NULL`.
+
+**Correção operacional:** execução da migration versionada `infra/migrations/20260825_v19_7_planning_sessions.sql`.
+
+**Prova pós-correção:**
+- tabela existente;
+- RLS = `true`;
+- contagem inicial = `0`;
+- endpoint passou a responder `{"ok":true,"quotes":[]}`.
+
+**Limitação registrada:** policies, grants e índices não foram rechecados por postflight independente nesta sessão.
+
+### RF — flash visual do formulário durante restauração Admin — RESOLVIDO
+
+**Evidência real:** após `Ctrl+R`, formulário de e-mail/senha aparecia brevemente antes do redirecionamento para sessão restaurada.
+
+**Correção:** shell neutro de verificação antes da renderização do formulário.
+
+**Regressão:** coberta por teste V19.8B e suíte acumulada verde.
+
+### RF — inconsistência visual vinho x marrom entre Admin e Planning — RESOLVIDO
+
+**Evidência real:** Admin aprovado em marrom enquanto partes internas do Planning ainda usavam tokens vinho.
+
+**Correção:** V19.8C redefine tokens e estados visuais para o marrom aprovado.
+
+**Prova:** teste focal 3/3; suíte 206/206; lint e build verdes.
+
+### RF — Preview mobile interceptado por autenticação Vercel — ABERTO
+
+**Evidência real:** no celular, o deployment Preview mostra “Log in to Vercel” antes da tela de login Roda Festa.
+
+**Classificação:** problema/configuração da camada de Preview Vercel, não regressão comprovada do frontend mobile.
+
+**Próxima ação:** revisar configuração de proteção/compartilhamento do Preview sem enfraquecer a autenticação Admin da aplicação.
+
+### RF — primeiro histórico real de orçamento ainda ausente — ABERTO
+
+A tabela `planning_sessions` foi materializada com contagem inicial zero. Ainda falta executar a primeira jornada real após a materialização e comprovar:
+- criação da sessão;
+- recomendação persistida;
+- mudanças registradas;
+- finalização;
+- aparição no Admin;
+- leitura sugestão → validação.

@@ -573,3 +573,29 @@ Próxima prioridade:
 4. preparar filtros/status;
 5. incluir arquivamento reversível;
 6. manter exclusão destrutiva fora do fluxo normal.
+
+## 2026-08-26 — Checkpoint pós-V19.8C
+
+### Agora
+
+1. Resolver acesso mobile ao Preview sem confundir Vercel Authentication com login Roda Festa.
+2. Executar smoke real completo com um novo orçamento após materialização de `planning_sessions`.
+3. Confirmar que o orçamento aparece no Admin e que o detalhe preserva entrada, recomendação, timeline e final.
+4. Validar visualmente Admin e Planning em celular real.
+5. Executar postflight independente de infraestrutura para `planning_sessions`: RLS, policies, grants e índices.
+
+### Depois do primeiro orçamento real
+
+- realizar casos comparativos de sugestão do motor;
+- registrar alterações feitas pela especialista;
+- validar proposta final;
+- acumular histórico explicável;
+- preparar protocolo de calibração offline;
+- nunca promover ajuste do motor apenas porque um único orçamento foi alterado.
+
+### Dívidas conhecidas não bloqueadoras
+
+- warning de build: `src/styles/colors.css` vazio;
+- CanonicalPDF persistido continua pendente;
+- arquivamento/desarquivamento de orçamentos permanece unidade futura;
+- tabela comercial Admin e agenda permanecem futuras superfícies.

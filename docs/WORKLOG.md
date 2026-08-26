@@ -706,3 +706,75 @@ Fluxo:
 Resultado: V19.7ZA aprovada em navegador real.
 
 Próxima unidade de produto: Admin de Orçamentos.
+
+## 2026-08-26 — Fechamento V19.8A–V19.8C
+
+### V19.8A — Admin de Orçamentos read-only
+
+Checkpoint técnico `75997c4d552ff45a5cd1811e734655d139a3ccf2` (`feat: add admin quotes read workspace`).
+
+- criado workspace Admin visual para leitura de orçamentos;
+- criado `GET /api/admin-quotes`, protegido pela autenticação Admin;
+- criado store server-side para leitura de `planning_sessions`;
+- lista e detalhe preservam snapshots históricos e não recalculam propostas antigas;
+- fluxo “Novo orçamento” aponta para o Planning em contexto administrativo;
+- validação oficial da unidade: 199/199 testes, lint verde e build verde;
+- primeiro smoke real revelou `{"ok":false,"error":"admin_quotes_unavailable"}`.
+
+### Diagnóstico e materialização de PlanningSession no Supabase
+
+O smoke real do Admin mostrou que `public.planning_sessions` ainda não existia no projeto Supabase do Roda Festa.
+
+Diagnóstico executado no SQL Editor:
+- `to_regclass('public.planning_sessions')` retornou `NULL`;
+- migration versionada `infra/migrations/20260825_v19_7_planning_sessions.sql` foi executada;
+- após execução, `to_regclass` passou a retornar `planning_sessions`;
+- RLS foi verificado como `true`;
+- contagem inicial verificada em `0`;
+- `/api/admin-quotes` passou de `admin_quotes_unavailable` para `{"ok":true,"quotes":[]}`.
+
+Observação de governança: existência, RLS e contagem foram verificadas manualmente. Policies, grants e índices da tabela `planning_sessions` não receberam um postflight independente nesta sessão; permanecem cobertos pela migration versionada e devem ser incluídos em futura verificação de infraestrutura.
+
+### V19.8B — identidade Admin e navegação Admin ↔ Planning
+
+Checkpoint técnico `6939a37eb953e8c1d2973f757a5f10e0b35afa25` (`feat: refine admin theme and planning return flow`).
+
+- direção visual Admin aprovada: marrom escuro + creme + dourado;
+- login e workspace Admin alinhados à identidade do Planning;
+- restauração de sessão passa a usar shell neutro “Verificando sessão segura...” antes do formulário, eliminando o flash visual de login;
+- Planning reconhece `?admin=1&return=/admin`;
+- barra persistente “Modo administrativo” adicionada;
+- ação “Voltar ao Admin” disponível durante a jornada;
+- return path limitado a caminho interno seguro;
+- validação oficial: 203/203 testes, lint verde e build verde;
+- smoke real no Preview: navegação Admin → Planning → Admin aprovada sem defeitos funcionais.
+
+### V19.8C — Planning Brown Theme
+
+Checkpoint técnico `d14374238e18e6545caee8faeb6850797cb51d79` (`style: align planning with approved brown theme`).
+
+- tokens primários do Planning migrados do vinho antigo para o marrom aprovado;
+- welcome, header interno, progresso, botões, foco e seleção passam a compartilhar a mesma identidade marrom/creme/dourado;
+- nenhuma alteração no motor, persistência, endpoints ou navegação;
+- teste focal V19.8C: 3/3;
+- suíte acumulada oficial: 206/206;
+- lint verde;
+- build verde;
+- permanece apenas o warning conhecido de `src/styles/colors.css` vazio.
+
+### Provas e pendências ao encerrar o dia
+
+Aprovado em navegador real:
+- login Admin real;
+- restauração de sessão após reload;
+- Admin de Orçamentos carregando estado vazio após materialização de `planning_sessions`;
+- navegação Admin ↔ Planning;
+- direção visual marrom/creme/dourado.
+
+Pendente para a próxima sessão:
+- resolver acesso ao Preview pelo celular: atualmente a tela “Log in to Vercel” intercepta o acesso antes da aplicação; é uma proteção da plataforma Vercel, não do login Roda Festa;
+- executar primeiro orçamento real após a tabela `planning_sessions` existir;
+- comprovar persistência da jornada e aparição do orçamento no Admin;
+- comparar sugestão original → alterações → proposta validada;
+- somente depois começar calibração controlada do motor com histórico real;
+- manter aprendizado controlado: histórico não altera o motor automaticamente.
