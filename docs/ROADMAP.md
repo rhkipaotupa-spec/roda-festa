@@ -520,3 +520,7 @@ Próximo passo, somente após reconciliação documental: executar controladamen
 Base: `2edd24c560becdcad58b730b010d4de0b43ebb16`.
 
 O primeiro Admin `OWNER` ativo existe no banco real. O próximo passo é provar o login funcional real usando o endpoint persistente já construído, sem expor a senha em histórico de terminal, Git ou chat.
+
+## V19.7X — Prova funcional do login real — concluída
+
+Próximo passo: preparar o ambiente de deploy do Roda Festa com `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` e a allowlist administrativa, então provar o endpoint/browser real.

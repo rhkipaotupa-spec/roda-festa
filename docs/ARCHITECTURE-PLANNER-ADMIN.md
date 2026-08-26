@@ -777,3 +777,11 @@ O primeiro Admin do Roda Festa foi provisionado no Supabase por bootstrap one-ti
 - nenhum hash, salt, senha ou secret foi registrado na documentação ou Git.
 
 A prova funcional de login real ainda permanece pendente e deve ser tratada como etapa separada.
+
+## V19.7X — Prova funcional real do login Admin
+
+Base local: `85af4708f436f0533ed83edcf869ee915018cd25`.
+
+Smoke temporário fora do repositório executado contra o Supabase real usando `createAdminRuntime()`.
+
+Resultado: login real OK; role OWNER; cookie de sessão OK; persistência de sessão OK; nenhum token, cookie, senha ou service-role exibido.

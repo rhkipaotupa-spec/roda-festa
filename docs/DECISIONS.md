@@ -385,3 +385,7 @@ Na base `2edd24c560becdcad58b730b010d4de0b43ebb16`, o primeiro Admin real foi pr
 O SQL temporário de bootstrap foi apagado imediatamente após a execução e não deve ser preservado ou compartilhado.
 
 A existência do registro não encerra a autenticação: o login real deverá ser provado separadamente.
+
+## V19.7X — Decisão de prova funcional real
+
+Na base `85af4708f436f0533ed83edcf869ee915018cd25`, o login real foi provado localmente contra o Supabase antes de configurar o frontend/Vercel, separando a correção da autenticação da configuração de deploy.

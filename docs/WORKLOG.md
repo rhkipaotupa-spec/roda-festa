@@ -643,3 +643,7 @@ Partindo do checkpoint `2edd24c560becdcad58b730b010d4de0b43ebb16` e com working 
 - HEAD local permaneceu `2edd24c560becdcad58b730b010d4de0b43ebb16`;
 - working tree permaneceu limpa;
 - prova funcional de login real ainda pendente.
+
+## 2026-08-26 — V19.7X
+
+Partindo de `85af4708f436f0533ed83edcf869ee915018cd25` e com working tree limpa: smoke temporário fora do repositório; URL e credenciais fornecidas somente localmente; login real OK; role OWNER; cookie OK; persistência Supabase OK; nenhum secret exibido.

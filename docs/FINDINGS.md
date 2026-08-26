@@ -853,3 +853,9 @@ Consulta segura comprovou:
 O arquivo temporário sensível foi apagado e conferido como inexistente.
 
 Nenhuma senha, hash, salt, token, service-role key ou connection string foi documentada.
+
+## V19.7X — Login real OWNER aprovado
+
+Evidência: `LOGIN REAL: OK`, `ROLE: OWNER`, `SESSION COOKIE: OK`, `SESSION PERSISTENCE: OK`.
+
+Isso comprova consulta da identidade real, verificação da credencial, criação de sessão em `admin_sessions` e emissão do cookie esperado.
