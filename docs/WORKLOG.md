@@ -395,3 +395,25 @@ Checkpoint técnico fechado em `4103e39b99b36bce9381a6d1a590a772cb90533d` (`feat
 - nenhuma migration;
 - commit técnico criado;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-26 — V19.7M Admin Login Composition
+
+Checkpoint técnico fechado em `0b474af7a12871fa56dcd01a1da71056b0fa773e` (`feat: compose admin login`).
+
+- base inicial: `2595fae419116560b57dda5ae9af2f3cd2c7e0bb`;
+- V19.7M aplicada sobre working tree limpa;
+- exatamente 3 arquivos novos;
+- suíte acumulada: 111/111;
+- lint: verde;
+- build: verde;
+- verifier server-side conectado à HTTP Boundary por composição dedicada;
+- request do cliente não pode substituir a dependência de verificação;
+- resposta da boundary preservada sem exposição de dependências;
+- nenhum usuário/senha real;
+- nenhum secret;
+- nenhum endpoint HTTP novo;
+- nenhum `fetch` no frontend;
+- nenhum banco remoto;
+- nenhuma migration;
+- commit técnico criado;
+- working tree confirmada limpa após o commit.

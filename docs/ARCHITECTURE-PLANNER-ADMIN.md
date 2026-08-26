@@ -562,3 +562,23 @@ A V19.7L adiciona a camada server-side responsável por validar credenciais admi
 
 ### Baseline
 Checkpoint técnico `4103e39b99b36bce9381a6d1a590a772cb90533d` com 106/106 testes, lint verde e build de produção verde.
+
+## V19.7M — Admin Login Composition — checkpoint `0b474af7a12871fa56dcd01a1da71056b0fa773e`
+
+A V19.7M compõe explicitamente o verifier server-side de credenciais da V19.7L com a boundary HTTP administrativa já existente.
+
+### Propriedades consolidadas
+- composição server-side dedicada ao login Admin;
+- verifier obrigatório e injetado somente pela composição;
+- boundary HTTP obrigatória;
+- request do cliente não pode substituir o verifier confiável;
+- resposta da boundary é preservada sem expor dependências internas;
+- nenhum usuário ou senha real foi criado;
+- nenhum secret foi adicionado ao repositório;
+- nenhum endpoint HTTP novo foi criado;
+- nenhum `fetch` foi adicionado ao frontend;
+- nenhum banco remoto foi ativado;
+- nenhuma migration foi executada.
+
+### Baseline
+Checkpoint técnico `0b474af7a12871fa56dcd01a1da71056b0fa773e` com 111/111 testes, lint verde e build de produção verde.

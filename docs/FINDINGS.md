@@ -605,3 +605,22 @@ Validação:
 - nenhum usuário/senha real, secret, endpoint novo, banco remoto ou migration foi criado.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7M — Resultado de validação — `0b474af7a12871fa56dcd01a1da71056b0fa773e`
+
+A unidade adicionou exatamente três arquivos novos:
+- `api/_lib/admin-login-composition.js`;
+- changelog da V19.7M;
+- suíte de testes da composição de login.
+
+Validação:
+- 111/111 testes aprovados;
+- lint aprovado;
+- build de produção aprovado;
+- verifier server-side obrigatório;
+- boundary HTTP obrigatória;
+- request do cliente não consegue substituir o verifier confiável;
+- resultado da boundary preservado sem exposição de dependências internas;
+- nenhum usuário/senha real, secret, endpoint novo, `fetch` no frontend, banco remoto ou migration foi criado.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.

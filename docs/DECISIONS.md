@@ -267,3 +267,11 @@ A finalidade é permitir reconstruir de forma auditável:
 - Não expor hash, salt ou credencial após autenticação.
 - Não incluir usuário/senha real, secrets, endpoint novo, banco remoto ou migration nesta unidade.
 - Considerar a unidade concluída somente com 106/106 testes, lint e build verdes.
+
+## V19.7M — Decisões — `0b474af7a12871fa56dcd01a1da71056b0fa773e`
+
+- Introduzir uma composição explícita entre verifier server-side e HTTP Boundary antes de expor uma rota pública de login.
+- Manter o verifier como dependência confiável server-side, nunca substituível por dados do request.
+- Preservar a resposta da HTTP Boundary sem vazar dependências internas.
+- Não criar usuário/senha real, secret, endpoint novo, `fetch` no frontend, banco remoto ou migration nesta unidade.
+- Considerar a unidade concluída somente com 111/111 testes, lint e build verdes.

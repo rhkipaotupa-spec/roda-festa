@@ -386,3 +386,17 @@ Entregue:
 - 106/106 testes, lint e build verdes.
 
 Próximo passo recomendado: compor este verifier com a HTTP Boundary já criada e preparar a ligação do formulário `/admin` a um fluxo real de login sem inserir credenciais fixas no frontend.
+
+## Checkpoint concluído — V19.7M Admin Login Composition
+
+Status: **concluído** no commit `0b474af7a12871fa56dcd01a1da71056b0fa773e`.
+
+Entregue:
+- composição server-side do login Admin;
+- verifier confiável injetado pela composição;
+- proteção contra substituição do verifier pelo cliente;
+- integração explícita com a HTTP Boundary;
+- não exposição de dependências internas;
+- 111/111 testes, lint e build verdes.
+
+Próximo passo recomendado: expor uma rota controlada que use esta composição e, somente depois, ligar o formulário `/admin` a esse endpoint sem inserir credenciais fixas no frontend.
