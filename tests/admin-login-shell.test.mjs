@@ -14,19 +14,26 @@ test("rota admin nasce isolada sem alterar rotas publicas", () => {
 });
 
 test("login visual nao contem credencial ou secret fixo", () => {
-  assert.doesNotMatch(login, /valid-secret|service_role|SUPABASE_SERVICE|password\s*[:=]\s*["'][^"']+/i);
+  assert.doesNotMatch(
+    login,
+    /valid-secret|service_role|SUPABASE_SERVICE|password\s*[:=]\s*["'][^"']+/i,
+  );
   assert.match(login, /type="password"/);
   assert.match(login, /autoComplete="current-password"/);
 });
 
-test("login visual ainda nao finge autenticacao real", () => {
-  assert.doesNotMatch(login, /\bfetch\s*\(/);
-  assert.match(login, /ativação de credenciais reais será feita em uma etapa segura posterior/);
+test("login visual usa somente o endpoint administrativo real same-origin", () => {
+  assert.match(login, /const LOGIN_ENDPOINT = "\/api\/admin-login"/);
+  assert.match(login, /\bfetch\s*\(LOGIN_ENDPOINT/);
+  assert.match(login, /method:\s*"POST"/);
+  assert.match(login, /credentials:\s*"same-origin"/);
+  assert.doesNotMatch(login, /SUPABASE_URL|SUPABASE_SERVICE_ROLE_KEY/);
 });
 
 test("shell admin e mobile-first e acessivel", () => {
   assert.match(login, /aria-labelledby="admin-login-title"/);
-  assert.match(login, /role="status"/);
+  assert.match(login, /role=\{status === "error" \? "alert" : "status"\}/);
+  assert.match(login, /aria-live="polite"/);
   assert.match(css, /min-height:\s*100dvh/);
   assert.match(css, /width:\s*min\(100%,\s*430px\)/);
   assert.match(css, /@media \(min-width:\s*720px\)/);

@@ -81,6 +81,11 @@
   box-shadow: 0 0 0 3px rgba(122, 52, 55, 0.12);
 }
 
+.rf-admin-login__form input:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
 .rf-admin-login__form button {
   min-height: 52px;
   margin-top: 4px;
@@ -93,6 +98,11 @@
   cursor: pointer;
 }
 
+.rf-admin-login__form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
 .rf-admin-login__notice {
   margin: 20px 0 0;
   padding: 14px;
@@ -101,6 +111,16 @@
   color: #65433c;
   font-size: 0.88rem;
   line-height: 1.45;
+}
+
+.rf-admin-login__notice--authenticated {
+  background: #edf3e8;
+  color: #355034;
+}
+
+.rf-admin-login__notice--error {
+  background: #f6e7e5;
+  color: #713a36;
 }
 
 .rf-admin-login__security {
