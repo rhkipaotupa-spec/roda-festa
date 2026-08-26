@@ -752,3 +752,11 @@ Preflight comprovou `admin_users = NULL` e `admin_sessions = NULL`. O contrato V
 Postflight comprovado: 2/2 tabelas presentes; RLS `true` nas duas; zero policies; zero grants diretos para `anon`/`authenticated`; 4/4 índices obrigatórios presentes.
 
 Nenhuma identidade administrativa ou credencial real foi provisionada nesta etapa.
+
+## V19.7V — Secure First Admin Bootstrap Provisioning — `e935a474f09f2466c7fda18678d2684084b4e1e3`
+
+Foi introduzido um mecanismo local, one-time e fail-high para preparar o provisionamento da primeira identidade administrativa sem escrita remota automática.
+
+Propriedades validadas: entrada de senha interativa sem eco; confirmação e política mínima; hashing com salt aleatório; SQL sensível somente em diretório temporário; nenhuma senha bruta no SQL; recusa se já existir Admin; ausência de service-role, connection string e chamadas remotas no gerador.
+
+Baseline: 168/168 testes, lint e build verdes.

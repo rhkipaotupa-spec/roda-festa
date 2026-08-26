@@ -827,3 +827,11 @@ O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação c
 Preflight: ambas as tabelas Admin ausentes. Materialização do contrato V19.7S: sucesso. Postflight: `admin_users` e `admin_sessions` presentes; RLS ativo nas duas; zero policies; zero grants diretos para `anon`/`authenticated`; quatro índices obrigatórios presentes.
 
 Nenhum primeiro Admin foi criado e nenhuma credencial ou secret foi documentado.
+
+## V19.7V — Bootstrap seguro do primeiro Admin — `e935a474f09f2466c7fda18678d2684084b4e1e3`
+
+Checkpoint técnico aprovado com 168/168 testes, lint e build verdes.
+
+O mecanismo normaliza identidade, exige senha forte interativa, gera material de verificação com salt criptográfico, não grava senha bruta e produz SQL temporário one-time. Testes comprovam ausência de service-role, connection string e escrita remota.
+
+Nenhuma credencial real foi criada ou inserida nesta unidade.

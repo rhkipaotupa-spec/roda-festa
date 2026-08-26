@@ -508,3 +508,9 @@ Próximo passo: executar somente o preflight read-only no Supabase real. Se amba
 ## V19.7U — Materialização real do schema Admin
 
 Concluída operacionalmente e aprovada por postflight completo. Próxima unidade: projetar e testar o provisionamento seguro da primeira identidade administrativa antes de inserir qualquer credencial real.
+
+## V19.7V — Bootstrap seguro do primeiro Admin — concluído
+
+Checkpoint técnico `e935a474f09f2466c7fda18678d2684084b4e1e3`.
+
+Próximo passo, somente após reconciliação documental: executar controladamente o gerador local com a credencial digitada apenas no terminal, materializar o primeiro Admin no Supabase Roda Festa, verificar o resultado e apagar imediatamente o SQL temporário.

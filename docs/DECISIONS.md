@@ -364,3 +364,12 @@ A finalidade é permitir reconstruir de forma auditável:
 A primeira materialização remota do contrato Admin foi autorizada somente após preflight read-only comprovar ausência das tabelas alvo. A operação só foi considerada aprovada após postflight de existência, RLS, policies, grants e índices.
 
 O provisionamento do primeiro Admin permanece uma unidade separada.
+
+## V19.7V — Decisões — `e935a474f09f2466c7fda18678d2684084b4e1e3`
+
+- Provisionar o primeiro Admin por mecanismo local one-time, nunca por senha versionada.
+- Não aceitar senha por argumento de processo ou variável permanente.
+- Não fazer escrita remota automática no gerador.
+- Recusar bootstrap quando `admin_users` já possuir qualquer registro.
+- Manter a credencial real fora de Git, documentação e chat.
+- Somente executar o bootstrap real depois da reconciliação documental deste checkpoint.
