@@ -1,0 +1,466 @@
+import { useEffect, useMemo, useState } from "react";
+import "./AdminWorkspace.css";
+
+import rodaFestaLogoCreme from "../planner/planning-book/assets/logo-roda-festa-creme.png";
+
+const QUOTES_ENDPOINT = "/api/admin-quotes";
+
+function formatCurrency(value) {
+  return Number(value || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
+
+function formatDate(value) {
+  if (!value) return "Data a definir";
+
+  const date = String(value).slice(0, 10);
+  const parts = date.split("-");
+  if (parts.length !== 3) return String(value);
+
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+function formatTimestamp(value) {
+  if (!value) return "Sem atualização";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+
+  return date.toLocaleString("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+}
+
+function quoteStage(quote) {
+  if (quote?.history?.hasFinalProposal) {
+    return {
+      label: "Validado",
+      className: "is-validated",
+    };
+  }
+
+  return {
+    label: "Sugestão",
+    className: "is-suggestion",
+  };
+}
+
+function initials(value) {
+  const words = String(value || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (words.length === 0) return "RF";
+  return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase();
+}
+
+export default function AdminWorkspace({ sessionMessage = "" }) {
+  const [quotes, setQuotes] = useState([]);
+  const [status, setStatus] = useState("loading");
+  const [error, setError] = useState("");
+  const [selectedQuote, setSelectedQuote] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("idle");
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadQuotes() {
+      try {
+        const response = await fetch(QUOTES_ENDPOINT, {
+          method: "GET",
+          credentials: "same-origin",
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        const payload = await response.json().catch(() => null);
+
+        if (cancelled) return;
+
+        if (!response.ok || payload?.ok !== true || !Array.isArray(payload.quotes)) {
+          setStatus("error");
+          setError("Não foi possível carregar os orçamentos agora.");
+          return;
+        }
+
+        setQuotes(payload.quotes);
+        setStatus("ready");
+      } catch {
+        if (cancelled) return;
+        setStatus("error");
+        setError("Não foi possível carregar os orçamentos agora.");
+      }
+    }
+
+    loadQuotes();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filteredQuotes = useMemo(() => {
+    const term = search.trim().toLocaleLowerCase("pt-BR");
+    if (!term) return quotes;
+
+    return quotes.filter((quote) => {
+      const haystack = [
+        quote?.client?.name,
+        quote?.client?.phone,
+        quote?.client?.email,
+        quote?.sessionId,
+        quote?.status,
+        quote?.event?.date,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLocaleLowerCase("pt-BR");
+
+      return haystack.includes(term);
+    });
+  }, [quotes, search]);
+
+  const metrics = useMemo(() => {
+    const validated = quotes.filter((quote) => quote?.history?.hasFinalProposal).length;
+    const suggestions = quotes.length - validated;
+
+    return {
+      total: quotes.length,
+      validated,
+      suggestions,
+    };
+  }, [quotes]);
+
+  async function openQuote(quote) {
+    setSelectedQuote(quote);
+    setSelectedStatus("loading");
+
+    try {
+      const response = await fetch(
+        `${QUOTES_ENDPOINT}?id=${encodeURIComponent(quote.sessionId)}`,
+        {
+          method: "GET",
+          credentials: "same-origin",
+          headers: {
+            Accept: "application/json",
+          },
+        },
+      );
+
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok || payload?.ok !== true || !payload.quote) {
+        setSelectedStatus("error");
+        return;
+      }
+
+      setSelectedQuote(payload.quote);
+      setSelectedStatus("ready");
+    } catch {
+      setSelectedStatus("error");
+    }
+  }
+
+  return (
+    <main className="rf-admin-workspace">
+      <aside className="rf-admin-sidebar">
+        <div className="rf-admin-sidebar__brand">
+          <img src={rodaFestaLogoCreme} alt="Roda Festa" />
+          <div>
+            <span>Roda Festa</span>
+            <small>Área administrativa</small>
+          </div>
+        </div>
+
+        <nav className="rf-admin-nav" aria-label="Navegação administrativa">
+          <button type="button" className="is-active">
+            <span>Orçamentos</span>
+            <small>{metrics.total}</small>
+          </button>
+
+          <button type="button" disabled>
+            <span>Clientes</span>
+            <small>em breve</small>
+          </button>
+
+          <button type="button" disabled>
+            <span>Aprendizados</span>
+            <small>em breve</small>
+          </button>
+        </nav>
+
+        <div className="rf-admin-sidebar__footer">
+          <span>Sessão segura</span>
+          <small>{sessionMessage || "Acesso administrativo ativo"}</small>
+        </div>
+      </aside>
+
+      <section className="rf-admin-main">
+        <header className="rf-admin-topbar">
+          <div>
+            <span className="rf-admin-eyebrow">Painel Roda Festa</span>
+            <h1>Orçamentos</h1>
+          </div>
+
+          <a
+            className="rf-admin-new-quote"
+            href="/planning-book?admin=1&return=%2Fadmin"
+          >
+            <span>+</span>
+            Novo orçamento
+          </a>
+        </header>
+
+        <section className="rf-admin-hero">
+          <div>
+            <span className="rf-admin-eyebrow">Central de atendimento</span>
+            <h2>Um lugar para acompanhar cada festa do primeiro cálculo à versão validada.</h2>
+            <p>
+              Sugestão do motor, alterações e proposta final ficam lado a lado
+              para dar contexto às próximas decisões.
+            </p>
+          </div>
+
+          <div className="rf-admin-hero__ornament" aria-hidden="true">
+            RF
+          </div>
+        </section>
+
+        <section className="rf-admin-metrics" aria-label="Resumo dos orçamentos">
+          <article>
+            <span>Total acompanhado</span>
+            <strong>{metrics.total}</strong>
+            <small>jornadas persistidas</small>
+          </article>
+          <article>
+            <span>Aguardando validação</span>
+            <strong>{metrics.suggestions}</strong>
+            <small>sugestões do motor</small>
+          </article>
+          <article>
+            <span>Validados</span>
+            <strong>{metrics.validated}</strong>
+            <small>com proposta final</small>
+          </article>
+        </section>
+
+        <section className="rf-admin-board">
+          <div className="rf-admin-board__toolbar">
+            <div>
+              <span className="rf-admin-eyebrow">Histórico real</span>
+              <h2>Orçamentos recentes</h2>
+            </div>
+
+            <label className="rf-admin-search">
+              <span>Buscar</span>
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Cliente, telefone, código..."
+              />
+            </label>
+          </div>
+
+          {status === "loading" ? (
+            <div className="rf-admin-empty" role="status">
+              Carregando orçamentos reais...
+            </div>
+          ) : null}
+
+          {status === "error" ? (
+            <div className="rf-admin-empty is-error" role="alert">
+              {error}
+            </div>
+          ) : null}
+
+          {status === "ready" && filteredQuotes.length === 0 ? (
+            <div className="rf-admin-empty">
+              <strong>Nenhum orçamento encontrado.</strong>
+              <span>
+                Crie um novo orçamento no Planning Book ou ajuste sua busca.
+              </span>
+            </div>
+          ) : null}
+
+          {status === "ready" && filteredQuotes.length > 0 ? (
+            <div className="rf-admin-quote-list">
+              {filteredQuotes.map((quote) => {
+                const stage = quoteStage(quote);
+                const name = quote?.client?.name || "Cliente ainda não identificado";
+
+                return (
+                  <button
+                    type="button"
+                    className="rf-admin-quote-row"
+                    key={quote.sessionId}
+                    onClick={() => openQuote(quote)}
+                  >
+                    <span className="rf-admin-quote-row__avatar" aria-hidden="true">
+                      {initials(name)}
+                    </span>
+
+                    <span className="rf-admin-quote-row__identity">
+                      <strong>{name}</strong>
+                      <small>
+                        {formatDate(quote?.event?.date)}
+                        {" · "}
+                        {Number(quote?.event?.guests || 0)} convidados
+                      </small>
+                    </span>
+
+                    <span className={`rf-admin-stage ${stage.className}`}>
+                      {stage.label}
+                    </span>
+
+                    <span className="rf-admin-quote-row__value">
+                      <strong>{formatCurrency(quote?.commercial?.effectiveTotal)}</strong>
+                      <small>{quote?.commercial?.itemCount || 0} itens</small>
+                    </span>
+
+                    <span className="rf-admin-quote-row__updated">
+                      <strong>Atualizado</strong>
+                      <small>{formatTimestamp(quote?.updatedAt)}</small>
+                    </span>
+
+                    <span className="rf-admin-quote-row__arrow" aria-hidden="true">
+                      →
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+        </section>
+      </section>
+
+      {selectedQuote ? (
+        <div className="rf-admin-detail-layer" role="presentation">
+          <button
+            className="rf-admin-detail-layer__backdrop"
+            type="button"
+            aria-label="Fechar detalhes"
+            onClick={() => setSelectedQuote(null)}
+          />
+
+          <aside
+            className="rf-admin-detail"
+            aria-label="Detalhes do orçamento"
+          >
+            <header>
+              <button
+                type="button"
+                className="rf-admin-detail__close"
+                onClick={() => setSelectedQuote(null)}
+              >
+                ×
+              </button>
+
+              <span className="rf-admin-eyebrow">Orçamento</span>
+              <h2>{selectedQuote?.client?.name || "Cliente"}</h2>
+              <p>{selectedQuote.sessionId}</p>
+            </header>
+
+            {selectedStatus === "loading" ? (
+              <div className="rf-admin-detail__state">
+                Carregando histórico completo...
+              </div>
+            ) : null}
+
+            {selectedStatus === "error" ? (
+              <div className="rf-admin-detail__state is-error">
+                Não foi possível abrir este orçamento agora.
+              </div>
+            ) : null}
+
+            {selectedStatus === "ready" ? (
+              <div className="rf-admin-detail__content">
+                <section className="rf-admin-detail__facts">
+                  <article>
+                    <span>Data</span>
+                    <strong>{formatDate(selectedQuote?.event?.date)}</strong>
+                  </article>
+                  <article>
+                    <span>Convidados</span>
+                    <strong>{selectedQuote?.event?.guests || 0}</strong>
+                  </article>
+                  <article>
+                    <span>Sugestão</span>
+                    <strong>
+                      {formatCurrency(selectedQuote?.commercial?.recommendedTotal)}
+                    </strong>
+                  </article>
+                  <article>
+                    <span>Validado</span>
+                    <strong>
+                      {selectedQuote?.commercial?.finalTotal == null
+                        ? "Ainda não"
+                        : formatCurrency(selectedQuote.commercial.finalTotal)}
+                    </strong>
+                  </article>
+                </section>
+
+                <section className="rf-admin-journey">
+                  <div>
+                    <span className="rf-admin-journey__dot is-suggestion" />
+                    <p>
+                      <strong>Sugestão do motor</strong>
+                      <small>
+                        {formatCurrency(
+                          selectedQuote?.commercial?.recommendedTotal,
+                        )}
+                      </small>
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="rf-admin-journey__dot is-change" />
+                    <p>
+                      <strong>Alterações registradas</strong>
+                      <small>
+                        {selectedQuote?.history?.changeCount || 0} mudanças
+                      </small>
+                    </p>
+                  </div>
+
+                  <div>
+                    <span
+                      className={`rf-admin-journey__dot ${
+                        selectedQuote?.history?.hasFinalProposal
+                          ? "is-validated"
+                          : "is-pending"
+                      }`}
+                    />
+                    <p>
+                      <strong>Versão validada</strong>
+                      <small>
+                        {selectedQuote?.history?.hasFinalProposal
+                          ? formatCurrency(selectedQuote?.commercial?.finalTotal)
+                          : "Aguardando revisão"}
+                      </small>
+                    </p>
+                  </div>
+                </section>
+
+                <section className="rf-admin-detail__learning">
+                  <span>Base para aprendizado</span>
+                  <p>
+                    Este histórico preserva o que o motor sugeriu e o que foi
+                    alterado antes da versão final. A calibração futura poderá
+                    usar somente exemplos aprovados, sem apagar a origem.
+                  </p>
+                </section>
+              </div>
+            ) : null}
+          </aside>
+        </div>
+      ) : null}
+    </main>
+  );
+}

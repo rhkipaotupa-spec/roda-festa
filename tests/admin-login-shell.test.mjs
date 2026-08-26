@@ -10,6 +10,7 @@ test("rota admin nasce isolada sem alterar rotas publicas", () => {
   for (const route of ["/", "/planner", "/planner-sandbox", "/book-cover", "/planning-book", "/admin"]) {
     assert.match(routes, new RegExp(`path="${route.replace("/", "\\/")}"`));
   }
+
   assert.match(routes, /import AdminLogin from "\.\.\/admin\/AdminLogin"/);
 });
 
@@ -33,12 +34,17 @@ test("login visual usa somente endpoints administrativos same-origin", () => {
   assert.doesNotMatch(login, /SUPABASE_URL|SUPABASE_SERVICE_ROLE_KEY/);
 });
 
-test("shell admin e mobile-first e acessivel em todos os estados", () => {
+test("shell admin e responsivo e acessivel em todos os estados", () => {
   assert.match(login, /aria-labelledby="admin-login-title"/);
   assert.match(login, /role="status"/);
   assert.match(login, /role="alert"/);
   assert.match(login, /aria-live="polite"/);
+
   assert.match(css, /min-height:\s*100dvh/);
-  assert.match(css, /width:\s*min\(100%,\s*430px\)/);
-  assert.match(css, /@media \(min-width:\s*720px\)/);
+  assert.match(css, /width:\s*min\(100%,\s*\d+px\)/);
+  assert.match(css, /@media \(max-width:\s*\d+px\)/);
+
+  assert.match(css, /\.rf-admin-login__access-inner/);
+  assert.match(css, /\.rf-admin-login__story/);
+  assert.match(css, /\.rf-admin-login__logo-mobile/);
 });

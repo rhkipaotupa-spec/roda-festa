@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import "./AdminLogin.css";
 
+import AdminWorkspace from "./AdminWorkspace.jsx";
+import rodaFestaLogo from "../planner/planning-book/assets/logo-roda-festa.png";
+import rodaFestaLogoCreme from "../planner/planning-book/assets/logo-roda-festa-creme.png";
+
 const LOGIN_ENDPOINT = "/api/admin-login";
 const SESSION_ENDPOINT = "/api/admin-session";
 const GENERIC_LOGIN_ERROR =
@@ -104,105 +108,111 @@ export default function AdminLogin() {
     }
   }
 
+  if (isAuthenticated) {
+    return <AdminWorkspace sessionMessage={message} />;
+  }
+
   return (
     <main className="rf-admin-login">
+      <section className="rf-admin-login__story" aria-hidden="true">
+        <div className="rf-admin-login__texture" />
+        <div className="rf-admin-login__story-inner">
+          <img src={rodaFestaLogoCreme} alt="" />
+          <span className="rf-admin-login__eyebrow">Roda Festa</span>
+          <h1>O cuidado de cada festa continua aqui.</h1>
+          <p>
+            Acompanhe sugestões, revisões e versões validadas em um ambiente
+            pensado para o atendimento diário.
+          </p>
+
+          <div className="rf-admin-login__story-note">
+            <strong>Sugestão → revisão → validação</strong>
+            <small>
+              Cada mudança preserva contexto para melhorar decisões futuras.
+            </small>
+          </div>
+        </div>
+      </section>
+
       <section
-        className="rf-admin-login__card"
+        className="rf-admin-login__access"
         aria-labelledby="admin-login-title"
       >
-        <div className="rf-admin-login__brand" aria-hidden="true">RF</div>
+        <div className="rf-admin-login__access-inner">
+          <img
+            className="rf-admin-login__logo-mobile"
+            src={rodaFestaLogo}
+            alt="Roda Festa"
+          />
 
-        <p className="rf-admin-login__eyebrow">Roda Festa</p>
-        <h1 id="admin-login-title">Área administrativa</h1>
+          <span className="rf-admin-login__eyebrow">Área administrativa</span>
+          <h2 id="admin-login-title">Bem-vinda de volta.</h2>
+          <p className="rf-admin-login__intro">
+            Entre para cuidar dos orçamentos e acompanhar a jornada de cada
+            cliente.
+          </p>
 
-        {isAuthenticated ? (
-          <>
-            <p className="rf-admin-login__intro">
-              Sua sessão administrativa está ativa neste navegador.
-            </p>
-
+          {isChecking ? (
             <p
-              className="rf-admin-login__notice rf-admin-login__notice--authenticated"
+              className="rf-admin-login__notice"
               role="status"
               aria-live="polite"
             >
-              {message || "Sessão administrativa ativa."}
+              Verificando sessão segura...
             </p>
-
-            <p className="rf-admin-login__security">
-              A próxima etapa abrirá a área administrativa protegida sem
-              armazenar o token de sessão no JavaScript.
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="rf-admin-login__intro">
-              Entre para acompanhar planejamentos e, nas próximas etapas,
-              atender cada evento com o histórico completo da jornada.
-            </p>
-
-            {isChecking ? (
-              <p
-                className="rf-admin-login__notice"
-                role="status"
-                aria-live="polite"
-              >
-                Verificando sessão segura...
-              </p>
-            ) : (
-              <form className="rf-admin-login__form" onSubmit={handleSubmit}>
-                <label>
-                  E-mail
-                  <input
-                    type="email"
-                    autoComplete="username"
-                    value={identifier}
-                    onChange={(event) => setIdentifier(event.target.value)}
-                    placeholder="seu@email.com"
-                    required
-                    disabled={isSubmitting}
-                  />
-                </label>
-
-                <label>
-                  Senha
-                  <input
-                    type="password"
-                    autoComplete="current-password"
-                    value={credential}
-                    onChange={(event) => setCredential(event.target.value)}
-                    placeholder="Sua senha"
-                    required
-                    disabled={isSubmitting}
-                  />
-                </label>
-
-                <button
-                  type="submit"
+          ) : (
+            <form className="rf-admin-login__form" onSubmit={handleSubmit}>
+              <label>
+                E-mail
+                <input
+                  type="email"
+                  autoComplete="username"
+                  value={identifier}
+                  onChange={(event) => setIdentifier(event.target.value)}
+                  placeholder="seu@email.com"
+                  required
                   disabled={isSubmitting}
-                  aria-busy={isSubmitting}
-                >
-                  {isSubmitting ? "Entrando..." : "Entrar"}
-                </button>
-              </form>
-            )}
+                />
+              </label>
 
-            {!isChecking && message ? (
-              <p
-                className="rf-admin-login__notice rf-admin-login__notice--error"
-                role="alert"
-                aria-live="polite"
+              <label>
+                Senha
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  value={credential}
+                  onChange={(event) => setCredential(event.target.value)}
+                  placeholder="Sua senha"
+                  required
+                  disabled={isSubmitting}
+                />
+              </label>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                aria-busy={isSubmitting}
               >
-                {message}
-              </p>
-            ) : null}
+                {isSubmitting ? "Entrando..." : "Entrar no Admin"}
+              </button>
+            </form>
+          )}
 
-            <p className="rf-admin-login__security">
-              Sua senha é enviada somente ao endpoint administrativo seguro e
-              não fica armazenada no navegador pelo Roda Festa.
+          {!isChecking && message ? (
+            <p
+              className="rf-admin-login__notice rf-admin-login__notice--error"
+              role="alert"
+              aria-live="polite"
+            >
+              {message}
             </p>
-          </>
-        )}
+          ) : null}
+
+          <p className="rf-admin-login__security">
+            Sessão protegida por cookie HttpOnly. A senha não fica armazenada
+            pelo Roda Festa no navegador.
+          </p>
+        </div>
       </section>
     </main>
   );
