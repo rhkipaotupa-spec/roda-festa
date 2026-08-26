@@ -688,3 +688,21 @@ A V19.7Q compõe, em uma factory server-side única, os adapters persistentes da
 
 ### Baseline
 Checkpoint técnico `ea839646658293301b812006dff7adc5a6438329` com 142/142 testes, lint verde e build de produção verde.
+
+## V19.7R — Admin Login Runtime Wiring — checkpoint `ff5f597dd40ed6f31a95d99d14c2cf3012dc026c`
+
+A V19.7R liga o endpoint `api/admin-login.js` ao runtime Admin persistente consolidado na V19.7Q.
+
+### Propriedades consolidadas
+- handler padrão passa a montar `createAdminRuntime()` server-side;
+- `process.env` e `globalThis.fetch` são injetados somente no servidor;
+- falha de configuração/runtime vira `503 admin_login_runtime_unavailable`;
+- stack, mensagens internas e secrets não são expostos;
+- runtime inválido falha fechado;
+- login válido continua atravessando o HTTP handler existente;
+- `Set-Cookie` é preservado;
+- nenhum fallback de autenticação em memória foi introduzido;
+- nenhuma migration, tabela remota, usuário/senha real, hash real, secret versionado ou ligação do formulário visual foi introduzida.
+
+### Baseline
+Checkpoint técnico `ff5f597dd40ed6f31a95d99d14c2cf3012dc026c` com 147/147 testes, lint verde e build de produção verde.

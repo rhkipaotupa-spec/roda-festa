@@ -467,3 +467,16 @@ Entregue:
 - 142/142 testes, lint e build verdes.
 
 Próximo passo: ligar `api/admin-login.js` ao runtime persistente de forma fail-closed quando configuração/tabelas ainda não estiverem disponíveis, ainda sem criar credenciais reais no Git.
+
+## Checkpoint concluído — V19.7R Admin Login Runtime Wiring
+
+Status: **concluído** no commit `ff5f597dd40ed6f31a95d99d14c2cf3012dc026c`.
+
+Entregue:
+- endpoint Admin Login ligado ao runtime persistente;
+- criação server-side de runtime;
+- 503 neutro quando runtime indisponível;
+- preservação do cookie seguro;
+- 147/147 testes, lint e build verdes.
+
+Próximo passo: materializar de forma controlada a persistência Admin necessária (`admin_users` e `admin_sessions`) e preparar o primeiro provisionamento real sem versionar secrets.

@@ -534,3 +534,26 @@ Checkpoint técnico fechado em `ea839646658293301b812006dff7adc5a6438329` (`feat
 - nenhum secret versionado;
 - nenhum `fetch` no frontend;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-26 — V19.7R Admin Login Runtime Wiring
+
+Checkpoint técnico fechado em `ff5f597dd40ed6f31a95d99d14c2cf3012dc026c` (`feat: wire admin login endpoint to persistent runtime`).
+
+- base inicial: `fcd6816cf6fe7c077a0bd68bcf066c452980d0bb`;
+- `api/admin-login.js` alterado;
+- 2 arquivos novos;
+- endpoint ligado ao runtime persistente;
+- env/fetch injetados apenas server-side;
+- indisponibilidade retorna 503 neutro;
+- runtime inválido falha fechado;
+- cookie seguro preservado;
+- suíte acumulada: 147/147;
+- lint: verde;
+- build: verde;
+- nenhuma migration;
+- nenhuma tabela remota criada;
+- nenhum usuário/senha real;
+- nenhum hash real;
+- nenhum secret versionado;
+- formulário visual ainda não ligado ao endpoint;
+- working tree confirmada limpa após o commit.

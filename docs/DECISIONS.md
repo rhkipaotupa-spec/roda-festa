@@ -326,3 +326,13 @@ A finalidade é permitir reconstruir de forma auditável:
 - Não ligar ainda o handler padrão `api/admin-login.js`.
 - Não criar migration, tabelas remotas, usuário/senha real, hash real, secrets ou `fetch` no frontend nesta unidade.
 - Considerar a unidade concluída somente com 142/142 testes, lint e build verdes.
+
+## V19.7R — Decisões — `ff5f597dd40ed6f31a95d99d14c2cf3012dc026c`
+
+- Ligar o endpoint Admin ao runtime persistente somente após a composição completa da V19.7Q.
+- Criar o runtime no servidor com `process.env` e `globalThis.fetch`.
+- Converter indisponibilidade de runtime em resposta pública 503 neutra.
+- Não vazar stack, mensagem interna ou secret.
+- Preservar o HTTP handler existente para adaptação request/response e cookie.
+- Não criar migration, tabelas remotas, usuário/senha real, hash real, secrets ou ligação do frontend nesta unidade.
+- Considerar a unidade concluída somente com 147/147 testes, lint e build verdes.

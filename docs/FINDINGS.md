@@ -744,3 +744,27 @@ O endpoint `api/admin-login.js` ainda permanece desligado do runtime.
 Nenhuma migration, tabela remota, usuário/senha real, hash real, secret versionado ou `fetch` no frontend foi criado.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7R — Endpoint ligado ao runtime persistente — `ff5f597dd40ed6f31a95d99d14c2cf3012dc026c`
+
+### Entregue
+- `api/admin-login.js` conectado ao `createAdminRuntime()`;
+- runtime criado server-side;
+- configuração/runtime indisponível retorna 503 neutro;
+- runtime sem `loginComposition` também falha fechado;
+- login válido preserva `Set-Cookie`;
+- nenhum fallback de memória.
+
+### Evidência final
+- 147/147 testes aprovados;
+- lint aprovado;
+- build de produção aprovado;
+- wiring server-side de env/fetch comprovado;
+- falha fechada sem exposição de detalhes internos;
+- delegação ao login real e preservação do cookie aprovadas.
+
+A infraestrutura HTTP está ligada ao runtime real, mas a operação permanece dependente da materialização/configuração segura da persistência Admin.
+
+Nenhuma migration, tabela remota, usuário/senha real, hash real, secret versionado ou ligação do formulário visual foi criada.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
