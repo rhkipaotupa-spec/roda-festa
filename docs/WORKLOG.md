@@ -607,3 +607,7 @@ Checkpoint técnico fechado em `5800452fbedf5a7bdf07d48e31500ba5feba2a12` (`feat
 - nenhum usuário/senha real;
 - nenhum secret;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-26 — V19.7U — Materialização real do schema Admin
+
+Partindo de `402766613e84354a43cfbd736511d688b9a162a2` com working tree limpa: projeto Supabase Roda Festa confirmado; preflight com 2/2 tabelas ausentes; contrato executado com sucesso; postflight com 2/2 tabelas, RLS 2/2 `true`, zero policies, zero grants `anon`/`authenticated` e 4/4 índices. Primeiro Admin não criado. HEAD local permaneceu `402766613e84354a43cfbd736511d688b9a162a2` e a working tree permaneceu limpa após a operação remota.

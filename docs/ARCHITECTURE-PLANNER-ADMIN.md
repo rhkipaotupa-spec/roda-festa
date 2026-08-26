@@ -744,3 +744,11 @@ A V19.7T cria uma barreira explícita entre o contrato SQL Admin versionado e qu
 
 ### Baseline
 Checkpoint técnico `5800452fbedf5a7bdf07d48e31500ba5feba2a12` com 161/161 testes, lint verde e build de produção verde.
+
+## V19.7U — Materialização real do schema Admin no Supabase
+
+Preflight comprovou `admin_users = NULL` e `admin_sessions = NULL`. O contrato V19.7S foi então executado manualmente no Supabase Roda Festa.
+
+Postflight comprovado: 2/2 tabelas presentes; RLS `true` nas duas; zero policies; zero grants diretos para `anon`/`authenticated`; 4/4 índices obrigatórios presentes.
+
+Nenhuma identidade administrativa ou credencial real foi provisionada nesta etapa.

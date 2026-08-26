@@ -504,3 +504,7 @@ Entregue:
 - 161/161 testes, lint e build verdes.
 
 Próximo passo: executar somente o preflight read-only no Supabase real. Se ambas as tabelas não existirem, então aplicar o contrato SQL V19.7S e executar o postflight. Nenhum usuário Admin deve ser provisionado antes dessa comprovação.
+
+## V19.7U — Materialização real do schema Admin
+
+Concluída operacionalmente e aprovada por postflight completo. Próxima unidade: projetar e testar o provisionamento seguro da primeira identidade administrativa antes de inserir qualquer credencial real.

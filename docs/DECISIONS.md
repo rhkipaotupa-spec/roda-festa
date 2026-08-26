@@ -358,3 +358,9 @@ A finalidade é permitir reconstruir de forma auditável:
 - Não criar usuário/senha real nem versionar secrets.
 - Corrigir o teste read-only para ignorar comentários SQL, preservando o arquivo guard sem alteração.
 - Considerar a unidade concluída somente com 161/161 testes, lint e build verdes.
+
+## V19.7U — Decisão de materialização Admin
+
+A primeira materialização remota do contrato Admin foi autorizada somente após preflight read-only comprovar ausência das tabelas alvo. A operação só foi considerada aprovada após postflight de existência, RLS, policies, grants e índices.
+
+O provisionamento do primeiro Admin permanece uma unidade separada.

@@ -821,3 +821,9 @@ O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação c
 - nenhum secret versionado.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7U — Materialização remota Admin comprovada
+
+Preflight: ambas as tabelas Admin ausentes. Materialização do contrato V19.7S: sucesso. Postflight: `admin_users` e `admin_sessions` presentes; RLS ativo nas duas; zero policies; zero grants diretos para `anon`/`authenticated`; quatro índices obrigatórios presentes.
+
+Nenhum primeiro Admin foi criado e nenhuma credencial ou secret foi documentado.
