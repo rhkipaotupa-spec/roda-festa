@@ -34,9 +34,12 @@ test("senha e limpa da memoria React apos autenticacao", () => {
   assert.match(source, /setCredential\(""\)/);
 });
 
-test("formulario bloqueia duplo submit enquanto autentica", () => {
-  assert.match(source, /if \(isSubmitting \|\| isAuthenticated\) return/);
-  assert.match(source, /disabled=\{isSubmitting \|\| isAuthenticated\}/);
+test("formulario bloqueia submit durante verificacao, autenticacao ou sessao ativa", () => {
+  assert.match(
+    source,
+    /if \(isChecking \|\| isSubmitting \|\| isAuthenticated\) return/,
+  );
+  assert.match(source, /disabled=\{isSubmitting\}/);
   assert.match(source, /aria-busy=\{isSubmitting\}/);
 });
 

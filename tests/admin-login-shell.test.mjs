@@ -22,17 +22,21 @@ test("login visual nao contem credencial ou secret fixo", () => {
   assert.match(login, /autoComplete="current-password"/);
 });
 
-test("login visual usa somente o endpoint administrativo real same-origin", () => {
+test("login visual usa somente endpoints administrativos same-origin", () => {
   assert.match(login, /const LOGIN_ENDPOINT = "\/api\/admin-login"/);
+  assert.match(login, /const SESSION_ENDPOINT = "\/api\/admin-session"/);
   assert.match(login, /\bfetch\s*\(LOGIN_ENDPOINT/);
+  assert.match(login, /\bfetch\s*\(SESSION_ENDPOINT/);
   assert.match(login, /method:\s*"POST"/);
+  assert.match(login, /method:\s*"GET"/);
   assert.match(login, /credentials:\s*"same-origin"/);
   assert.doesNotMatch(login, /SUPABASE_URL|SUPABASE_SERVICE_ROLE_KEY/);
 });
 
-test("shell admin e mobile-first e acessivel", () => {
+test("shell admin e mobile-first e acessivel em todos os estados", () => {
   assert.match(login, /aria-labelledby="admin-login-title"/);
-  assert.match(login, /role=\{status === "error" \? "alert" : "status"\}/);
+  assert.match(login, /role="status"/);
+  assert.match(login, /role="alert"/);
   assert.match(login, /aria-live="polite"/);
   assert.match(css, /min-height:\s*100dvh/);
   assert.match(css, /width:\s*min\(100%,\s*430px\)/);
