@@ -143,7 +143,7 @@ test("credencial invalida nao cria sessao administrativa", async () => {
   );
 });
 
-test("cookie de login nasce HttpOnly Lax restrito a admin e Secure em producao", async () => {
+test("cookie de login nasce HttpOnly Lax, cobre API administrativa e e Secure em producao", async () => {
   const { http } = fixture({ production: true });
 
   const result = await http.login(request({
@@ -154,7 +154,7 @@ test("cookie de login nasce HttpOnly Lax restrito a admin e Secure em producao",
   }));
 
   assert.match(result.setCookie, /^rf_admin_session=/);
-  assert.match(result.setCookie, /Path=\/admin/);
+  assert.match(result.setCookie, /Path=\//);
   assert.match(result.setCookie, /SameSite=Lax/);
   assert.match(result.setCookie, /HttpOnly/);
   assert.match(result.setCookie, /Secure/);
@@ -176,6 +176,7 @@ test("logout revoga sessao e sempre limpa cookie", async () => {
   const logout = await http.logout(request({ cookie: cookiePair }));
   assert.equal(logout.status, 200);
   assert.match(logout.setCookie, /^rf_admin_session=/);
+  assert.match(logout.setCookie, /Path=\//);
   assert.match(logout.setCookie, /Max-Age=0/);
   assert.equal(await composition.authenticate({ cookieHeader: cookiePair }), null);
 });

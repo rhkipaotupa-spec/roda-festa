@@ -87,12 +87,12 @@ test("sessao com tempo de vida invalido e rejeitada", async () => {
   );
 });
 
-test("contrato de cookie nasce HttpOnly SameSite Lax e Secure em producao", () => {
+test("contrato de cookie nasce HttpOnly SameSite Lax e cobre admin e API administrativa", () => {
   const dev = buildAdminSessionCookieContract({ production: false });
   const prod = buildAdminSessionCookieContract({ production: true });
   assert.equal(dev.httpOnly, true);
   assert.equal(dev.sameSite, "Lax");
-  assert.equal(dev.path, "/admin");
+  assert.equal(dev.path, "/");
   assert.equal(dev.secure, false);
   assert.equal(prod.secure, true);
 });

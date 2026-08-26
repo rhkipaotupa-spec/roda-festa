@@ -108,7 +108,7 @@ test("integracao real credencial verifier boundary sessao e cookie fecha ponta a
   assert.match(result.setCookie, /^rf_admin_session=/);
   assert.match(result.setCookie, /HttpOnly/);
   assert.match(result.setCookie, /SameSite=Lax/);
-  assert.match(result.setCookie, /Path=\/admin/);
+  assert.match(result.setCookie, /Path=\//);
 
   const cookiePair = result.setCookie.split(";")[0];
   const authenticated = await authenticationComposition.authenticate({

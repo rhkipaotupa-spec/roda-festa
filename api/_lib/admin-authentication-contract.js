@@ -72,7 +72,7 @@ export function buildAdminSessionCookieContract({
     httpOnly: true,
     sameSite: "Lax",
     secure: Boolean(production),
-    path: "/admin",
+    path: "/",
     maxAgeSeconds: maxAge,
   });
 }
