@@ -647,3 +647,17 @@ Partindo do checkpoint `2edd24c560becdcad58b730b010d4de0b43ebb16` e com working 
 ## 2026-08-26 — V19.7X
 
 Partindo de `85af4708f436f0533ed83edcf869ee915018cd25` e com working tree limpa: smoke temporário fora do repositório; URL e credenciais fornecidas somente localmente; login real OK; role OWNER; cookie OK; persistência Supabase OK; nenhum secret exibido.
+
+## 2026-08-26 — V19.7Y
+
+Checkpoint técnico `40b1a8f6173d1597bbbc68ec2042454d674ffcab` (`feat: wire admin browser login to real endpoint`).
+
+- 5 arquivos no commit;
+- formulário `/admin` ligado a `/api/admin-login`;
+- teste legado reconciliado sem regredir o código funcional;
+- 175/175 testes;
+- lint verde;
+- build verde;
+- working tree limpa após commit;
+- layout Admin ainda não aprovado visualmente;
+- arquivamento de orçamentos mantido no radar para futura unidade correlata.

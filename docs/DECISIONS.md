@@ -389,3 +389,12 @@ A existência do registro não encerra a autenticação: o login real deverá se
 ## V19.7X — Decisão de prova funcional real
 
 Na base `85af4708f436f0533ed83edcf869ee915018cd25`, o login real foi provado localmente contra o Supabase antes de configurar o frontend/Vercel, separando a correção da autenticação da configuração de deploy.
+
+## V19.7Y — Decisões — `40b1a8f6173d1597bbbc68ec2042454d674ffcab`
+
+- Ligar o formulário `/admin` ao endpoint real antes de redesenhar a área administrativa.
+- Manter o frontend sem `SUPABASE_URL` e sem `SUPABASE_SERVICE_ROLE_KEY`.
+- Tratar falhas de autenticação com mensagem pública neutra.
+- Não navegar para dashboard inexistente após login.
+- Considerar o layout atual funcional, porém não aprovado visualmente.
+- Preservar arquivamento de orçamentos como requisito futuro quando o módulo administrativo de orçamentos for implementado.

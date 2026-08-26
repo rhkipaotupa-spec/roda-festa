@@ -524,3 +524,15 @@ O primeiro Admin `OWNER` ativo existe no banco real. O próximo passo é provar 
 ## V19.7X — Prova funcional do login real — concluída
 
 Próximo passo: preparar o ambiente de deploy do Roda Festa com `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` e a allowlist administrativa, então provar o endpoint/browser real.
+
+## V19.7Y — Browser login wiring — concluído tecnicamente
+
+Checkpoint técnico: `40b1a8f6173d1597bbbc68ec2042454d674ffcab`.
+
+Próximo passo:
+1. reconciliar documentação;
+2. push da branch `planner/v19-mobile-first`;
+3. aguardar novo Preview;
+4. testar `/admin` no domínio estável da branch;
+5. comprovar login real via navegador;
+6. depois evoluir a superfície administrativa e, em tema correlato, implementar arquivamento reversível de orçamentos.

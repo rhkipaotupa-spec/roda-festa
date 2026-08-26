@@ -859,3 +859,17 @@ Nenhuma senha, hash, salt, token, service-role key ou connection string foi docu
 Evidência: `LOGIN REAL: OK`, `ROLE: OWNER`, `SESSION COOKIE: OK`, `SESSION PERSISTENCE: OK`.
 
 Isso comprova consulta da identidade real, verificação da credencial, criação de sessão em `admin_sessions` e emissão do cookie esperado.
+
+## V19.7Y — Login Admin no navegador — `40b1a8f6173d1597bbbc68ec2042454d674ffcab`
+
+Checkpoint técnico aprovado após reconciliação de teste legado.
+
+Baseline:
+- 175/175 testes;
+- 0 falhas;
+- lint verde;
+- build verde.
+
+A V19.7Y conecta o formulário ao endpoint real e não introduz secrets no frontend.
+
+Observação de produto: a tela Admin ainda não compartilha adequadamente a identidade visual do Planning Book; pendência registrada para etapa visual posterior.

@@ -785,3 +785,19 @@ Base local: `85af4708f436f0533ed83edcf869ee915018cd25`.
 Smoke temporário fora do repositório executado contra o Supabase real usando `createAdminRuntime()`.
 
 Resultado: login real OK; role OWNER; cookie de sessão OK; persistência de sessão OK; nenhum token, cookie, senha ou service-role exibido.
+
+## V19.7Y — Browser Admin Login Wiring — `40b1a8f6173d1597bbbc68ec2042454d674ffcab`
+
+O formulário `/admin` passou a chamar o endpoint real `/api/admin-login` em same-origin, preservando o backend persistente já validado contra o Supabase.
+
+Propriedades consolidadas:
+- POST same-origin;
+- payload limitado a `identifier` e `credential`;
+- cookie administrativo aceito pelo navegador;
+- estado de loading e bloqueio de duplo submit;
+- erro público neutro;
+- limpeza da senha do estado React após sucesso;
+- nenhuma chave Supabase no frontend;
+- sem navegação falsa para dashboard ainda inexistente.
+
+A identidade visual atual do Admin permanece não aprovada e será tratada em unidade visual separada.
