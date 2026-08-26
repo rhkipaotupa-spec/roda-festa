@@ -413,3 +413,17 @@ Entregue:
 - 114/114 testes, lint e build verdes.
 
 Próximo passo: retomar a V19.7N — criar o primeiro endpoint HTTP controlado de login Admin sobre esta composição já comprovada.
+
+## Checkpoint concluído — V19.7N Admin Login HTTP Endpoint
+
+Status: **concluído** no commit `640100e906652d98c725ac1e9d13ba48842062ed`.
+
+Entregue:
+- primeira porta HTTP concreta de login Admin;
+- adaptação request/response para a composição já validada;
+- transporte seguro de cookie;
+- respostas públicas controladas;
+- fail-closed padrão em 503;
+- 121/121 testes, lint e build verdes.
+
+Próximo passo: wiring server-side do runtime real de login Admin, sem embutir credenciais ou secrets no Git. Somente depois conectar o `AdminLogin.jsx` ao endpoint.

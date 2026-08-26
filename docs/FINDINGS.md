@@ -649,3 +649,26 @@ Sem correção, o primeiro endpoint Admin poderia ser criado sobre uma integraç
 Nenhum usuário/senha real, secret, endpoint novo, `fetch` no frontend, banco remoto ou migration foi criado.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7N — Resultado de validação — `640100e906652d98c725ac1e9d13ba48842062ed`
+
+A unidade adicionou exatamente três arquivos novos:
+- `api/admin-login.js`;
+- changelog da V19.7N;
+- suíte de testes do endpoint HTTP.
+
+Validação:
+- 121/121 testes aprovados;
+- lint aprovado;
+- build de produção aprovado;
+- endpoint delega para a composição e transporta `Set-Cookie`;
+- método inválido é convertido em 405 controlado;
+- Origin não confiável recebe resposta pública neutra;
+- credenciais inválidas não expõem diferenciação de usuário;
+- erro interno inesperado não vaza mensagem, stack, token ou credencial;
+- handler exige composição real durante o wiring;
+- handler padrão permanece fail-closed em 503 enquanto o runtime real não estiver ligado.
+
+Nenhum usuário/senha real, secret, `fetch` no frontend, banco remoto ou migration foi criado.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.

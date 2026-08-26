@@ -440,3 +440,25 @@ Checkpoint técnico fechado em `7f43a827e5ead6e63d10022412e08130ddfb479b` (`fix:
 - nenhum banco remoto;
 - nenhuma migration;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-26 — V19.7N Admin Login HTTP Endpoint
+
+Checkpoint técnico fechado em `640100e906652d98c725ac1e9d13ba48842062ed` (`feat: add admin login http endpoint`).
+
+- base inicial: `76c12605273d03addf3aa5282c290935870ee4cf`;
+- endpoint `api/admin-login.js` criado;
+- exatamente 3 arquivos novos;
+- resposta HTTP adaptada para a composição Admin;
+- `Set-Cookie` transportado;
+- erros públicos controlados;
+- erro interno inesperado não vaza detalhes;
+- handler padrão permanece 503 fail-closed;
+- suíte acumulada: 121/121;
+- lint: verde;
+- build: verde;
+- nenhum usuário/senha real;
+- nenhum secret;
+- nenhum `fetch` no frontend;
+- nenhum banco remoto;
+- nenhuma migration;
+- working tree confirmada limpa após o commit.

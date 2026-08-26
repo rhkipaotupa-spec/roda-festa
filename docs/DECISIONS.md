@@ -285,3 +285,13 @@ A finalidade é permitir reconstruir de forma auditável:
 - Preservar fail-closed para credencial incorreta e Origin não confiável.
 - Não criar credenciais reais, secrets, endpoint novo, `fetch` no frontend, banco remoto ou migration nesta correção.
 - Considerar a correção concluída somente com 114/114 testes, lint e build verdes.
+
+## V19.7N — Decisões — `640100e906652d98c725ac1e9d13ba48842062ed`
+
+- Criar primeiro o endpoint HTTP isolado antes de conectar o frontend.
+- Manter o handler padrão fail-closed em 503 até o wiring real do runtime.
+- Transportar `Set-Cookie` somente a partir do resultado da composição server-side.
+- Mapear erros internos para respostas públicas controladas sem vazar detalhes.
+- Não diferenciar publicamente usuário inexistente de senha incorreta.
+- Não criar usuário/senha real, secrets, `fetch` no frontend, banco remoto ou migration nesta unidade.
+- Considerar a unidade concluída somente com 121/121 testes, lint e build verdes.

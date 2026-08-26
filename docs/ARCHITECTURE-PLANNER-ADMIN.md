@@ -602,3 +602,22 @@ A V19.7M havia sido validada com uma boundary de teste que aceitava o verifier c
 
 ### Baseline
 Checkpoint técnico `7f43a827e5ead6e63d10022412e08130ddfb479b` com 114/114 testes, lint verde e build de produção verde.
+
+## V19.7N — Admin Login HTTP Endpoint — checkpoint `640100e906652d98c725ac1e9d13ba48842062ed`
+
+A V19.7N cria a primeira porta HTTP concreta do login Admin em `api/admin-login.js`, mantendo o runtime padrão em fail-closed enquanto a composição real ainda não estiver ligada.
+
+### Propriedades consolidadas
+- endpoint HTTP dedicado ao login Admin;
+- adaptação de método, headers e body para o contrato da HTTP Boundary;
+- transporte de `Set-Cookie`;
+- resposta controlada para método inválido;
+- resposta pública neutra para Origin não confiável;
+- resposta pública neutra para credenciais inválidas;
+- erro interno inesperado não expõe mensagem, stack, token ou credencial;
+- factory do handler exige composição de login válida;
+- handler padrão permanece em `503 admin_login_runtime_unavailable`;
+- nenhum usuário/senha real, secret, `fetch` no frontend, banco remoto ou migration foi introduzido.
+
+### Baseline
+Checkpoint técnico `640100e906652d98c725ac1e9d13ba48842062ed` com 121/121 testes, lint verde e build de produção verde.
