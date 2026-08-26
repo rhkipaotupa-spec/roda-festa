@@ -1,3 +1,5 @@
+import { createAdminRuntime } from "./_lib/admin-runtime.js";
+
 const JSON_CONTENT_TYPE = "application/json; charset=utf-8";
 
 function sendJson(response, status, body, headers = {}) {
@@ -87,9 +89,48 @@ export function createAdminLoginHttpHandler({
   };
 }
 
-export default async function handler(_request, response) {
-  sendJson(response, 503, {
-    ok: false,
-    error: "admin_login_runtime_unavailable",
-  });
+export function createAdminLoginRuntimeHandler({
+  createRuntime = createAdminRuntime,
+  env = process.env,
+  fetchImpl = globalThis.fetch,
+} = {}) {
+  if (typeof createRuntime !== "function") {
+    throw new Error("admin_login_runtime_factory_required");
+  }
+
+  return async function adminLoginRuntimeHandler(request, response) {
+    let runtime;
+
+    try {
+      runtime = createRuntime({
+        env,
+        fetchImpl,
+      });
+    } catch {
+      sendJson(response, 503, {
+        ok: false,
+        error: "admin_login_runtime_unavailable",
+      });
+      return;
+    }
+
+    if (!runtime?.loginComposition
+        || typeof runtime.loginComposition.login !== "function") {
+      sendJson(response, 503, {
+        ok: false,
+        error: "admin_login_runtime_unavailable",
+      });
+      return;
+    }
+
+    const httpHandler = createAdminLoginHttpHandler({
+      loginComposition: runtime.loginComposition,
+    });
+
+    await httpHandler(request, response);
+  };
 }
+
+const defaultHandler = createAdminLoginRuntimeHandler();
+
+export default defaultHandler;
