@@ -853,3 +853,35 @@
     font-size: 11px;
   }
 }
+
+/* V19.8C APPROVED PLANNING BROWN THEME */
+:root {
+  --rf-wine: #432716;
+  --rf-wine-deep: #24130b;
+  --rf-wine-soft: #5b3823;
+}
+
+.rf-welcome {
+  background:
+    radial-gradient(circle at 28% 24%, rgba(229, 191, 113, .12), transparent 24rem),
+    linear-gradient(145deg, #4c2b19 0%, #351d11 52%, #211109 100%);
+}
+
+.rf-primary {
+  background: linear-gradient(135deg, #4b2b19, #2e190f);
+  box-shadow: 0 11px 26px rgba(52, 29, 17, .23);
+}
+
+.rf-primary--gold {
+  background: linear-gradient(135deg, #e7c77c, #c99a4d);
+  color: #3b2416;
+}
+
+.rf-field input:focus,
+.rf-field select:focus {
+  box-shadow: 0 0 0 3px rgba(67, 39, 22, .09);
+}
+
+.rf-choice-card.is-selected {
+  box-shadow: 0 12px 28px rgba(67, 39, 22, .11);
+}
