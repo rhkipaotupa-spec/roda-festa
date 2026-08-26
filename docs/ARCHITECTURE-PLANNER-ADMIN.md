@@ -815,3 +815,15 @@ Arquitetura consolidada:
 - nenhum `sessionId`, `userId`, capability, token ou token hash é exposto;
 - frontend consulta a sessão ao montar e só restaura o estado autenticado após confirmação server-side;
 - sem `localStorage`, `sessionStorage` ou persistência de token no frontend.
+
+## V19.7ZA — Admin Cookie Path Restore — `ccf21c72b88af85cab27828a917d5cddeea7daf5`
+
+O smoke real da V19.7Z identificou incompatibilidade entre o `Path=/admin` do cookie `rf_admin_session` e o endpoint read-only `GET /api/admin-session`.
+
+Correção consolidada:
+- cookie administrativo passa a usar `Path=/`;
+- mantém `HttpOnly`, `SameSite=Lax` e `Secure` em produção;
+- token continua opaco e resolvido somente server-side;
+- JavaScript continua sem acesso ao cookie;
+- logout/limpeza usa o mesmo path do cookie de sessão;
+- teste de regressão cobre `/admin` e `/api/admin-session`.

@@ -406,3 +406,9 @@ Na base `85af4708f436f0533ed83edcf869ee915018cd25`, o login real foi provado loc
 - Tratar `GET /api/admin-session` como endpoint read-only de estado de autenticação.
 - Falhar fechado para sessão ausente, inválida ou expirada.
 - Não criar dashboard administrativo falso nesta unidade; a superfície de gestão vem depois da prova de sessão restaurada no navegador.
+
+## V19.7ZA — Decisões — `ccf21c72b88af85cab27828a917d5cddeea7daf5`
+
+- Adotar `Path=/` para o cookie administrativo porque `/admin` e `/api/admin-*` precisam compartilhar a mesma sessão e não possuem um prefixo comum mais restrito.
+- Compensar o escopo de path com as proteções existentes: HttpOnly, SameSite=Lax, Secure em produção, token opaco, autorização server-side e proteção de origin nas mutações.
+- Não considerar a restauração concluída até um novo login em Preview emitir o cookie atualizado e sobreviver a `Ctrl+R`.

@@ -887,3 +887,23 @@ Baseline:
 A unidade adiciona restauração server-side de sessão no reload sem expor cookie/token ao JavaScript.
 
 Prova de navegador ainda pendente: `/admin` autenticado → `Ctrl+R` → sessão deve continuar reconhecida.
+
+## V19.7ZA — Cookie Path incompatível com restore — `ccf21c72b88af85cab27828a917d5cddeea7daf5`
+
+Achado real de navegador:
+- o cookie `rf_admin_session` persistia;
+- o contrato antigo usava `Path=/admin`;
+- `GET /api/admin-session` não recebia esse cookie;
+- após reload, o frontend voltava ao formulário.
+
+Correção:
+- `Path=/`;
+- teste de regressão explícito para `/admin` e `/api/admin-session`.
+
+Baseline:
+- 187/187 testes;
+- 0 falhas;
+- lint verde;
+- build verde.
+
+Prova de navegador ainda pendente após deploy desta correção.

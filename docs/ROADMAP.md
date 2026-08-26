@@ -548,3 +548,16 @@ Próximo passo:
 4. abrir `/admin` no domínio estável da branch;
 5. comprovar que uma sessão existente é restaurada após reload;
 6. somente depois iniciar a área administrativa autenticada com listagem de orçamentos e arquivamento reversível.
+
+## V19.7ZA — Admin Cookie Path Restore — concluído tecnicamente
+
+Checkpoint técnico: `ccf21c72b88af85cab27828a917d5cddeea7daf5`.
+
+Próximo passo:
+1. reconciliar documentação;
+2. push da branch `planner/v19-mobile-first`;
+3. aguardar Preview;
+4. fazer novo login para receber cookie com `Path=/`;
+5. executar `Ctrl+R`;
+6. confirmar restauração da sessão;
+7. iniciar a primeira superfície administrativa de orçamentos.

@@ -676,3 +676,18 @@ Checkpoint técnico `145345bcd55a7720adaa79167b67dca0299a67dc` (`feat: restore a
 - build verde;
 - working tree limpa após commit;
 - prova real de reload no Preview ainda pendente.
+
+## 2026-08-26 — V19.7ZA
+
+Checkpoint técnico `ccf21c72b88af85cab27828a917d5cddeea7daf5` (`fix: widen admin session cookie path for restore`).
+
+- 6 arquivos no commit;
+- cookie Admin alterado de `Path=/admin` para `Path=/`;
+- logout/clear alinhado ao mesmo path;
+- teste real legado reconciliado;
+- novo teste de regressão para path do cookie;
+- 187/187 testes;
+- lint verde;
+- build verde;
+- working tree limpa após commit;
+- smoke de navegador ainda pendente.
