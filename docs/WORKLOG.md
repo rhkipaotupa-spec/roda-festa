@@ -661,3 +661,18 @@ Checkpoint técnico `40b1a8f6173d1597bbbc68ec2042454d674ffcab` (`feat: wire admi
 - working tree limpa após commit;
 - layout Admin ainda não aprovado visualmente;
 - arquivamento de orçamentos mantido no radar para futura unidade correlata.
+
+## 2026-08-26 — V19.7Z
+
+Checkpoint técnico `145345bcd55a7720adaa79167b67dca0299a67dc` (`feat: restore admin session on browser reload`).
+
+- 7 arquivos no commit;
+- criado `GET /api/admin-session`;
+- `AdminLogin` passa a consultar sessão ao montar;
+- cookie continua HttpOnly e fora do JavaScript;
+- testes legados reconciliados sem regredir a implementação;
+- 184/184 testes;
+- lint verde;
+- build verde;
+- working tree limpa após commit;
+- prova real de reload no Preview ainda pendente.

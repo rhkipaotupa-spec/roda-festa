@@ -873,3 +873,17 @@ Baseline:
 A V19.7Y conecta o formulário ao endpoint real e não introduz secrets no frontend.
 
 Observação de produto: a tela Admin ainda não compartilha adequadamente a identidade visual do Planning Book; pendência registrada para etapa visual posterior.
+
+## V19.7Z — Restauração de sessão Admin — `145345bcd55a7720adaa79167b67dca0299a67dc`
+
+Checkpoint técnico aprovado após reconciliação de contratos legados.
+
+Baseline:
+- 184/184 testes;
+- 0 falhas;
+- lint verde;
+- build verde.
+
+A unidade adiciona restauração server-side de sessão no reload sem expor cookie/token ao JavaScript.
+
+Prova de navegador ainda pendente: `/admin` autenticado → `Ctrl+R` → sessão deve continuar reconhecida.

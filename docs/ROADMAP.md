@@ -536,3 +536,15 @@ Próximo passo:
 4. testar `/admin` no domínio estável da branch;
 5. comprovar login real via navegador;
 6. depois evoluir a superfície administrativa e, em tema correlato, implementar arquivamento reversível de orçamentos.
+
+## V19.7Z — Admin Session Restore — concluído tecnicamente
+
+Checkpoint técnico: `145345bcd55a7720adaa79167b67dca0299a67dc`.
+
+Próximo passo:
+1. reconciliar documentação;
+2. push da branch `planner/v19-mobile-first`;
+3. aguardar novo Preview;
+4. abrir `/admin` no domínio estável da branch;
+5. comprovar que uma sessão existente é restaurada após reload;
+6. somente depois iniciar a área administrativa autenticada com listagem de orçamentos e arquivamento reversível.

@@ -801,3 +801,17 @@ Propriedades consolidadas:
 - sem navegação falsa para dashboard ainda inexistente.
 
 A identidade visual atual do Admin permanece não aprovada e será tratada em unidade visual separada.
+
+## V19.7Z — Admin Session Restore — `145345bcd55a7720adaa79167b67dca0299a67dc`
+
+A superfície `/admin` passou a restaurar uma sessão administrativa já válida após reload ou nova abertura.
+
+Arquitetura consolidada:
+- endpoint read-only `GET /api/admin-session`;
+- cookie administrativo continua HttpOnly e não é lido pelo JavaScript;
+- validação reutiliza `authenticationComposition.authenticate()`;
+- sem sessão válida: resposta pública `authenticated: false`;
+- sessão válida: resposta pública mínima com `authenticated`, `role` e `expiresAt`;
+- nenhum `sessionId`, `userId`, capability, token ou token hash é exposto;
+- frontend consulta a sessão ao montar e só restaura o estado autenticado após confirmação server-side;
+- sem `localStorage`, `sessionStorage` ou persistência de token no frontend.

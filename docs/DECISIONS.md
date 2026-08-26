@@ -398,3 +398,11 @@ Na base `85af4708f436f0533ed83edcf869ee915018cd25`, o login real foi provado loc
 - Não navegar para dashboard inexistente após login.
 - Considerar o layout atual funcional, porém não aprovado visualmente.
 - Preservar arquivamento de orçamentos como requisito futuro quando o módulo administrativo de orçamentos for implementado.
+
+## V19.7Z — Decisões — `145345bcd55a7720adaa79167b67dca0299a67dc`
+
+- Restaurar sessão administrativa por verificação server-side, nunca por armazenamento de token no frontend.
+- Manter o cookie `rf_admin_session` HttpOnly.
+- Tratar `GET /api/admin-session` como endpoint read-only de estado de autenticação.
+- Falhar fechado para sessão ausente, inválida ou expirada.
+- Não criar dashboard administrativo falso nesta unidade; a superfície de gestão vem depois da prova de sessão restaurada no navegador.
