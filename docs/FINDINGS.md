@@ -583,3 +583,25 @@ Observação visual não bloqueante:
 - logo oficial e refinamentos estéticos ficam para etapa futura.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7L — Resultado de validação — `4103e39b99b36bce9381a6d1a590a772cb90533d`
+
+A unidade adicionou exatamente três arquivos novos:
+- `api/_lib/admin-credential-verification.js`;
+- changelog da V19.7L;
+- suíte de testes do verifier de credenciais.
+
+Validação:
+- 106/106 testes aprovados;
+- lint aprovado;
+- build de produção aprovado;
+- `scrypt` e salt cobertos por testes;
+- credencial correta/incorreta diferenciadas internamente sem expor detalhe ao chamador;
+- usuário inexistente e senha incorreta retornam resultado neutro;
+- conta inativa não autentica;
+- identidade incompleta falha alto;
+- role/capabilities vêm somente do registro confiável;
+- hash, salt e credencial não aparecem no resultado autenticado;
+- nenhum usuário/senha real, secret, endpoint novo, banco remoto ou migration foi criado.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.

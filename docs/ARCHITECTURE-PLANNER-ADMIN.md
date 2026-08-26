@@ -538,3 +538,27 @@ Baseline técnico: 96/96 testes, lint verde e build de produção verde.
 Também houve validação visual real em iPhone pela rede local. A rota `/admin` carregou corretamente, os campos puderam ser preenchidos e o botão exibiu a mensagem deliberada de que credenciais reais ainda não estavam ativadas.
 
 O placeholder visual `RF` permanece provisório. Branding/logo oficial e refinamento visual ficam registrados como evolução futura, sem bloquear a evolução funcional.
+
+## V19.7L — Admin Credential Verification Contract — checkpoint `4103e39b99b36bce9381a6d1a590a772cb90533d`
+
+A V19.7L adiciona a camada server-side responsável por validar credenciais administrativas antes da ligação do formulário visual `/admin` a um login real.
+
+### Propriedades consolidadas
+- hash de credencial com `scrypt`;
+- salt criptográfico;
+- comparação segura;
+- lookup de identidade injetado e server-side;
+- normalização somente do identificador;
+- credencial preservada como case-sensitive;
+- conta inativa rejeitada;
+- resultado neutro para usuário inexistente e credencial incorreta;
+- role e capabilities derivadas exclusivamente do registro confiável;
+- identidade autenticada não expõe hash, salt ou credencial;
+- nenhum usuário ou senha real foi criado;
+- nenhum secret foi adicionado ao repositório;
+- nenhum endpoint HTTP novo foi criado;
+- nenhum banco remoto foi ativado;
+- nenhuma migration foi executada.
+
+### Baseline
+Checkpoint técnico `4103e39b99b36bce9381a6d1a590a772cb90533d` com 106/106 testes, lint verde e build de produção verde.

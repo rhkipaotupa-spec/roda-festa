@@ -256,3 +256,14 @@ A finalidade é permitir reconstruir de forma auditável:
 - Manter dashboard, consulta global de jornadas, banco remoto e migrations fora desta unidade.
 - Registrar o placeholder `RF` como provisório; logo oficial e acabamento visual serão refinados posteriormente.
 - Considerar a unidade aprovada após baseline 96/96 + lint + build e teste visual real no celular.
+
+## V19.7L — Decisões — `4103e39b99b36bce9381a6d1a590a772cb90533d`
+
+- Validar credenciais somente server-side.
+- Usar `scrypt` com salt para a representação persistível de credenciais.
+- Não normalizar a senha; apenas o identificador administrativo.
+- Retornar o mesmo resultado neutro para usuário inexistente e senha incorreta.
+- Derivar role/capabilities somente do registro confiável resolvido server-side.
+- Não expor hash, salt ou credencial após autenticação.
+- Não incluir usuário/senha real, secrets, endpoint novo, banco remoto ou migration nesta unidade.
+- Considerar a unidade concluída somente com 106/106 testes, lint e build verdes.

@@ -370,3 +370,19 @@ Dívida visual registrada:
 - realizar refinamento visual posteriormente.
 
 Próxima direção: conectar progressivamente o shell à fundação de autenticação já construída, sem inserir credenciais fixas no frontend e sem antecipar abertura de consultas administrativas globais.
+
+## Checkpoint concluído — V19.7L Admin Credential Verification Contract
+
+Status: **concluído** no commit `4103e39b99b36bce9381a6d1a590a772cb90533d`.
+
+Entregue:
+- verifier server-side de credenciais;
+- `scrypt` + salt;
+- lookup confiável injetado;
+- bloqueio de conta inativa;
+- resposta neutra para usuário inexistente/senha incorreta;
+- identidade derivada apenas do registro confiável;
+- não exposição de hash/salt/credential;
+- 106/106 testes, lint e build verdes.
+
+Próximo passo recomendado: compor este verifier com a HTTP Boundary já criada e preparar a ligação do formulário `/admin` a um fluxo real de login sem inserir credenciais fixas no frontend.

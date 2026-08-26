@@ -371,3 +371,27 @@ Decisão de produto:
 - branding/logo oficial será refinado posteriormente.
 
 Após o commit técnico, `git status --short` ficou sem saída.
+
+## 2026-08-26 — V19.7L Admin Credential Verification Contract
+
+Checkpoint técnico fechado em `4103e39b99b36bce9381a6d1a590a772cb90533d` (`feat: add admin credential verification`).
+
+- base inicial: `873d3bf5129f92f0bb8b9238871be9470f36c713`;
+- V19.7L aplicada sobre working tree limpa;
+- exatamente 3 arquivos novos;
+- suíte acumulada: 106/106;
+- lint: verde;
+- build: verde;
+- verifier server-side criado;
+- `scrypt` + salt adotados;
+- usuário inexistente e senha incorreta tratados de forma neutra;
+- conta inativa bloqueada;
+- role/capabilities derivadas do registro confiável;
+- hash/salt/credential não expostos;
+- nenhum usuário/senha real;
+- nenhum secret;
+- nenhum endpoint HTTP novo;
+- nenhum banco remoto;
+- nenhuma migration;
+- commit técnico criado;
+- working tree confirmada limpa após o commit.
