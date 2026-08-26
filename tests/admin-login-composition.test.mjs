@@ -6,39 +6,52 @@ import { createAdminLoginComposition } from "../api/_lib/admin-login-composition
 test("composicao de login exige verifier server-side", () => {
   assert.throws(
     () => createAdminLoginComposition({
-      authHttpBoundary: { login() {} },
+      createHttpBoundary: () => ({ login() {} }),
     }),
     /admin_login_credential_verifier_required/,
   );
 });
 
-test("composicao de login exige boundary HTTP real", () => {
+test("composicao de login exige factory de boundary HTTP", () => {
   assert.throws(
     () => createAdminLoginComposition({
       verifyCredential: async () => null,
+      createHttpBoundary: null,
     }),
-    /admin_login_http_boundary_required/,
+    /admin_login_http_boundary_factory_required/,
   );
 });
 
-test("login delega request ao boundary e injeta verifier confiavel", async () => {
+test("composicao injeta verifier na construcao da boundary real", async () => {
   const verifyCredential = async () => ({
     userId: "owner-1",
     role: "OWNER",
     capabilities: ["journey:read"],
   });
 
+  const sessionRepository = { marker: "repository" };
+  const authenticationComposition = { marker: "authentication" };
+  const env = { NODE_ENV: "test", MARKER: "env" };
+
+  let receivedOptions = null;
   let receivedRequest = null;
-  let receivedVerifier = null;
 
   const composition = createAdminLoginComposition({
     verifyCredential,
-    authHttpBoundary: {
-      async login(request, dependencies) {
-        receivedRequest = request;
-        receivedVerifier = dependencies.verifyCredential;
-        return { status: 204 };
-      },
+    sessionRepository,
+    authenticationComposition,
+    env,
+    production: false,
+    cookieName: "rf_admin_test",
+    sessionTtlMs: 12345,
+    createHttpBoundary(options) {
+      receivedOptions = options;
+      return {
+        async login(request) {
+          receivedRequest = request;
+          return { status: 204 };
+        },
+      };
     },
   });
 
@@ -49,24 +62,34 @@ test("login delega request ao boundary e injeta verifier confiavel", async () =>
 
   const result = await composition.login(request);
 
+  assert.equal(receivedOptions.credentialVerifier, verifyCredential);
+  assert.equal(receivedOptions.sessionRepository, sessionRepository);
+  assert.equal(receivedOptions.authenticationComposition, authenticationComposition);
+  assert.equal(receivedOptions.env, env);
+  assert.equal(receivedOptions.production, false);
+  assert.equal(receivedOptions.cookieName, "rf_admin_test");
+  assert.equal(receivedOptions.sessionTtlMs, 12345);
   assert.equal(receivedRequest, request);
-  assert.equal(receivedVerifier, verifyCredential);
   assert.deepEqual(result, { status: 204 });
 });
 
-test("cliente nao consegue substituir verifier pela requisicao", async () => {
+test("request do cliente nao participa da injecao do verifier", async () => {
   const trustedVerifier = async () => ({ userId: "trusted" });
   const forgedVerifier = async () => ({ userId: "forged" });
 
-  let usedVerifier = null;
+  let injectedVerifier = null;
 
   const composition = createAdminLoginComposition({
     verifyCredential: trustedVerifier,
-    authHttpBoundary: {
-      async login(_request, dependencies) {
-        usedVerifier = dependencies.verifyCredential;
-        return { status: 204 };
-      },
+    sessionRepository: {},
+    authenticationComposition: {},
+    createHttpBoundary(options) {
+      injectedVerifier = options.credentialVerifier;
+      return {
+        async login() {
+          return { status: 204 };
+        },
+      };
     },
   });
 
@@ -75,29 +98,16 @@ test("cliente nao consegue substituir verifier pela requisicao", async () => {
     verifyCredential: forgedVerifier,
   });
 
-  assert.equal(usedVerifier, trustedVerifier);
-  assert.notEqual(usedVerifier, forgedVerifier);
+  assert.equal(injectedVerifier, trustedVerifier);
+  assert.notEqual(injectedVerifier, forgedVerifier);
 });
 
-test("resultado do boundary e preservado sem expor dependencias", async () => {
-  const composition = createAdminLoginComposition({
-    verifyCredential: async () => null,
-    authHttpBoundary: {
-      async login() {
-        return {
-          status: 401,
-          body: { error: "invalid_credentials" },
-        };
-      },
-    },
-  });
-
-  const result = await composition.login({ method: "POST" });
-
-  assert.deepEqual(result, {
-    status: 401,
-    body: { error: "invalid_credentials" },
-  });
-
-  assert.equal("verifyCredential" in result, false);
+test("factory precisa retornar boundary com login", () => {
+  assert.throws(
+    () => createAdminLoginComposition({
+      verifyCredential: async () => null,
+      createHttpBoundary: () => ({}),
+    }),
+    /admin_login_http_boundary_required/,
+  );
 });
