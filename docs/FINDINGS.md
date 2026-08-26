@@ -695,3 +695,27 @@ O `vercel.json` anterior possuía apenas o fallback global `/(.*) -> /index.html
 Nenhum runtime real, usuário/senha real, secret, `fetch` no frontend, banco remoto ou migration foi criado.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7P — Persistência Admin Supabase adicionada — `8db1e991f62329da29fc580ec79d5a776c9d241b`
+
+### Entregue
+- adapter de identidade para `admin_users`;
+- adapter de sessão para `admin_sessions`;
+- lookup por identificador normalizado;
+- criação, lookup por token hash, revogação e rotação de sessão;
+- uso server-side de `SUPABASE_SERVICE_ROLE_KEY`;
+- ausência de persistência de token bruto;
+- erros sanitizados.
+
+### Evidência final
+- 136/136 testes aprovados;
+- lint aprovado;
+- build de produção aprovado;
+- configuração ausente falha alto;
+- service role permanece server-side;
+- corpo upstream e secret não aparecem em mensagens de erro;
+- nenhuma chamada remota real foi executada nos testes.
+
+Nenhuma migration, tabela remota, usuário/senha real, hash real, secret, wiring do runtime ou `fetch` no frontend foi criado.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.

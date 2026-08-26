@@ -640,3 +640,23 @@ A V19.7O preserva explicitamente o namespace `/api/*` antes do fallback SPA no `
 
 ### Baseline
 Checkpoint técnico `bbd9ddf422822890d296216e33b12223b606760f` com 124/124 testes, lint verde e build de produção verde.
+
+## V19.7P — Admin Supabase Persistence Adapters — checkpoint `8db1e991f62329da29fc580ec79d5a776c9d241b`
+
+A V19.7P cria os adapters server-side de persistência necessários para identidades e sessões administrativas em Supabase, sem ativar ainda o runtime real.
+
+### Propriedades consolidadas
+- `createSupabaseAdminIdentityStore()` para lookup de `admin_users`;
+- identificador normalizado antes da consulta;
+- mapeamento do registro persistido para o contrato do verifier;
+- `createSupabaseAdminSessionAdapter()` para `admin_sessions`;
+- criação, resolução por token hash, revogação e rotação;
+- somente `tokenHash` é persistido; token bruto permanece fora do storage;
+- `SUPABASE_SERVICE_ROLE_KEY` é usada exclusivamente server-side;
+- configuração ausente falha alto;
+- erros remotos não devolvem corpo upstream nem secret;
+- nenhum acesso remoto real foi executado durante os testes;
+- nenhuma migration, tabela remota, usuário/senha real, hash real, secret, wiring de runtime ou `fetch` no frontend foi introduzido.
+
+### Baseline
+Checkpoint técnico `8db1e991f62329da29fc580ec79d5a776c9d241b` com 136/136 testes, lint verde e build de produção verde.

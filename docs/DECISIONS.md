@@ -304,3 +304,14 @@ A finalidade é permitir reconstruir de forma auditável:
 - Não introduzir `builds` ou `routes` legados.
 - Não criar runtime real, credenciais, secrets, `fetch` no frontend, banco remoto ou migration nesta unidade.
 - Considerar a unidade concluída somente com 124/124 testes, lint e build verdes.
+
+## V19.7P — Decisões — `8db1e991f62329da29fc580ec79d5a776c9d241b`
+
+- Separar persistência de identidade Admin e persistência de sessão Admin.
+- Usar Supabase server-side como backend persistente dos dois domínios.
+- Persistir apenas hash de token de sessão, nunca o token bruto.
+- Manter `SUPABASE_SERVICE_ROLE_KEY` restrita ao servidor.
+- Falhar alto quando configuração Supabase estiver ausente.
+- Não expor corpo remoto nem segredo em erros.
+- Não criar migration, tabelas remotas, usuário/senha real, hash real, secret, wiring do runtime ou `fetch` no frontend nesta unidade.
+- Considerar a unidade concluída somente com 136/136 testes, lint e build verdes.

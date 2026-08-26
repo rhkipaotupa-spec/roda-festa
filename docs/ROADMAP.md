@@ -439,3 +439,17 @@ Entregue:
 - 124/124 testes, lint e build verdes.
 
 Próximo passo: wiring server-side do runtime real do login Admin, agora sobre uma topologia de deploy que preserva a API. Continuar sem credenciais ou secrets versionados.
+
+## Checkpoint concluído — V19.7P Admin Supabase Persistence Adapters
+
+Status: **concluído** no commit `8db1e991f62329da29fc580ec79d5a776c9d241b`.
+
+Entregue:
+- persistência server-side de identidade Admin via Supabase;
+- persistência server-side de sessões Admin via Supabase;
+- token bruto fora do storage;
+- fail-high sem configuração;
+- erros sanitizados;
+- 136/136 testes, lint e build verdes.
+
+Próximo passo: compor estes adapters em um runtime Admin real, ainda sem criar usuário/senha real ou versionar secrets.

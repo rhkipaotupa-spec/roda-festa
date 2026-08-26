@@ -482,3 +482,28 @@ Checkpoint técnico fechado em `bbd9ddf422822890d296216e33b12223b606760f` (`fix:
 - nenhum banco remoto;
 - nenhuma migration;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-26 — V19.7P Admin Supabase Persistence Adapters
+
+Checkpoint técnico fechado em `8db1e991f62329da29fc580ec79d5a776c9d241b` (`feat: add admin supabase persistence adapters`).
+
+- base inicial: `9e1a2ef235906201958db4095a528546bff6ebfb`;
+- exatamente 5 arquivos novos;
+- identity store Supabase criado;
+- session adapter Supabase criado;
+- lookup por identificador normalizado;
+- criação, resolução, revogação e rotação de sessão;
+- somente token hash persistido;
+- service role restrita ao servidor;
+- erros sanitizados;
+- suíte acumulada: 136/136;
+- lint: verde;
+- build: verde;
+- nenhuma migration;
+- nenhuma tabela remota criada;
+- nenhum usuário/senha real;
+- nenhum hash real de usuário;
+- nenhum secret;
+- nenhum wiring de runtime;
+- nenhum `fetch` no frontend;
+- working tree confirmada limpa após o commit.
