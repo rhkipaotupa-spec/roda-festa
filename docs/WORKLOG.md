@@ -584,3 +584,26 @@ Checkpoint técnico fechado em `e969d23880aaf805c609255511b60b916aab5e67` (`feat
 - nenhum secret;
 - runtime inalterado;
 - working tree confirmada limpa após o commit.
+
+## 2026-08-26 — V19.7T Admin Persistence Materialization Guard
+
+Checkpoint técnico fechado em `5800452fbedf5a7bdf07d48e31500ba5feba2a12` (`feat: add admin persistence materialization guard`).
+
+- base inicial: `6b0e38a4ee6bc538291fc8f20f8c02c61116d68d`;
+- exatamente 3 arquivos novos;
+- guard SQL read-only criado;
+- preflight de existência definido;
+- postflight de RLS/policies/grants/índices definido;
+- falso positivo do teste read-only identificado;
+- SQL não foi alterado;
+- teste corrigido para ignorar comentários SQL;
+- suíte acumulada: 161/161;
+- lint: verde;
+- build: verde;
+- nenhuma Supabase CLI instalada;
+- nenhuma execução SQL remota;
+- nenhuma migration aplicada;
+- nenhuma tabela remota criada;
+- nenhum usuário/senha real;
+- nenhum secret;
+- working tree confirmada limpa após o commit.

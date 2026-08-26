@@ -725,3 +725,22 @@ A V19.7S versiona o contrato SQL de persistência Admin derivado dos adapters e 
 
 ### Baseline
 Checkpoint técnico `e969d23880aaf805c609255511b60b916aab5e67` com 154/154 testes, lint verde e build de produção verde.
+
+## V19.7T — Admin Persistence Materialization Guard — checkpoint `5800452fbedf5a7bdf07d48e31500ba5feba2a12`
+
+A V19.7T cria uma barreira explícita entre o contrato SQL Admin versionado e qualquer execução no Supabase real.
+
+### Propriedades consolidadas
+- preflight read-only para verificar existência de `admin_users` e `admin_sessions`;
+- postflight read-only para verificar existência, RLS, policies, grants e índices;
+- se qualquer tabela já existir, a materialização deve parar antes de aplicar o contrato;
+- o guard não contém comandos destrutivos ou de mutação executáveis;
+- comentários SQL são ignorados pelo teste de mutação;
+- nenhuma Supabase CLI foi instalada;
+- nenhuma execução SQL remota ocorreu;
+- nenhuma migration remota foi aplicada;
+- nenhuma tabela remota foi criada;
+- nenhum usuário/senha real ou secret foi introduzido.
+
+### Baseline
+Checkpoint técnico `5800452fbedf5a7bdf07d48e31500ba5feba2a12` com 161/161 testes, lint verde e build de produção verde.

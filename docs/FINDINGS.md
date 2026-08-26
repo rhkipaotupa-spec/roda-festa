@@ -796,3 +796,28 @@ O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação c
 - runtime inalterado.
 
 O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.
+
+## V19.7T — Barreira de materialização Admin validada — `5800452fbedf5a7bdf07d48e31500ba5feba2a12`
+
+### Entregue
+- `supabase/admin/002_admin_materialization_guard.sql`;
+- checklist de materialização controlada;
+- testes estruturais do preflight/postflight;
+- regra de parada se tabelas já existirem;
+- verificação de RLS, policies, grants e índices;
+- garantia de ausência de comandos de mutação executáveis.
+
+### Evidência final
+- 161/161 testes aprovados;
+- lint aprovado;
+- build de produção aprovado;
+- SQL guard permaneceu inalterado após correção do falso positivo;
+- teste passou a remover comentários SQL antes de procurar comandos de mutação;
+- nenhuma execução remota realizada;
+- nenhuma Supabase CLI instalada;
+- nenhuma migration aplicada;
+- nenhuma tabela remota criada;
+- nenhum usuário/senha real;
+- nenhum secret versionado.
+
+O aviso preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a unidade.

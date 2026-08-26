@@ -347,3 +347,14 @@ A finalidade é permitir reconstruir de forma auditável:
 - Não criar policy aberta para clientes.
 - Não executar migration remota, criar tabela real, credencial real ou secret nesta unidade.
 - Considerar a unidade concluída somente com 154/154 testes, lint e build verdes.
+
+## V19.7T — Decisões — `5800452fbedf5a7bdf07d48e31500ba5feba2a12`
+
+- Introduzir uma etapa formal de preflight antes de qualquer materialização Admin.
+- Parar imediatamente se `admin_users` ou `admin_sessions` já existirem.
+- Manter o guard estritamente read-only.
+- Verificar pós-materialização: existência das tabelas, RLS, ausência de policies abertas, ausência de grants para `anon/authenticated` e índices obrigatórios.
+- Não instalar Supabase CLI nem executar SQL remoto nesta unidade.
+- Não criar usuário/senha real nem versionar secrets.
+- Corrigir o teste read-only para ignorar comentários SQL, preservando o arquivo guard sem alteração.
+- Considerar a unidade concluída somente com 161/161 testes, lint e build verdes.

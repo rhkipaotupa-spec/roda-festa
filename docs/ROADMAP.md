@@ -492,3 +492,15 @@ Entregue:
 - 154/154 testes, lint e build verdes.
 
 Próximo passo: revisar/materializar esse contrato no ambiente Supabase real de forma controlada, ainda sem criar usuário ou senha real no Git.
+
+## Checkpoint concluído — V19.7T Admin Persistence Materialization Guard
+
+Status: **concluído** no commit `5800452fbedf5a7bdf07d48e31500ba5feba2a12`.
+
+Entregue:
+- preflight/postflight read-only;
+- regra de parada para tabelas preexistentes;
+- verificação de RLS, policies, grants e índices;
+- 161/161 testes, lint e build verdes.
+
+Próximo passo: executar somente o preflight read-only no Supabase real. Se ambas as tabelas não existirem, então aplicar o contrato SQL V19.7S e executar o postflight. Nenhum usuário Admin deve ser provisionado antes dessa comprovação.
