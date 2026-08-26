@@ -108,6 +108,18 @@ export default function AdminLogin() {
     }
   }
 
+  if (isChecking) {
+    return (
+      <main className="rf-admin-session-check" role="status" aria-live="polite">
+        <div className="rf-admin-session-check__panel">
+          <img src={rodaFestaLogoCreme} alt="Roda Festa" />
+          <span>Área administrativa</span>
+          <strong>Verificando sessão segura...</strong>
+        </div>
+      </main>
+    );
+  }
+
   if (isAuthenticated) {
     return <AdminWorkspace sessionMessage={message} />;
   }
@@ -152,16 +164,7 @@ export default function AdminLogin() {
             cliente.
           </p>
 
-          {isChecking ? (
-            <p
-              className="rf-admin-login__notice"
-              role="status"
-              aria-live="polite"
-            >
-              Verificando sessão segura...
-            </p>
-          ) : (
-            <form className="rf-admin-login__form" onSubmit={handleSubmit}>
+          <form className="rf-admin-login__form" onSubmit={handleSubmit}>
               <label>
                 E-mail
                 <input
@@ -196,9 +199,8 @@ export default function AdminLogin() {
                 {isSubmitting ? "Entrando..." : "Entrar no Admin"}
               </button>
             </form>
-          )}
 
-          {!isChecking && message ? (
+          {message ? (
             <p
               className="rf-admin-login__notice rf-admin-login__notice--error"
               role="alert"

@@ -288,3 +288,61 @@
     font-size: 40px;
   }
 }
+
+/* V19.8B BROWN ADMIN THEME */
+:root {
+  --rf-admin-login-wine: #432716;
+  --rf-admin-login-wine-deep: #24130b;
+  --rf-admin-login-gold: #c99a4d;
+  --rf-admin-login-gold-soft: #e8c984;
+}
+
+.rf-admin-login__story {
+  background:
+    radial-gradient(circle at 28% 24%, rgba(229, 191, 113, .14), transparent 24rem),
+    linear-gradient(145deg, #4c2b19 0%, #351d11 52%, #211109 100%);
+}
+
+.rf-admin-login__form button {
+  background: linear-gradient(135deg, #4b2b19, #2e190f);
+  box-shadow: 0 12px 28px rgba(52, 29, 17, .22);
+}
+
+.rf-admin-session-check {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(215, 174, 104, .16), transparent 24rem),
+    linear-gradient(145deg, #4c2b19 0%, #351d11 52%, #211109 100%);
+  color: #fff1d7;
+  font-family: var(--rf-admin-login-sans);
+}
+
+.rf-admin-session-check__panel {
+  width: min(100%, 360px);
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.rf-admin-session-check__panel img {
+  width: 150px;
+  margin-bottom: 14px;
+}
+
+.rf-admin-session-check__panel span {
+  color: var(--rf-admin-login-gold-soft);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+}
+
+.rf-admin-session-check__panel strong {
+  font-family: var(--rf-admin-login-serif);
+  font-size: 22px;
+  font-weight: 500;
+}

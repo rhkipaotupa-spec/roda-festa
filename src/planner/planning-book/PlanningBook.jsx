@@ -325,6 +325,20 @@ export default function PlanningBook() {
   const planningSessionStartRef = useRef(null);
   const planningSessionPersistenceEnabled = isPlanningSessionPersistenceEnabled();
 
+  const adminNavigation = useMemo(() => {
+    if (typeof window === "undefined") return null;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("admin") !== "1") return null;
+
+    const requestedReturn = params.get("return") || "/admin";
+    const safeReturn = requestedReturn.startsWith("/") && !requestedReturn.startsWith("//")
+      ? requestedReturn
+      : "/admin";
+
+    return Object.freeze({ returnTo: safeReturn });
+  }, []);
+
   const eventData = EVENT_OPTIONS.find((item) => item.id === selectedEvent);
   const realGuests = adults + olderChildren + children;
   const equivalentGuests = adults + olderChildren + children * 0.5;
@@ -716,7 +730,20 @@ export default function PlanningBook() {
   })).filter((group) => group.items.length > 0);
 
   return (
-    <main className="rf-planner-v19">
+    <main className={`rf-planner-v19${adminNavigation ? " rf-planner-v19--admin" : ""}`}>
+      {adminNavigation ? (
+        <aside className="rf-admin-mode-bar" aria-label="Modo administrativo">
+          <div className="rf-admin-mode-bar__copy">
+            <strong>Modo administrativo</strong>
+            <span>Você está criando um orçamento como administrador.</span>
+          </div>
+          <a href={adminNavigation.returnTo} className="rf-admin-mode-bar__return">
+            <span aria-hidden="true">←</span>
+            Voltar ao Admin
+          </a>
+        </aside>
+      ) : null}
+
       {stepIndex === 0 ? (
         <section className="rf-welcome rf-welcome--classic">
           <div className="rf-welcome__ambient" aria-hidden="true" />

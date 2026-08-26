@@ -758,3 +758,30 @@
     padding-inline: 18px;
   }
 }
+
+/* V19.8B APPROVED BROWN THEME */
+:root {
+  --rf-admin-wine: #432716;
+  --rf-admin-wine-deep: #24130b;
+}
+
+.rf-admin-sidebar {
+  background:
+    radial-gradient(circle at 30% 8%, rgba(229, 191, 113, .12), transparent 17rem),
+    linear-gradient(155deg, #4a2a18 0%, #351e12 48%, #22120b 100%);
+}
+
+.rf-admin-hero {
+  background:
+    radial-gradient(circle at 84% 18%, rgba(229, 191, 113, .14), transparent 19rem),
+    linear-gradient(145deg, #50301e 0%, #382014 52%, #25130c 100%);
+}
+
+.rf-admin-new-quote {
+  background: linear-gradient(135deg, #4c2c1a, #2f190f);
+  box-shadow: 0 10px 24px rgba(54, 31, 18, .2);
+}
+
+.rf-admin-detail > header {
+  background: linear-gradient(145deg, #4c2c1a, #24130b);
+}
