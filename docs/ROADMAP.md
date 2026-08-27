@@ -599,3 +599,19 @@ Próxima prioridade:
 - CanonicalPDF persistido continua pendente;
 - arquivamento/desarquivamento de orçamentos permanece unidade futura;
 - tabela comercial Admin e agenda permanecem futuras superfícies.
+
+## 2026-08-27 — Atualização de prioridade após prova mobile
+
+A prioridade anterior de “resolver acesso mobile ao Preview” foi concluída operacionalmente por meio de Shareable Link da Vercel, comprovado em celular fora do Wi-Fi da empresa e com acesso também à rota `/admin`.
+
+A sequência segura passa a ser:
+
+1. reconciliar documentalmente a prova do Shareable Link — concluído por esta atualização;
+2. decidir e preparar publicação estável para uso cotidiano, sem depender de URL temporária de Preview;
+3. criar fluxo versionado e testado para provisionamento de usuário adicional, preservando OWNER e permitindo identidade ADMIN individual para Adrielly;
+4. executar postflight independente de `planning_sessions`: RLS, policies, grants e índices;
+5. executar o primeiro orçamento real ponta a ponta após a materialização da tabela;
+6. usar esse primeiro caso como evidência para a cadeia `InputSnapshot → RecommendationSnapshot → PlanningChange[] → FinalProposalSnapshot → Admin read model`;
+7. somente depois avançar em calendário/overview operacional e gestão versionada de preços, preservando histórico dos orçamentos.
+
+A publicação estável não deve relaxar a autenticação própria do Admin nem misturar, sem governança, ambiente de teste e dados de uso cotidiano.

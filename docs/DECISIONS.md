@@ -456,3 +456,22 @@ A tela “Log in to Vercel” em celular pertence à proteção do deployment Pr
 ### D — Histórico alimenta análise, não aprendizado automático
 
 Orçamentos reais devem preservar sugestão, alterações e validação final para futura calibração. Nenhum dado histórico altera automaticamente o motor em produção.
+
+## 2026-08-27 — Shareable Link é o mecanismo aprovado para acesso autorizado ao Preview mobile
+
+Após o fechamento documental de 26/08/2026, foi executada prova operacional em dispositivo celular fora do Wi-Fi da empresa.
+
+Evidência observada:
+- um Shareable Link da Vercel foi criado para o Preview;
+- o link abriu o Roda Festa no celular sem exigir o login de conta Vercel que anteriormente interceptava o deployment;
+- o acesso externo ao Preview foi, portanto, comprovado;
+- inicialmente o link abriu diretamente o Planning;
+- ajustando a rota, foi possível chegar ao `/admin`;
+- a autenticação própria do Admin permaneceu separada da proteção/compartilhamento do deployment.
+
+Decisão:
+- não enfraquecer, remover ou contornar a autenticação própria do Admin para facilitar acesso ao Preview;
+- para Preview autorizado, tratar Shareable Link/Sharing da Vercel como mecanismo de acesso à camada de deployment;
+- manter como evolução separada a publicação estável para uso cotidiano, com URL estável, revisão de Production e smoke completo antes de promoção.
+
+Esta decisão fecha a dúvida operacional registrada em 26/08 sobre como permitir teste mobile sem confundir Vercel Authentication com autenticação da aplicação.

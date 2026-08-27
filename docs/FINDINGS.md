@@ -974,3 +974,24 @@ A tabela `planning_sessions` foi materializada com contagem inicial zero. Ainda 
 - finalização;
 - aparição no Admin;
 - leitura sugestão → validação.
+
+## 2026-08-27 — Reconciliação pós-fechamento: Preview mobile via Shareable Link — RESOLVIDO
+
+O finding registrado em 26/08/2026 como **“Preview mobile interceptado por autenticação Vercel — ABERTO”** recebeu prova operacional posterior ao fechamento documental.
+
+**Evidência real:**
+- foi criado um Shareable Link da Vercel para o Preview;
+- o link abriu o Roda Festa em celular fora do Wi-Fi da empresa;
+- a barreira anterior “Log in to Vercel” deixou de impedir o acesso por esse mecanismo de compartilhamento;
+- o primeiro acesso abriu diretamente o Planning;
+- alterando a rota, foi possível alcançar `/admin`;
+- não foi necessário enfraquecer ou modificar a autenticação própria do Admin do Roda Festa.
+
+**Conclusão:** RESOLVIDO para o objetivo de disponibilizar um Preview autorizado no celular durante o desenvolvimento.
+
+**Limite da prova:** esta evidência não equivale a uma publicação Production estável, não substitui revisão de Deployment Protection de Production e não prova ainda a jornada completa de criação/persistência/leitura de um orçamento real em mobile.
+
+**Próximas provas independentes:**
+1. postflight de `planning_sessions` para policies, grants, índices e RLS;
+2. primeiro orçamento real persistido ponta a ponta;
+3. preparação e validação de uma publicação estável para uso cotidiano autorizado.

@@ -778,3 +778,23 @@ Pendente para a próxima sessão:
 - comparar sugestão original → alterações → proposta validada;
 - somente depois começar calibração controlada do motor com histórico real;
 - manter aprendizado controlado: histórico não altera o motor automaticamente.
+
+## 2026-08-27 — Reconciliação da prova de acesso mobile ao Preview
+
+Após o checkpoint documental `e711ced16d9a14794a3d510680a8839a4ccc7ede`, foi realizada prova operacional que ainda não constava nos documentos versionados:
+
+- criado Shareable Link da Vercel para o Preview;
+- acesso comprovado em celular fora do Wi-Fi da empresa;
+- o Shareable Link permitiu carregar o Roda Festa sem a interceptação anterior “Log in to Vercel”;
+- o link inicialmente abriu o Planning;
+- a rota `/admin` também foi alcançada;
+- nenhuma alteração insegura foi feita na autenticação própria do Admin para obter esse resultado.
+
+Com isso, o bloqueio operacional de acesso mobile ao Preview fica encerrado para a fase de desenvolvimento.
+
+Permanecem como próximas unidades:
+- planejar publicação estável para uso cotidiano autorizado;
+- provisionar corretamente usuário ADMIN individual para Adrielly, sem reutilizar o bootstrap do primeiro OWNER;
+- executar postflight independente de `planning_sessions`;
+- realizar o primeiro orçamento real persistido ponta a ponta;
+- preservar a cadeia de snapshots e alterações humanas para futura análise/calibração controlada do motor.
