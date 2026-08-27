@@ -2,8 +2,8 @@ import {
   buildAdminJourneyDetail,
   buildAdminJourneySummary,
 } from "./planning-admin-journey-query.js";
+import { buildSupabaseRestHeaders } from "./supabase-rest-auth.js";
 
-const JSON_HEADERS = { "Content-Type": "application/json" };
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 200;
 
@@ -77,11 +77,7 @@ export function createPlanningAdminReadStore({
 
     const response = await fetchImpl(`${url}/rest/v1/${path}`, {
       method: "GET",
-      headers: {
-        ...JSON_HEADERS,
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
-      },
+      headers: buildSupabaseRestHeaders(serviceRoleKey),
     });
 
     if (!response.ok) {

@@ -1,4 +1,4 @@
-const JSON_HEADERS = { "Content-Type": "application/json" };
+import { buildSupabaseRestHeaders } from "../supabase-rest-auth.js";
 
 function getConfig(env = process.env) {
   const url = String(env.SUPABASE_URL || "").replace(/\/$/, "");
@@ -14,12 +14,7 @@ export function createSupabasePlanningSessionAdapter({ env = process.env, fetchI
     const { url, serviceRoleKey } = getConfig(env);
     const response = await fetchImpl(`${url}/rest/v1/${path}`, {
       method,
-      headers: {
-        ...JSON_HEADERS,
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
-        ...(prefer ? { Prefer: prefer } : {}),
-      },
+      headers: buildSupabaseRestHeaders(serviceRoleKey, { prefer }),
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
     if (!response.ok) {

@@ -1,4 +1,4 @@
-const JSON_HEADERS = { "Content-Type": "application/json" };
+import { buildSupabaseRestHeaders } from "../supabase-rest-auth.js";
 
 function getConfig(env = process.env) {
   const url = String(env.SUPABASE_URL || "").replace(/\/$/, "");
@@ -51,11 +51,7 @@ export function createSupabaseAdminIdentityStore({
     const { url, serviceRoleKey } = getConfig(env);
     const response = await fetchImpl(`${url}/rest/v1/${path}`, {
       method: "GET",
-      headers: {
-        ...JSON_HEADERS,
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
-      },
+      headers: buildSupabaseRestHeaders(serviceRoleKey),
     });
 
     if (!response.ok) {
