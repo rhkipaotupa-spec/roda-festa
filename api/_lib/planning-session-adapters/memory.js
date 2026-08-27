@@ -57,7 +57,7 @@ export function createMemoryPlanningSessionAdapter() {
       return { appended: accepted.length, session: clone(record) };
     },
 
-    async finalize({ sessionId, tokenHash, finalSnapshot, changes, expectedVersion }) {
+    async finalize({ sessionId, tokenHash, finalSnapshot, expectedVersion }) {
       const record = records.get(sessionId);
       if (!record || record.anonymous_session_token_hash !== tokenHash) throw new Error("planning_session_not_found");
       if (record.final_proposal_snapshot) {
@@ -67,7 +67,6 @@ export function createMemoryPlanningSessionAdapter() {
       if (Number(record.version) !== Number(expectedVersion)) throw new Error("planning_session_concurrent_update");
       record.status = "FINALIZED";
       record.final_proposal_snapshot = clone(finalSnapshot);
-      record.planning_changes = clone(changes || []);
       record.version += 1;
       record.last_activity_at = new Date().toISOString();
       record.finalized_at = record.last_activity_at;

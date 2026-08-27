@@ -64,10 +64,10 @@ export function createSupabasePlanningSessionAdapter({ env = process.env, fetchI
       return { appended: (changes || []).length, session: rows[0] };
     },
 
-    async finalize({ sessionId, tokenHash, finalSnapshot, changes, expectedVersion }) {
+    async finalize({ sessionId, tokenHash, finalSnapshot, expectedVersion }) {
       const rows = await request(`planning_sessions?id=${eq(sessionId)}&anonymous_session_token_hash=${eq(tokenHash)}&version=${eq(expectedVersion)}&final_proposal_snapshot=is.null&select=*`, {
         method: "PATCH", prefer: "return=representation",
-        body: { status: "FINALIZED", final_proposal_snapshot: finalSnapshot, planning_changes: changes, version: Number(expectedVersion) + 1, last_activity_at: new Date().toISOString(), finalized_at: new Date().toISOString() },
+        body: { status: "FINALIZED", final_proposal_snapshot: finalSnapshot, version: Number(expectedVersion) + 1, last_activity_at: new Date().toISOString(), finalized_at: new Date().toISOString() },
       });
       if (!rows?.[0]) {
         const current = await this.getOwned({ sessionId, tokenHash });
