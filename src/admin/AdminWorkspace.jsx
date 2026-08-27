@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import "./AdminWorkspace.css";
+import "./AdminJourneyEnhancements.css";
 
 import rodaFestaLogoCreme from "../planner/planning-book/assets/logo-roda-festa-creme.png";
+import {
+  buildItemComparison,
+  changeLabel,
+  summarizeItemComparison,
+} from "./adminJourneyPresentation.js";
 
 const QUOTES_ENDPOINT = "/api/admin-quotes";
 
@@ -34,6 +40,20 @@ function formatTimestamp(value) {
   });
 }
 
+function formatQuantity(value) {
+  return Number(value || 0).toLocaleString("pt-BR", {
+    maximumFractionDigits: 2,
+  });
+}
+
+function formatMoneyDifference(recommended, finalValue) {
+  if (finalValue == null) return "Ainda sem versão final";
+  const difference = Number(finalValue || 0) - Number(recommended || 0);
+  if (Math.abs(difference) < 0.005) return "Mesmo investimento da sugestão inicial";
+  const direction = difference > 0 ? "Acréscimo de" : "Redução de";
+  return `${direction} ${formatCurrency(Math.abs(difference))} em relação à sugestão`;
+}
+
 function quoteStage(quote) {
   if (quote?.history?.hasFinalProposal) {
     return {
@@ -56,6 +76,31 @@ function initials(value) {
 
   if (words.length === 0) return "RF";
   return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase();
+}
+
+function guestBreakdownText(event) {
+  const adults = Number(event?.adults || 0);
+  const olderChildren = Number(event?.olderChildren || 0);
+  const children = Number(event?.children || 0);
+
+  const detailedTotal = adults + olderChildren + children;
+  if (detailedTotal === 0 && Number(event?.guests || 0) > 0) {
+    return "Detalhamento por faixa não disponível neste registro.";
+  }
+
+  return `${adults} adultos · ${olderChildren} crianças 7+ · ${children} crianças 0–6`;
+}
+
+function changeSummaryText(summary) {
+  if (!summary?.changed) return "Nenhum item mudou entre a sugestão inicial e a versão final.";
+
+  const parts = [];
+  if (summary.increased) parts.push(`${summary.increased} aumentado${summary.increased === 1 ? "" : "s"}`);
+  if (summary.reduced) parts.push(`${summary.reduced} reduzido${summary.reduced === 1 ? "" : "s"}`);
+  if (summary.added) parts.push(`${summary.added} adicionado${summary.added === 1 ? "" : "s"}`);
+  if (summary.removed) parts.push(`${summary.removed} retirado${summary.removed === 1 ? "" : "s"}`);
+
+  return parts.join(" · ");
 }
 
 export default function AdminWorkspace({ sessionMessage = "" }) {
@@ -136,6 +181,19 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
       suggestions,
     };
   }, [quotes]);
+
+  const selectedComparison = useMemo(() => {
+    if (!selectedQuote || selectedStatus !== "ready") return [];
+    return buildItemComparison(
+      selectedQuote?.recommendationSnapshot,
+      selectedQuote?.finalProposalSnapshot,
+    );
+  }, [selectedQuote, selectedStatus]);
+
+  const selectedComparisonSummary = useMemo(
+    () => summarizeItemComparison(selectedComparison),
+    [selectedComparison],
+  );
 
   async function openQuote(quote) {
     setSelectedQuote(quote);
@@ -236,17 +294,23 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
           <article>
             <span>Total acompanhado</span>
             <strong>{metrics.total}</strong>
-            <small>jornadas persistidas</small>
+            <small className="rf-admin-metric-help">
+              Todo orçamento que entrou no histórico, da sugestão inicial à versão final.
+            </small>
           </article>
           <article>
             <span>Aguardando validação</span>
             <strong>{metrics.suggestions}</strong>
-            <small>sugestões do motor</small>
+            <small className="rf-admin-metric-help">
+              Tem sugestão do motor salva, mas ainda não chegou à proposta final.
+            </small>
           </article>
           <article>
             <span>Validados</span>
             <strong>{metrics.validated}</strong>
-            <small>com proposta final</small>
+            <small className="rf-admin-metric-help">
+              Já têm proposta final concluída e preservada para consulta e aprendizado.
+            </small>
           </article>
         </section>
 
@@ -389,12 +453,14 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
                   <article>
                     <span>Convidados</span>
                     <strong>{selectedQuote?.event?.guests || 0}</strong>
+                    <small>{guestBreakdownText(selectedQuote?.event)}</small>
                   </article>
                   <article>
                     <span>Sugestão</span>
                     <strong>
                       {formatCurrency(selectedQuote?.commercial?.recommendedTotal)}
                     </strong>
+                    <small>valor calculado originalmente pelo motor</small>
                   </article>
                   <article>
                     <span>Validado</span>
@@ -403,49 +469,130 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
                         ? "Ainda não"
                         : formatCurrency(selectedQuote.commercial.finalTotal)}
                     </strong>
+                    <small>
+                      {formatMoneyDifference(
+                        selectedQuote?.commercial?.recommendedTotal,
+                        selectedQuote?.commercial?.finalTotal,
+                      )}
+                    </small>
                   </article>
                 </section>
 
-                <section className="rf-admin-journey">
-                  <div>
-                    <span className="rf-admin-journey__dot is-suggestion" />
+                <section className="rf-admin-detail-section">
+                  <div className="rf-admin-detail-section__heading">
+                    <span className="rf-admin-eyebrow">Leitura da jornada</span>
+                    <h3>Da sugestão do motor à proposta final</h3>
                     <p>
-                      <strong>Sugestão do motor</strong>
-                      <small>
-                        {formatCurrency(
-                          selectedQuote?.commercial?.recommendedTotal,
-                        )}
-                      </small>
+                      Aqui fica claro o que o sistema sugeriu primeiro, o que mudou
+                      durante a montagem e qual versão foi efetivamente validada.
                     </p>
                   </div>
 
-                  <div>
-                    <span className="rf-admin-journey__dot is-change" />
+                  <div className="rf-admin-journey rf-admin-journey--explained">
+                    <div>
+                      <span className="rf-admin-journey__dot is-suggestion" />
+                      <p>
+                        <strong>1. Sugestão do motor</strong>
+                        <small>
+                          {selectedQuote?.recommendationSnapshot?.items?.length || 0} itens · {formatCurrency(
+                            selectedQuote?.commercial?.recommendedTotal,
+                          )}
+                        </small>
+                        <em>Ponto de partida calculado automaticamente para o cenário informado.</em>
+                      </p>
+                    </div>
+
+                    <div>
+                      <span className="rf-admin-journey__dot is-change" />
+                      <p>
+                        <strong>2. Ajustes feitos</strong>
+                        <small>{changeSummaryText(selectedComparisonSummary)}</small>
+                        <em>
+                          O histórico preserva {selectedQuote?.history?.changeCount || 0} movimentações registradas na jornada.
+                        </em>
+                      </p>
+                    </div>
+
+                    <div>
+                      <span
+                        className={`rf-admin-journey__dot ${
+                          selectedQuote?.history?.hasFinalProposal
+                            ? "is-validated"
+                            : "is-pending"
+                        }`}
+                      />
+                      <p>
+                        <strong>3. Versão validada</strong>
+                        <small>
+                          {selectedQuote?.history?.hasFinalProposal
+                            ? `${selectedQuote?.finalProposalSnapshot?.items?.length || 0} itens · ${formatCurrency(selectedQuote?.commercial?.finalTotal)}`
+                            : "Aguardando revisão"}
+                        </small>
+                        <em>
+                          {selectedQuote?.history?.hasFinalProposal
+                            ? "É a composição final preservada como referência deste atendimento."
+                            : "Ainda não existe uma proposta final concluída para este orçamento."}
+                        </em>
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="rf-admin-detail-section">
+                  <div className="rf-admin-detail-section__heading">
+                    <span className="rf-admin-eyebrow">Itens do orçamento</span>
+                    <h3>Motor x versão final</h3>
                     <p>
-                      <strong>Alterações registradas</strong>
-                      <small>
-                        {selectedQuote?.history?.changeCount || 0} mudanças
-                      </small>
+                      A comparação usa os snapshots preservados. Assim fica fácil ver
+                      o que foi mantido, aumentado, reduzido, incluído ou retirado.
                     </p>
                   </div>
 
-                  <div>
-                    <span
-                      className={`rf-admin-journey__dot ${
-                        selectedQuote?.history?.hasFinalProposal
-                          ? "is-validated"
-                          : "is-pending"
-                      }`}
-                    />
-                    <p>
-                      <strong>Versão validada</strong>
-                      <small>
-                        {selectedQuote?.history?.hasFinalProposal
-                          ? formatCurrency(selectedQuote?.commercial?.finalTotal)
-                          : "Aguardando revisão"}
-                      </small>
-                    </p>
-                  </div>
+                  {selectedComparison.length > 0 ? (
+                    <div className="rf-admin-item-comparison">
+                      <div className="rf-admin-item-comparison__header" aria-hidden="true">
+                        <span>Item</span>
+                        <span>Motor</span>
+                        <span>Final</span>
+                        <span>Resultado</span>
+                      </div>
+
+                      {selectedComparison.map((item) => (
+                        <article className="rf-admin-item-comparison__row" key={item.id}>
+                          <div className="rf-admin-item-comparison__identity">
+                            <strong>{item.name}</strong>
+                            <small>
+                              {item.category}
+                              {item.consignment ? " · consignação" : ""}
+                            </small>
+                          </div>
+
+                          <div className="rf-admin-item-comparison__quantity">
+                            <span>Motor</span>
+                            <strong>{formatQuantity(item.before)}</strong>
+                          </div>
+
+                          <div className="rf-admin-item-comparison__quantity">
+                            <span>Final</span>
+                            <strong>{formatQuantity(item.after)}</strong>
+                          </div>
+
+                          <div className={`rf-admin-change-badge is-${item.change}`}>
+                            <strong>{changeLabel(item.change)}</strong>
+                            {item.delta !== 0 ? (
+                              <small>
+                                {item.delta > 0 ? "+" : ""}{formatQuantity(item.delta)}
+                              </small>
+                            ) : null}
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rf-admin-detail-empty">
+                      Este orçamento ainda não possui itens preservados para comparação.
+                    </div>
+                  )}
                 </section>
 
                 <section className="rf-admin-detail__learning">
@@ -453,7 +600,7 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
                   <p>
                     Este histórico preserva o que o motor sugeriu e o que foi
                     alterado antes da versão final. A calibração futura poderá
-                    usar somente exemplos aprovados, sem apagar a origem.
+                    comparar casos reais aprovados sem apagar a recomendação de origem.
                   </p>
                 </section>
               </div>

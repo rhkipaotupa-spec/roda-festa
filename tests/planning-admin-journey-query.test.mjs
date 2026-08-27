@@ -13,7 +13,15 @@ function journey() {
     version: 5,
     createdAt: "2026-08-25T10:00:00.000Z",
     updatedAt: "2026-08-25T10:30:00.000Z",
-    inputSnapshot: { eventDate: "2026-09-20", guests: 80 },
+    inputSnapshot: {
+      eventDate: "2026-09-20",
+      eventType: "infantil",
+      adults: 64,
+      olderChildren: 7,
+      children: 9,
+      realGuests: 80,
+      duration: 4,
+    },
     recommendationSnapshot: {
       investmentTotal: 1800,
       items: [{ id: "coxinha" }, { id: "pastel" }],
@@ -35,6 +43,10 @@ test("admin summary expoe resumo comercial e historico sem recalcular snapshots"
   const model = buildAdminJourneySummary(journey());
   assert.equal(model.sessionId, "s-admin-1");
   assert.equal(model.event.guests, 80);
+  assert.equal(model.event.adults, 64);
+  assert.equal(model.event.olderChildren, 7);
+  assert.equal(model.event.children, 9);
+  assert.equal(model.event.duration, 4);
   assert.equal(model.commercial.recommendedTotal, 1800);
   assert.equal(model.commercial.finalTotal, 2050);
   assert.equal(model.commercial.effectiveTotal, 2050);
@@ -42,6 +54,23 @@ test("admin summary expoe resumo comercial e historico sem recalcular snapshots"
   assert.equal(model.commercial.reconciliation.difference, 0);
   assert.equal(model.history.changeCount, 2);
   assert.equal(model.history.hasFinalProposal, true);
+});
+
+test("admin summary calcula convidados pelas faixas quando realGuests nao existir", () => {
+  const source = journey();
+  delete source.inputSnapshot.realGuests;
+  const model = buildAdminJourneySummary(source);
+  assert.equal(model.event.guests, 80);
+});
+
+test("admin summary preserva compatibilidade com snapshot legado de guests", () => {
+  const source = journey();
+  source.inputSnapshot = { eventDate: "2026-09-20", guests: 80 };
+  const model = buildAdminJourneySummary(source);
+  assert.equal(model.event.guests, 80);
+  assert.equal(model.event.adults, 0);
+  assert.equal(model.event.olderChildren, 0);
+  assert.equal(model.event.children, 0);
 });
 
 test("admin summary usa recomendacao enquanto proposta final nao existe", () => {

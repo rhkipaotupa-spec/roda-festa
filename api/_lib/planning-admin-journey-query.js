@@ -7,6 +7,17 @@ function money(value) {
   return Number.isFinite(number) ? number : 0;
 }
 
+function nonNegativeNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : 0;
+}
+
+function optionalNonNegativeNumber(value) {
+  if (value == null || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : null;
+}
+
 function itemCount(snapshot) {
   const candidates = [
     snapshot?.items,
@@ -15,6 +26,30 @@ function itemCount(snapshot) {
   ];
   const list = candidates.find(Array.isArray);
   return list ? list.length : 0;
+}
+
+function buildGuestSummary(input = {}) {
+  const adults = nonNegativeNumber(input?.adults);
+  const olderChildren = nonNegativeNumber(input?.olderChildren);
+  const children = nonNegativeNumber(input?.children);
+  const calculatedTotal = adults + olderChildren + children;
+
+  const explicitTotalCandidates = [
+    input?.realGuests,
+    input?.guests,
+    input?.guestCount,
+    input?.people,
+  ];
+  const explicitTotal = explicitTotalCandidates
+    .map(optionalNonNegativeNumber)
+    .find((value) => value !== null);
+
+  return Object.freeze({
+    guests: explicitTotal ?? calculatedTotal,
+    adults,
+    olderChildren,
+    children,
+  });
 }
 
 export function buildAdminJourneySummary(journey) {
@@ -27,6 +62,8 @@ export function buildAdminJourneySummary(journey) {
   const finalProposal = clone(journey.finalProposalSnapshot);
   const changes = clone(journey.planningChanges ?? []);
   const effective = finalProposal ?? recommendation ?? null;
+  const input = journey.inputSnapshot ?? {};
+  const guests = buildGuestSummary(input);
 
   return Object.freeze({
     sessionId: journey.sessionId,
@@ -35,13 +72,13 @@ export function buildAdminJourneySummary(journey) {
     createdAt: journey.createdAt ?? null,
     updatedAt: journey.updatedAt ?? null,
     event: Object.freeze({
-      date: journey.inputSnapshot?.eventDate ?? journey.inputSnapshot?.date ?? null,
-      guests: Number(
-        journey.inputSnapshot?.guests ??
-        journey.inputSnapshot?.guestCount ??
-        journey.inputSnapshot?.people ??
-        0
-      ),
+      date: input?.eventDate ?? input?.date ?? null,
+      type: input?.eventType ?? null,
+      duration: nonNegativeNumber(input?.duration),
+      guests: guests.guests,
+      adults: guests.adults,
+      olderChildren: guests.olderChildren,
+      children: guests.children,
     }),
     commercial: Object.freeze({
       recommendedTotal: money(

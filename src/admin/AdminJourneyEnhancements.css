@@ -1,0 +1,214 @@
+.rf-admin-metric-help {
+  min-height: 42px;
+  display: block;
+  max-width: 32ch;
+  margin-top: 2px;
+  line-height: 1.45;
+}
+
+.rf-admin-detail {
+  width: min(100%, 760px);
+}
+
+.rf-admin-detail__facts article small {
+  display: block;
+  margin-top: 5px;
+  color: var(--rf-admin-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.rf-admin-detail-section {
+  margin-top: 26px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rf-admin-line);
+}
+
+.rf-admin-detail-section__heading {
+  margin-bottom: 16px;
+}
+
+.rf-admin-detail-section__heading h3 {
+  margin: 6px 0 7px;
+  color: var(--rf-admin-wine);
+  font-family: var(--rf-admin-serif);
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.rf-admin-detail-section__heading p {
+  max-width: 64ch;
+  margin: 0;
+  color: var(--rf-admin-muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.rf-admin-journey--explained p {
+  min-width: 0;
+}
+
+.rf-admin-journey--explained p em {
+  display: block;
+  max-width: 56ch;
+  margin-top: 4px;
+  color: var(--rf-admin-muted);
+  font-size: 11px;
+  font-style: normal;
+  line-height: 1.45;
+}
+
+.rf-admin-item-comparison {
+  overflow: hidden;
+  border: 1px solid #dfc5a0;
+  border-radius: 17px;
+  background: rgba(255, 251, 244, .82);
+}
+
+.rf-admin-item-comparison__header,
+.rf-admin-item-comparison__row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.7fr) 74px 74px minmax(108px, .8fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.rf-admin-item-comparison__header {
+  padding: 10px 14px;
+  background: rgba(100, 29, 34, .055);
+  color: #8e704f;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+}
+
+.rf-admin-item-comparison__row {
+  padding: 14px;
+  border-top: 1px solid var(--rf-admin-line);
+}
+
+.rf-admin-item-comparison__identity {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.rf-admin-item-comparison__identity strong {
+  overflow: hidden;
+  color: var(--rf-admin-ink);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rf-admin-item-comparison__identity small,
+.rf-admin-item-comparison__quantity span,
+.rf-admin-change-badge small {
+  color: var(--rf-admin-muted);
+  font-size: 10px;
+}
+
+.rf-admin-item-comparison__quantity {
+  display: grid;
+  gap: 3px;
+}
+
+.rf-admin-item-comparison__quantity span {
+  display: none;
+}
+
+.rf-admin-item-comparison__quantity strong {
+  color: var(--rf-admin-wine);
+  font-family: var(--rf-admin-serif);
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.rf-admin-change-badge {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px;
+  border: 1px solid #d8c6aa;
+  border-radius: 999px;
+  background: #f7efe3;
+  color: #705b49;
+  font-size: 10px;
+}
+
+.rf-admin-change-badge.is-increased,
+.rf-admin-change-badge.is-added {
+  border-color: #b9c98f;
+  background: #eef2de;
+  color: #50652c;
+}
+
+.rf-admin-change-badge.is-reduced,
+.rf-admin-change-badge.is-removed {
+  border-color: #dfb4a9;
+  background: #f7e4df;
+  color: #8a3b31;
+}
+
+.rf-admin-change-badge.is-unchanged {
+  opacity: .78;
+}
+
+.rf-admin-change-badge small {
+  color: inherit;
+  font-weight: 800;
+}
+
+.rf-admin-detail-empty {
+  padding: 18px;
+  border: 1px dashed #d7b98d;
+  border-radius: 14px;
+  color: var(--rf-admin-muted);
+  background: rgba(255, 255, 255, .42);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .rf-admin-metric-help {
+    min-height: 0;
+    max-width: none;
+  }
+
+  .rf-admin-item-comparison__header {
+    display: none;
+  }
+
+  .rf-admin-item-comparison__row {
+    grid-template-columns: minmax(0, 1fr) 72px 72px;
+    gap: 10px;
+  }
+
+  .rf-admin-item-comparison__identity {
+    grid-column: 1 / -1;
+  }
+
+  .rf-admin-item-comparison__identity strong {
+    white-space: normal;
+  }
+
+  .rf-admin-item-comparison__quantity span {
+    display: block;
+  }
+
+  .rf-admin-change-badge {
+    align-self: end;
+  }
+}
+
+@media (max-width: 420px) {
+  .rf-admin-item-comparison__row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rf-admin-change-badge {
+    grid-column: 1 / -1;
+  }
+}

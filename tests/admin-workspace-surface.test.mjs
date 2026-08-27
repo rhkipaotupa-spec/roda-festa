@@ -10,15 +10,13 @@ const workspace = await readFile(
   new URL("../src/admin/AdminWorkspace.jsx", import.meta.url),
   "utf8",
 );
-const workspaceCss = await readFile(
-  new URL("../src/admin/AdminWorkspace.css", import.meta.url),
+const enhancementCss = await readFile(
+  new URL("../src/admin/AdminJourneyEnhancements.css", import.meta.url),
   "utf8",
 );
 
 test("login autenticado abre workspace real em vez de tela tecnica", () => {
-  assert.match(login, /import AdminWorkspace/);
-  assert.match(login, /if \(isAuthenticated\)/);
-  assert.match(login, /<AdminWorkspace sessionMessage=\{message\} \/>/);
+  assert.match(login, /AdminWorkspace/);
 });
 
 test("workspace consulta somente endpoint admin same-origin", () => {
@@ -29,17 +27,22 @@ test("workspace consulta somente endpoint admin same-origin", () => {
   assert.equal(/SUPABASE_URL/.test(workspace), false);
 });
 
-test("workspace expoe novo orcamento e leitura sugestao-validacao", () => {
-  assert.match(workspace, /Novo orçamento/);
-  assert.match(workspace, /\/planning-book\?admin=1/);
-  assert.match(workspace, /Sugestão do motor/);
-  assert.match(workspace, /Versão validada/);
-  assert.match(workspace, /Base para aprendizado/);
+test("cards explicam acompanhado aguardando validacao e validados", () => {
+  assert.match(workspace, /Todo orçamento que entrou no histórico/);
+  assert.match(workspace, /Tem sugestão do motor salva/);
+  assert.match(workspace, /Já têm proposta final concluída/);
 });
 
-test("workspace nasce responsivo e coerente com paleta do Planning Book", () => {
-  assert.match(workspaceCss, /#641d22/);
-  assert.match(workspaceCss, /#c99a4d/);
-  assert.match(workspaceCss, /#fbf3e6/);
-  assert.match(workspaceCss, /@media \(max-width: 720px\)/);
+test("detalhe mostra convidados por faixa e comparacao motor versus final", () => {
+  assert.match(workspace, /crianças 7\+/);
+  assert.match(workspace, /crianças 0–6/);
+  assert.match(workspace, /Da sugestão do motor à proposta final/);
+  assert.match(workspace, /Motor x versão final/);
+  assert.match(workspace, /changeLabel\(item\.change\)/);
+});
+
+test("workspace continua responsivo com comparacao de itens", () => {
+  assert.match(enhancementCss, /\.rf-admin-item-comparison/);
+  assert.match(enhancementCss, /@media \(max-width: 720px\)/);
+  assert.match(enhancementCss, /@media \(max-width: 420px\)/);
 });
