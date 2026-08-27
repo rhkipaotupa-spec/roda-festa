@@ -65,15 +65,28 @@ export function createSupabasePlanningSessionAdapter({ env = process.env, fetchI
     },
 
     async finalize({ sessionId, tokenHash, finalSnapshot, expectedVersion }) {
+      const suppliedCode = String(finalSnapshot?.code || "");
+      let proposalCode = suppliedCode;
+      if (!proposalCode) {
+        proposalCode = await request("rpc/allocate_planning_proposal_code", {
+          method: "POST",
+          body: {},
+        });
+      }
+      if (!/^RF-\d{6}-\d{5}$/.test(String(proposalCode || ""))) {
+        throw new Error("planning_proposal_code_allocation_failed");
+      }
+
+      const canonicalFinalSnapshot = { ...finalSnapshot, code: proposalCode };
       const rows = await request(`planning_sessions?id=${eq(sessionId)}&anonymous_session_token_hash=${eq(tokenHash)}&version=${eq(expectedVersion)}&final_proposal_snapshot=is.null&select=*`, {
         method: "PATCH", prefer: "return=representation",
-        body: { status: "FINALIZED", final_proposal_snapshot: finalSnapshot, version: Number(expectedVersion) + 1, last_activity_at: new Date().toISOString(), finalized_at: new Date().toISOString() },
+        body: { status: "FINALIZED", final_proposal_snapshot: canonicalFinalSnapshot, version: Number(expectedVersion) + 1, last_activity_at: new Date().toISOString(), finalized_at: new Date().toISOString() },
       });
       if (!rows?.[0]) {
         const current = await this.getOwned({ sessionId, tokenHash });
         if (!current) throw new Error("planning_session_not_found");
         if (current.final_proposal_snapshot) {
-          if (current.final_proposal_snapshot.code === finalSnapshot.code) {
+          if (!suppliedCode || current.final_proposal_snapshot.code === proposalCode) {
             return { finalized: false, session: current, idempotent: true };
           }
           throw new Error("planning_session_already_finalized");

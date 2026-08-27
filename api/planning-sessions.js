@@ -246,8 +246,9 @@ export async function finalizePlanningSessionCommand({ body, token, repository }
   if (!owned) throw new Error("planning_session_not_found");
   if (!owned.recommendation_snapshot) throw new Error("planning_session_recommendation_missing");
 
-  const submittedFinal = body.finalSnapshot || {};
-  if (!submittedFinal.code || !/^RF-\d{6}-\d{5}$/.test(String(submittedFinal.code))) throw new Error("invalid_proposal_code");
+  const submittedFinal = { ...(body.finalSnapshot || {}) };
+  // proposal code is server-owned; never trust/reuse the browser sequence as authority.
+  delete submittedFinal.code;
   if (!Array.isArray(submittedFinal.items) || !normalizeEventDate(submittedFinal.eventDate)) throw new Error("invalid_final_snapshot");
   const origin = owned.input_snapshot || {};
   for (const field of ["eventDate", "eventType", "adults", "olderChildren", "children", "duration"]) {
@@ -270,11 +271,15 @@ export async function finalizePlanningSessionCommand({ body, token, repository }
     expectedVersion,
   });
 
+  const proposalCode = String(finalized.session?.final_proposal_snapshot?.code || "");
+  if (!/^RF-\d{6}-\d{5}$/.test(proposalCode)) throw new Error("planning_proposal_code_missing");
+
   return {
     sessionId,
     version: Number(finalized.session.version),
     finalized: finalized.finalized,
     idempotent: finalized.idempotent,
+    proposalCode,
     authoritativeTotal: authoritativeFinal.investmentTotal,
     changes,
   };

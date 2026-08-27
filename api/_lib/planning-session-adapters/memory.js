@@ -5,6 +5,22 @@ function clone(value) {
 export function createMemoryPlanningSessionAdapter() {
   const records = new Map();
   const requestIndex = new Map();
+  let proposalSequenceDate = "";
+  let proposalSequence = 0;
+
+  function allocateProposalCode() {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Sao_Paulo", year: "2-digit", month: "2-digit", day: "2-digit",
+    }).formatToParts(new Date());
+    const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    const datePart = `${byType.year}${byType.month}${byType.day}`;
+    if (proposalSequenceDate !== datePart) {
+      proposalSequenceDate = datePart;
+      proposalSequence = 0;
+    }
+    proposalSequence += 1;
+    return `RF-${datePart}-${String(proposalSequence).padStart(5, "0")}`;
+  }
 
   return {
     async create({ id, clientRequestId, tokenHash, source = "planner-web", inputSnapshot, recommendationSnapshot }) {
@@ -60,13 +76,16 @@ export function createMemoryPlanningSessionAdapter() {
     async finalize({ sessionId, tokenHash, finalSnapshot, expectedVersion }) {
       const record = records.get(sessionId);
       if (!record || record.anonymous_session_token_hash !== tokenHash) throw new Error("planning_session_not_found");
+      const suppliedCode = String(finalSnapshot?.code || "");
       if (record.final_proposal_snapshot) {
-        if (record.final_proposal_snapshot.code === finalSnapshot.code) return { finalized: false, session: clone(record), idempotent: true };
+        if (!suppliedCode || record.final_proposal_snapshot.code === suppliedCode) return { finalized: false, session: clone(record), idempotent: true };
         throw new Error("planning_session_already_finalized");
       }
       if (Number(record.version) !== Number(expectedVersion)) throw new Error("planning_session_concurrent_update");
+      const proposalCode = suppliedCode || allocateProposalCode();
       record.status = "FINALIZED";
-      record.final_proposal_snapshot = clone(finalSnapshot);
+      record.final_proposal_snapshot = clone({ ...finalSnapshot, code: proposalCode });
+      // planning_changes is append-only journey evidence and must not be overwritten here.
       record.version += 1;
       record.last_activity_at = new Date().toISOString();
       record.finalized_at = record.last_activity_at;

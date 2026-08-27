@@ -657,12 +657,11 @@ export default function PlanningBook() {
     setSubmitStatus("sending");
     setSubmitMessage("Registrando sua proposta…");
 
-    const code = planningCode || createPlanningCode();
-    if (!planningCode) setPlanningCode(code);
-    const snapshot = buildSnapshot(code);
+    let snapshot;
 
     if (planningSessionPersistenceEnabled) {
       try {
+        const draftSnapshot = buildSnapshot("");
         const startResult = await planningSessionStartRef.current;
         if (!startResult?.ok) throw new Error(startResult?.error || "planning_session_missing");
         const session = startResult.session;
@@ -670,9 +669,13 @@ export default function PlanningBook() {
         const finalized = await finalizePlanningSession({
           sessionId: session.id,
           expectedVersion: session.version,
-          finalSnapshot: snapshot,
+          finalSnapshot: draftSnapshot,
         });
         if (!finalized.available) throw new Error(finalized.reason || "planning_persistence_unavailable");
+        const code = String(finalized.proposalCode || "");
+        if (!/^RF-\d{6}-\d{5}$/.test(code)) throw new Error("planning_proposal_code_missing");
+        setPlanningCode(code);
+        snapshot = { ...draftSnapshot, code };
         planningSessionStartRef.current = Promise.resolve({
           ok: true,
           session: { id: finalized.sessionId, version: finalized.version },
@@ -682,6 +685,10 @@ export default function PlanningBook() {
         setSubmitMessage("Não foi possível registrar a proposta com segurança. Nenhuma finalização foi confirmada; tente novamente.");
         return;
       }
+    } else {
+      const code = planningCode || createPlanningCode();
+      if (!planningCode) setPlanningCode(code);
+      snapshot = buildSnapshot(code);
     }
 
     const internalCopySent = await submitInternalCopy(snapshot);

@@ -89,15 +89,21 @@ test("supabase finalization does not overwrite planning_changes", async () => {
 
   const adapter = createSupabasePlanningSessionAdapter({
     env,
-    fetchImpl: async (_url, options) => {
+    fetchImpl: async (url, options) => {
+      if (url.endsWith("/rest/v1/rpc/allocate_planning_proposal_code")) {
+        assert.equal(options.method, "POST");
+        return new Response(JSON.stringify("RF-260827-00004"), { status: 200 });
+      }
+
       assert.equal(options.method, "PATCH");
       patchBody = JSON.parse(options.body);
+      assert.equal(patchBody.final_proposal_snapshot.code, "RF-260827-00004");
       return new Response(JSON.stringify([{
         id: "session-1",
         status: "FINALIZED",
         version: 3,
         planning_changes: serviceTimeline,
-        final_proposal_snapshot: { code: "RF-TEST-1" },
+        final_proposal_snapshot: { ...patchBody.final_proposal_snapshot },
       }]), { status: 200 });
     },
   });
@@ -106,7 +112,7 @@ test("supabase finalization does not overwrite planning_changes", async () => {
     sessionId: "session-1",
     tokenHash: "owner-hash",
     expectedVersion: 2,
-    finalSnapshot: { code: "RF-TEST-1" },
+    finalSnapshot: {},
     changes: [
       { type: "ITEM_QUANTITY_CHANGED", productId: "product-1", before: 10, after: 20 },
     ],
