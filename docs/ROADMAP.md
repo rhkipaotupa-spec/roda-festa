@@ -665,3 +665,44 @@ Estado atual:
 - [ ] somente depois avaliar retirada da branch remota `planner/v19-mobile-first`.
 
 Após a consolidação, Preview deve voltar a ser laboratório. Como hardening posterior, evitar que Previews arbitrários mutem o banco real de Production; planejar isolamento de dados/configuração de teste sem introduzir complexidade durante esta migração.
+
+## 2026-08-27 — Reconciliação pós-consolidação Production e Admin Journey
+
+Esta seção substitui como estado atual os itens pendentes da seção anterior **“Consolidação canônica para Production”**, preservada acima como histórico do plano antes da execução.
+
+### Concluído
+
+- [x] `main` consolidada como branch canônica;
+- [x] domínio Production canônico confirmado em `https://roda-festa.vercel.app`;
+- [x] Supabase canônico confirmado: `ezccivmuvlqvzhojnoxn`;
+- [x] Production configurada para persistência Planning em Supabase;
+- [x] suporte à Secret Key moderna validado;
+- [x] smoke Production da raiz/Planning/Admin executado;
+- [x] orçamento controlado criado e finalizado em Production;
+- [x] `planning_sessions_count = 1` e `finalized_count = 1` após o caso controlado;
+- [x] `/api/admin-quotes` autenticado retornando o caso;
+- [x] Admin UI exibindo o orçamento validado;
+- [x] cadeia `Planning → Supabase → Admin` GREEN;
+- [x] bug `0 convidados` corrigido;
+- [x] jornada Admin enriquecida para explicar sugestão → alterações → final;
+- [x] checkpoint técnico `3d03c61ae767b53f30fd4152889d6eaf1269308b`;
+- [x] validação 15/15 focal, 217/217 completa, lint e build GREEN;
+- [x] revisão visual do Admin explicável aprovada.
+
+### Próximas unidades
+
+1. concluir esta reconciliação documental em commit separado;
+2. integrar a unidade `feat/admin-journey-explained` a `main` somente após árvore limpa;
+3. executar novo deployment Production e smoke pós-merge da interface Admin enriquecida;
+4. validar a geração de PDF derivada do snapshot final;
+5. tratar integração de e-mail como unidade independente;
+6. manter a anomalia do registro histórico desaparecido sob investigação documental, sem bloquear o novo E2E comprovado;
+7. projetar ambiente Development/Preview isolado e seguro para full-stack local/QA sem reutilizar Secrets de Production;
+8. depois iniciar os casos de comparação real para calibração offline do motor, sem revelar previamente o refinamento manual e sem aprendizado automático.
+
+### Regra de snapshot
+
+Nenhum snapshot deve ser gerado entre o checkpoint técnico e esta reconciliação documental. Snapshot seguro somente após:
+- commit documental registrar `3d03c61ae767b53f30fd4152889d6eaf1269308b`;
+- working tree limpa;
+- branch/HEAD esperados confirmados.

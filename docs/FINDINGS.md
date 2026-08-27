@@ -1080,3 +1080,98 @@ Após a publicação canônica em Production:
 4. somente se continuar vazia, retomar o diagnóstico do read path dentro da Production canônica.
 
 Até essa prova, a cadeia Planning → Supabase está comprovada para o primeiro caso real, mas Supabase → Admin permanece RED/ABERTO.
+
+## 2026-08-27 — Production canônica: Planning → Supabase → Admin comprovado ponta a ponta — RESOLVIDO
+
+Esta seção reconcilia a evidência posterior ao finding **“Admin Preview vazio diante de sessão real FINALIZED — ABERTO”**. O registro anterior permanece preservado como fotografia do estado observado antes da consolidação de Production.
+
+### FATO CONFIRMADO
+
+A referência operacional canônica foi consolidada em:
+- branch canônica: `main`;
+- domínio operacional: `https://roda-festa.vercel.app`;
+- projeto Supabase canônico: `ezccivmuvlqvzhojnoxn`;
+- Production Vercel configurada para persistência Planning em Supabase e leitura Admin server-side.
+
+Foi executado um orçamento controlado fictício diretamente na Production canônica. Após a finalização:
+- a tela do Planning exibiu conclusão da jornada;
+- `public.planning_sessions` passou a apresentar `planning_sessions_count = 1`;
+- `finalized_count = 1`;
+- `/api/admin-quotes`, autenticado no mesmo domínio Production, passou a retornar o orçamento;
+- a interface `/admin` exibiu 1 orçamento acompanhado e 1 validado.
+
+### Conclusão
+
+A cadeia operacional abaixo está comprovada em Production:
+
+`Planning Production → API de persistência → Supabase canônico → FINALIZED → API Admin → Admin UI`
+
+O finding anterior de Admin vazio fica **RESOLVIDO para a Production canônica**. A divergência observada no Preview não deve mais ser usada como indicador do estado operacional atual.
+
+### Limite independente — registro histórico anterior
+
+Antes do teste controlado, uma consulta posterior no mesmo projeto canônico encontrou `planning_sessions_count = 0`, apesar de documentação anterior registrar 1 sessão FINALIZED. Não foi encontrada evidência de `DELETE` no código do Planning, e a causa do desaparecimento daquele registro histórico não foi demonstrada.
+
+Portanto:
+- o E2E atual está GREEN;
+- a persistência do novo caso controlado está comprovada;
+- o desaparecimento do caso histórico anterior permanece uma **anomalia histórica não explicada**, separada do readiness operacional atual;
+- não promover hipótese de deleção, troca de projeto ou recriação de tabela a fato sem evidência adicional.
+
+## 2026-08-27 — Admin exibia `0 convidados` apesar de snapshot segmentado — CORRIGIDO
+
+### FATO CONFIRMADO
+
+O read model administrativo calculava convidados apenas a partir de campos genéricos/legados (`guests`, `guestCount` ou `people`). O snapshot real do Planning persiste a composição segmentada (`adults`, `olderChildren`, `children`) e `realGuests`.
+
+Consequência observada no primeiro E2E Production:
+- o orçamento estava persistido e validado corretamente;
+- a linha do Admin aparecia;
+- o painel mostrava `0 convidados`.
+
+### Correção
+
+Checkpoint técnico:
+`3d03c61ae767b53f30fd4152889d6eaf1269308b` — `feat: explain admin planning journey`.
+
+A unidade:
+- usa `realGuests` quando disponível;
+- deriva o total por `adults + olderChildren + children` quando necessário;
+- preserva compatibilidade com snapshots legados;
+- expõe a composição de convidados no detalhe;
+- não altera motor, preços, persistência ou snapshots históricos.
+
+### Evolução de explicabilidade do Admin
+
+A mesma unidade tornou a jornada administrativa mais legível:
+- cards do dashboard receberam explicações conceituais;
+- detalhe mostra composição de convidados;
+- sugestão inicial do motor mostra itens;
+- comparação inicial versus final classifica itens mantidos, aumentados, reduzidos, adicionados e retirados;
+- proposta final mostra seus itens;
+- diferença de investimento é apresentada sem recalcular snapshots históricos.
+
+### Evidência final
+
+- testes focais: 15/15;
+- suíte completa: 217/217;
+- lint: GREEN;
+- build: GREEN;
+- `git diff --check`: GREEN;
+- warning preexistente de `src/styles/colors.css` vazio permaneceu não bloqueante;
+- revisão visual local com dados fictícios: aprovada;
+- working tree limpa após o checkpoint técnico.
+
+Nenhum secret foi versionado. O preview visual usado para QA não acessou Supabase e não realizou mutações remotas.
+
+## 2026-08-27 — Paridade do ambiente local Vercel para Admin — MONITORAR
+
+Durante a revisão visual da unidade `3d03c61...`, foram separados três comportamentos de tooling que não representam regressão de Production:
+
+1. `npm run dev` inicia apenas Vite e não fornece as Functions `/api/*`;
+2. `vercel dev` com o `vercel.json` oficial encontrou conflito local entre o fallback SPA `/(.*) -> /index.html` e a análise de imports do Vite;
+3. o ambiente Vercel `Development` não possui variáveis do Admin; Secrets de Production não podem ser puxados pelo CLI; os Secrets de Preview existentes estão limitados à branch histórica `planner/v19-mobile-first`.
+
+Para evitar copiar Secrets para arquivos locais ou ampliar escopos de Preview apenas para QA visual, a interface foi revisada por um harness local temporário com dados fictícios e sem acesso ao banco.
+
+Estado: **MONITORAR / P2 de ergonomia de desenvolvimento**. Não bloqueia Production atual, mas uma estratégia futura de ambiente Development/Preview isolado deve ser definida antes de depender de full-stack local como gate operacional.

@@ -861,3 +861,78 @@ Contexto funcional preservado para a próxima prova:
 - não foi comprovado mismatch de projeto Supabase, portanto o diagnóstico será retomado somente após a Production canônica reduzir a ambiguidade de ambiente.
 
 Nenhum merge em `main`, push deste checkpoint ou deployment Production foi realizado nesta unidade antes da reconciliação documental.
+
+## 2026-08-27 — Consolidação Production, E2E real e Admin explicável
+
+### Consolidação canônica concluída
+
+A linha aprovada foi consolidada em `main`, com referência documental anterior em `038a3b61aff147a3aef3dba7017933e94ee80199`.
+
+Estado operacional comprovado:
+- `main` é a branch canônica;
+- `https://roda-festa.vercel.app` é o domínio Production operacional;
+- Supabase canônico: `ezccivmuvlqvzhojnoxn`;
+- Production usa a Secret Key moderna de backend através do nome de compatibilidade `SUPABASE_SERVICE_ROLE_KEY`;
+- persistência Planning em Supabase habilitada em Production;
+- nenhum valor secreto foi registrado em Git ou documentação.
+
+### Primeiro E2E controlado na Production canônica
+
+Foi criado e finalizado um orçamento fictício controlado no domínio Production.
+
+Evidência:
+- Planning concluiu a jornada;
+- consulta read-only no Supabase canônico mostrou 1 `planning_session`;
+- a sessão estava `FINALIZED`;
+- `/api/admin-quotes` autenticado passou a retornar o orçamento;
+- `/admin` exibiu 1 orçamento e status validado.
+
+Resultado:
+`Planning → persistence API → Supabase → Admin API → Admin UI` = GREEN.
+
+A mensagem de integração de e-mail permaneceu uma frente independente e não invalidou a persistência. A geração de PDF não foi validada nesta unidade.
+
+### Anomalia histórica preservada
+
+Antes desse teste controlado, o mesmo projeto canônico foi observado com `planning_sessions_count = 0`, apesar de documentação anterior ter registrado 1 sessão FINALIZED. A causa do desaparecimento daquele registro não foi comprovada. O caso permanece separado do novo E2E GREEN e não deve ser explicado por hipótese sem evidência.
+
+### Melhoria Admin — jornada explicável
+
+O E2E revelou que o Admin mostrava `0 convidados`. O diagnóstico apontou incompatibilidade entre o mapper administrativo e o snapshot real segmentado.
+
+Foi implementada a unidade:
+`3d03c61ae767b53f30fd4152889d6eaf1269308b` — `feat: explain admin planning journey`.
+
+Entregue:
+- convidados reais e quebra por faixa;
+- compatibilidade com snapshot legado;
+- explicações dos três cards do dashboard;
+- itens da recomendação inicial;
+- comparação humana item a item entre recomendação e proposta final;
+- itens da proposta final;
+- resumo de alterações e diferença de investimento;
+- preservação da timeline e dos snapshots originais.
+
+Validação oficial:
+- focal: 15/15;
+- suíte: 217/217;
+- lint: GREEN;
+- build: GREEN;
+- `git diff --check`: GREEN;
+- revisão visual: aprovada pela usuária em preview local fictício;
+- warning conhecido de `src/styles/colors.css` vazio permaneceu não bloqueante.
+
+### QA local e higiene de Secrets
+
+A tentativa de usar o Admin real localmente evidenciou:
+- Vite isolado sem Functions;
+- conflito de `vercel dev` com o fallback SPA no `vercel.json` oficial;
+- Development Vercel sem env vars;
+- Secrets de Production não exportáveis pelo CLI;
+- Preview Secrets existentes limitados à branch `planner/v19-mobile-first`.
+
+Não foram copiados Secrets para chat, Git ou pacote de QA. O `.env.local` criado pelo CLI permaneceu ignorado pela regra `.env.*` e não rastreado. A pasta `.vercel/` e a alteração automática de `.gitignore` foram removidas/restauradas antes do checkpoint técnico.
+
+Para a revisão visual, foi usado harness temporário com dados fictícios, sem Supabase e sem login real. Esse harness não faz parte do repositório oficial.
+
+Próxima ação documental: registrar esta reconciliação em commit separado; somente depois considerar merge/push da unidade de Admin e snapshot seguro.

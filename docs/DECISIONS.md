@@ -514,3 +514,26 @@ Decisão de autenticação REST server-side:
 Checkpoint técnico da compatibilidade: `ff0f223943990ed24fe9dac0015dd953ca33d123` (`security: support modern Supabase secret keys`).
 
 A consolidação em Production ainda não está concluída: `main`, domínio estável, flags de persistência e smoke real de Production permanecem etapas independentes e obrigatórias antes de declarar a publicação canônica GREEN.
+
+## 2026-08-27 — Canonicalidade operacional e princípio de explicabilidade do Admin
+
+A consolidação operacional do Roda Festa passa a considerar como fonte cotidiana:
+- `main` como única branch canônica de produto;
+- `https://roda-festa.vercel.app` como domínio Production operacional;
+- Supabase Project Ref `ezccivmuvlqvzhojnoxn` como banco canônico de Production.
+
+Previews permanecem laboratório de desenvolvimento e não devem ser tratados como fonte de verdade operacional. Deployments históricos permanecem úteis para rollback, mas não criam versões concorrentes do produto.
+
+A prova E2E de Production deve prevalecer sobre estados anteriores de Preview quando os ambientes divergirem, sem apagar a documentação histórica da divergência.
+
+### Admin como superfície explicável, não apenas tabela
+
+Foi aprovada a direção de UX introduzida no checkpoint técnico `3d03c61ae767b53f30fd4152889d6eaf1269308b`:
+
+- métricas devem explicar o conceito operacional, não apenas exibir contagens;
+- convidados devem preservar a composição do snapshot real;
+- o detalhe de orçamento deve permitir entender claramente recomendação inicial, intervenção humana e proposta final;
+- comparação de itens deve usar snapshots persistidos e não recalcular o passado;
+- histórico serve como base futura de aprendizado, mas não altera automaticamente o motor.
+
+Essa explicabilidade passa a ser requisito de futuras evoluções do Admin e da futura calibração controlada do motor.
