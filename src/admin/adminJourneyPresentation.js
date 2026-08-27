@@ -17,6 +17,106 @@ function classifyChange(before, after) {
   return "unchanged";
 }
 
+function ledgerFromSnapshot(snapshot) {
+  return (
+    snapshot?.commercialLedger ??
+    snapshot?.investment?.ledger ??
+    snapshot?.ledger ??
+    null
+  );
+}
+
+function contractedLines(snapshot) {
+  const ledger = ledgerFromSnapshot(snapshot);
+  return Array.isArray(ledger?.contractedLines) ? ledger.contractedLines : [];
+}
+
+function findServiceLine(snapshot, { id, type }) {
+  return contractedLines(snapshot).find(
+    (line) => String(line?.id || "") === id || String(line?.type || "") === type,
+  );
+}
+
+function explicitWaiters(snapshot) {
+  if (snapshot?.waiters == null) return null;
+  return toQuantity(snapshot.waiters);
+}
+
+function explicitDisposables(snapshot) {
+  if (snapshot?.includeDisposables == null) return null;
+  return snapshot.includeDisposables ? 1 : 0;
+}
+
+function serviceQuantity(snapshot, definition) {
+  const line = findServiceLine(snapshot, definition);
+  if (line) return toQuantity(line.quantity);
+
+  if (definition.service === "WAITERS") {
+    return explicitWaiters(snapshot);
+  }
+
+  if (definition.service === "DISPOSABLES") {
+    return explicitDisposables(snapshot);
+  }
+
+  return null;
+}
+
+function serviceValue(snapshot, definition) {
+  const line = findServiceLine(snapshot, definition);
+  return Number(line?.subtotal ?? 0) || 0;
+}
+
+function buildServiceComparison(recommendationSnapshot, finalProposalSnapshot) {
+  const definitions = [
+    {
+      id: "service:waiters",
+      type: "waiters",
+      service: "WAITERS",
+      name: "Garçons",
+    },
+    {
+      id: "service:disposables",
+      type: "disposables",
+      service: "DISPOSABLES",
+      name: "Descartáveis (pacote)",
+    },
+  ];
+
+  const finalSnapshot = finalProposalSnapshot ?? recommendationSnapshot;
+  const rows = [];
+
+  for (const definition of definitions) {
+    const beforeCandidate = serviceQuantity(recommendationSnapshot, definition);
+    const afterCandidate = serviceQuantity(finalSnapshot, definition);
+
+    const knownBefore = beforeCandidate !== null;
+    const knownAfter = afterCandidate !== null;
+    if (!knownBefore && !knownAfter) continue;
+
+    const before = toQuantity(beforeCandidate);
+    const after = toQuantity(afterCandidate);
+    if (before === 0 && after === 0) continue;
+
+    rows.push(Object.freeze({
+      id: definition.id,
+      kind: "service",
+      service: definition.service,
+      name: definition.name,
+      category: "Serviços",
+      before,
+      after,
+      delta: after - before,
+      change: classifyChange(before, after),
+      unitPrice: 0,
+      consignment: false,
+      estimatedValue: serviceValue(finalSnapshot, definition),
+    }));
+  }
+
+  return rows;
+}
+
 export function buildItemComparison(recommendationSnapshot, finalProposalSnapshot) {
   const recommendationItems = Array.isArray(recommendationSnapshot?.items)
     ? recommendationSnapshot.items
@@ -44,7 +144,7 @@ export function buildItemComparison(recommendationSnapshot, finalProposalSnapsho
     orderedIds.push(id);
   }
 
-  return orderedIds.map((id) => {
+  const itemRows = orderedIds.map((id) => {
     const beforeItem = initial.get(id);
     const afterItem = final.get(id);
     const source = afterItem ?? beforeItem ?? {};
@@ -53,6 +153,7 @@ export function buildItemComparison(recommendationSnapshot, finalProposalSnapsho
 
     return Object.freeze({
       id,
+      kind: "product",
       name: source?.name || id,
       category: source?.commercialCategory || "Sem categoria",
       before,
@@ -64,6 +165,11 @@ export function buildItemComparison(recommendationSnapshot, finalProposalSnapsho
       estimatedValue: Number(afterItem?.estimatedValue ?? 0) || 0,
     });
   });
+
+  return Object.freeze([
+    ...itemRows,
+    ...buildServiceComparison(recommendationSnapshot, finalProposalSnapshot),
+  ]);
 }
 
 export function summarizeItemComparison(rows = []) {

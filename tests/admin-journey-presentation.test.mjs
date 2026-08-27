@@ -61,3 +61,131 @@ test("rotulos de mudanca sao humanos", () => {
   assert.equal(changeLabel("removed"), "Retirado");
   assert.equal(changeLabel("unchanged"), "Mantido");
 });
+
+test("servico de descartaveis adicionado aparece na comparacao motor x final", () => {
+  const initial = {
+    items: [],
+    ledger: {
+      contractedLines: [],
+    },
+  };
+  const final = {
+    items: [],
+    commercialLedger: {
+      contractedLines: [
+        {
+          id: "service:disposables",
+          type: "disposables",
+          label: "Descartáveis",
+          quantity: 1,
+          subtotal: 560,
+        },
+      ],
+    },
+  };
+
+  const rows = buildItemComparison(initial, final);
+  assert.deepEqual(rows.map((row) => ({
+    id: row.id,
+    kind: row.kind,
+    before: row.before,
+    after: row.after,
+    change: row.change,
+  })), [
+    {
+      id: "service:disposables",
+      kind: "service",
+      before: 0,
+      after: 1,
+      change: "added",
+    },
+  ]);
+});
+
+test("garcons retirados aparecem na comparacao motor x final", () => {
+  const initial = {
+    items: [],
+    ledger: {
+      contractedLines: [
+        {
+          id: "service:waiters",
+          type: "waiters",
+          label: "Garçons",
+          quantity: 3,
+          subtotal: 600,
+        },
+      ],
+    },
+  };
+  const final = {
+    items: [],
+    commercialLedger: {
+      contractedLines: [],
+    },
+    waiters: 0,
+  };
+
+  const rows = buildItemComparison(initial, final);
+  const waiter = rows.find((row) => row.id === "service:waiters");
+  assert.equal(waiter?.kind, "service");
+  assert.equal(waiter?.before, 3);
+  assert.equal(waiter?.after, 0);
+  assert.equal(waiter?.change, "removed");
+});
+
+test("servico que terminou igual ao motor nao vira falsa mudanca liquida", () => {
+  const initial = {
+    items: [],
+    ledger: {
+      contractedLines: [
+        {
+          id: "service:waiters",
+          type: "waiters",
+          label: "Garçons",
+          quantity: 2,
+          subtotal: 400,
+        },
+      ],
+    },
+  };
+  const final = {
+    items: [],
+    commercialLedger: {
+      contractedLines: [
+        {
+          id: "service:waiters",
+          type: "waiters",
+          label: "Garçons",
+          quantity: 2,
+          subtotal: 400,
+        },
+      ],
+    },
+  };
+
+  const rows = buildItemComparison(initial, final);
+  const waiter = rows.find((row) => row.id === "service:waiters");
+  assert.equal(waiter?.change, "unchanged");
+  assert.equal(summarizeItemComparison(rows).changed, 0);
+});
+
+test("servicos ausentes nos dois lados nao poluem a comparacao", () => {
+  const rows = buildItemComparison(
+    { items: [], ledger: { contractedLines: [] } },
+    { items: [], commercialLedger: { contractedLines: [] } },
+  );
+  assert.deepEqual(rows, []);
+});
+
+test("fallback explicito reconhece servicos em snapshots sem ledger", () => {
+  const rows = buildItemComparison(
+    { items: [], waiters: 0, includeDisposables: false },
+    { items: [], waiters: 4, includeDisposables: true },
+  );
+  const byId = new Map(rows.map((row) => [row.id, row]));
+
+  assert.equal(byId.get("service:waiters")?.change, "added");
+  assert.equal(byId.get("service:waiters")?.after, 4);
+  assert.equal(byId.get("service:disposables")?.change, "added");
+  assert.equal(byId.get("service:disposables")?.after, 1);
+});
