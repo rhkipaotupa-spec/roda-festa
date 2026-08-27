@@ -1175,3 +1175,88 @@ Durante a revisão visual da unidade `3d03c61...`, foram separados três comport
 Para evitar copiar Secrets para arquivos locais ou ampliar escopos de Preview apenas para QA visual, a interface foi revisada por um harness local temporário com dados fictícios e sem acesso ao banco.
 
 Estado: **MONITORAR / P2 de ergonomia de desenvolvimento**. Não bloqueia Production atual, mas uma estratégia futura de ambiente Development/Preview isolado deve ser definida antes de depender de full-stack local como gate operacional.
+
+## 2026-08-27 — Admin Motor x final não refletia serviços opcionais — CORRIGIDO TECNICAMENTE / PENDENTE PROVA PRODUCTION
+
+### FATO CONFIRMADO
+
+No Smoke 3 controlado, a jornada do cliente incluiu movimentação de serviços opcionais: Garçom foi incluído, depois retirado, e Descartáveis foi incluído. O orçamento final mudou, mas a comparação administrativa “Motor x versão final” não refletiu a mudança líquida de serviços.
+
+O diagnóstico no código canônico mostrou que o Planning já registrava mudanças de serviço na timeline com `SERVICE_ADDED` / `SERVICE_REMOVED` para `WAITERS` e `DISPOSABLES`. A lacuna estava na camada de apresentação do Admin: `buildItemComparison()` comparava apenas `snapshot.items`, embora os serviços também estivessem representados no Commercial Ledger.
+
+### Semântica preservada
+
+“Motor x versão final” representa **estado líquido**, não a lista completa de ações intermediárias.
+
+Consequências:
+- se Garçom começa ausente, é incluído e depois retirado, o estado líquido é `0 -> 0` e não deve aparecer como falsa diferença final;
+- a inclusão final de Descartáveis deve aparecer como mudança líquida de serviço;
+- ações intermediárias continuam pertencendo à timeline append-only de `PlanningChange` e não devem ser inventadas pela comparação de snapshots.
+
+### Correção técnica
+
+Checkpoint técnico:
+`112af9ff0d822ea98ce9e432c18d01f284696a3e` — `fix: compare planning services in admin journey`.
+
+A unidade:
+- preserva a comparação existente de produtos;
+- inclui serviços a partir de `commercialLedger`, `investment.ledger` ou `ledger`;
+- reconhece Garçons e Descartáveis;
+- mantém fallback explícito para snapshots históricos sem ledger;
+- omite serviços ausentes nos dois lados (`0 -> 0`), evitando ruído e falsa mudança líquida;
+- não altera motor, preço, banco, persistência, Commercial Ledger ou `AdminWorkspace`.
+
+### Evidência final local
+
+- testes focais: 9/9 GREEN;
+- suíte completa executada diretamente por `npm test`: 222/222 GREEN;
+- lint: GREEN;
+- build: GREEN;
+- `git diff --check`: GREEN;
+- apenas 2 arquivos funcionais participaram do checkpoint técnico;
+- working tree limpa após o commit.
+
+O `validate-update.cmd` chegou a executar `git diff --check` e os 9 testes focais, mas não iniciou a suíte completa por `spawnSync npm.cmd EINVAL`. A suíte foi então executada diretamente no CMD e passou 222/222. Portanto, o `EINVAL` ficou classificado como falha do launcher do validator, e não como regressão da unidade.
+
+### Pendência de fechamento
+
+A correção ainda precisa ser integrada à linha canônica e comprovada no Admin Production com o caso controlado antes de ser declarada GREEN ponta a ponta. O registro de teste não deve ser apagado antes dessa regressão.
+
+## 2026-08-27 — Finalização do cliente não deve equivaler a validação humana — DECISÃO DE PRODUTO / PENDENTE IMPLEMENTAÇÃO
+
+### Evidência do comportamento atual
+
+No primeiro E2E controlado em Production, uma jornada concluída pelo próprio cliente chegou ao Admin como orçamento validado. Esse comportamento foi útil para provar a cadeia técnica, mas passou a ser considerado semanticamente incorreto para a operação real.
+
+### Decisão de produto
+
+A partir desta decisão, devem existir conceitos separados para **conclusão/envio pelo cliente**, **origem da jornada** e **validação humana**.
+
+Regra desejada:
+- cliente conclui e envia o orçamento pelo site -> **Aguardando validação**;
+- conclusão do cliente não significa homologação comercial pela Roda Festa;
+- usuário administrativo autorizado revisa o orçamento e realiza a validação humana -> **Validado**;
+- inicialmente, uma jornada efetivamente construída e concluída por usuário administrativo autorizado pode nascer como **Validado**;
+- origem e estado não devem ser acoplados estruturalmente, para permitir perfis administrativos futuros que apenas cadastrem ou preparem uma solicitação sem poder validá-la.
+
+### Papel operacional do Admin
+
+O card **Aguardando validação** passa a representar uma fila real de trabalho, funcionando como to-do operacional para a pessoa responsável pela revisão comercial. A rotina esperada é abrir os novos orçamentos, comparar recomendação do motor, escolhas do cliente, serviços, convidados, composição e investimento, e então validar humanamente.
+
+### Experiência do cliente
+
+Direção de linguagem aprovada para a conclusão pública:
+
+**Orçamento enviado com sucesso**
+
+“Recebemos suas escolhas. Nossa equipe fará a validação final e entrará em contato com você.”
+
+O texto final ainda pode ser refinado na unidade de UX, mas não deve afirmar que o orçamento já foi validado pela operação.
+
+### Valor para evolução do motor
+
+A arquitetura deve preservar três camadas distintas de evidência:
+
+`recomendação do motor -> decisão do cliente -> validação humana`
+
+Essa separação permitirá futuramente medir onde clientes alteram recomendações, onde a equipe corrige o cliente e onde a validação humana corrige o próprio motor, sem aprendizado automático não supervisionado.

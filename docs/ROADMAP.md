@@ -706,3 +706,37 @@ Nenhum snapshot deve ser gerado entre o checkpoint técnico e esta reconciliaç�
 - commit documental registrar `3d03c61ae767b53f30fd4152889d6eaf1269308b`;
 - working tree limpa;
 - branch/HEAD esperados confirmados.
+
+## Unidade ativa — Admin explicável: serviços e validação humana
+
+### Comparação de serviços
+
+- [x] diagnosticar ausência de serviços em “Motor x versão final”;
+- [x] comprovar que o Planning já registra `SERVICE_ADDED` / `SERVICE_REMOVED`;
+- [x] incluir Garçons e Descartáveis na comparação líquida de snapshots;
+- [x] preservar compatibilidade com snapshots históricos sem ledger;
+- [x] impedir ruído `0 -> 0` para serviço que termina igual ao estado inicial;
+- [x] checkpoint técnico `112af9ff0d822ea98ce9e432c18d01f284696a3e`;
+- [x] testes focais 9/9, suíte 222/222, lint, build e diff verdes;
+- [ ] integrar à linha canônica;
+- [ ] repetir Smoke 3 no Admin Production;
+- [ ] somente depois limpar o registro controlado com identificação exata da sessão.
+
+### Próxima unidade de produto — fila de validação humana
+
+- [ ] separar semanticamente origem da jornada e estado de validação;
+- [ ] cliente que conclui/envia pelo site entra como **Aguardando validação**;
+- [ ] conclusão pública não deve ser apresentada como homologação comercial;
+- [ ] criar ação protegida para usuário administrativo autorizado validar o orçamento;
+- [ ] orçamento conduzido e concluído por usuário administrativo autorizado pode inicialmente nascer **Validado**, sem codificar a regra como equivalência permanente `origem Admin = validado`;
+- [ ] transformar o card **Aguardando validação** em fila operacional de trabalho;
+- [ ] preservar evidência separada de recomendação do motor, decisão do cliente e validação humana;
+- [ ] cobrir transições de status e autorização com testes server-side;
+- [ ] revisar cópia da conclusão pública, com direção atual “Orçamento enviado com sucesso” + aviso de validação final pela equipe.
+
+### Melhorias relacionadas, mas fora desta unidade
+
+- [ ] resumo de mudanças por categoria no detalhe Admin;
+- [ ] lista explícita de ações intermediárias da timeline quando trouxer valor operacional;
+- [ ] validar PDF canônico em fluxo real;
+- [ ] calibrar o motor somente depois de preservar adequadamente a validação humana como evidência independente.

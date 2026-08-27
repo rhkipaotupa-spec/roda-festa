@@ -537,3 +537,34 @@ Foi aprovada a direção de UX introduzida no checkpoint técnico `3d03c61ae767b
 - histórico serve como base futura de aprendizado, mas não altera automaticamente o motor.
 
 Essa explicabilidade passa a ser requisito de futuras evoluções do Admin e da futura calibração controlada do motor.
+
+## 2026-08-27 - Envio do cliente e validação humana são estados diferentes
+
+A conclusão do Planner pelo cliente não representa homologação comercial da Roda Festa.
+
+Regra de produto aprovada:
+- cliente conclui/envia o orçamento -> **Aguardando validação**;
+- usuário administrativo autorizado revisa e valida -> **Validado**;
+- inicialmente, orçamento efetivamente conduzido e concluído por usuário administrativo autorizado pode nascer **Validado**;
+- **origem** da jornada e **estado de validação** são conceitos independentes e não devem ser modelados como equivalentes permanentes.
+
+O Admin deve usar **Aguardando validação** como fila operacional de trabalho da pessoa responsável pela revisão comercial.
+
+A comunicação pública deve deixar claro que o cliente terminou e enviou suas escolhas, mas que a equipe ainda fará a validação final. Direção de texto aprovada: “Orçamento enviado com sucesso. Recebemos suas escolhas. Nossa equipe fará a validação final e entrará em contato com você.”
+
+A separação deve preservar, para análise futura, três evidências distintas:
+
+`recomendação do motor -> decisão do cliente -> validação humana`
+
+Essa estrutura permite aprender com a operação sem transformar cada alteração humana em mudança automática do recomendador.
+
+## 2026-08-27 - Motor x versão final mostra estado líquido; timeline preserva ações intermediárias
+
+A comparação administrativa entre recomendação e versão final deve explicar o **resultado líquido** de produtos e serviços.
+
+Se um serviço é incluído e depois retirado, terminando no mesmo estado inicial, ele não deve aparecer como falsa diferença líquida. A sequência real de ações pertence à timeline append-only de `PlanningChange`.
+
+A apresentação do Admin pode derivar linhas de serviço do Commercial Ledger e de fallbacks históricos, mas não deve recalcular ou reescrever os snapshots autoritativos.
+
+Checkpoint técnico que aplica essa regra aos serviços:
+`112af9ff0d822ea98ce9e432c18d01f284696a3e` — `fix: compare planning services in admin journey`.

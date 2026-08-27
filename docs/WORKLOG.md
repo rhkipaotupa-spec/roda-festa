@@ -936,3 +936,61 @@ Não foram copiados Secrets para chat, Git ou pacote de QA. O `.env.local` criad
 Para a revisão visual, foi usado harness temporário com dados fictícios, sem Supabase e sem login real. Esse harness não faz parte do repositório oficial.
 
 Próxima ação documental: registrar esta reconciliação em commit separado; somente depois considerar merge/push da unidade de Admin e snapshot seguro.
+
+## 2026-08-27 — Smoke 3, comparação de serviços e nova regra de validação humana
+
+### Smoke 3 — lacuna de serviços no Admin
+
+Foi preservada como evidência uma jornada controlada em que:
+- Garçom foi incluído;
+- a jornada voltou uma etapa;
+- Garçom foi retirado;
+- Descartáveis foi incluído;
+- a proposta final mudou;
+- o Admin não refletiu a movimentação líquida de serviços em “Motor x versão final”.
+
+Diagnóstico: o Planning já emitia eventos de serviço; a camada de comparação administrativa lia apenas produtos.
+
+Foi criada a branch `fix/admin-service-comparison` sobre `73f41c60d312b705ab423c863193d87e9e8e081a` e aplicada uma unidade restrita a dois arquivos.
+
+Checkpoint técnico:
+`112af9ff0d822ea98ce9e432c18d01f284696a3e` — `fix: compare planning services in admin journey`.
+
+Validação:
+- `git diff --check`: GREEN;
+- testes focais: 9/9 GREEN;
+- suíte completa executada diretamente no CMD: 222/222 GREEN;
+- lint: GREEN;
+- build: GREEN;
+- warning conhecido de `src/styles/colors.css` vazio permaneceu não bloqueante;
+- working tree limpa após o commit técnico.
+
+O validator do pacote falhou ao iniciar `npm.cmd` com `spawnSync ... EINVAL`; a mesma suíte executada diretamente passou 222/222, isolando a falha no launcher do validator.
+
+Semântica mantida: a comparação de snapshots mostra diferença líquida. Uma inclusão e retirada de Garçom que termina no mesmo estado inicial não deve produzir falsa diferença final; ações intermediárias pertencem à timeline.
+
+A unidade ainda não foi integrada à Production. O Smoke 3 deve ser repetido após deploy antes da limpeza do registro controlado.
+
+### Decisão de produto — envio do cliente versus validação humana
+
+Foi aprovada uma mudança importante de fluxo:
+- orçamento concluído/enviado pelo cliente deve entrar no Admin como **Aguardando validação**;
+- a conclusão do cliente não equivale a validação comercial;
+- um usuário administrativo autorizado realiza a validação humana e move o orçamento para **Validado**;
+- inicialmente, orçamento realmente conduzido e concluído por usuário administrativo autorizado pode nascer validado;
+- origem da jornada e estado de validação permanecem conceitos separados.
+
+O card **Aguardando validação** passa a ser tratado como fila operacional/to-do da responsável pela revisão dos orçamentos.
+
+Direção de mensagem ao cliente:
+“Orçamento enviado com sucesso. Recebemos suas escolhas. Nossa equipe fará a validação final e entrará em contato com você.”
+
+Essa regra será implementada em unidade própria, sem misturá-la à correção de comparação de serviços.
+
+### Pendências preservadas
+
+- repetir Smoke 3 após integração/deploy;
+- manter o resumo estrutural por categoria como melhoria separada — por exemplo, categoria Doces adicionada e Tortas retirada;
+- não apagar registros controlados antes das regressões necessárias e da identificação exata de cada sessão;
+- PDF canônico continua pendente de validação própria;
+- implementar a nova máquina/semântica de validação cliente/Admin em unidade específica.
