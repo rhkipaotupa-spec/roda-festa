@@ -568,3 +568,25 @@ A apresentação do Admin pode derivar linhas de serviço do Commercial Ledger e
 
 Checkpoint técnico que aplica essa regra aos serviços:
 `112af9ff0d822ea98ce9e432c18d01f284696a3e` — `fix: compare planning services in admin journey`.
+
+
+## 2026-08-27 - Servicos opcionais ficam fora da comparacao do motor
+
+A decisao anterior de mostrar Garcons e Descartaveis dentro de `Motor x versao final` fica refinada. Esses servicos so se tornam selecionaveis na etapa de personalizacao e nao pertencem ao escopo da recomendacao inicial do motor.
+
+Regra aprovada:
+- `Motor x versao final` representa somente aquilo que o motor efetivamente recomendou;
+- ausencia de um servico opcional na recomendacao nao deve ser interpretada como `motor recomendou 0`;
+- o estado final de Garcons e Descartaveis deve aparecer em um bloco separado `Servicos escolhidos`;
+- a timeline preserva inclusoes e retiradas intermediarias de servicos para explicabilidade e analise futura;
+- o historico intermediario deve permanecer secundario na leitura operacional, enquanto o estado final dos servicos deve ser imediatamente visivel;
+- snapshots historicos incompletos nao devem ter ausencia inventada; quando o estado nao puder ser conhecido, a interface deve assumir `Nao informado` ou equivalente neutro.
+
+Esta separacao produz quatro camadas conceituais para o detalhe administrativo:
+
+`recomendacao do motor -> alteracoes do cliente -> servicos escolhidos -> validacao humana`
+
+A futura calibracao do motor deve considerar apenas as dimensoes que pertencem ao escopo do recomendador. Eventos de servicos opcionais podem alimentar analise de comportamento/UX, mas nao devem ser tratados automaticamente como erro ou acerto do motor.
+
+Checkpoint tecnico que implementa esta regra de apresentacao:
+`95459dee9de698e0208f35c1168c956112da42a7` - `fix: separate optional services from engine comparison`.

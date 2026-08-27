@@ -1260,3 +1260,51 @@ A arquitetura deve preservar três camadas distintas de evidência:
 `recomendação do motor -> decisão do cliente -> validação humana`
 
 Essa separação permitirá futuramente medir onde clientes alteram recomendações, onde a equipe corrige o cliente e onde a validação humana corrige o próprio motor, sem aprendizado automático não supervisionado.
+
+
+## 2026-08-27 - Servicos opcionais nao pertencem a Motor x versao final - CORRIGIDO TECNICAMENTE / PENDENTE PROVA PRODUCTION
+
+### FATO CONFIRMADO
+
+A correcao tecnica anterior `112af9ff0d822ea98ce9e432c18d01f284696a3e` tornou Garcons e Descartaveis visiveis na comparacao administrativa. A revisao de produto posterior identificou, porem, uma distorcao semantica: esses servicos opcionais nao sao recomendados pelo motor no inicio da jornada; eles so ficam disponiveis na etapa de edicao/personalizacao.
+
+Portanto, exibi-los como `Motor 0 -> Final 1` era numericamente derivavel, mas conceitualmente incorreto, porque `0` nao representava uma decisao do recomendador.
+
+### Regra aprovada
+
+- **Motor x versao final** compara somente itens efetivamente pertencentes a recomendacao do motor;
+- Garcons e Descartaveis ficam em bloco proprio **Servicos escolhidos**;
+- o bloco de servicos mostra o estado final conhecido da proposta, sem inventar ausencia em snapshots historicos incompletos;
+- a timeline preserva as acoes intermediarias de servicos, por exemplo `Garcons incluido -> Garcons retirado -> Descartaveis incluido`;
+- a timeline e informacao historica/explicativa e nao deve contaminar a comparacao do motor;
+- nenhuma alteracao foi feita no motor, banco, persistencia, precos ou Commercial Ledger.
+
+A decisao anterior de que a comparacao `Motor x versao final` deveria incluir servicos opcionais fica **SUPERADA/REFINADA** por esta regra para servicos que nao fazem parte do escopo de recomendacao do motor. O historico documental anterior e mantido como evidencia da evolucao da decisao.
+
+### Correcao tecnica
+
+Checkpoint tecnico:
+`95459dee9de698e0208f35c1168c956112da42a7` - `fix: separate optional services from engine comparison`.
+
+Escopo funcional:
+- `src/admin/AdminJourneyEnhancements.css`;
+- `src/admin/AdminWorkspace.jsx`;
+- `src/admin/adminJourneyPresentation.js`;
+- `tests/admin-journey-presentation.test.mjs`;
+- `tests/admin-workspace-surface.test.mjs`.
+
+### Evidencia final local
+
+- escopo inicial e final: exatamente 5 arquivos;
+- `git diff --check`: GREEN;
+- testes focais: 15/15 GREEN;
+- suite completa: 223/223 GREEN;
+- lint: GREEN;
+- build: GREEN;
+- warning preexistente de `src/styles/colors.css` vazio permaneceu nao bloqueante;
+- `git diff --cached --check`: GREEN;
+- working tree limpa apos o checkpoint tecnico.
+
+### Pendencia de fechamento
+
+A unidade ainda precisa ser integrada a linha canonica e comprovada no Admin Production com o Smoke 3 controlado. O registro controlado nao deve ser apagado antes da regressao e da identificacao exata da sessao.

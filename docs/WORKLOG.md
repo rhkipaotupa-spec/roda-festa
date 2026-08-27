@@ -994,3 +994,41 @@ Essa regra será implementada em unidade própria, sem misturá-la à correção
 - não apagar registros controlados antes das regressões necessárias e da identificação exata de cada sessão;
 - PDF canônico continua pendente de validação própria;
 - implementar a nova máquina/semântica de validação cliente/Admin em unidade específica.
+
+
+## 2026-08-27 - Refinamento semantico de servicos opcionais no Admin
+
+A revisao do Smoke 3 levou a uma decisao de produto posterior ao checkpoint `112af9ff...`: Garcons e Descartaveis nao fazem parte da recomendacao inicial do motor e, portanto, nao devem ser apresentados como se o motor tivesse recomendado quantidade zero.
+
+Foi criada a branch `fix/admin-service-semantics` sobre `1eb10581e0cf3d724aa7fc505f3a2f2f65ff8ea2`.
+
+Checkpoint tecnico:
+`95459dee9de698e0208f35c1168c956112da42a7` - `fix: separate optional services from engine comparison`.
+
+Entregue:
+- `Motor x versao final` volta a conter somente produtos efetivamente comparaveis a recomendacao;
+- novo bloco `Servicos escolhidos` mostra o estado final de Garcons e Descartaveis;
+- snapshots historicos sem informacao suficiente exibem estado desconhecido em vez de inventar ausencia;
+- acoes intermediarias de servicos sao derivadas de `history.changes` e apresentadas em ordem;
+- alteracoes de produtos e servicos desconhecidos nao poluem o historico de servicos;
+- motor, banco, persistencia, precos e Commercial Ledger permaneceram intocados.
+
+Validacao oficial local:
+- testes focais: 15/15 GREEN;
+- suite completa: 223/223 GREEN;
+- lint: GREEN;
+- build: GREEN;
+- `git diff --check`: GREEN;
+- `git diff --cached --check`: GREEN;
+- exatamente 5 arquivos funcionais/testes no checkpoint;
+- working tree limpa apos o commit.
+
+O warning conhecido de `src/styles/colors.css` vazio permaneceu nao bloqueante.
+
+Proxima prova:
+1. reconciliar documentalmente este checkpoint;
+2. integrar a branch a `main`;
+3. publicar o commit reconciliado em Production;
+4. repetir o Smoke 3 no Admin;
+5. comprovar que servicos nao aparecem em `Motor x versao final`, que `Servicos escolhidos` mostra o estado final correto e que a timeline preserva a sequencia intermediaria;
+6. somente depois limpar os registros ficticios com identificacao exata.

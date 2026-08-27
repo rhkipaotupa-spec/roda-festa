@@ -740,3 +740,43 @@ Nenhum snapshot deve ser gerado entre o checkpoint técnico e esta reconciliaç�
 - [ ] lista explícita de ações intermediárias da timeline quando trouxer valor operacional;
 - [ ] validar PDF canônico em fluxo real;
 - [ ] calibrar o motor somente depois de preservar adequadamente a validação humana como evidência independente.
+
+
+## 2026-08-27 - Refinamento da unidade Admin: semantica de servicos opcionais
+
+A secao anterior `Unidade ativa - Admin explicavel: servicos e validacao humana` fica refinada para registrar que a primeira solucao de incluir servicos em `Motor x versao final` foi tecnicamente funcional, mas semanticamente inadequada para servicos que o motor nao recomenda.
+
+### Concluido localmente
+
+- [x] confirmar que Garcons e Descartaveis so entram na etapa de personalizacao;
+- [x] retirar servicos opcionais de `Motor x versao final`;
+- [x] criar bloco proprio `Servicos escolhidos`;
+- [x] mostrar estado final conhecido de Garcons e Descartaveis;
+- [x] nao inventar ausencia em snapshots historicos incompletos;
+- [x] preservar eventos intermediarios de servico na timeline;
+- [x] manter comparacao/resumo do motor restritos a produtos;
+- [x] checkpoint tecnico `95459dee9de698e0208f35c1168c956112da42a7`;
+- [x] testes focais 15/15, suite 223/223, lint, build e diff GREEN;
+- [ ] concluir reconciliacao documental em commit separado;
+- [ ] integrar a branch `fix/admin-service-semantics` a `main`;
+- [ ] comprovar deployment Production no commit esperado;
+- [ ] repetir Smoke 3 no Admin Production;
+- [ ] somente depois limpar registros controlados por UUID/sessao exata.
+
+### Criterios do Smoke 3 pos-deploy
+
+- `Motor x versao final` nao exibe Garcons nem Descartaveis;
+- `Servicos escolhidos` mostra corretamente o estado final;
+- para o caso controlado, Garcom que foi incluido e depois retirado termina como nao incluido, sem falsa comparacao com o motor;
+- Descartaveis incluidos permanecem visiveis como servico final;
+- historico/timeline preserva a sequencia intermediaria quando os eventos estiverem persistidos;
+- produtos continuam sem regressao.
+
+### Proxima unidade de produto permanece
+
+A fila de validacao humana continua sendo a proxima unidade estrutural depois do fechamento desta regressao:
+- separar origem e estado de validacao;
+- cliente enviado -> **Aguardando validacao**;
+- validacao por usuario administrativo autorizado -> **Validado**;
+- preservar `recomendacao do motor -> decisao do cliente -> validacao humana`;
+- nao acoplar estruturalmente `origem Admin = validado`.
