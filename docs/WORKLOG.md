@@ -798,3 +798,31 @@ Permanecem como próximas unidades:
 - executar postflight independente de `planning_sessions`;
 - realizar o primeiro orçamento real persistido ponta a ponta;
 - preservar a cadeia de snapshots e alterações humanas para futura análise/calibração controlada do motor.
+
+## 2026-08-27 — Postflight real de planning_sessions no Supabase
+
+Foi executada uma sequência de consultas somente de leitura no SQL Editor do Supabase para validar o estado materializado de `public.planning_sessions`.
+
+Resultados:
+- tabela existente;
+- RLS habilitado (`true`);
+- `rls_forced = false`, coerente com a migration atual e não tratado como falha neste checkpoint;
+- nenhuma policy retornada;
+- `anon` sem SELECT/INSERT/UPDATE/DELETE;
+- `authenticated` sem SELECT/INSERT/UPDATE/DELETE;
+- grants visíveis apenas para papéis administrativos/server-side;
+- 7 índices presentes;
+- 2 triggers presentes;
+- 5 constraints presentes;
+- contagem atual: 0.
+
+Nenhum INSERT, UPDATE, DELETE ou DDL foi executado durante o postflight.
+
+Resultado: GREEN estrutural independente de `planning_sessions`.
+
+Ainda pendente:
+- primeiro orçamento real persistido;
+- confirmação de transição da contagem 0 para 1;
+- prova de snapshots, mudanças e proposta final;
+- leitura do mesmo caso pelo Admin;
+- documentação da jornada real para futura calibração controlada do motor.

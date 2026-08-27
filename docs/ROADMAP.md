@@ -615,3 +615,24 @@ A sequência segura passa a ser:
 7. somente depois avançar em calendário/overview operacional e gestão versionada de preços, preservando histórico dos orçamentos.
 
 A publicação estável não deve relaxar a autenticação própria do Admin nem misturar, sem governança, ambiente de teste e dados de uso cotidiano.
+
+## 2026-08-27 — planning_sessions: postflight estrutural concluído
+
+O postflight independente de `public.planning_sessions` foi concluído com GREEN estrutural no Supabase.
+
+Comprovado:
+- RLS ativo;
+- nenhuma policy;
+- `anon` e `authenticated` sem SELECT/INSERT/UPDATE/DELETE;
+- grants administrativos/server-side preservados;
+- 7 índices;
+- 2 triggers;
+- 5 constraints;
+- contagem inicial observada: 0.
+
+Próxima prioridade:
+1. executar o primeiro orçamento real persistido ponta a ponta;
+2. comprovar `InputSnapshot → RecommendationSnapshot → PlanningChange[] → FinalProposalSnapshot → Admin read model`;
+3. verificar que a contagem deixa de ser 0 e que o registro aparece corretamente no Admin;
+4. documentar a comparação entre sugestão original, alterações humanas e proposta final;
+5. depois avançar para provisionamento de usuário ADMIN individual/publicação estável conforme a ordem técnica decidida na sessão.

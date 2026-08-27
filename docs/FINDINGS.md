@@ -995,3 +995,25 @@ O finding registrado em 26/08/2026 como **“Preview mobile interceptado por aut
 1. postflight de `planning_sessions` para policies, grants, índices e RLS;
 2. primeiro orçamento real persistido ponta a ponta;
 3. preparação e validação de uma publicação estável para uso cotidiano autorizado.
+
+## 2026-08-27 — Postflight independente de public.planning_sessions — RESOLVIDO
+
+A pendência de postflight estrutural independente da tabela `public.planning_sessions` foi executada diretamente no Supabase, sem mutação de dados ou DDL.
+
+**Evidência real observada:**
+- `relrowsecurity = true`;
+- zero policies retornadas para `public.planning_sessions`;
+- `anon`: SELECT=false, INSERT=false, UPDATE=false, DELETE=false;
+- `authenticated`: SELECT=false, INSERT=false, UPDATE=false, DELETE=false;
+- listagem de grants sem `anon` ou `authenticated`, mantendo papéis administrativos/server-side;
+- 7 índices encontrados, incluindo PK, unique de `client_request_id` e os índices explícitos da migration;
+- 2 triggers não internos encontrados:
+  - `planning_sessions_protect_history`;
+  - `planning_sessions_set_updated_at`;
+- 5 constraints encontradas, incluindo PK, unique, checks de `status` e `version` e `planning_sessions_finalized_has_snapshot`;
+- `select count(*)` executado com sucesso;
+- contagem observada no momento da prova: `0`.
+
+**Conclusão:** RESOLVIDO para a propriedade estrutural e de acesso direto da tabela.
+
+**Limites da prova:** não foi executado ainda o primeiro orçamento real persistido. Portanto, ainda não estão provados ponta a ponta criação, evolução de `planning_changes`, finalização, `final_proposal_snapshot` e leitura no Admin em um caso real.

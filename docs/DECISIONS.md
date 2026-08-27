@@ -475,3 +475,25 @@ Decisão:
 - manter como evolução separada a publicação estável para uso cotidiano, com URL estável, revisão de Production e smoke completo antes de promoção.
 
 Esta decisão fecha a dúvida operacional registrada em 26/08 sobre como permitir teste mobile sem confundir Vercel Authentication com autenticação da aplicação.
+
+## 2026-08-27 — Postflight estrutural de planning_sessions aprovado
+
+Foi executado no Supabase um postflight independente, somente de leitura, para comprovar o estado real de `public.planning_sessions` depois da migration V19.7.
+
+Resultado observado:
+- tabela existente;
+- RLS habilitado;
+- nenhuma policy em `pg_policies`;
+- privilégios `SELECT`, `INSERT`, `UPDATE` e `DELETE` para `anon` = false;
+- privilégios `SELECT`, `INSERT`, `UPDATE` e `DELETE` para `authenticated` = false;
+- grants administrativos/server-side preservados;
+- 7 índices presentes;
+- 2 triggers presentes: `planning_sessions_protect_history` e `planning_sessions_set_updated_at`;
+- 5 constraints estruturais presentes;
+- consulta de contagem executada com sucesso;
+- contagem no momento da prova: 0 sessões.
+
+Decisão:
+- considerar concluída a prova estrutural independente de RLS, policies, grants, índices, triggers e constraints de `planning_sessions`;
+- não confundir esse GREEN estrutural com prova da jornada funcional completa;
+- a próxima prova prioritária permanece o primeiro orçamento real persistido ponta a ponta.
