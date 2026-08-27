@@ -161,6 +161,140 @@
   font-weight: 800;
 }
 
+.rf-admin-service-state {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.rf-admin-service-state__card {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid #dfc5a0;
+  border-radius: 16px;
+  background: rgba(255, 251, 244, .82);
+}
+
+.rf-admin-service-state__card > span {
+  color: #8e704f;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.rf-admin-service-state__card strong {
+  color: var(--rf-admin-wine);
+  font-family: var(--rf-admin-serif);
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.rf-admin-service-state__card small {
+  color: var(--rf-admin-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.rf-admin-service-state__badge {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 27px;
+  padding: 5px 9px;
+  border: 1px solid #d8c6aa;
+  border-radius: 999px;
+  background: #f7efe3;
+  color: #705b49;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.rf-admin-service-state__badge.is-included {
+  border-color: #b9c98f;
+  background: #eef2de;
+  color: #50652c;
+}
+
+.rf-admin-service-state__badge.is-not-included {
+  border-color: #d7c5aa;
+  background: #f7efe3;
+  color: #705b49;
+}
+
+.rf-admin-service-state__badge.is-unknown {
+  border-style: dashed;
+  background: rgba(255, 255, 255, .45);
+  color: var(--rf-admin-muted);
+}
+
+.rf-admin-service-history {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.rf-admin-service-history__title {
+  color: #8e704f;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.rf-admin-service-history__row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-left: 2px solid #d7b98d;
+  background: rgba(255, 255, 255, .36);
+}
+
+.rf-admin-service-history__row > span:first-child {
+  color: #9a7a53;
+  font-family: var(--rf-admin-serif);
+  font-size: 14px;
+}
+
+.rf-admin-service-history__row div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rf-admin-service-history__row strong {
+  color: var(--rf-admin-ink);
+  font-size: 12px;
+}
+
+.rf-admin-service-history__row small {
+  color: var(--rf-admin-muted);
+  font-size: 10px;
+}
+
+.rf-admin-service-history__action {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #f7efe3;
+  color: #705b49;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.rf-admin-service-history__action.is-added {
+  background: #eef2de;
+  color: #50652c;
+}
+
+.rf-admin-service-history__action.is-removed {
+  background: #f7e4df;
+  color: #8a3b31;
+}
+
 .rf-admin-detail-empty {
   padding: 18px;
   border: 1px dashed #d7b98d;
@@ -201,6 +335,10 @@
   .rf-admin-change-badge {
     align-self: end;
   }
+
+  .rf-admin-service-state {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 420px) {
@@ -210,5 +348,14 @@
 
   .rf-admin-change-badge {
     grid-column: 1 / -1;
+  }
+
+  .rf-admin-service-history__row {
+    grid-template-columns: 24px minmax(0, 1fr);
+  }
+
+  .rf-admin-service-history__action {
+    grid-column: 2;
+    justify-self: start;
   }
 }

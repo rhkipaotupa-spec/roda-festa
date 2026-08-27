@@ -5,6 +5,8 @@ import "./AdminJourneyEnhancements.css";
 import rodaFestaLogoCreme from "../planner/planning-book/assets/logo-roda-festa-creme.png";
 import {
   buildItemComparison,
+  buildSelectedServices,
+  buildServiceHistory,
   changeLabel,
   summarizeItemComparison,
 } from "./adminJourneyPresentation.js";
@@ -29,7 +31,7 @@ function formatDate(value) {
 }
 
 function formatTimestamp(value) {
-  if (!value) return "Sem atualização";
+  if (!value) return "Sem horário registrado";
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
@@ -92,7 +94,7 @@ function guestBreakdownText(event) {
 }
 
 function changeSummaryText(summary) {
-  if (!summary?.changed) return "Nenhum item mudou entre a sugestão inicial e a versão final.";
+  if (!summary?.changed) return "Nenhum produto mudou entre a sugestão inicial e a versão final.";
 
   const parts = [];
   if (summary.increased) parts.push(`${summary.increased} aumentado${summary.increased === 1 ? "" : "s"}`);
@@ -101,6 +103,33 @@ function changeSummaryText(summary) {
   if (summary.removed) parts.push(`${summary.removed} retirado${summary.removed === 1 ? "" : "s"}`);
 
   return parts.join(" · ");
+}
+
+function serviceStateLabel(service) {
+  if (!service?.known) return "Não informado";
+  return service.included ? "Incluído" : "Não incluído";
+}
+
+function serviceStateDetail(service) {
+  if (!service?.known) {
+    return "Este registro histórico não preserva informação suficiente para afirmar o estado deste serviço.";
+  }
+
+  if (!service.included) {
+    return "Não faz parte da versão enviada para validação.";
+  }
+
+  if (service.service === "WAITERS") {
+    const quantity = Number(service.quantity || 0);
+    const team = quantity === 1 ? "1 garçom" : `${formatQuantity(quantity)} garçons`;
+    return service.estimatedValue > 0
+      ? `${team} · ${formatCurrency(service.estimatedValue)}`
+      : team;
+  }
+
+  return service.estimatedValue > 0
+    ? `Pacote incluído · ${formatCurrency(service.estimatedValue)}`
+    : "Pacote incluído na versão enviada.";
 }
 
 export default function AdminWorkspace({ sessionMessage = "" }) {
@@ -194,6 +223,16 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
     () => summarizeItemComparison(selectedComparison),
     [selectedComparison],
   );
+
+  const selectedServices = useMemo(() => {
+    if (!selectedQuote || selectedStatus !== "ready") return [];
+    return buildSelectedServices(selectedQuote?.finalProposalSnapshot);
+  }, [selectedQuote, selectedStatus]);
+
+  const selectedServiceHistory = useMemo(() => {
+    if (!selectedQuote || selectedStatus !== "ready") return [];
+    return buildServiceHistory(selectedQuote?.history?.changes);
+  }, [selectedQuote, selectedStatus]);
 
   async function openQuote(quote) {
     setSelectedQuote(quote);
@@ -508,7 +547,7 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
                         <strong>2. Ajustes feitos</strong>
                         <small>{changeSummaryText(selectedComparisonSummary)}</small>
                         <em>
-                          O histórico preserva {selectedQuote?.history?.changeCount || 0} movimentações registradas na jornada.
+                          O histórico completo preserva {selectedQuote?.history?.changeCount || 0} movimentações, incluindo serviços quando houver.
                         </em>
                       </p>
                     </div>
@@ -543,8 +582,9 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
                     <span className="rf-admin-eyebrow">Itens do orçamento</span>
                     <h3>Motor x versão final</h3>
                     <p>
-                      A comparação usa os snapshots preservados. Assim fica fácil ver
-                      o que foi mantido, aumentado, reduzido, incluído ou retirado.
+                      Esta comparação trata somente os produtos que pertencem ao domínio
+                      da recomendação do motor. Serviços opcionais escolhidos na edição
+                      aparecem separadamente logo abaixo.
                     </p>
                   </div>
 
@@ -590,17 +630,83 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
                     </div>
                   ) : (
                     <div className="rf-admin-detail-empty">
-                      Este orçamento ainda não possui itens preservados para comparação.
+                      Este orçamento ainda não possui produtos preservados para comparação.
                     </div>
                   )}
+                </section>
+
+                <section className="rf-admin-detail-section">
+                  <div className="rf-admin-detail-section__heading">
+                    <span className="rf-admin-eyebrow">Escolhas adicionais</span>
+                    <h3>Serviços escolhidos</h3>
+                    <p>
+                      Aqui aparece o estado que efetivamente chegou na versão enviada.
+                      Garçons e descartáveis são opções da edição, não recomendações do motor.
+                    </p>
+                  </div>
+
+                  {selectedQuote?.finalProposalSnapshot ? (
+                    <div className="rf-admin-service-state">
+                      {selectedServices.map((service) => (
+                        <article className="rf-admin-service-state__card" key={service.id}>
+                          <span>Serviço opcional</span>
+                          <strong>{service.name}</strong>
+                          <div
+                            className={`rf-admin-service-state__badge ${
+                              !service.known
+                                ? "is-unknown"
+                                : service.included
+                                  ? "is-included"
+                                  : "is-not-included"
+                            }`}
+                          >
+                            {serviceStateLabel(service)}
+                          </div>
+                          <small>{serviceStateDetail(service)}</small>
+                        </article>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rf-admin-detail-empty">
+                      Os serviços serão consolidados quando existir uma versão final enviada.
+                    </div>
+                  )}
+
+                  <div className="rf-admin-service-history">
+                    <span className="rf-admin-service-history__title">Histórico de serviços</span>
+
+                    {selectedServiceHistory.length > 0 ? (
+                      selectedServiceHistory.map((event) => (
+                        <article className="rf-admin-service-history__row" key={event.id}>
+                          <span>{event.sequence}</span>
+                          <div>
+                            <strong>{event.name}</strong>
+                            <small>{formatTimestamp(event.recordedAt)}</small>
+                          </div>
+                          <span
+                            className={`rf-admin-service-history__action ${
+                              event.type === "SERVICE_ADDED" ? "is-added" : "is-removed"
+                            }`}
+                          >
+                            {event.action}
+                          </span>
+                        </article>
+                      ))
+                    ) : (
+                      <div className="rf-admin-detail-empty">
+                        Nenhuma movimentação de serviços foi registrada nesta jornada.
+                      </div>
+                    )}
+                  </div>
                 </section>
 
                 <section className="rf-admin-detail__learning">
                   <span>Base para aprendizado</span>
                   <p>
-                    Este histórico preserva o que o motor sugeriu e o que foi
-                    alterado antes da versão final. A calibração futura poderá
-                    comparar casos reais aprovados sem apagar a recomendação de origem.
+                    Este histórico preserva o que o motor sugeriu, o que foi
+                    alterado nos produtos e quais serviços foram escolhidos antes da
+                    versão final. A calibração futura poderá comparar casos reais
+                    aprovados sem apagar a recomendação de origem.
                   </p>
                 </section>
               </div>

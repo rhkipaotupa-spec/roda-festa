@@ -33,16 +33,24 @@ test("cards explicam acompanhado aguardando validacao e validados", () => {
   assert.match(workspace, /Já têm proposta final concluída/);
 });
 
-test("detalhe mostra convidados por faixa e comparacao motor versus final", () => {
+test("detalhe separa produtos do motor e servicos opcionais", () => {
   assert.match(workspace, /crianças 7\+/);
   assert.match(workspace, /crianças 0–6/);
   assert.match(workspace, /Da sugestão do motor à proposta final/);
   assert.match(workspace, /Motor x versão final/);
+  assert.match(workspace, /somente os produtos que pertencem ao domínio/);
+  assert.match(workspace, /Serviços escolhidos/);
+  assert.match(workspace, /não recomendações do motor/);
+  assert.match(workspace, /buildSelectedServices/);
+  assert.match(workspace, /buildServiceHistory/);
+  assert.match(workspace, /Histórico de serviços/);
   assert.match(workspace, /changeLabel\(item\.change\)/);
 });
 
-test("workspace continua responsivo com comparacao de itens", () => {
+test("workspace continua responsivo com comparacao e servicos", () => {
   assert.match(enhancementCss, /\.rf-admin-item-comparison/);
+  assert.match(enhancementCss, /\.rf-admin-service-state/);
+  assert.match(enhancementCss, /\.rf-admin-service-history/);
   assert.match(enhancementCss, /@media \(max-width: 720px\)/);
   assert.match(enhancementCss, /@media \(max-width: 420px\)/);
 });
