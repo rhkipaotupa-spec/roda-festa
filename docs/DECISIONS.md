@@ -497,3 +497,20 @@ Decisão:
 - considerar concluída a prova estrutural independente de RLS, policies, grants, índices, triggers e constraints de `planning_sessions`;
 - não confundir esse GREEN estrutural com prova da jornada funcional completa;
 - a próxima prova prioritária permanece o primeiro orçamento real persistido ponta a ponta.
+
+
+## 2026-08-27 — Production canônica e Supabase Secret Key moderna
+
+O projeto Supabase canônico do Roda Festa foi identificado pelo Project Ref não secreto `ezccivmuvlqvzhojnoxn`.
+
+Para a futura Vercel Production, foram cadastradas `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`. O nome `SUPABASE_SERVICE_ROLE_KEY` é preservado por compatibilidade com o código e configuração existentes, porém o valor configurado é a **Secret Key moderna de backend** fornecida pela seção `Secret keys` do Supabase. O valor real da chave não deve entrar em Git, documentação, chat, pacote de atualização ou frontend.
+
+Decisão de autenticação REST server-side:
+- chaves modernas `sb_secret_...` devem ser enviadas no header `apikey` e não devem ser reutilizadas como `Authorization: Bearer`;
+- a antiga `service_role` JWT permanece suportada por compatibilidade, usando `apikey` e `Authorization: Bearer`;
+- a regra fica centralizada em um helper compartilhado pelos adapters Supabase de Planning e Admin;
+- nenhuma Secret Key deve ser exposta ao navegador.
+
+Checkpoint técnico da compatibilidade: `ff0f223943990ed24fe9dac0015dd953ca33d123` (`security: support modern Supabase secret keys`).
+
+A consolidação em Production ainda não está concluída: `main`, domínio estável, flags de persistência e smoke real de Production permanecem etapas independentes e obrigatórias antes de declarar a publicação canônica GREEN.

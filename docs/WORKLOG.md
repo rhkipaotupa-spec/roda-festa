@@ -826,3 +826,38 @@ Ainda pendente:
 - prova de snapshots, mudanças e proposta final;
 - leitura do mesmo caso pelo Admin;
 - documentação da jornada real para futura calibração controlada do motor.
+
+
+## 2026-08-27 — Preparação da Production canônica e suporte à Supabase Secret Key moderna
+
+A preparação para unificar o Roda Festa em uma referência operacional canônica avançou sem deployment Production nesta etapa.
+
+Infraestrutura/configuração confirmada:
+- Project Ref canônico Supabase: `ezccivmuvlqvzhojnoxn`;
+- tabelas `planning_sessions`, `admin_users` e `admin_sessions` existentes;
+- Vercel Production recebeu `SUPABASE_URL`;
+- Vercel Production recebeu a Secret Key moderna de backend sob o nome histórico `SUPABASE_SERVICE_ROLE_KEY`;
+- nenhum valor secreto foi versionado ou registrado na documentação.
+
+Antes de ativar Production, foi identificado que quatro adapters REST ainda reutilizavam a chave Supabase como `Authorization: Bearer`. Foi aplicado pacote controlado sobre a base `4e2a6b6c5997188ad1782098a1902001480ea3a2`, criando helper central compatível com chave moderna e legacy.
+
+Validação executada pelo `validate-update.cmd`:
+- teste focal da autenticação Supabase: 4/4;
+- suíte completa: 210/210;
+- lint: verde;
+- build: verde;
+- higiene do diff: verde;
+- apenas os 6 arquivos previstos participaram da unidade.
+
+Checkpoint técnico criado na branch `planner/v19-mobile-first`:
+`ff0f223943990ed24fe9dac0015dd953ca33d123` — `security: support modern Supabase secret keys`.
+
+A working tree ficou limpa imediatamente após o checkpoint técnico.
+
+Contexto funcional preservado para a próxima prova:
+- o Supabase canônico já contém 1 `planning_session` real;
+- essa sessão está `FINALIZED`;
+- o Admin Preview anteriormente respondeu `{"ok":true,"quotes":[]}` e permaneceu vazio;
+- não foi comprovado mismatch de projeto Supabase, portanto o diagnóstico será retomado somente após a Production canônica reduzir a ambiguidade de ambiente.
+
+Nenhum merge em `main`, push deste checkpoint ou deployment Production foi realizado nesta unidade antes da reconciliação documental.

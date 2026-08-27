@@ -1017,3 +1017,66 @@ A pendência de postflight estrutural independente da tabela `public.planning_se
 **Conclusão:** RESOLVIDO para a propriedade estrutural e de acesso direto da tabela.
 
 **Limites da prova:** não foi executado ainda o primeiro orçamento real persistido. Portanto, ainda não estão provados ponta a ponta criação, evolução de `planning_changes`, finalização, `final_proposal_snapshot` e leitura no Admin em um caso real.
+
+
+## 2026-08-27 — Uso de Secret Key moderna como Bearer nos adapters Supabase — RESOLVIDO TECNICAMENTE
+
+### FATO CONFIRMADO
+
+Os quatro caminhos server-side de Supabase usados por Planning e Admin montavam `apikey` e também `Authorization: Bearer` a partir do mesmo valor de `SUPABASE_SERVICE_ROLE_KEY`.
+
+A Vercel Production foi configurada para usar a Secret Key moderna de backend do Supabase nessa variável histórica. Portanto, era necessário distinguir a chave moderna da antiga `service_role` JWT antes de qualquer deployment Production.
+
+### Correção
+
+Foi criado um helper central de autenticação REST Supabase e os quatro consumidores passaram a reutilizá-lo:
+- Planning Session adapter;
+- Admin Identity adapter;
+- Admin Session adapter;
+- Admin Planning read store.
+
+Comportamento aprovado:
+- `sb_secret_...`: somente `apikey`;
+- legacy `service_role` JWT: `apikey` + `Authorization: Bearer` para compatibilidade;
+- `Prefer` continua independente da autenticação;
+- nenhum adapter monta `Bearer` diretamente.
+
+### Evidência final
+
+Checkpoint técnico: `ff0f223943990ed24fe9dac0015dd953ca33d123` (`security: support modern Supabase secret keys`).
+
+Validação no Windows oficial:
+- teste focal: 4/4;
+- suíte completa: 210/210;
+- lint: GREEN;
+- build: GREEN;
+- `git diff --check`: GREEN;
+- working tree limpa após o commit técnico.
+
+O warning preexistente de `src/styles/colors.css` vazio permaneceu sem relação com a alteração.
+
+## 2026-08-27 — Admin Preview vazio diante de sessão real FINALIZED — ABERTO
+
+### FATO CONFIRMADO
+
+No projeto Supabase canônico `ezccivmuvlqvzhojnoxn`, a consulta read-only comprovou:
+- `planning_sessions_count = 1`;
+- `finalized_count = 1`.
+
+No Preview que vinha sendo usado, o endpoint administrativo respondeu `{"ok":true,"quotes":[]}` e a interface Admin permaneceu com contagem zero.
+
+### Limite da evidência
+
+Não foi comprovado que Planning e Admin estavam apontando para projetos Supabase diferentes. Essa hipótese não deve ser promovida a fato.
+
+O Preview possuía histórico de configuração e escopo por branch, enquanto a estratégia atual é eliminar essa ambiguidade estabelecendo uma Production canônica com banco, branch, domínio e variáveis explicitamente definidos.
+
+### Próxima prova
+
+Após a publicação canônica em Production:
+1. autenticar no `/admin`;
+2. consultar `/api/admin-quotes` no mesmo domínio Production;
+3. comprovar se a sessão FINALIZED já existente aparece;
+4. somente se continuar vazia, retomar o diagnóstico do read path dentro da Production canônica.
+
+Até essa prova, a cadeia Planning → Supabase está comprovada para o primeiro caso real, mas Supabase → Admin permanece RED/ABERTO.

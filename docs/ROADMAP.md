@@ -636,3 +636,32 @@ Próxima prioridade:
 3. verificar que a contagem deixa de ser 0 e que o registro aparece corretamente no Admin;
 4. documentar a comparação entre sugestão original, alterações humanas e proposta final;
 5. depois avançar para provisionamento de usuário ADMIN individual/publicação estável conforme a ordem técnica decidida na sessão.
+
+
+## 2026-08-27 — Consolidação canônica para Production
+
+Objetivo: eliminar a ambiguidade operacional entre branch/Preview/configuração e estabelecer uma única referência cotidiana do Roda Festa, sem apagar o histórico de deployments usado para rollback.
+
+Estado atual:
+- [x] Supabase canônico identificado: Project Ref `ezccivmuvlqvzhojnoxn`;
+- [x] existência de `planning_sessions`, `admin_users` e `admin_sessions` confirmada nesse projeto;
+- [x] `SUPABASE_URL` cadastrada no escopo Production da Vercel;
+- [x] Secret Key moderna cadastrada no escopo Production sob o nome histórico `SUPABASE_SERVICE_ROLE_KEY`, sem versionar o valor;
+- [x] backend adaptado para Secret Key moderna com compatibilidade legacy;
+- [x] checkpoint técnico `ff0f223943990ed24fe9dac0015dd953ca33d123` validado com 210/210 testes, lint e build verdes;
+- [ ] concluir esta reconciliação documental e gerar commit documental separado;
+- [ ] cadastrar em Production `RODA_FESTA_PLANNING_PERSISTENCE_PROVIDER=supabase`;
+- [ ] cadastrar em Production `VITE_PLANNING_SESSION_PERSISTENCE_ENABLED=true`;
+- [ ] confirmar Vercel Production Branch = `main`;
+- [ ] confirmar domínio/alias estável de Production e então explicitar allowlists de origem aplicáveis;
+- [ ] refazer `git fetch` imediatamente antes da consolidação e confirmar que o fast-forward continua válido;
+- [ ] fast-forward de `main` para a linha aprovada da `planner/v19-mobile-first`;
+- [ ] push de `main` e comprovação visual de deployment **Production** Ready no commit esperado;
+- [ ] smoke Production: raiz, Planning, login Admin, restauração de sessão e `/api/admin-quotes`;
+- [ ] comprovar leitura no Admin da sessão real FINALIZED já existente;
+- [ ] se o Admin continuar vazio, retomar o diagnóstico do read path somente na Production canônica;
+- [ ] registrar deployment, domínio, Project Ref e evidências sem secrets;
+- [ ] gerar snapshot somente depois do checkpoint técnico + reconciliação documental + working tree limpa;
+- [ ] somente depois avaliar retirada da branch remota `planner/v19-mobile-first`.
+
+Após a consolidação, Preview deve voltar a ser laboratório. Como hardening posterior, evitar que Previews arbitrários mutem o banco real de Production; planejar isolamento de dados/configuração de teste sem introduzir complexidade durante esta migração.
