@@ -942,3 +942,165 @@
   .rf-client-estimate-grid,
   .rf-review-money-grid { grid-template-columns: 1fr; }
 }
+
+/* V19.9A_QA_BROWN_IDENTITY: align remaining dark financial panels with the approved brown identity */
+.rf-cost-card,
+.rf-final-money,
+.rf-complete__money {
+  background: linear-gradient(135deg, #4c2c22, #321c13);
+  box-shadow: 0 18px 34px rgba(50, 28, 16, .18);
+}
+
+/* V19.9A_QA_CONTRACTED_CONCLUSION: separate contracted total from the dark cost breakdown */
+.rf-cost-card > div:last-child {
+  border-bottom: 0;
+}
+
+.rf-contracted-conclusion {
+  display: grid;
+  gap: 7px;
+  margin: 14px 4px 0;
+  padding: 16px 0 2px;
+  border-top: 1px solid rgba(153, 103, 55, .34);
+}
+
+.rf-contracted-conclusion > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.rf-contracted-conclusion span {
+  color: #6d503d;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+
+.rf-contracted-conclusion strong {
+  color: #4c2c22;
+  font-family: var(--rf-serif);
+  font-size: 29px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.rf-contracted-conclusion small {
+  color: var(--rf-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+@media (max-width: 520px) {
+  .rf-contracted-conclusion > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+/* V19.9A_QA_PER_PERSON_BASIS: make the guest basis explicit wherever per-person values are shown */
+.rf-per-person-basis {
+  display: block;
+  margin: 8px 4px 0;
+  color: var(--rf-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+/* V19.9A_QA_VISUAL_POLISH_V13: approved brown header, human-validation completion state, and presentation consistency */
+.rf-flow-header {
+  background:
+    radial-gradient(circle at 85% 12%, rgba(225, 190, 116, .12), transparent 18rem),
+    linear-gradient(135deg, #4c2c22, #321c13);
+}
+
+.rf-complete__analysis {
+  display: grid;
+  gap: 7px;
+  margin-top: 16px;
+  padding: 18px 20px;
+  border: 1px solid #d8b887;
+  border-left: 5px solid #c99a4d;
+  border-radius: 18px;
+  background: #fff8ed;
+  box-shadow: 0 12px 26px rgba(74, 42, 22, .07);
+}
+
+.rf-complete__analysis > span {
+  color: #9b6d32;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.rf-complete__analysis > strong {
+  color: #4c2c22;
+  font-family: var(--rf-serif);
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.rf-complete__analysis > p {
+  margin: 0;
+  color: #70594a;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* V19.9A_QA_VISUAL_POLISH_V14: premium completion card, reset actions, and final visual consistency */
+.rf-complete__analysis {
+  border: 1px solid rgba(201, 154, 77, .72);
+  border-left: 0;
+  background: linear-gradient(135deg, #4c2c22, #321c13);
+  box-shadow: 0 18px 34px rgba(70, 35, 24, .18);
+}
+
+.rf-complete__analysis > span { color: #e2bf78; }
+.rf-complete__analysis > strong { color: #fff1dc; }
+.rf-complete__analysis > p { color: rgba(255, 241, 220, .78); }
+
+.rf-restart-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid rgba(201, 154, 77, .5);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .015em;
+  text-decoration: none;
+  transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.rf-restart-action svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rf-restart-action:hover { transform: translateY(-1px); }
+.rf-restart-action--header { color: #f3dfbd; background: rgba(255, 248, 235, .055); }
+.rf-restart-action--header:hover { background: rgba(255, 248, 235, .1); border-color: rgba(226, 191, 120, .78); }
+.rf-restart-action--final {
+  margin: 20px auto 0;
+  color: #4c2c22;
+  background: rgba(255, 248, 237, .72);
+  border-color: #d8b887;
+  box-shadow: 0 8px 18px rgba(74, 42, 22, .06);
+}
+.rf-restart-action--final:hover { background: #fff8ed; border-color: #c99a4d; box-shadow: 0 10px 22px rgba(74, 42, 22, .09); }
+
+/* V19.9A_QA_VISUAL_POLISH_V15_R2: final brown-only side accents */

@@ -24,7 +24,6 @@ import {
   startPlanningSession,
 } from "./planningSessionClient.js";
 
-import rodaFestaLogo from "./assets/logo-roda-festa.png";
 import rodaFestaLogoCreme from "./assets/logo-roda-festa-creme.png";
 import carBurger from "./assets/car-burger.png";
 import carFrituras from "./assets/car-frituras.png";
@@ -241,13 +240,14 @@ function buildProposalHtml(snapshot) {
 <meta charset="utf-8" />
 <title>Proposta ${escapeHtml(snapshot.code)}</title>
 <style>
-@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;background:#eee;color:#432b20;font-family:Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{width:210mm;min-height:297mm;margin:0 auto 12px;padding:18mm;background:#fbf5e9;position:relative}.page:last-child{margin-bottom:0}.cover{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(145deg,#5f1f20,#321113);color:#f7ead4}.cover img{width:62mm;margin-bottom:16mm}.cover .eyebrow{letter-spacing:.22em;text-transform:uppercase;font-size:10pt;color:#d9b36b}.cover h1{font-family:Georgia,serif;font-size:30pt;margin:5mm 0 2mm}.cover h2{font-size:18pt;font-weight:400;margin:0 0 12mm}.chips{display:flex;gap:4mm;flex-wrap:wrap;justify-content:center}.chips span{border:1px solid rgba(255,255,255,.28);border-radius:99px;padding:3mm 5mm}.brandline{display:flex;justify-content:space-between;border-bottom:1px solid #caa976;padding-bottom:4mm;margin-bottom:8mm}.brandline strong{letter-spacing:.13em}.facts{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin:8mm 0}.fact{border:1px solid #dec9a7;border-radius:4mm;padding:4mm;background:#fffaf1}.fact span{display:block;font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:#806451}.fact strong{display:block;margin-top:2mm}.menu-group{margin:7mm 0}.menu-group h3{font-family:Georgia,serif;border-bottom:1px solid #d5bd98;padding-bottom:2mm}.menu-line{display:flex;justify-content:space-between;gap:8mm;padding:2mm 0}.money-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin:8mm 0}.money-card{border:1px solid #d4b783;border-radius:4mm;padding:5mm;background:#fffaf1}.money-card span{display:block;font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:#806451}.money-card strong{display:block;font-family:Georgia,serif;font-size:17pt;margin:2mm 0}.money-card small{display:block;font-size:8.5pt;line-height:1.4;color:#6f5848}.money-card--contracted{background:#5f1f20;color:#fff1dd;border-color:#5f1f20}.money-card--contracted span,.money-card--contracted small{color:#f0d9ba}.money-card--estimate{border:2px solid #b78a43;background:#f7ead4}.terms p{font-size:9.5pt;line-height:1.5;margin:2.5mm 0}.footer{position:absolute;left:18mm;right:18mm;bottom:12mm;border-top:1px solid #caa976;padding-top:5mm;display:flex;justify-content:space-between;font-size:9pt}@media screen{.page{box-shadow:0 18px 55px rgba(0,0,0,.18)}.print-note{position:sticky;top:0;z-index:5;background:#fff;padding:12px;text-align:center}}@media print{body{background:#fbf5e9}.print-note{display:none}.page{width:auto;min-height:0;margin:0;padding:14mm 16mm;background:#fbf5e9;box-shadow:none;position:static;page-break-after:auto;break-after:auto}.cover{min-height:297mm;padding:18mm;page-break-after:always;break-after:page}.financial-page{page-break-before:always;break-before:page}.menu-group,.fact,.money-card{page-break-inside:avoid;break-inside:avoid}.footer{position:static;margin-top:10mm}.money-grid{grid-template-columns:repeat(3,1fr)}}
+@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;background:#eee;color:#432b20;font-family:Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{width:210mm;min-height:297mm;margin:0 auto 12px;padding:18mm;background:#fbf5e9;position:relative}.page:last-child{margin-bottom:0}.cover{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(145deg,#4c2c22,#2f1a12);color:#f7ead4}/* V19.9A_QA_VISUAL_POLISH_V16 */.cover img{width:62mm;margin-bottom:3mm}.cover-tagline{margin:0 0 11mm;color:#dfc195;font-size:8.7pt;font-weight:600;letter-spacing:.07em}.cover .eyebrow{letter-spacing:.22em;text-transform:uppercase;font-size:10pt;color:#d9b36b}.cover h1{font-family:Georgia,serif;font-size:30pt;margin:5mm 0 2mm;color:#dfc195}.cover h2{font-size:18pt;font-weight:400;margin:0 0 12mm}.page:not(.cover)>h1,.page:not(.cover)>h2,.terms h2{font-family:Georgia,serif;font-weight:500;letter-spacing:-.015em}.chips{display:flex;gap:4mm;flex-wrap:wrap;justify-content:center}.chips span{border:1px solid rgba(255,255,255,.28);border-radius:99px;padding:3mm 5mm}.brandline{display:flex;justify-content:space-between;border-bottom:1px solid #caa976;padding-bottom:4mm;margin-bottom:8mm}.brandline strong{letter-spacing:.13em}/* V19.9A_QA_VISUAL_POLISH_V17: summary title intentionally shares the same h2 system as Cardápio selecionado */.facts{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin:0 0 8mm}.fact{border:1px solid #d9c0a0;border-radius:4mm;padding:4mm;background:linear-gradient(180deg,#fffaf1 0%,#f8eddf 100%);box-shadow:inset 0 .75mm 0 #4c2c22}.fact span{display:block;font-size:8pt;text-transform:uppercase;letter-spacing:.09em;color:#8a604e}.fact strong{display:block;margin-top:2mm;color:#4c2c22;font-size:10.4pt;line-height:1.25}.menu-group{margin:6mm 0;border:1px solid #dec9a7;border-radius:4mm;background:#fffaf1;overflow:hidden;box-shadow:inset 1.2mm 0 0 #4c2c22}.menu-group h3{margin:0;padding:3.7mm 5mm 3.2mm 6mm;font-family:Georgia,serif;font-size:15pt;font-weight:500;letter-spacing:-.012em;color:#f7ead4;background:linear-gradient(135deg,#4c2c22,#321c13);border-bottom:1px solid #c99a4d}.menu-line{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8mm;padding:3mm 5mm 3mm 6mm}.menu-line+.menu-line{border-top:1px solid rgba(117,75,49,.11)}.menu-line span{font-size:10pt;font-weight:600;line-height:1.35;color:#432b20}.menu-line strong{font-size:9pt;font-weight:700;color:#6d503d;background:#f3e1c7;border:1px solid #e1c49a;border-radius:99px;padding:1.2mm 2.6mm;white-space:nowrap}.money-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin:8mm 0}.money-card{border:1px solid #d4b783;border-radius:4mm;padding:5mm;background:#fffaf1}.money-card span{display:block;font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:#806451}.money-card strong{display:block;font-family:Georgia,serif;font-size:17pt;margin:2mm 0}.money-card small{display:block;font-size:8.5pt;line-height:1.4;color:#6f5848}.money-card--contracted{background:#4c2c22;color:#fff1dd;border-color:#4c2c22}.money-card--contracted span,.money-card--contracted small{color:#f0d9ba}.money-card--estimate{border:2px solid #b78a43;background:#f7ead4}.terms{margin-top:7mm}.terms-head{margin-bottom:4mm;padding:4.2mm 5mm;border:1px solid #c99a4d;border-radius:4mm;background:linear-gradient(135deg,#4c2c22,#321c13);color:#f7ead4}.terms-head h2{margin:0!important;color:#f7ead4;font-size:18pt;line-height:1.1}.terms-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4mm}.term-card{position:relative;padding:4.4mm 4.6mm;border:1px solid #dec9a7;border-radius:4mm;background:#fffaf1}.term-card--wide{grid-column:1/-1}.term-card__index{position:absolute;top:4mm;right:4.4mm;color:#b58543;font-size:7.5pt;font-weight:700;letter-spacing:.12em}.term-card h3{margin:0 0 3mm;padding-right:9mm;font-family:Georgia,serif;font-size:12.5pt;font-weight:500;color:#4c2c22}.terms .term-card p{margin:1.7mm 0;font-size:8.7pt;line-height:1.4;color:#5f4638}.terms .term-card p strong{color:#432b20}.footer{position:absolute;left:18mm;right:18mm;bottom:12mm;border-top:1px solid #caa976;padding-top:5mm;display:flex;justify-content:space-between;font-size:9pt}@media screen{.page{box-shadow:0 18px 55px rgba(0,0,0,.18)}.print-note{position:sticky;top:0;z-index:5;background:#fff;padding:12px;text-align:center}}@media print{html,body{background:#fbf5e9!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.print-note{display:none}.page{width:auto;min-height:0;margin:0;padding:14mm 16mm;background:#fbf5e9!important;box-shadow:none;position:static;page-break-after:auto;break-after:auto;-webkit-print-color-adjust:exact;print-color-adjust:exact;-webkit-box-decoration-break:clone;box-decoration-break:clone}.page.cover{min-height:297mm;padding:18mm;background:linear-gradient(145deg,#4c2c22,#2f1a12)!important;color:#f7ead4!important;page-break-after:always;break-after:page}.page.cover .eyebrow{color:#d9b36b!important}.page.investment-page{page-break-before:always;break-before:page}.menu-group,.fact,.money-grid,.money-card,.investment-block{page-break-inside:avoid;break-inside:avoid}.terms-head,.term-card{page-break-inside:avoid;break-inside:avoid}.footer{position:static;margin-top:10mm}.money-grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
 <div class="print-note">Na janela de impressão, escolha “Salvar como PDF”.</div>
 <section class="page cover">
   <img src="${escapeHtml(snapshot.logoUrl)}" alt="Roda Festa" />
+  <div class="cover-tagline">GASTRONOMIA QUE ENCANTA</div>
   <div class="eyebrow">Proposta comercial</div>
   <h1>${escapeHtml(snapshot.eventLabel)}</h1>
   <h2>${escapeHtml(snapshot.clientName)}</h2>
@@ -255,7 +255,7 @@ function buildProposalHtml(snapshot) {
 </section>
 <section class="page">
   <div class="brandline"><strong>RODA FESTA</strong><span>Gastronomia que encanta</span></div>
-  <h1>Resumo do evento</h1>
+  <h2>Resumo do evento</h2>
   <div class="facts">
     <div class="fact"><span>Código</span><strong>${escapeHtml(snapshot.code)}</strong></div>
     <div class="fact"><span>Cliente</span><strong>${escapeHtml(snapshot.clientName)}</strong></div>
@@ -264,24 +264,56 @@ function buildProposalHtml(snapshot) {
     <div class="fact"><span>Convidados</span><strong>${snapshot.adults} adultos, ${snapshot.olderChildren} crianças 7+, ${snapshot.children} crianças 0–6</strong></div>
     <div class="fact"><span>Estrutura</span><strong>${snapshot.totalCarts} ${snapshot.totalCarts === 1 ? "carrinho" : "carrinhos"}</strong></div>
   </div>
-  <h2>Cardápio e quantidades</h2>
+  <h2>Cardápio selecionado</h2>
   ${groupsHtml}
 </section>
-<section class="page financial-page">
-  <div class="brandline"><strong>RODA FESTA</strong><span>Proposta comercial</span></div>
-  <h1>Investimento</h1>
-  <div class="money-grid">
-    <div class="money-card money-card--contracted"><span>Investimento contratado</span><strong>${escapeHtml(formatCurrency(presentation.investmentTotal))}</strong><small>${escapeHtml(formatCurrency(presentation.contractedPerPerson))} por pessoa. Consignação não incluída.</small></div>
-    <div class="money-card"><span>Estimativa de consignação</span><strong>${escapeHtml(presentation.hasConsignment ? formatCurrency(presentation.consignmentTotal) : "Sem consignação")}</strong><small>${presentation.hasConsignment ? `${escapeHtml(formatCurrency(presentation.consignmentPerPerson))} por pessoa. Cobrança posterior apenas do consumo real.` : "Nenhum item em consignação nesta proposta."}</small></div>
-    <div class="money-card money-card--estimate"><span>Estimativa geral do evento</span><strong>${escapeHtml(formatCurrency(presentation.estimatedEventTotal))}</strong><small>Contratado + estimativa de consignação. Este valor pode variar conforme o consumo. ${escapeHtml(formatCurrency(presentation.estimatedEventPerPerson))} por pessoa.</small></div>
+<section class="page investment-page">
+  <div class="investment-block">
+    <div class="brandline"><strong>RODA FESTA</strong><span>Proposta comercial</span></div>
+    <h1>Investimento</h1>
+    <div class="money-grid">
+    <div class="money-card money-card--contracted"><span>Investimento contratado</span><strong>${escapeHtml(formatCurrency(presentation.investmentTotal))}</strong><small>Consignação não incluída neste valor.</small></div>
+    <div class="money-card"><span>Estimativa de consignação</span><strong>${escapeHtml(presentation.hasConsignment ? formatCurrency(presentation.consignmentTotal) : "Sem consignação")}</strong><small>${presentation.hasConsignment ? "Cobrança posterior apenas do consumo real." : "Nenhum item em consignação nesta proposta."}</small></div>
+    <div class="money-card money-card--estimate"><span>Estimativa geral do evento</span><strong>${escapeHtml(formatCurrency(presentation.estimatedEventTotal))}</strong><small>${presentation.hasConsignment ? `Contratado + estimativa de consignação. Pode variar conforme o consumo. ${escapeHtml(formatCurrency(presentation.estimatedEventPerPerson))} por pessoa.` : `Sem consignação: equivale ao investimento contratado. ${escapeHtml(formatCurrency(presentation.estimatedEventPerPerson))} por pessoa.`} Base de cálculo: ${snapshot.realGuests} ${snapshot.realGuests === 1 ? "convidado" : "convidados"}.</small></div>
+  </div>
   </div>
   <div class="terms">
-    <h2>Condições comerciais e operacionais</h2>
-    <p><strong>Validade:</strong> 5 dias.</p><p><strong>Pagamento:</strong> Pix ou dinheiro.</p><p><strong>Reserva:</strong> 50% no ato da contratação.</p><p><strong>Saldo:</strong> 50% até 24 horas antes do evento.</p><p><strong>Área de atendimento:</strong> atendimento incluído apenas para eventos em Tupã.</p><p>Cancelamento com até 10 dias de antecedência: cobrança de 50% do orçamento.</p><p>Cancelamento com até 3 dias de antecedência: cobrança integral do orçamento.</p><p>Alteração de data com até 5 dias de antecedência: taxa de 50%, sujeita à disponibilidade.</p><p>Utilizamos tomadas 110V e 220V. Fios, extensões e transformadores já estão contemplados no orçamento.</p><p>A amperagem necessária será informada previamente e deverá ser providenciada pelo cliente.</p><p>Ao término do evento, os alimentos contratados e não consumidos serão entregues aos anfitriões.</p>
+    <div class="terms-head"><h2>Condições comerciais e operacionais</h2></div>
+    <div class="terms-grid">
+      <section class="term-card">
+        <span class="term-card__index">01</span><h3>Contratação</h3>
+        <p><strong>Validade:</strong> 5 dias.</p><p><strong>Pagamento:</strong> Pix ou dinheiro.</p><p><strong>Reserva:</strong> 50% no ato da contratação.</p><p><strong>Saldo:</strong> 50% até 24 horas antes do evento.</p><p><strong>Área de atendimento:</strong> atendimento incluído apenas para eventos em Tupã.</p>
+      </section>
+      <section class="term-card">
+        <span class="term-card__index">02</span><h3>Cancelamento e alterações</h3>
+        <p>Cancelamento com até 10 dias de antecedência: cobrança de 50% do orçamento.</p><p>Cancelamento com até 3 dias de antecedência: cobrança integral do orçamento.</p><p>Alteração de data com até 5 dias de antecedência: taxa de 50%, sujeita à disponibilidade.</p>
+      </section>
+      <section class="term-card term-card--wide">
+        <span class="term-card__index">03</span><h3>Estrutura do evento</h3>
+        <p>Utilizamos tomadas 110V e 220V. Fios, extensões e transformadores já estão contemplados no orçamento.</p><p>A amperagem necessária será informada previamente e deverá ser providenciada pelo cliente.</p><p>Ao término do evento, os alimentos contratados e não consumidos serão entregues aos anfitriões.</p>
+      </section>
+    </div>
   </div>
   <footer class="footer"><strong>Roda Festa</strong><span>${escapeHtml(COMMERCIAL_TERMS.contact)} · ${escapeHtml(COMMERCIAL_TERMS.instagram)}</span></footer>
 </section>
-<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),350));</script>
+<script>
+window.addEventListener('load',async()=>{
+  const images=Array.from(document.images);
+  await Promise.all(images.map((image)=>{
+    if(image.complete){
+      if(typeof image.decode==='function') return image.decode().catch(()=>{});
+      return Promise.resolve();
+    }
+    return new Promise((resolve)=>{
+      image.addEventListener('load',resolve,{once:true});
+      image.addEventListener('error',resolve,{once:true});
+    });
+  }));
+  if(document.fonts&&document.fonts.ready){try{await document.fonts.ready}catch{}}
+  await new Promise((resolve)=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  window.setTimeout(()=>{window.focus();window.print();},600);
+},{once:true});
+</script>
 </body></html>`;
 }
 
@@ -644,7 +676,7 @@ export default function PlanningBook() {
       changesFromRecommendation: changes,
       commercialLedger: ledger,
       commercialReconciliation: reconciliation,
-      logoUrl: new URL(rodaFestaLogo, window.location.href).href,
+      logoUrl: new URL(rodaFestaLogoCreme, window.location.href).href,
     };
   }
 
@@ -711,8 +743,8 @@ export default function PlanningBook() {
 
     setSubmitStatus(internalCopySent ? "sent" : "local-only");
     setSubmitMessage(internalCopySent
-      ? "Proposta registrada e validada comercialmente. A via documental canônica ainda será consolidada na próxima fase."
-      : "Proposta pronta. A cópia local foi preservada; o envio interno precisa da integração de e-mail da produção.");
+      ? "Seu planejamento foi enviado para análise. Em breve, nossa equipe fará a validação com você."
+      : "Seu planejamento está pronto, mas o envio interno não foi confirmado. Gere o PDF e fale com nossa equipe pelo WhatsApp para encaminhá-lo para análise.");
     goTo(5);
   }
 
@@ -799,7 +831,7 @@ export default function PlanningBook() {
               <img src={rodaFestaLogoCreme} alt="Roda Festa" />
               <span><strong>Meu Planner</strong><small>Roda Festa · gastronomia que encanta</small></span>
             </button>
-            {stepIndex < 5 && <button type="button" className="rf-quiet-link rf-quiet-link--light" onClick={restart}>Recomeçar</button>}
+            {stepIndex < 5 && <button type="button" className="rf-restart-action rf-restart-action--header" onClick={restart}><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span>Recomeçar</span></button>}
           </header>
 
           <Progress stepIndex={stepIndex} />
@@ -907,15 +939,16 @@ export default function PlanningBook() {
 
               <div className="rf-section-block"><div className="rf-section-block__title"><span>Serviços opcionais</span><h2>Deseja apoio adicional?</h2></div><div className="rf-toggle-stack"><label className="rf-toggle-card"><div><strong>Garçons</strong><span>1 profissional para cada 20 convidados reais.</span></div><input type="checkbox" checked={includeWaiters} onChange={(event) => syncOptionalServices(event.target.checked, includeDisposables)} /></label><label className="rf-toggle-card"><div><strong>Descartáveis</strong><span>Kit dimensionado automaticamente para o evento.</span></div><input type="checkbox" checked={includeDisposables} onChange={(event) => syncOptionalServices(includeWaiters, event.target.checked)} /></label></div></div>
 
-              <div className="rf-cost-card"><div><span>Produtos</span><strong>{formatCurrency(suggestion.investment.productsValue)}</strong></div><div><span>Estrutura · {suggestion.investment.chargedTotalCarts ?? suggestion.carts.totalCarts} carrinhos</span><strong>{formatCurrency(suggestion.investment.cartsValue)}</strong></div>{suggestion.investment.additionalHoursValue > 0 && <div><span>Horas adicionais</span><strong>{formatCurrency(suggestion.investment.additionalHoursValue)}</strong></div>}{suggestion.investment.waitersValue > 0 && <div><span>Garçons</span><strong>{formatCurrency(suggestion.investment.waitersValue)}</strong></div>}{suggestion.investment.disposablesValue > 0 && <div><span>Descartáveis</span><strong>{formatCurrency(suggestion.investment.disposablesValue)}</strong></div>}<div className="rf-cost-card__total"><span>Investimento contratado</span><strong>{formatCurrency(suggestion.investment.total)}</strong></div>{consignmentTotal > 0 && <small>+ estimativa de {formatCurrency(consignmentTotal)} em bebidas por consignação.</small>}</div>
+              <div className="rf-cost-card"><div><span>Produtos</span><strong>{formatCurrency(suggestion.investment.productsValue)}</strong></div><div><span>Estrutura · {suggestion.investment.chargedTotalCarts ?? suggestion.carts.totalCarts} carrinhos</span><strong>{formatCurrency(suggestion.investment.cartsValue)}</strong></div>{suggestion.investment.additionalHoursValue > 0 && <div><span>Horas adicionais</span><strong>{formatCurrency(suggestion.investment.additionalHoursValue)}</strong></div>}{suggestion.investment.waitersValue > 0 && <div><span>Garçons</span><strong>{formatCurrency(suggestion.investment.waitersValue)}</strong></div>}{suggestion.investment.disposablesValue > 0 && <div><span>Descartáveis</span><strong>{formatCurrency(suggestion.investment.disposablesValue)}</strong></div>}</div>
+              <div className="rf-contracted-conclusion" aria-label="Investimento contratado sem consignação"><div><span>Investimento contratado*</span><strong>{formatCurrency(suggestion.investment.total)}</strong></div><small>* Não inclui bebidas em consignação.</small></div>
 
               <div className="rf-client-estimate-grid" aria-label="Resumo estimado do investimento">
-                <div><span>Contratado por pessoa</span><strong>{formatCurrency(proposalPresentation.contractedPerPerson)}</strong><small>Investimento contratado ÷ convidados reais.</small></div>
-                <div><span>Consignação estimada</span><strong>{proposalPresentation.hasConsignment ? formatCurrency(proposalPresentation.consignmentTotal) : "Sem consignação"}</strong><small>{proposalPresentation.hasConsignment ? "Estimativa de " + formatCurrency(proposalPresentation.consignmentPerPerson) + " por pessoa." : "Nenhum item em consignação selecionado."}</small></div>
-                <div className="is-highlight"><span>Estimativa geral do evento</span><strong>{formatCurrency(proposalPresentation.estimatedEventTotal)}</strong><small>Contratado + estimativa de consignação. Pode variar pelo consumo · {formatCurrency(proposalPresentation.estimatedEventPerPerson)} por pessoa.</small></div>
+                <div><span>Estimativa de consignação</span><strong>{proposalPresentation.hasConsignment ? formatCurrency(proposalPresentation.consignmentTotal) : "Sem consignação"}</strong><small>{proposalPresentation.hasConsignment ? "Cobrança posterior apenas das unidades consumidas." : "Nenhum item em consignação selecionado."}</small></div>
+                <div><span>Estimativa geral do evento</span><strong>{formatCurrency(proposalPresentation.estimatedEventTotal)}</strong><small>{proposalPresentation.hasConsignment ? "Investimento contratado + estimativa de consignação. Pode variar conforme o consumo." : "Sem consignação: a estimativa geral é igual ao investimento contratado."}</small></div>
+                <div className="is-highlight"><span>Estimativa por pessoa</span><strong>{formatCurrency(proposalPresentation.estimatedEventPerPerson)}</strong><small>Base de cálculo: {realGuests} {realGuests === 1 ? "convidado considerado" : "convidados considerados"}. {proposalPresentation.hasConsignment ? "Considera o investimento contratado + a estimativa de consignação." : "Considera o investimento contratado."}</small></div>
               </div>
 
-              <div className="rf-sticky-action rf-sticky-action--split"><button type="button" className="rf-secondary" onClick={() => goTo(2)}>Cardápio</button><button type="button" className="rf-primary" onClick={() => { if ((suggestion.items || []).length === 0) { setFormNotice("Adicione pelo menos um item antes de validar a proposta."); return; } goTo(4); }}>Validar proposta <span>→</span></button></div>
+              <div className="rf-sticky-action rf-sticky-action--split"><button type="button" className="rf-secondary" onClick={() => goTo(2)}>Voltar ao cardápio</button><button type="button" className="rf-primary" onClick={() => { if ((suggestion.items || []).length === 0) { setFormNotice("Adicione pelo menos um item antes de validar a proposta."); return; } goTo(4); }}>Validar proposta <span>→</span></button></div>
             </section>
           )}
 
@@ -934,6 +967,7 @@ export default function PlanningBook() {
                 <div><span>Estimativa de consignação</span><strong>{proposalPresentation.hasConsignment ? formatCurrency(proposalPresentation.consignmentTotal) : "Sem consignação"}</strong><small>{proposalPresentation.hasConsignment ? "Cobrança posterior apenas das unidades consumidas." : "Não há valor variável nesta proposta."}</small></div>
                 <div className="is-highlight"><span>Estimativa geral do evento</span><strong>{formatCurrency(proposalPresentation.estimatedEventTotal)}</strong><small>Valor apenas estimado: contratado + consignação prevista · {formatCurrency(proposalPresentation.estimatedEventPerPerson)} por pessoa.</small></div>
               </div>
+              <small className="rf-per-person-basis">Base dos cálculos por pessoa: {realGuests} {realGuests === 1 ? "convidado considerado" : "convidados considerados"}.</small>
 
               <div className="rf-terms-mini"><p><strong>Reserva:</strong> {COMMERCIAL_TERMS.reservation}</p><p><strong>Saldo:</strong> {COMMERCIAL_TERMS.balance}</p><p><strong>Validade:</strong> {COMMERCIAL_TERMS.validity}</p></div>
 
@@ -945,10 +979,14 @@ export default function PlanningBook() {
             <section className="rf-complete">
               <div className="rf-complete__mark">✓</div><span className="rf-eyebrow">Planejamento concluído</span><h1>Pronto, {clientName.trim().split(" ")[0]}.</h1><p>Seu planejamento foi fechado em uma versão única. O PDF nasce exatamente desses dados.</p>
               <div className="rf-code-card"><span>Código do planejamento</span><strong>{planningCode}</strong></div>
-              <div className="rf-complete__money"><span>Investimento contratado</span><strong>{formatCurrency(proposalPresentation.investmentTotal)}</strong><small>{formatCurrency(proposalPresentation.contractedPerPerson)} por pessoa</small>{proposalPresentation.hasConsignment && <small>Estimativa geral do evento: {formatCurrency(proposalPresentation.estimatedEventTotal)} · {formatCurrency(proposalPresentation.estimatedEventPerPerson)} por pessoa. O valor final varia conforme o consumo da consignação.</small>}</div>
+              <div className="rf-complete__analysis" aria-label="Próxima etapa do planejamento">
+                <span>Próxima etapa</span>
+                <strong>Validação com a equipe Roda Festa</strong>
+                <p>Uma responsável irá revisar o cardápio com você, tirar dúvidas e confirmar os próximos passos para o fechamento da proposta.</p>
+              </div>
               {submitMessage && <div className={`rf-submit-status rf-submit-status--${submitStatus}`}>{submitMessage}</div>}
               <div className="rf-complete__actions"><button type="button" className="rf-primary" onClick={openPdf}>Gerar meu PDF</button><button type="button" className="rf-secondary rf-secondary--wide" onClick={openWhatsApp}>Enviar para a especialista pelo WhatsApp</button></div>
-              <button type="button" className="rf-quiet-link rf-quiet-link--center" onClick={restart}>Criar outro planejamento</button>
+              <button type="button" className="rf-restart-action rf-restart-action--final" onClick={restart}><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span>Criar outro planejamento</span></button>
             </section>
           )}
         </div>
