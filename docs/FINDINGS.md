@@ -1428,3 +1428,39 @@ Regra preservada: corrigir o validador/teste quando a evidência demonstrar que 
 ### Limites
 
 Ainda falta QA visual/manual do PDF e das novas mensagens em navegador real antes de promover a unidade para `main`/Production. Brigadeiro no tacho, carrinho avulso, calibração de salgadinhos, Agenda Admin e Admin Operations permanecem unidades separadas.
+
+<!-- V19.9A_FINAL_RECONCILIATION_4c8250f -->
+## 2026-08-28 — V19.9A proposta ao cliente — APROVADA E CONGELADA
+
+A unidade V19.9A foi concluída após QA visual/manual e fechamento técnico. O checkpoint técnico final aprovado é:
+
+`4c8250f61ad585a509e35684fa633f9c1e2a125c` — `feat: finalize v19.9a client proposal polish`.
+
+Estado final comprovado:
+- proposta/PDF com leitura financeira clara entre investimento contratado, consignação e estimativa geral do evento;
+- valor por pessoa apresentado apenas na estimativa geral e sempre com base explícita de convidados;
+- `Chá de bebê` aceito no boundary autoritativo da PlanningSession;
+- capa marrom aprovada, logo creme, título do evento harmonizado e slogan `GASTRONOMIA QUE ENCANTA`;
+- `Resumo do evento` alinhado ao mesmo sistema editorial de `Cardápio selecionado`, sem o rótulo redundante `Detalhes do evento`;
+- cards de Código, Telefone, Convidados e demais dados preservados;
+- cardápio selecionado com hierarquia editorial e detalhes marrons aprovados;
+- condições comerciais e operacionais em blocos editoriais aprovados;
+- investimento final em página dedicada, com ordem financeira e paginação aprovadas;
+- tela final aprovada sem repetir investimento e priorizando validação humana;
+- fluxo de impressão aguarda recursos antes de imprimir e mantém fundo contínuo.
+
+Evidência final da unidade:
+- validação focal V17-R1: 25/25 GREEN;
+- baseline completo: 254/254 GREEN;
+- lint: GREEN;
+- build Vite 8.1.5: GREEN, 133 módulos transformados;
+- `git diff --check`: GREEN;
+- smoke visual/manual: APROVADA 100% pela responsável do produto.
+
+O aviso conhecido `src/styles/colors.css is empty` permaneceu não bloqueante e não foi introduzido por esta unidade.
+
+A evolução visual intermediária ocorreu por pacotes locais de QA, sem commits próprios: V5/V8/V9/V12 consolidaram paginação, ordem financeira, readiness de impressão e página final dedicada; V13 reforçou a identidade marrom e a hierarquia editorial; V14 refinou tela final, logo creme e condições comerciais; V15-R2 removeu o filete dourado da conclusão e padronizou detalhes marrons; V16 harmonizou capa e resumo; V17 refinou o título do resumo e o slogan; V17-R1 corrigiu exclusivamente a higiene de EOF do teste. Tentativas de pacote que falharam em validação não são checkpoints Git e não devem ser tratadas como commits.
+
+Escopo deliberadamente não alterado: motor de recomendação, calibração de salgadinhos, preços, catálogo, regra de carrinhos, APIs e persistência. Esses temas permanecem para unidades futuras próprias.
+
+Classificação final: **APROVADA / CONGELADA / PRONTA PARA FECHAMENTO DOCUMENTAL E SNAPSHOT APÓS O COMMIT DESTA RECONCILIAÇÃO**.

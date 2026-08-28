@@ -647,3 +647,23 @@ Checkpoint técnico reconciliado:
 - `Chá de bebê` é um novo tipo de evento válido e precisa existir tanto na UI quanto no boundary autoritativo server-side.
 - a V19.9A não é autorização para alterar recomendação, preços, salgadinhos ou carrinhos.
 - testes/validators que medem uma propriedade diferente da intenção aprovada devem ser corrigidos; não alterar implementação correta apenas para obter GREEN.
+
+<!-- V19.9A_FINAL_RECONCILIATION_4c8250f -->
+## 2026-08-28 — Decisão de congelamento da V19.9A
+
+Fica aprovada e congelada a apresentação final da proposta ao cliente no estado técnico `4c8250f61ad585a509e35684fa633f9c1e2a125c`.
+
+Decisões consolidadas:
+- `Resumo do evento` e `Cardápio selecionado` compartilham o mesmo sistema visual de título;
+- o rótulo `Detalhes do evento` não integra a proposta final;
+- o slogan oficial nesta capa é `GASTRONOMIA QUE ENCANTA`;
+- cards de dados do evento permanecem como aprovados;
+- a identidade do PDF usa a família marrom aprovada com logo creme e sem filete dourado na conclusão;
+- investimento contratado, consignação e estimativa geral permanecem semanticamente separados;
+- valor por pessoa aparece somente na estimativa geral, com convidados explícitos;
+- investimento final permanece em página dedicada;
+- a tela final prioriza validação humana e não repete valores.
+
+Esta aprovação não autoriza alterações no motor, em calibração, salgadinhos, preços, catálogo, regra de carrinhos, APIs ou persistência. Qualquer evolução nesses pontos exige unidade técnica própria.
+
+O snapshot final desta unidade somente pode ser gerado depois do commit desta reconciliação documental e da confirmação de working tree limpa.

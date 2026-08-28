@@ -994,3 +994,20 @@ Para PDF/print, a arquitetura distingue:
 - conteúdo: fluxo paginado naturalmente pelo navegador, sem quebra forçada no container genérico.
 
 Brigadeiro no tacho e carrinho avulso permanecem fora desta camada porque alteram catálogo/estrutura operacional e exigem modelagem própria no motor/ledger.
+
+<!-- V19.9A_FINAL_RECONCILIATION_4c8250f -->
+## V19.9A — Estado arquitetural final da camada de proposta
+
+Checkpoint técnico final aprovado: `4c8250f61ad585a509e35684fa633f9c1e2a125c`.
+
+A V19.9A permanece estritamente na camada de apresentação/clareza da proposta e não altera a autoridade histórica nem o motor. A cadeia arquitetural continua:
+
+`InputSnapshot -> RecommendationSnapshot -> PlanningChange[] -> FinalProposalSnapshot -> Admin read model -> validação humana`
+
+A apresentação final deriva leitura para o cliente sem reescrever snapshots históricos: distingue investimento contratado, consignação e estimativa geral; calcula a leitura por pessoa a partir da base de convidados; organiza o PDF em narrativa editorial com capa, resumo, cardápio, condições e investimento final dedicado; e mantém a conclusão sem repetir o valor.
+
+O fechamento visual aprovado padroniza `Resumo do evento` e `Cardápio selecionado` no mesmo sistema de título, preserva os cards informativos do resumo, usa logo creme, slogan `GASTRONOMIA QUE ENCANTA`, família marrom aprovada e detalhes marrons no cardápio.
+
+A QA visual foi cumulativa e local antes do checkpoint final; nomes V5/V8/V9/V12/V13/V14/V15-R2/V16/V17/V17-R1 identificam etapas de refinamento/teste, não commits de arquitetura. O único checkpoint técnico final dessa rodada é `4c8250f61ad585a509e35684fa633f9c1e2a125c`.
+
+Invariantes preservadas: nenhuma regra de recomendação, preço, catálogo, carrinho, API ou persistência foi modificada; snapshots históricos não são recalculados; a jornada append-only continua sendo a fonte explicável do antes/recomendado/mudanças/final.

@@ -1158,3 +1158,31 @@ Próxima sequência obrigatória:
 3. confirmar working tree limpa;
 4. somente então considerar snapshot seguro;
 5. antes de Production, executar QA visual/manual da proposta/PDF e fluxo de `Chá de bebê`.
+
+<!-- V19.9A_FINAL_RECONCILIATION_4c8250f -->
+## 2026-08-28 — Fechamento da V19.9A após QA visual
+
+Após o checkpoint documental inicial `64c4792e928485b3a22df44f5e1f91e2f4013e58`, a unidade passou por uma rodada cumulativa de QA visual local sobre `PlanningBook.jsx`, `PlanningBook.css` e `tests/planning-client-v19.9a.test.mjs`.
+
+A sequência de refinamento local consolidou paginação e impressão, leitura financeira, identidade marrom, tela final, cardápio, condições comerciais, capa, resumo do evento e slogan. V5/V8/V9/V12, V13, V14, V15-R2, V16, V17 e V17-R1 representam etapas/pacotes de QA local; não são commits Git. Pacotes que falharam antes de concluir validação foram descartados como tentativas e não foram promovidos a checkpoints.
+
+A aprovação visual final congelou:
+- slogan `GASTRONOMIA QUE ENCANTA`;
+- `Resumo do evento` com o mesmo sistema de título de `Cardápio selecionado`;
+- cards de dados do evento aprovados;
+- tela final aprovada;
+- condições comerciais aprovadas;
+- página final exclusiva de investimento;
+- base de convidados, ordem financeira e print readiness preservados.
+
+Gates finais executados antes do commit técnico:
+- validação focal V17-R1: 25/25 GREEN;
+- `npm test`: 254/254 GREEN;
+- `npm run lint`: GREEN;
+- `npm run build`: GREEN;
+- smoke visual/manual: APROVADA 100%.
+
+Commit técnico final:
+`4c8250f61ad585a509e35684fa633f9c1e2a125c` — `feat: finalize v19.9a client proposal polish`.
+
+O commit técnico contém exatamente o conjunto cumulativo de QA aprovado: `PlanningBook.jsx`, `PlanningBook.css` e `planning-client-v19.9a.test.mjs`. Após o commit, a working tree ficou limpa. Esta entrada documental é a reconciliação obrigatória anterior ao snapshot seguro.

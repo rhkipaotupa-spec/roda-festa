@@ -851,3 +851,28 @@ Não reutilizar `247/247` como baseline de `main`. Esse total foi medido em `fea
 4. Agenda Admin: prioridade operacional alta para conflitos de data/horário.
 5. Admin Operations: integrar arquivamento/lixeira/restauração somente a partir da fundação isolada já preservada.
 6. Catálogo/preços versionados e validação humana seguem como unidades próprias.
+
+<!-- V19.9A_FINAL_RECONCILIATION_4c8250f -->
+## 2026-08-28 — V19.9A Client Proposal Clarity — CONCLUÍDA
+
+- [x] camada de apresentação financeira da proposta;
+- [x] distinção entre contratado, consignação e estimativa geral;
+- [x] valor por pessoa sem concorrência visual e com base de convidados;
+- [x] `Chá de bebê` no boundary autoritativo;
+- [x] paginação e print readiness do PDF;
+- [x] página final dedicada ao investimento;
+- [x] identidade marrom/creme aprovada;
+- [x] tela final orientada à validação humana;
+- [x] condições comerciais e operacionais refinadas;
+- [x] `Resumo do evento` alinhado ao `Cardápio selecionado`;
+- [x] slogan `GASTRONOMIA QUE ENCANTA`;
+- [x] QA focal final 25/25 GREEN;
+- [x] baseline 254/254 GREEN;
+- [x] lint GREEN;
+- [x] build GREEN;
+- [x] smoke visual/manual APROVADA 100%;
+- [x] commit técnico final `4c8250f61ad585a509e35684fa633f9c1e2a125c`;
+- [ ] commit documental desta reconciliação;
+- [ ] snapshot seguro pós-reconciliação.
+
+A V19.9A está funcional e visualmente congelada. Itens de motor/calibração, Brigadeiro no tacho, carrinho avulso, Agenda Admin, arquivamento/lixeira, catálogo/versionamento e validação humana administrativa permanecem fora deste fechamento e devem seguir em unidades próprias.
