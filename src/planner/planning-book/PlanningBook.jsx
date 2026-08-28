@@ -15,6 +15,7 @@ import {
   generatePlanningSuggestion,
 } from "./engine/planningRules";
 import { createRecommendationSnapshot, compareRecommendationToFinal } from "./engine/planningHistory.js";
+import { buildProposalPresentation } from "./proposalPresentation.js";
 import {
   areRecommendationSnapshotsEquivalent,
   finalizePlanningSession,
@@ -46,6 +47,7 @@ const STEPS = [
 const EVENT_OPTIONS = [
   { id: "infantil", label: "Festa Infantil", description: "Leve, acolhedora e pensada para toda a família." },
   { id: "casamento", label: "Casamento", description: "Uma composição elegante para um momento especial." },
+  { id: "cha-bebe", label: "Chá de bebê", description: "Uma celebração acolhedora para receber o bebê com carinho." },
   { id: "corporativo", label: "Evento Corporativo", description: "Atendimento organizado para ambientes profissionais." },
 ];
 
@@ -215,6 +217,12 @@ function escapeHtml(value) {
 }
 
 function buildProposalHtml(snapshot) {
+  const presentation = buildProposalPresentation({
+    investmentTotal: snapshot.investmentTotal,
+    consignmentTotal: snapshot.consignmentTotal,
+    realGuests: snapshot.realGuests,
+  });
+
   const grouped = CATEGORY_ORDER.map((category) => ({
     category,
     items: snapshot.items.filter((item) => item.commercialCategory === category),
@@ -233,7 +241,7 @@ function buildProposalHtml(snapshot) {
 <meta charset="utf-8" />
 <title>Proposta ${escapeHtml(snapshot.code)}</title>
 <style>
-@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;background:#eee;color:#432b20;font-family:Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{width:210mm;min-height:297mm;margin:0 auto 12px;padding:18mm;background:#fbf5e9;page-break-after:always;position:relative}.page:last-child{page-break-after:auto}.cover{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(145deg,#5f1f20,#321113);color:#f7ead4}.cover img{width:62mm;margin-bottom:16mm}.cover .eyebrow{letter-spacing:.22em;text-transform:uppercase;font-size:10pt;color:#d9b36b}.cover h1{font-family:Georgia,serif;font-size:30pt;margin:5mm 0 2mm}.cover h2{font-size:18pt;font-weight:400;margin:0 0 12mm}.chips{display:flex;gap:4mm;flex-wrap:wrap;justify-content:center}.chips span{border:1px solid rgba(255,255,255,.28);border-radius:99px;padding:3mm 5mm}.brandline{display:flex;justify-content:space-between;border-bottom:1px solid #caa976;padding-bottom:4mm;margin-bottom:8mm}.brandline strong{letter-spacing:.13em}.facts{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin:8mm 0}.fact{border:1px solid #dec9a7;border-radius:4mm;padding:4mm;background:#fffaf1}.fact span{display:block;font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:#806451}.fact strong{display:block;margin-top:2mm}.menu-group{margin:7mm 0}.menu-group h3{font-family:Georgia,serif;border-bottom:1px solid #d5bd98;padding-bottom:2mm}.menu-line{display:flex;justify-content:space-between;gap:8mm;padding:2mm 0}.financial{background:#5f1f20;color:#fff1dd;border-radius:5mm;padding:7mm;margin:8mm 0}.financial span{font-size:9pt;text-transform:uppercase;letter-spacing:.09em}.financial strong{display:block;font-family:Georgia,serif;font-size:24pt;margin-top:2mm}.consignment{border:1px solid #d4b783;border-radius:4mm;padding:5mm;margin-top:5mm}.terms p{font-size:9.5pt;line-height:1.5;margin:2.5mm 0}.footer{position:absolute;left:18mm;right:18mm;bottom:12mm;border-top:1px solid #caa976;padding-top:5mm;display:flex;justify-content:space-between;font-size:9pt}@media screen{.page{box-shadow:0 18px 55px rgba(0,0,0,.18)}.print-note{position:sticky;top:0;z-index:5;background:#fff;padding:12px;text-align:center}}@media print{body{background:white}.print-note{display:none}.page{margin:0;box-shadow:none}}
+@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;background:#eee;color:#432b20;font-family:Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{width:210mm;min-height:297mm;margin:0 auto 12px;padding:18mm;background:#fbf5e9;position:relative}.page:last-child{margin-bottom:0}.cover{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(145deg,#5f1f20,#321113);color:#f7ead4}.cover img{width:62mm;margin-bottom:16mm}.cover .eyebrow{letter-spacing:.22em;text-transform:uppercase;font-size:10pt;color:#d9b36b}.cover h1{font-family:Georgia,serif;font-size:30pt;margin:5mm 0 2mm}.cover h2{font-size:18pt;font-weight:400;margin:0 0 12mm}.chips{display:flex;gap:4mm;flex-wrap:wrap;justify-content:center}.chips span{border:1px solid rgba(255,255,255,.28);border-radius:99px;padding:3mm 5mm}.brandline{display:flex;justify-content:space-between;border-bottom:1px solid #caa976;padding-bottom:4mm;margin-bottom:8mm}.brandline strong{letter-spacing:.13em}.facts{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin:8mm 0}.fact{border:1px solid #dec9a7;border-radius:4mm;padding:4mm;background:#fffaf1}.fact span{display:block;font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:#806451}.fact strong{display:block;margin-top:2mm}.menu-group{margin:7mm 0}.menu-group h3{font-family:Georgia,serif;border-bottom:1px solid #d5bd98;padding-bottom:2mm}.menu-line{display:flex;justify-content:space-between;gap:8mm;padding:2mm 0}.money-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin:8mm 0}.money-card{border:1px solid #d4b783;border-radius:4mm;padding:5mm;background:#fffaf1}.money-card span{display:block;font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:#806451}.money-card strong{display:block;font-family:Georgia,serif;font-size:17pt;margin:2mm 0}.money-card small{display:block;font-size:8.5pt;line-height:1.4;color:#6f5848}.money-card--contracted{background:#5f1f20;color:#fff1dd;border-color:#5f1f20}.money-card--contracted span,.money-card--contracted small{color:#f0d9ba}.money-card--estimate{border:2px solid #b78a43;background:#f7ead4}.terms p{font-size:9.5pt;line-height:1.5;margin:2.5mm 0}.footer{position:absolute;left:18mm;right:18mm;bottom:12mm;border-top:1px solid #caa976;padding-top:5mm;display:flex;justify-content:space-between;font-size:9pt}@media screen{.page{box-shadow:0 18px 55px rgba(0,0,0,.18)}.print-note{position:sticky;top:0;z-index:5;background:#fff;padding:12px;text-align:center}}@media print{body{background:#fbf5e9}.print-note{display:none}.page{width:auto;min-height:0;margin:0;padding:14mm 16mm;background:#fbf5e9;box-shadow:none;position:static;page-break-after:auto;break-after:auto}.cover{min-height:297mm;padding:18mm;page-break-after:always;break-after:page}.financial-page{page-break-before:always;break-before:page}.menu-group,.fact,.money-card{page-break-inside:avoid;break-inside:avoid}.footer{position:static;margin-top:10mm}.money-grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
@@ -259,11 +267,14 @@ function buildProposalHtml(snapshot) {
   <h2>Cardápio e quantidades</h2>
   ${groupsHtml}
 </section>
-<section class="page">
+<section class="page financial-page">
   <div class="brandline"><strong>RODA FESTA</strong><span>Proposta comercial</span></div>
   <h1>Investimento</h1>
-  <div class="financial"><span>Investimento contratado</span><strong>${escapeHtml(formatCurrency(snapshot.investmentTotal))}</strong><small>Bebidas em consignação não estão incluídas neste valor.</small></div>
-  <div class="consignment"><span>Estimativa de consignação</span><strong>${escapeHtml(snapshot.consignmentTotal > 0 ? formatCurrency(snapshot.consignmentTotal) : "Sem bebidas")}</strong><p>Cobrança posterior apenas das unidades efetivamente consumidas.</p></div>
+  <div class="money-grid">
+    <div class="money-card money-card--contracted"><span>Investimento contratado</span><strong>${escapeHtml(formatCurrency(presentation.investmentTotal))}</strong><small>${escapeHtml(formatCurrency(presentation.contractedPerPerson))} por pessoa. Consignação não incluída.</small></div>
+    <div class="money-card"><span>Estimativa de consignação</span><strong>${escapeHtml(presentation.hasConsignment ? formatCurrency(presentation.consignmentTotal) : "Sem consignação")}</strong><small>${presentation.hasConsignment ? `${escapeHtml(formatCurrency(presentation.consignmentPerPerson))} por pessoa. Cobrança posterior apenas do consumo real.` : "Nenhum item em consignação nesta proposta."}</small></div>
+    <div class="money-card money-card--estimate"><span>Estimativa geral do evento</span><strong>${escapeHtml(formatCurrency(presentation.estimatedEventTotal))}</strong><small>Contratado + estimativa de consignação. Este valor pode variar conforme o consumo. ${escapeHtml(formatCurrency(presentation.estimatedEventPerPerson))} por pessoa.</small></div>
+  </div>
   <div class="terms">
     <h2>Condições comerciais e operacionais</h2>
     <p><strong>Validade:</strong> 5 dias.</p><p><strong>Pagamento:</strong> Pix ou dinheiro.</p><p><strong>Reserva:</strong> 50% no ato da contratação.</p><p><strong>Saldo:</strong> 50% até 24 horas antes do evento.</p><p><strong>Área de atendimento:</strong> atendimento incluído apenas para eventos em Tupã.</p><p>Cancelamento com até 10 dias de antecedência: cobrança de 50% do orçamento.</p><p>Cancelamento com até 3 dias de antecedência: cobrança integral do orçamento.</p><p>Alteração de data com até 5 dias de antecedência: taxa de 50%, sujeita à disponibilidade.</p><p>Utilizamos tomadas 110V e 220V. Fios, extensões e transformadores já estão contemplados no orçamento.</p><p>A amperagem necessária será informada previamente e deverá ser providenciada pelo cliente.</p><p>Ao término do evento, os alimentos contratados e não consumidos serão entregues aos anfitriões.</p>
@@ -351,6 +362,11 @@ export default function PlanningBook() {
 
   const sceneObjects = useMemo(() => getSceneObjects(suggestion?.items || []), [suggestion]);
   const consignmentTotal = suggestion ? getConsignmentTotal(suggestion.items) : 0;
+  const proposalPresentation = buildProposalPresentation({
+    investmentTotal: suggestion?.investment?.total || 0,
+    consignmentTotal,
+    realGuests,
+  });
 
   function goTo(index) {
     setErrors({});
@@ -893,6 +909,12 @@ export default function PlanningBook() {
 
               <div className="rf-cost-card"><div><span>Produtos</span><strong>{formatCurrency(suggestion.investment.productsValue)}</strong></div><div><span>Estrutura · {suggestion.investment.chargedTotalCarts ?? suggestion.carts.totalCarts} carrinhos</span><strong>{formatCurrency(suggestion.investment.cartsValue)}</strong></div>{suggestion.investment.additionalHoursValue > 0 && <div><span>Horas adicionais</span><strong>{formatCurrency(suggestion.investment.additionalHoursValue)}</strong></div>}{suggestion.investment.waitersValue > 0 && <div><span>Garçons</span><strong>{formatCurrency(suggestion.investment.waitersValue)}</strong></div>}{suggestion.investment.disposablesValue > 0 && <div><span>Descartáveis</span><strong>{formatCurrency(suggestion.investment.disposablesValue)}</strong></div>}<div className="rf-cost-card__total"><span>Investimento contratado</span><strong>{formatCurrency(suggestion.investment.total)}</strong></div>{consignmentTotal > 0 && <small>+ estimativa de {formatCurrency(consignmentTotal)} em bebidas por consignação.</small>}</div>
 
+              <div className="rf-client-estimate-grid" aria-label="Resumo estimado do investimento">
+                <div><span>Contratado por pessoa</span><strong>{formatCurrency(proposalPresentation.contractedPerPerson)}</strong><small>Investimento contratado ÷ convidados reais.</small></div>
+                <div><span>Consignação estimada</span><strong>{proposalPresentation.hasConsignment ? formatCurrency(proposalPresentation.consignmentTotal) : "Sem consignação"}</strong><small>{proposalPresentation.hasConsignment ? "Estimativa de " + formatCurrency(proposalPresentation.consignmentPerPerson) + " por pessoa." : "Nenhum item em consignação selecionado."}</small></div>
+                <div className="is-highlight"><span>Estimativa geral do evento</span><strong>{formatCurrency(proposalPresentation.estimatedEventTotal)}</strong><small>Contratado + estimativa de consignação. Pode variar pelo consumo · {formatCurrency(proposalPresentation.estimatedEventPerPerson)} por pessoa.</small></div>
+              </div>
+
               <div className="rf-sticky-action rf-sticky-action--split"><button type="button" className="rf-secondary" onClick={() => goTo(2)}>Cardápio</button><button type="button" className="rf-primary" onClick={() => { if ((suggestion.items || []).length === 0) { setFormNotice("Adicione pelo menos um item antes de validar a proposta."); return; } goTo(4); }}>Validar proposta <span>→</span></button></div>
             </section>
           )}
@@ -907,7 +929,11 @@ export default function PlanningBook() {
 
               <div className="rf-review-menu">{groupedSuggestion.map((group) => <section key={group.category}><h3>{group.category === "Bebidas" ? "Bebidas em consignação" : group.category}</h3>{group.items.map((item) => <div key={item.id}><span>{item.name}</span><strong>{getQuantityLabel(item)}</strong></div>)}</section>)}</div>
 
-              <div className="rf-final-money"><span>Investimento contratado</span><strong>{formatCurrency(suggestion.investment.total)}</strong><p>Bebidas em consignação são cobradas posteriormente, apenas pelo consumo.</p>{consignmentTotal > 0 && <small>Estimativa de consignação: {formatCurrency(consignmentTotal)}</small>}</div>
+              <div className="rf-review-money-grid">
+                <div><span>Investimento contratado</span><strong>{formatCurrency(proposalPresentation.investmentTotal)}</strong><small>{formatCurrency(proposalPresentation.contractedPerPerson)} por pessoa.</small></div>
+                <div><span>Estimativa de consignação</span><strong>{proposalPresentation.hasConsignment ? formatCurrency(proposalPresentation.consignmentTotal) : "Sem consignação"}</strong><small>{proposalPresentation.hasConsignment ? "Cobrança posterior apenas das unidades consumidas." : "Não há valor variável nesta proposta."}</small></div>
+                <div className="is-highlight"><span>Estimativa geral do evento</span><strong>{formatCurrency(proposalPresentation.estimatedEventTotal)}</strong><small>Valor apenas estimado: contratado + consignação prevista · {formatCurrency(proposalPresentation.estimatedEventPerPerson)} por pessoa.</small></div>
+              </div>
 
               <div className="rf-terms-mini"><p><strong>Reserva:</strong> {COMMERCIAL_TERMS.reservation}</p><p><strong>Saldo:</strong> {COMMERCIAL_TERMS.balance}</p><p><strong>Validade:</strong> {COMMERCIAL_TERMS.validity}</p></div>
 
@@ -919,7 +945,7 @@ export default function PlanningBook() {
             <section className="rf-complete">
               <div className="rf-complete__mark">✓</div><span className="rf-eyebrow">Planejamento concluído</span><h1>Pronto, {clientName.trim().split(" ")[0]}.</h1><p>Seu planejamento foi fechado em uma versão única. O PDF nasce exatamente desses dados.</p>
               <div className="rf-code-card"><span>Código do planejamento</span><strong>{planningCode}</strong></div>
-              <div className="rf-complete__money"><span>Investimento contratado</span><strong>{formatCurrency(suggestion.investment.total)}</strong>{consignmentTotal > 0 && <small>Consignação estimada: {formatCurrency(consignmentTotal)}</small>}</div>
+              <div className="rf-complete__money"><span>Investimento contratado</span><strong>{formatCurrency(proposalPresentation.investmentTotal)}</strong><small>{formatCurrency(proposalPresentation.contractedPerPerson)} por pessoa</small>{proposalPresentation.hasConsignment && <small>Estimativa geral do evento: {formatCurrency(proposalPresentation.estimatedEventTotal)} · {formatCurrency(proposalPresentation.estimatedEventPerPerson)} por pessoa. O valor final varia conforme o consumo da consignação.</small>}</div>
               {submitMessage && <div className={`rf-submit-status rf-submit-status--${submitStatus}`}>{submitMessage}</div>}
               <div className="rf-complete__actions"><button type="button" className="rf-primary" onClick={openPdf}>Gerar meu PDF</button><button type="button" className="rf-secondary rf-secondary--wide" onClick={openWhatsApp}>Enviar para a especialista pelo WhatsApp</button></div>
               <button type="button" className="rf-quiet-link rf-quiet-link--center" onClick={restart}>Criar outro planejamento</button>

@@ -20,7 +20,7 @@ import { createPlanningSessionRuntime } from "./_lib/planning-session-runtime.js
 
 const MAX_BODY_BYTES = 120_000;
 const MAX_PRODUCTS = 100;
-const EVENT_TYPES = new Set(["infantil", "casamento", "corporativo"]);
+const EVENT_TYPES = new Set(["infantil", "casamento", "cha-bebe", "corporativo"]);
 const PRODUCT_BY_ID = new Map(Object.values(PRODUCTS).map((product) => [product.id, product]));
 const PLANNING_CHANGE_TYPES = new Set([
   "ITEM_QUANTITY_CHANGED", "ITEM_ADDED", "ITEM_REMOVED", "ITEM_REPLACED",

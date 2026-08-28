@@ -885,3 +885,60 @@
 .rf-choice-card.is-selected {
   box-shadow: 0 12px 28px rgba(67, 39, 22, .11);
 }
+
+/* V19.9A_CLIENT_PRESENTATION: client financial clarity and responsive summary cards */
+.rf-client-estimate-grid,
+.rf-review-money-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.rf-client-estimate-grid > div,
+.rf-review-money-grid > div {
+  padding: 16px;
+  border: 1px solid #d9bd93;
+  border-radius: 16px;
+  background: #fffaf1;
+  box-shadow: 0 10px 22px rgba(70, 40, 20, .06);
+}
+
+.rf-client-estimate-grid span,
+.rf-review-money-grid span {
+  display: block;
+  color: #8d6537;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.rf-client-estimate-grid strong,
+.rf-review-money-grid strong {
+  display: block;
+  margin: 5px 0;
+  color: #4c2c22;
+  font-family: var(--rf-serif);
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.rf-client-estimate-grid small,
+.rf-review-money-grid small {
+  display: block;
+  color: var(--rf-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.rf-client-estimate-grid .is-highlight,
+.rf-review-money-grid .is-highlight {
+  background: #f3e2c6;
+  border-color: #c99a4d;
+}
+
+@media (max-width: 680px) {
+  .rf-client-estimate-grid,
+  .rf-review-money-grid { grid-template-columns: 1fr; }
+}
