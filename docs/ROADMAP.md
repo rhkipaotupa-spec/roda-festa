@@ -818,3 +818,36 @@ A fila de validacao humana continua sendo a proxima unidade estrutural depois do
 ### Regra de evidência
 
 Não reutilizar `247/247` como baseline de `main`. Esse total foi medido em `feat/admin-operations-foundation`. O fechamento de `main` em 27/08 teve como prova final o smoke real de Production; qualquer nova baseline completa deve ser executada e registrada na própria `main`.
+
+<!-- V19.9A_DOC_RECONCILIATION_b5cd5ad -->
+## 2026-08-28 — V19.9A Client Proposal Clarity
+
+### Concluído tecnicamente
+
+- [x] separar contratado de consignação na leitura para o cliente;
+- [x] adicionar `Estimativa geral do evento`;
+- [x] adicionar valores por pessoa;
+- [x] manter os novos números como apresentação derivada, sem nova autoridade financeira;
+- [x] adicionar `Chá de bebê` na UI e no boundary server-side;
+- [x] corrigir estratégia de paginação do PDF;
+- [x] testes focais 6/6;
+- [x] suíte completa 235/235;
+- [x] lint e build GREEN;
+- [x] checkpoint técnico `b5cd5ad6bc8fb495474f0f3122ece8b5510e1618`.
+
+### Ainda obrigatório antes de Production
+
+- [ ] reconciliação documental e commit documental;
+- [ ] QA visual/manual do PDF com proposta curta e proposta longa;
+- [ ] confirmar que contratado, consignação e estimativa geral estão claros em desktop e celular;
+- [ ] smoke de `Chá de bebê` em jornada persistida;
+- [ ] somente depois decidir promoção para `main`/Production.
+
+### Próximas unidades separadas
+
+1. Brigadeiro no tacho: 80 g/pessoa, sabores chocolate/Ninho/meio a meio, regra própria de carrinho e hooks para imagens futuras.
+2. Carrinho avulso: estrutura contratável a R$ 300/carrinho, sem fingir categoria de alimento.
+3. Calibração de salgadinhos: comparar os dois orçamentos reais corretos do Admin antes de mudar o motor; nenhuma mudança automática para 7/pessoa.
+4. Agenda Admin: prioridade operacional alta para conflitos de data/horário.
+5. Admin Operations: integrar arquivamento/lixeira/restauração somente a partir da fundação isolada já preservada.
+6. Catálogo/preços versionados e validação humana seguem como unidades próprias.

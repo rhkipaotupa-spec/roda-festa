@@ -1381,3 +1381,50 @@ A branch `feat/admin-operations-foundation` possui os checkpoints:
 - `7a648dabdfea10737411ec7ea908393a41a675d7` — reconciliação documental correspondente.
 
 Essa fundação inclui estado administrativo separado, auditoria append-only e transição atômica, mas não integra a Production canônica neste fechamento. Não promover por acidente durante a reconciliação de `main`.
+
+<!-- V19.9A_DOC_RECONCILIATION_b5cd5ad -->
+## 2026-08-28 — V19.9A clareza da proposta ao cliente — CORRIGIDO TECNICAMENTE / PENDENTE QA VISUAL
+
+### FATO CONFIRMADO
+
+Testes reais com clientes mostraram ambiguidade entre investimento contratado e bebidas em consignação, além de paginação ruim no PDF de proposta. Também foi solicitado mostrar custo por pessoa e incluir o tipo de evento `Chá de bebê`.
+
+### Correção técnica
+
+Checkpoint técnico:
+`b5cd5ad6bc8fb495474f0f3122ece8b5510e1618` — `feat: improve client proposal clarity`.
+
+A unidade V19.9A:
+- adiciona `Chá de bebê` na interface e na allowlist autoritativa de `PlanningSession`;
+- cria camada pura `proposalPresentation.js` para derivar valores de apresentação sem alterar o Commercial Ledger;
+- mantém `Investimento contratado` como verdade contratual;
+- apresenta `Estimativa de consignação` separadamente;
+- apresenta `Estimativa geral do evento` como contratado + consignação estimada;
+- apresenta valor contratado por pessoa e estimativa geral por pessoa usando convidados reais;
+- evita divisão por zero;
+- deixa explícito que consignação depende do consumo efetivo;
+- corrige a estratégia de impressão para permitir paginação natural do conteúdo, preservando a capa A4 isolada;
+- não altera motor de recomendação, catálogo, preços, quantidade de salgadinhos ou regras de carrinho.
+
+### Evidência final
+
+- validação focal V19.9A: 6/6 GREEN;
+- suíte completa na branch: 235/235 GREEN;
+- lint: GREEN;
+- build: GREEN;
+- `git diff --check`: GREEN;
+- `git diff --cached --check`: GREEN;
+- working tree limpa após o checkpoint técnico;
+- warning preexistente de `src/styles/colors.css` vazio permaneceu não bloqueante.
+
+### Evidência sobre o processo de validação
+
+Dois falsos RED foram identificados e corrigidos sem alterar a implementação para satisfazer validações defeituosas:
+1. o primeiro validator interpretava incorretamente `git status --porcelain` por remover whitespace apenas da primeira linha;
+2. o teste inicial de paginação proibia genericamente `min-height:297mm ... page-break-after:always`, confundindo a quebra intencional da capa com a antiga quebra problemática da página genérica.
+
+Regra preservada: corrigir o validador/teste quando a evidência demonstrar que ele mede a propriedade errada; não deformar o produto para obter GREEN artificial.
+
+### Limites
+
+Ainda falta QA visual/manual do PDF e das novas mensagens em navegador real antes de promover a unidade para `main`/Production. Brigadeiro no tacho, carrinho avulso, calibração de salgadinhos, Agenda Admin e Admin Operations permanecem unidades separadas.

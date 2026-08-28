@@ -632,3 +632,18 @@ O resultado `247/247 + lint + build` pertence à branch `feat/admin-operations-f
 ### Fundação de Admin Operations permanece isolada
 
 Os checkpoints locais `68eaaffb262a8fa8bf09061eb445788d0c5e7355` e `7a648dabdfea10737411ec7ea908393a41a675d7` da branch `feat/admin-operations-foundation` não foram promovidos automaticamente para Production. Arquivados, Lixeira, restauração, auditoria e validação humana devem ser retomados conscientemente em unidade própria após o snapshot seguro deste fechamento.
+
+<!-- V19.9A_DOC_RECONCILIATION_b5cd5ad -->
+## 2026-08-28 — Decisões V19.9A: apresentação financeira e PDF
+
+Checkpoint técnico reconciliado:
+`b5cd5ad6bc8fb495474f0f3122ece8b5510e1618` — `feat: improve client proposal clarity`.
+
+- `Investimento contratado` continua sendo o valor contratual e não inclui consignação.
+- `Estimativa de consignação` permanece separada porque depende do consumo real.
+- `Estimativa geral do evento` é uma leitura derivada de apresentação: contratado + consignação estimada. Não deve ser persistida como nova autoridade financeira concorrente ao Commercial Ledger.
+- valores por pessoa são derivados de convidados reais; ausência de convidados deve resultar em valor por pessoa seguro/zero, nunca divisão inválida.
+- o PDF deve permitir fragmentação natural de conteúdo. A capa pode continuar como A4 isolado; páginas de conteúdo não devem usar a combinação genérica de altura mínima A4 com quebra forçada que produzia páginas em branco.
+- `Chá de bebê` é um novo tipo de evento válido e precisa existir tanto na UI quanto no boundary autoritativo server-side.
+- a V19.9A não é autorização para alterar recomendação, preços, salgadinhos ou carrinhos.
+- testes/validators que medem uma propriedade diferente da intenção aprovada devem ser corrigidos; não alterar implementação correta apenas para obter GREEN.

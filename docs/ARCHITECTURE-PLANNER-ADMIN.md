@@ -966,3 +966,31 @@ Após migration e promoção controlada dos hotfixes para `main`, o smoke real e
 A validação `247/247 + lint + build` ocorreu na branch `feat/admin-operations-foundation`, que continha também a fundação local de Admin Operations não promovida para Production. Esse total não é baseline exata de `main`.
 
 Depois dos cherry-picks finais, a prova conclusiva de `main` foi o smoke real de Production. Uma futura baseline completa de `main` deve ser registrada somente quando reexecutada nessa branch.
+
+<!-- V19.9A_DOC_RECONCILIATION_b5cd5ad -->
+## V19.9A — Camada de apresentação da proposta
+
+A V19.9A introduz uma separação explícita entre verdade comercial e leitura apresentada ao cliente.
+
+Checkpoint técnico desta arquitetura:
+`b5cd5ad6bc8fb495474f0f3122ece8b5510e1618` — `feat: improve client proposal clarity`.
+
+Fluxo preservado:
+`InputSnapshot -> RecommendationSnapshot -> PlanningChange[] -> FinalProposalSnapshot -> Admin read model`.
+
+A nova função `buildProposalPresentation()`, em `src/planner/planning-book/proposalPresentation.js`, recebe apenas valores já calculados/persistidos para produzir leituras derivadas de UI/PDF:
+- investimento contratado;
+- consignação estimada;
+- estimativa geral do evento;
+- contratado por pessoa;
+- estimativa geral por pessoa.
+
+Essa camada não recalcula preço de produto, carrinhos, horas, garçons, descartáveis nem Commercial Ledger e não deve evoluir para uma segunda autoridade comercial.
+
+O tipo de evento `cha-bebe` passa a fazer parte do contrato de entrada aceito pela UI e por `api/planning-sessions.js`. Tipos desconhecidos continuam fail-closed.
+
+Para PDF/print, a arquitetura distingue:
+- capa: página A4 isolada;
+- conteúdo: fluxo paginado naturalmente pelo navegador, sem quebra forçada no container genérico.
+
+Brigadeiro no tacho e carrinho avulso permanecem fora desta camada porque alteram catálogo/estrutura operacional e exigem modelagem própria no motor/ledger.

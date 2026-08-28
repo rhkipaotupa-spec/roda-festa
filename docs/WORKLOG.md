@@ -1121,3 +1121,40 @@ O dia 27/08 terminou operacionalmente GREEN, mas sem um commit documental poster
 
 Sequência obrigatória desta retomada:
 `hotfix técnico -> reconciliação documental -> commit documental -> working tree limpa -> snapshot seguro`.
+
+<!-- V19.9A_DOC_RECONCILIATION_b5cd5ad -->
+## 2026-08-28 — V19.9A: clareza financeira da proposta ao cliente
+
+A unidade foi aberta em `feat/planner-client-v19.9a` a partir de `ccd16fea77cd9c8cb742916a504bbbcafaf64a91`, com working tree limpa.
+
+Escopo implementado:
+- novo tipo de evento `Chá de bebê`;
+- boundary server-side atualizado para aceitar o novo tipo sem ampliar tipos desconhecidos;
+- helper puro de apresentação financeira;
+- três leituras distintas: contratado, consignação estimada e estimativa geral do evento;
+- leituras por pessoa;
+- texto explícito de variabilidade da consignação;
+- paginação de impressão revisada para remover a quebra rígida do container genérico e preservar a capa como página isolada;
+- CSS responsivo para os cartões financeiros.
+
+A unidade não alterou `planningRules`, preços, catálogo, regras de recomendação, quantidade de salgadinhos, Commercial Ledger ou persistência.
+
+Validação:
+- focal: 6/6;
+- completa: 235/235;
+- lint: GREEN;
+- build: GREEN;
+- warning conhecido de `colors.css` vazio permaneceu não bloqueante;
+- diff e staging check: GREEN.
+
+Durante a validação, dois falsos RED foram isolados no tooling e reparados sem alteração funcional: parser de porcelain status e regex excessivamente ampla de paginação.
+
+Checkpoint técnico:
+`b5cd5ad6bc8fb495474f0f3122ece8b5510e1618` — `feat: improve client proposal clarity`.
+
+Próxima sequência obrigatória:
+1. concluir esta reconciliação documental;
+2. criar commit documental separado;
+3. confirmar working tree limpa;
+4. somente então considerar snapshot seguro;
+5. antes de Production, executar QA visual/manual da proposta/PDF e fluxo de `Chá de bebê`.
