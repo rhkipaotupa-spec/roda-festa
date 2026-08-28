@@ -26,6 +26,29 @@ function eq(value) {
   return `eq.${encodeURIComponent(String(value))}`;
 }
 
+function normalizeIsoDate(value, field) {
+  const text = String(value ?? "").trim();
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+  if (!match) {
+    throw new Error(`planning_admin_read_event_date_${field}_invalid`);
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    date.getUTCFullYear() !== year
+    || date.getUTCMonth() !== month - 1
+    || date.getUTCDate() !== day
+  ) {
+    throw new Error(`planning_admin_read_event_date_${field}_invalid`);
+  }
+
+  return text;
+}
+
 function normalizeRow(row) {
   if (!row || typeof row !== "object") return null;
 
@@ -104,6 +127,28 @@ export function createPlanningAdminReadStore({
     );
   }
 
+  async function listByEventDateRange({ from, to } = {}) {
+    const safeFrom = normalizeIsoDate(from, "from");
+    const safeTo = normalizeIsoDate(to, "to");
+    if (safeFrom > safeTo) {
+      throw new Error("planning_admin_read_event_date_range_invalid");
+    }
+
+    const rows = await request(
+      `planning_sessions?select=*`
+      + `&input_snapshot->>eventDate=gte.${encodeURIComponent(safeFrom)}`
+      + `&input_snapshot->>eventDate=lte.${encodeURIComponent(safeTo)}`
+      + "&order=input_snapshot->>eventDate.asc,last_activity_at.desc",
+    );
+
+    return Object.freeze(
+      (Array.isArray(rows) ? rows : [])
+        .map(normalizeRow)
+        .filter(Boolean)
+        .map((row) => enrichSummary(buildAdminJourneySummary(row), row)),
+    );
+  }
+
   async function getById(sessionId) {
     const id = String(sessionId || "").trim();
     if (!id) throw new Error("planning_admin_read_session_id_required");
@@ -119,6 +164,7 @@ export function createPlanningAdminReadStore({
 
   return Object.freeze({
     listRecent,
+    listByEventDateRange,
     getById,
   });
 }

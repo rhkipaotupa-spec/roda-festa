@@ -93,6 +93,72 @@ test("lista administrativa entrega resumo sem token anonimo do cliente", async (
   assert.equal(JSON.stringify(quote).includes("must-not-leak"), false);
 });
 
+test("agenda administrativa consulta pela data autoritativa do evento sem limite de recentes", async () => {
+  let observed;
+
+  const store = createPlanningAdminReadStore({
+    env: {
+      SUPABASE_URL: "https://example.supabase.co",
+      SUPABASE_SERVICE_ROLE_KEY: "server-secret",
+    },
+    fetchImpl: async (url, options) => {
+      observed = { url, options };
+      return jsonResponse([
+        row({ anonymous_session_token_hash: "must-not-leak" }),
+      ]);
+    },
+  });
+
+  const [quote] = await store.listByEventDateRange({
+    from: "2026-09-01",
+    to: "2026-09-30",
+  });
+
+  assert.match(observed.url, /planning_sessions\?select=\*/);
+  assert.match(observed.url, /input_snapshot->>eventDate=gte\.2026-09-01/);
+  assert.match(observed.url, /input_snapshot->>eventDate=lte\.2026-09-30/);
+  assert.match(observed.url, /order=input_snapshot->>eventDate\.asc,last_activity_at\.desc/);
+  assert.doesNotMatch(observed.url, /(?:^|[?&])limit=/);
+  assert.equal(observed.options.headers.apikey, "server-secret");
+  assert.equal(observed.options.headers.Authorization, "Bearer server-secret");
+  assert.equal(quote.event.date, "2026-09-20");
+  assert.equal(quote.status, "FINALIZED");
+  assert.equal(JSON.stringify(quote).includes("must-not-leak"), false);
+});
+
+test("agenda administrativa rejeita datas invalidas e intervalo invertido antes do request", async () => {
+  let requestCount = 0;
+  const store = createPlanningAdminReadStore({
+    env: {
+      SUPABASE_URL: "https://example.supabase.co",
+      SUPABASE_SERVICE_ROLE_KEY: "server-secret",
+    },
+    fetchImpl: async () => {
+      requestCount += 1;
+      return jsonResponse([]);
+    },
+  });
+
+  await assert.rejects(
+    store.listByEventDateRange({ from: "2026-02-30", to: "2026-03-01" }),
+    /planning_admin_read_event_date_from_invalid/,
+  );
+  await assert.rejects(
+    store.listByEventDateRange({ from: "2026-09-01", to: "2026-09-31" }),
+    /planning_admin_read_event_date_to_invalid/,
+  );
+  await assert.rejects(
+    store.listByEventDateRange({ from: "2026-09-30", to: "2026-09-01" }),
+    /planning_admin_read_event_date_range_invalid/,
+  );
+  await assert.rejects(
+    store.listByEventDateRange({ from: "09/01/2026", to: "2026-09-30" }),
+    /planning_admin_read_event_date_from_invalid/,
+  );
+
+  assert.equal(requestCount, 0);
+});
+
 test("detalhe administrativo preserva snapshots historicos", async () => {
   const store = createPlanningAdminReadStore({
     env: {
