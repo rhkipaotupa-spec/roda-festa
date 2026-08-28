@@ -780,3 +780,41 @@ A fila de validacao humana continua sendo a proxima unidade estrutural depois do
 - validacao por usuario administrativo autorizado -> **Validado**;
 - preservar `recomendacao do motor -> decisao do cliente -> validacao humana`;
 - nao acoplar estruturalmente `origem Admin = validado`.
+
+## 2026-08-28 — Fechamento documental dos hotfixes de Production de 27/08
+
+### Concluído operacionalmente e agora reconciliado
+
+- [x] preservar `planning_changes` como timeline append-only durante `finalize()`;
+- [x] promover para `main` o hotfix `f186f7f`;
+- [x] retirar do navegador a autoridade do código canônico de proposta em Production;
+- [x] versionar `infra/migrations/20260827_v19_8_server_proposal_codes.sql`;
+- [x] materializar `planning_proposal_sequences` e `allocate_planning_proposal_code()` no Supabase Production;
+- [x] promover para `main` o hotfix `7381154623d26efa6309f31f9e386281de46536f`;
+- [x] criar identidade ADMIN permanente para Adrielly sem registrar credencial em Git/chat;
+- [x] comprovar login da Adrielly em Production;
+- [x] comprovar Admin em Production;
+- [x] comprovar novo planejamento + conclusão em nova sessão sem colisão de código;
+- [x] preservar a fundação de Admin Operations fora de Production até retomada consciente.
+
+### Gate de governança ainda em execução nesta retomada
+
+1. criar commit documental separado que contenha esta reconciliação;
+2. confirmar working tree limpa após o commit;
+3. gerar snapshot seguro do fechamento de 27/08 pelo protocolo aprovado;
+4. registrar no manifest branch, commit documental, horário, verificação de tree limpa, hash e tamanho do snapshot;
+5. somente depois iniciar nova evolução funcional.
+
+### Próximas frentes já aprovadas após o snapshot
+
+- saudação derivada da sessão `Olá, <nome>` e logout com revogação server-side;
+- retomar Admin Operations conscientemente: Arquivados, Lixeira, Restaurar e auditoria, sem delete físico na V1;
+- implementar a separação Cliente enviado -> Aguardando validação -> Validado por usuário autorizado;
+- calendário/overview operacional derivado dos dados persistidos;
+- gestão versionada de catálogo e preços, sem alterar propostas históricas;
+- usar orçamentos reais para calibração offline/controlada do motor, sem aprendizado automático;
+- validar CanonicalPDF como cadeia própria e tratar e-mail como superfície independente.
+
+### Regra de evidência
+
+Não reutilizar `247/247` como baseline de `main`. Esse total foi medido em `feat/admin-operations-foundation`. O fechamento de `main` em 27/08 teve como prova final o smoke real de Production; qualquer nova baseline completa deve ser executada e registrada na própria `main`.

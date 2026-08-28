@@ -1308,3 +1308,76 @@ Escopo funcional:
 ### Pendencia de fechamento
 
 A unidade ainda precisa ser integrada a linha canonica e comprovada no Admin Production com o Smoke 3 controlado. O registro controlado nao deve ser apagado antes da regressao e da identificacao exata da sessao.
+
+## 2026-08-28 — Reconciliação do fechamento operacional de 27/08/2026
+
+### Timeline intermediária era apagada por finalize() — RESOLVIDO EM PRODUCTION
+
+**FATO CONFIRMADO**
+
+Um smoke controlado mostrou estado final correto dos serviços, porém histórico intermediário ausente depois da finalização.
+
+**Causa raiz comprovada:** `finalize()` sobrescrevia `planning_changes` com deltas líquidos de produto calculados no fechamento, apagando eventos previamente persistidos pela jornada.
+
+**Correção:**
+- commit em `main`: `f186f7f` — `fix: preserve planning timeline on finalization`;
+- finalização deixa de escrever em `planning_changes`;
+- timeline continua append-only;
+- comparação recomendação x final permanece derivada separadamente;
+- não reconstruir eventos históricos já perdidos sem evidência.
+
+**Prova:** o hotfix foi promovido de forma isolada para `main` e permaneceu presente no smoke final de Production aprovado em 27/08.
+
+### Código de proposta gerado por localStorage colidia com unicidade global — RESOLVIDO EM PRODUCTION
+
+**FATO CONFIRMADO**
+
+Em nova sessão/navegador, a conclusão do planejamento falhou com resposta pública `invalid_planning_session_request` e runtime `planning_store_error:409`.
+
+O banco protege a unicidade de `final_proposal_snapshot->>'code'`, enquanto o frontend gerava `RF-YYMMDD-xxxxx` com sequência local em `localStorage`. Um navegador novo reiniciava a sequência e podia reutilizar um código já persistido.
+
+**Causa raiz:** a autoridade do identificador global estava no navegador, apesar de a unicidade ser global no banco.
+
+**Correção arquitetural:**
+- migration `infra/migrations/20260827_v19_8_server_proposal_codes.sql`;
+- `public.planning_proposal_sequences` para sequência diária;
+- RPC server-side `public.allocate_planning_proposal_code()`;
+- timezone `America/Sao_Paulo`;
+- bootstrap pelo maior código do dia já persistido;
+- alocação atômica;
+- `anon`/`authenticated` sem execute;
+- índice único preservado;
+- frontend deixa de ser autoridade do código em modo persistido.
+
+Checkpoint em `main`:
+`7381154623d26efa6309f31f9e386281de46536f` — `fix: allocate proposal codes server-side`.
+
+A migration foi aplicada no Supabase Production canônico antes do deploy consumidor. Resultado observado no SQL Editor: `Success. No rows returned`.
+
+### Smoke final em Production com identidade ADMIN da Adrielly — GREEN
+
+Após migration e push de `main`:
+- login da Adrielly: aprovado;
+- Admin: aprovado;
+- novo planejamento em sessão independente: aprovado;
+- conclusão do planejamento: aprovada;
+- o conflito 409 de código não se repetiu.
+
+A identidade da Adrielly foi provisionada como usuário permanente com role `ADMIN`. O provisionador era temporário; a conta não é temporária. Nenhuma credencial em texto puro foi registrada nesta documentação.
+
+### Limite de evidência — baseline 247/247 não pertence à main
+
+A execução `247/247 + lint + build` ocorreu em `feat/admin-operations-foundation`, branch que também continha a fundação local de Admin Operations. Depois do cherry-pick dos dois hotfixes para `main`, não houve nova suíte completa em `main` antes do encerramento.
+
+Portanto:
+- não declarar `247/247` como baseline exata de `main`;
+- a evidência final de `main` em 27/08 foi o smoke real de Production;
+- uma futura baseline completa deve ser registrada somente após reexecução na própria `main`.
+
+### Fundação de Admin Operations não foi promovida — PRESERVAR ISOLAMENTO
+
+A branch `feat/admin-operations-foundation` possui os checkpoints:
+- `68eaaffb262a8fa8bf09061eb445788d0c5e7355` — fundação persistente de operações administrativas;
+- `7a648dabdfea10737411ec7ea908393a41a675d7` — reconciliação documental correspondente.
+
+Essa fundação inclui estado administrativo separado, auditoria append-only e transição atômica, mas não integra a Production canônica neste fechamento. Não promover por acidente durante a reconciliação de `main`.

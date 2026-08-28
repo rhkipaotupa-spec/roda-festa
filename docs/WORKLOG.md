@@ -1032,3 +1032,92 @@ Proxima prova:
 4. repetir o Smoke 3 no Admin;
 5. comprovar que servicos nao aparecem em `Motor x versao final`, que `Servicos escolhidos` mostra o estado final correto e que a timeline preserva a sequencia intermediaria;
 6. somente depois limpar os registros ficticios com identificacao exata.
+
+## 2026-08-28 — Reconciliação do encerramento operacional de 27/08/2026
+
+Esta entrada registra fatos ocorridos depois da última reconciliação versionada e antes do encerramento operacional de 27/08. Nenhuma nova feature foi iniciada nesta reconciliação.
+
+### 1. Hotfix da timeline append-only
+
+Um smoke real revelou que ações intermediárias de serviços desapareciam após a finalização, embora o estado final estivesse correto.
+
+A investigação confirmou que `appendChanges()` preservava a timeline, mas `finalize()` sobrescrevia `planning_changes` com deltas líquidos de produto.
+
+Foi corrigida a separação de responsabilidades:
+- timeline continua append-only;
+- finalização não escreve em `planning_changes`;
+- comparação recomendação x final continua derivada separadamente.
+
+Checkpoint equivalente promovido para `main` por cherry-pick:
+`f186f7f` — `fix: preserve planning timeline on finalization`.
+
+### 2. Fundação local de Admin Operations preservada fora de Production
+
+Na branch `feat/admin-operations-foundation` foram concluídos:
+- `68eaaffb262a8fa8bf09061eb445788d0c5e7355` — `feat: add admin quote operations persistence foundation`;
+- `7a648dabdfea10737411ec7ea908393a41a675d7` — reconciliação documental da fundação.
+
+A branch continha estado separado `ACTIVE/ARCHIVED/TRASHED`, validação humana, auditoria append-only e transição atômica. Ela não foi promovida para Production durante os hotfixes.
+
+A validação `247/247 + lint + build` pertence a essa branch e não deve ser registrada como baseline exata de `main`.
+
+### 3. Identidade ADMIN permanente para Adrielly
+
+Foi criada uma segunda identidade administrativa permanente com role `ADMIN`, sem reutilizar o bootstrap do primeiro `OWNER`.
+
+O provisionador foi temporário e o material de credencial permaneceu fora de Git/chat. A conta criada é permanente e foi comprovada por login real em janela anônima e acesso ao workspace Admin.
+
+### 4. Incidente de conclusão em nova sessão
+
+No teste posterior como Adrielly, um novo planejamento ficou em estado de registro e a API respondeu `invalid_planning_session_request`; o runtime registrou `planning_store_error:409`.
+
+A causa foi isolada do provisionamento da Adrielly. O problema estava na geração do código canônico da proposta:
+- banco exigia unicidade global;
+- frontend usava sequência em `localStorage`;
+- navegador/sessão nova podia reiniciar em `00001` e colidir com código já existente.
+
+### 5. Hotfix de proposal code server-side
+
+Foi criada a migration:
+`infra/migrations/20260827_v19_8_server_proposal_codes.sql`.
+
+Ela introduz:
+- `public.planning_proposal_sequences`;
+- `public.allocate_planning_proposal_code()`;
+- sequência diária atômica em `America/Sao_Paulo`;
+- bootstrap pelo maior código do dia já persistido;
+- acesso de execução restrito ao backend privilegiado;
+- preservação do índice único já existente.
+
+A migration foi executada manualmente no Supabase Production canônico antes do deploy consumidor e retornou `Success. No rows returned`.
+
+O hotfix foi promovido isoladamente para `main`:
+`7381154623d26efa6309f31f9e386281de46536f` — `fix: allocate proposal codes server-side`.
+
+Push confirmado no encerramento:
+`34c9db1..7381154  main -> main`.
+
+### 6. Smoke final de Production
+
+Após migration + deployment:
+- login como Adrielly: GREEN;
+- Admin: GREEN;
+- novo planejamento: GREEN;
+- concluir planejamento: GREEN;
+- o conflito 409 não se repetiu.
+
+Estado canônico ao encerrar:
+- branch `main`;
+- HEAD `7381154623d26efa6309f31f9e386281de46536f`;
+- Production `https://roda-festa.vercel.app`;
+- Supabase Project Ref `ezccivmuvlqvzhojnoxn`.
+
+### 7. Fechamento documental ficou deliberadamente para 28/08
+
+O dia 27/08 terminou operacionalmente GREEN, mas sem um commit documental posterior aos hotfixes. Por governança, nenhum snapshot de 27/08 foi rotulado como seguro naquele momento.
+
+Último snapshot seguro preservado durante a retomada:
+`roda-festa-snapshot-2026-08-26-e711ced.zip`, commit `e711ced16d9a14794a3d510680a8839a4ccc7ede`.
+
+Sequência obrigatória desta retomada:
+`hotfix técnico -> reconciliação documental -> commit documental -> working tree limpa -> snapshot seguro`.

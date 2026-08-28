@@ -590,3 +590,45 @@ A futura calibracao do motor deve considerar apenas as dimensoes que pertencem a
 
 Checkpoint tecnico que implementa esta regra de apresentacao:
 `95459dee9de698e0208f35c1168c956112da42a7` - `fix: separate optional services from engine comparison`.
+
+## 2026-08-28 — Reconciliação das decisões do fechamento operacional de 27/08/2026
+
+### Finalização não reescreve a timeline
+
+`planning_changes` é evidência histórica append-only. A finalização da proposta não pode substituir eventos intermediários por um delta líquido reconstruído no fechamento.
+
+Decisão consolidada após o hotfix `f186f7f`:
+- eventos de jornada são persistidos somente pelo fluxo próprio de append;
+- `finalize()` congela a proposta final sem escrever em `planning_changes`;
+- Motor x Final é uma leitura derivada separada da timeline;
+- eventos históricos já perdidos não devem ser inventados retroativamente.
+
+### Código canônico de proposta é autoridade server-side
+
+A unicidade do código final é global no banco e não pode depender de sequência local do navegador.
+
+Decisão consolidada após o hotfix `7381154`:
+- Production aloca `RF-YYMMDD-xxxxx` no servidor/banco;
+- a RPC `allocate_planning_proposal_code()` é o mecanismo canônico;
+- sequência é diária e atômica, no timezone `America/Sao_Paulo`;
+- índice único permanece ativo como proteção final;
+- navegador não escolhe o código canônico quando a persistência está ativa;
+- `localStorage` não volta a ser fonte de verdade de códigos globais.
+
+### Migration server-side de proposal code foi materializada antes do deploy consumidor
+
+A migration `infra/migrations/20260827_v19_8_server_proposal_codes.sql` foi executada no Supabase Production canônico e retornou `Success. No rows returned` antes da promoção do código que passou a chamar a RPC.
+
+### Conta ADMIN da Adrielly é identidade permanente
+
+O provisionamento usado em 27/08 foi temporário, mas a identidade criada para Adrielly é permanente e deve sobreviver à futura gestão profissional de usuários. Não recriar a conta apenas porque futuramente existirá UI de convite/gestão.
+
+A credencial real permanece fora de Git, documentação e chat.
+
+### Evidência de baseline deve respeitar a branch medida
+
+O resultado `247/247 + lint + build` pertence à branch `feat/admin-operations-foundation` e não deve ser rotulado como baseline de `main`. Após os cherry-picks `f186f7f` e `7381154`, a evidência conclusiva de `main` no fechamento foi o smoke real de Production.
+
+### Fundação de Admin Operations permanece isolada
+
+Os checkpoints locais `68eaaffb262a8fa8bf09061eb445788d0c5e7355` e `7a648dabdfea10737411ec7ea908393a41a675d7` da branch `feat/admin-operations-foundation` não foram promovidos automaticamente para Production. Arquivados, Lixeira, restauração, auditoria e validação humana devem ser retomados conscientemente em unidade própria após o snapshot seguro deste fechamento.

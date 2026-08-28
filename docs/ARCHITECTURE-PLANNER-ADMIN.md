@@ -903,3 +903,66 @@ Criar uma jornada real após a materialização de `planning_sessions` e verific
 `InputSnapshot -> RecommendationSnapshot -> PlanningChange[] -> FinalProposalSnapshot -> Admin read model`.
 
 Somente após essa prova o histórico deve ser usado como base para experimentos de calibração do recomendador.
+
+## 2026-08-28 — Reconciliação do fechamento operacional de 27/08/2026
+
+Esta seção registra arquiteturalmente os dois hotfixes que chegaram a `main` e a Production após a última reconciliação documental de 27/08.
+
+### Timeline de PlanningChange permanece append-only durante a finalização
+
+Um smoke controlado comprovou que o estado final dos serviços estava correto, mas ações intermediárias já persistidas desapareciam depois de `finalize()`.
+
+Causa raiz comprovada: a finalização sobrescrevia `planning_changes` com deltas líquidos de produto calculados no fechamento. Isso violava a semântica append-only da timeline e apagava fatos históricos previamente registrados.
+
+Correção consolidada em `main`:
+- commit `f186f7f` — `fix: preserve planning timeline on finalization`;
+- `appendChanges()` permanece o caminho de escrita dos eventos históricos;
+- `finalize()` não escreve mais em `planning_changes`;
+- comparação Motor x Final continua derivada separadamente dos snapshots autoritativos;
+- eventos históricos perdidos em smokes antigos não devem ser reconstruídos ou fabricados retroativamente.
+
+Invariante reforçada:
+
+`RecommendationSnapshot -> PlanningChange[] append-only -> FinalProposalSnapshot`
+
+A finalização congela a proposta final, mas não reescreve a história que levou até ela.
+
+### Código canônico da proposta passa a ser alocado server-side
+
+Foi comprovada uma colisão de códigos em nova sessão/navegador porque o formato `RF-YYMMDD-xxxxx` era gerado no frontend com sequência mantida em `localStorage`, enquanto o banco aplicava unicidade global sobre o código persistido. Um navegador novo podia reiniciar a sequência em `00001` e receber conflito 409 para um código já existente.
+
+A autoridade do código canônico foi movida para o servidor/banco.
+
+Contrato consolidado:
+- migration `infra/migrations/20260827_v19_8_server_proposal_codes.sql`;
+- tabela `public.planning_proposal_sequences` com sequência diária;
+- RPC `public.allocate_planning_proposal_code()`;
+- timezone operacional `America/Sao_Paulo`;
+- bootstrap pelo maior código canônico já persistido no dia;
+- alocação atômica por `INSERT ... ON CONFLICT ... UPDATE`;
+- `anon` e `authenticated` sem permissão de execução;
+- execução reservada ao backend privilegiado;
+- índice único do snapshot final permanece como proteção de integridade;
+- com persistência ativa, o navegador não é autoridade do código e recebe o código confirmado pelo servidor após a finalização;
+- `localStorage` pode permanecer apenas como fallback de modo não persistido, nunca como autoridade de Production.
+
+Checkpoint em `main`:
+`7381154623d26efa6309f31f9e386281de46536f` — `fix: allocate proposal codes server-side`.
+
+A migration foi materializada manualmente no Supabase Production canônico antes do deploy do código consumidor, com resultado observado `Success. No rows returned`.
+
+### Identidade administrativa e prova operacional final
+
+Em 27/08 foi criada uma identidade administrativa permanente adicional para Adrielly com role `ADMIN`, sem reutilizar o bootstrap do primeiro `OWNER`. O provisionador foi temporário; a conta é permanente. Nenhuma senha em texto puro, token, cookie ou secret foi registrado em Git, documentação ou chat.
+
+Após migration e promoção controlada dos hotfixes para `main`, o smoke real em `https://roda-festa.vercel.app` comprovou:
+- login da Adrielly;
+- acesso ao Admin;
+- criação de novo planejamento em sessão independente;
+- conclusão do planejamento sem o conflito 409 anterior.
+
+### Limite de evidência do baseline
+
+A validação `247/247 + lint + build` ocorreu na branch `feat/admin-operations-foundation`, que continha também a fundação local de Admin Operations não promovida para Production. Esse total não é baseline exata de `main`.
+
+Depois dos cherry-picks finais, a prova conclusiva de `main` foi o smoke real de Production. Uma futura baseline completa de `main` deve ser registrada somente quando reexecutada nessa branch.
