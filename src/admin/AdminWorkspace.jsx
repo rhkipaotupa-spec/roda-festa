@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import "./AdminWorkspace.css";
 import "./AdminJourneyEnhancements.css";
 
+import AdminAgendaView from "./AdminAgendaView.jsx";
 import rodaFestaLogoCreme from "../planner/planning-book/assets/logo-roda-festa-creme.png";
 import {
   buildItemComparison,
@@ -139,6 +140,7 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
   const [selectedQuote, setSelectedQuote] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("idle");
   const [search, setSearch] = useState("");
+  const [activeSection, setActiveSection] = useState("quotes");
 
   useEffect(() => {
     let cancelled = false;
@@ -276,9 +278,26 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
         </div>
 
         <nav className="rf-admin-nav" aria-label="Navegação administrativa">
-          <button type="button" className="is-active">
+          <button
+            type="button"
+            className={activeSection === "quotes" ? "is-active" : ""}
+            data-admin-section="quotes"
+            aria-label="Orçamentos"
+            onClick={() => setActiveSection("quotes")}
+          >
             <span>Orçamentos</span>
             <small>{metrics.total}</small>
+          </button>
+
+          <button
+            type="button"
+            className={activeSection === "agenda" ? "is-active" : ""}
+            data-admin-section="agenda"
+            aria-label="Agenda"
+            onClick={() => setActiveSection("agenda")}
+          >
+            <span>Agenda</span>
+            <small>calendário</small>
           </button>
 
           <button type="button" disabled>
@@ -299,10 +318,27 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
       </aside>
 
       <section className="rf-admin-main">
+        <nav className="rf-admin-mobile-nav" aria-label="Navegação administrativa móvel">
+          <button
+            type="button"
+            className={activeSection === "quotes" ? "is-active" : ""}
+            onClick={() => setActiveSection("quotes")}
+          >
+            Orçamentos
+          </button>
+          <button
+            type="button"
+            className={activeSection === "agenda" ? "is-active" : ""}
+            onClick={() => setActiveSection("agenda")}
+          >
+            Agenda
+          </button>
+        </nav>
+
         <header className="rf-admin-topbar">
           <div>
             <span className="rf-admin-eyebrow">Painel Roda Festa</span>
-            <h1>Orçamentos</h1>
+            <h1>{activeSection === "agenda" ? "Agenda" : "Orçamentos"}</h1>
           </div>
 
           <a
@@ -314,6 +350,8 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
           </a>
         </header>
 
+        {activeSection === "quotes" ? (
+          <>
         <section className="rf-admin-hero">
           <div>
             <span className="rf-admin-eyebrow">Central de atendimento</span>
@@ -441,6 +479,10 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
             </div>
           ) : null}
         </section>
+          </>
+        ) : (
+          <AdminAgendaView onOpenQuote={openQuote} />
+        )}
       </section>
 
       {selectedQuote ? (
