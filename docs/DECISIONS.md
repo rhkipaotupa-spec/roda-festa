@@ -667,3 +667,20 @@ Decisões consolidadas:
 Esta aprovação não autoriza alterações no motor, em calibração, salgadinhos, preços, catálogo, regra de carrinhos, APIs ou persistência. Qualquer evolução nesses pontos exige unidade técnica própria.
 
 O snapshot final desta unidade somente pode ser gerado depois do commit desta reconciliação documental e da confirmação de working tree limpa.
+
+<!-- V19.10_AGENDA_DECISIONS_00bac81 -->
+## 2026-08-28 — Decisões V19.10: Agenda derivada e fechamento pré-refinamento
+
+- A Agenda é uma projeção de `planning_sessions`, usando `input_snapshot.eventDate` como fonte autoritativa. Não criar tabela paralela apenas para calendário.
+- A leitura por mês deve usar contrato próprio de intervalo; `listRecent()` não é fonte válida da Agenda porque é ordenado por atividade e limitado.
+- Sem horário inicial e regra de capacidade, a UI não deve rotular duas reservas na mesma data como `conflito`. O termo aprovado nesta fase é atenção/múltiplos eventos na data.
+- A Agenda não deve transformar `FinalProposalSnapshot` em validação humana. `Proposta finalizada` e `Validado` permanecem conceitos diferentes até existir persistência própria da validação humana.
+- O evento da Agenda abre o mesmo detalhe de Orçamentos; não duplicar ficha administrativa.
+- O checkpoint visual `00bac81639d1b99833f140a1cafa27190aef80b7` é deliberadamente **pré-refinamento**. A smoke real foi positiva, mas há sugestões da usuária a incorporar antes de congelar a V19.10.
+- Não promover esta linha para `main`/Production apenas por existir Preview funcional. Antes da promoção: incorporar feedback, repetir gates técnicos, repetir smoke real, reconciliar documentação e gerar snapshot seguro.
+
+### Continuidade de acesso às contas
+
+Fica registrada uma revisão operacional para a próxima sessão sobre continuidade de acesso a GitHub, Vercel e Supabase. A revisão **não deve procurar, copiar ou registrar senhas/tokens/secrets escondidos em código, arquivos, navegador, Git ou documentação**. O caminho seguro é identificar o método real de autenticação de cada provedor (senha própria, GitHub/Google SSO, passkey, gerenciador de senhas), validar métodos de recuperação e, quando necessário, redefinir/rotacionar credenciais pelos fluxos oficiais.
+
+Nenhuma senha, token, cookie, hash, chave Supabase ou valor de variável de ambiente deve ser registrado nestes documentos.

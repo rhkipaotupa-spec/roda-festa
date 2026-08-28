@@ -876,3 +876,45 @@ Não reutilizar `247/247` como baseline de `main`. Esse total foi medido em `fea
 - [ ] snapshot seguro pós-reconciliação.
 
 A V19.9A está funcional e visualmente congelada. Itens de motor/calibração, Brigadeiro no tacho, carrinho avulso, Agenda Admin, arquivamento/lixeira, catálogo/versionamento e validação humana administrativa permanecem fora deste fechamento e devem seguir em unidades próprias.
+
+<!-- V19.10_AGENDA_ROADMAP_00bac81 -->
+## 2026-08-28 — V19.10 Admin Agenda — estado ao encerrar
+
+### Concluído nesta unidade
+
+- [x] V19.10A — read store por intervalo de data: `0a67f64d6d7085178c1af46bef81c56ad18a61be`;
+- [x] V19.10B — endpoint autenticado `GET /api/admin-agenda`: `ee408dde31c639019dd898d2fa1f00271f7534ff`;
+- [x] V19.10C — calendário mensal no workspace Admin em checkpoint pré-refinamento: `00bac81639d1b99833f140a1cafa27190aef80b7`;
+- [x] Agenda preserva Orçamentos e reutiliza o drawer existente;
+- [x] mobile possui acesso explícito `Orçamentos | Agenda`;
+- [x] múltiplos eventos na data são atenção operacional, não conflito inventado;
+- [x] Agenda não inventa validação humana;
+- [x] testes completos 271/271 GREEN;
+- [x] lint GREEN;
+- [x] build GREEN;
+- [x] Preview full-stack Ready com env vars branch-specific sem exposição de valores;
+- [x] `/api/admin-session` comprovado no Preview com `ok:true, authenticated:false`;
+- [x] login real alcançou o workspace Admin;
+- [x] primeira smoke visual foi positiva.
+
+### Obrigatório na próxima sessão antes de aprovação
+
+- [ ] coletar e registrar as sugestões da usuária sobre a smoke visual;
+- [ ] refinar a Agenda sem regredir Orçamentos/V19.9A;
+- [ ] repetir testes focais V19.10C;
+- [ ] repetir suíte completa, lint, build e diff checks;
+- [ ] repetir smoke real no Preview autenticado;
+- [ ] somente então declarar V19.10 aprovada/congelada;
+- [ ] reconciliar qualquer novo checkpoint técnico em commit documental separado;
+- [ ] gerar snapshot seguro apenas com árvore limpa após a reconciliação.
+
+### Gate antes de Production
+
+Production permanece inalterada em 28/08. A promoção deve ocorrer somente após refinamento + gates + smoke + documentação + snapshot, preferencialmente através da linha de integração já aberta, sem pular diretamente do checkpoint pré-refinamento para `main`.
+
+### Higiene operacional prioritária
+
+- [ ] revisar continuidade de acesso GitHub/Vercel/Supabase pelos fluxos oficiais;
+- [ ] confirmar métodos de login, passkeys/password manager e recuperação;
+- [ ] se necessário, redefinir/rotacionar credenciais no provedor;
+- [ ] não armazenar senha/token/secret em Git, docs, chat ou arquivos de handoff.

@@ -1186,3 +1186,57 @@ Commit técnico final:
 `4c8250f61ad585a509e35684fa633f9c1e2a125c` — `feat: finalize v19.9a client proposal polish`.
 
 O commit técnico contém exatamente o conjunto cumulativo de QA aprovado: `PlanningBook.jsx`, `PlanningBook.css` e `planning-client-v19.9a.test.mjs`. Após o commit, a working tree ficou limpa. Esta entrada documental é a reconciliação obrigatória anterior ao snapshot seguro.
+
+<!-- V19.10_AGENDA_WORKLOG_00bac81 -->
+## 2026-08-28 — V19.10 Admin Agenda: implementação, Preview e encerramento pré-refinamento
+
+A unidade foi desenvolvida em `feat/admin-agenda-v19.10`, derivada do checkpoint documental aprovado da V19.9A. A V19.9A permaneceu congelada e não foi promovida para `main` durante esta sessão.
+
+### V19.10A — leitura por intervalo
+
+Checkpoint: `0a67f64d6d7085178c1af46bef81c56ad18a61be`.
+
+Foi adicionado `listByEventDateRange({ from, to })` ao read store Admin. A Agenda usa `planning_sessions.input_snapshot.eventDate`, valida datas `YYYY-MM-DD` e não herda o limite de 100/200 de `listRecent()`.
+
+### V19.10B — boundary HTTP
+
+Checkpoint: `ee408dde31c639019dd898d2fa1f00271f7534ff`.
+
+Foi criado `GET /api/admin-agenda?from=YYYY-MM-DD&to=YYYY-MM-DD`, preservando autenticação e autorização server-side. Range inválido retorna 400 neutro; indisponibilidade interna/runtime retorna 503 neutro.
+
+### V19.10C — superfície visual
+
+Foram adicionados calendário mensal, navegação de mês, dias com contagem de eventos, seleção de data, painel de eventos do dia e clique reutilizando o drawer de Orçamentos. No mobile, a Agenda permanece acessível por navegação explícita.
+
+Validação antes do checkpoint:
+- testes V19.10C + workspace: 12/12 GREEN;
+- suíte completa: 271/271 GREEN;
+- lint: GREEN;
+- build: GREEN;
+- warning conhecido de `src/styles/colors.css` vazio: não bloqueante;
+- nenhuma alteração em API, migration, motor, preço, catálogo, schema ou persistência durante V19.10C.
+
+Checkpoint técnico pré-refinamento:
+`00bac81639d1b99833f140a1cafa27190aef80b7` — `feat: checkpoint admin agenda visual preview`.
+
+### Preview Vercel real
+
+A branch foi publicada no GitHub para permitir escopo Preview por branch. Foram associadas, sem expor valores, as variáveis `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` e `RODA_FESTA_ADMIN_ALLOWED_ORIGINS`.
+
+O primeiro `vercel deploy` falhou porque um snapshot histórico em `daily-close/26082026/` excedia 100 MB. O snapshot foi preservado. Criou-se `.vercelignore` somente local para excluir `daily-close/` do upload; `.vercelignore`, `.vercel/` e `.env.local` permaneceram fora do Git via `.git/info/exclude`.
+
+O Preview posterior ficou Ready. Como havia Deployment Protection, `curl.exe` comum recebeu 302. O fluxo oficial `vercel curl --trace` alcançou a Function e retornou `{"ok":true,"authenticated":false}`. Em navegador já autenticado na Vercel, o login real do Roda Festa alcançou o workspace Admin.
+
+A usuária avaliou a primeira impressão da Agenda de forma positiva, mas informou possuir sugestões para a próxima sessão. Por isso a V19.10C não foi marcada como aprovada/congelada.
+
+### Continuidade de acesso — próxima sessão
+
+Também ficou agendada revisão segura de acesso a GitHub, Vercel e Supabase. Nenhuma credencial deve ser colada no chat ou registrada em docs. A revisão deve priorizar método de login atual, password manager/passkey, recuperação oficial e rotação/reset quando necessário, em vez de tentar extrair “senhas escondidas” de arquivos ou navegador.
+
+### Estado ao encerrar
+
+- branch: `feat/admin-agenda-v19.10`;
+- checkpoint técnico mais recente: `00bac81639d1b99833f140a1cafa27190aef80b7`;
+- Production: não alterada;
+- V19.10C: checkpoint pré-refinamento, não aprovação final;
+- próxima sequência: commit desta reconciliação documental -> working tree limpa -> snapshot seguro -> retomada das sugestões na próxima sessão.

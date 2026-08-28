@@ -1011,3 +1011,32 @@ O fechamento visual aprovado padroniza `Resumo do evento` e `Cardápio seleciona
 A QA visual foi cumulativa e local antes do checkpoint final; nomes V5/V8/V9/V12/V13/V14/V15-R2/V16/V17/V17-R1 identificam etapas de refinamento/teste, não commits de arquitetura. O único checkpoint técnico final dessa rodada é `4c8250f61ad585a509e35684fa633f9c1e2a125c`.
 
 Invariantes preservadas: nenhuma regra de recomendação, preço, catálogo, carrinho, API ou persistência foi modificada; snapshots históricos não são recalculados; a jornada append-only continua sendo a fonte explicável do antes/recomendado/mudanças/final.
+
+<!-- V19.10_AGENDA_CHECKPOINT_00bac81 -->
+## 2026-08-28 — V19.10 Admin Agenda — checkpoint pré-refinamento
+
+A Agenda administrativa foi implementada como **read model derivado**, sem criar uma fonte paralela de eventos. A data autoritativa continua em `planning_sessions.input_snapshot.eventDate`.
+
+Camadas consolidadas nesta unidade:
+- `0a67f64d6d7085178c1af46bef81c56ad18a61be` — `feat: add admin agenda date-range read store`: adiciona `listByEventDateRange({ from, to })`, com validação estrita de intervalo e sem reutilizar o limite de `listRecent()`;
+- `ee408dde31c639019dd898d2fa1f00271f7534ff` — `feat: add authenticated admin agenda endpoint`: adiciona `GET /api/admin-agenda?from=YYYY-MM-DD&to=YYYY-MM-DD`, preservando autenticação/autorização Admin e falha neutra;
+- `00bac81639d1b99833f140a1cafa27190aef80b7` — `feat: checkpoint admin agenda visual preview`: adiciona calendário mensal, navegação de mês, seleção de dia, contagem de eventos, painel do dia e reutilização do drawer existente de Orçamentos.
+
+Invariantes de produto preservadas:
+- Agenda e Orçamentos vivem no mesmo shell Admin;
+- nenhum `agenda_events` ou tabela paralela foi criada;
+- múltiplos eventos na mesma data significam **atenção operacional**, não `conflito`, porque o input atual não possui horário inicial/capacidade suficiente para provar colisão;
+- Agenda não inventa estado humano `Validado`; usa estados reais da jornada, como `Proposta finalizada` e `Em elaboração`;
+- clique em evento reaproveita a leitura detalhada já existente de Orçamentos;
+- navegação móvel `Orçamentos | Agenda` permanece acessível mesmo com a sidebar compactada;
+- motor, preços, catálogo, Commercial Ledger, schema de persistência e migrations permaneceram fora do escopo.
+
+### Prova Preview de 28/08/2026
+
+A branch `feat/admin-agenda-v19.10` foi publicada no GitHub para permitir configuração segura de variáveis Preview por branch. Somente os **nomes** das variáveis são registrados: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` e `RODA_FESTA_ADMIN_ALLOWED_ORIGINS`; seus valores permanecem fora de Git, documentação e chat.
+
+O Preview protegido pela Vercel respondeu, após bypass autenticado do próprio CLI, `{"ok":true,"authenticated":false}` em `/api/admin-session`, comprovando inicialização saudável do runtime Admin sem expor sessão. Em seguida, o login real no navegador alcançou o workspace Admin.
+
+### Estado de aprovação
+
+A primeira smoke visual foi positiva e a usuária declarou ter gostado da Agenda, porém registrou que possui sugestões para a próxima sessão. Portanto, este checkpoint é **pré-refinamento** e **não está aprovado/congelado**. Nenhuma promoção para `main` ou Production foi realizada nesta unidade.

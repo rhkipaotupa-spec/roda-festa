@@ -1464,3 +1464,46 @@ A evolução visual intermediária ocorreu por pacotes locais de QA, sem commits
 Escopo deliberadamente não alterado: motor de recomendação, calibração de salgadinhos, preços, catálogo, regra de carrinhos, APIs e persistência. Esses temas permanecem para unidades futuras próprias.
 
 Classificação final: **APROVADA / CONGELADA / PRONTA PARA FECHAMENTO DOCUMENTAL E SNAPSHOT APÓS O COMMIT DESTA RECONCILIAÇÃO**.
+
+<!-- V19.10_AGENDA_FINDINGS_00bac81 -->
+## 2026-08-28 — V19.10 Agenda: Preview real e findings de tooling
+
+### RF — `npm run dev` não executa Vercel Functions — CONFIRMADO
+
+No Vite puro, `/api/admin-session` foi servido como JavaScript em vez de Function. Para smoke full-stack Admin, usar runtime Vercel/Preview, não tratar Vite isolado como prova de backend.
+
+### RF — Sensitive env vars não podem ser puxadas localmente — CONFIRMADO / COMPORTAMENTO ESPERADO
+
+`vercel env pull` substituiu valores Secret por `[SENSITIVE]`. Não copiar Secrets manualmente para `.env.local` ou chat. Para QA autenticado, preferir Preview com Secrets mantidos na própria Vercel.
+
+### RF — Vercel CLI altera arquivos locais auxiliares — CONTROLADO
+
+Durante link/pull, a CLI adicionou entradas em `.gitignore`. As mudanças rastreadas foram restauradas. `.vercel/`, `.env.local` e `.vercelignore` foram tratados apenas como artefatos locais via `.git/info/exclude`, sem entrar no checkpoint técnico.
+
+### RF — snapshot local acima de 100 MB bloqueou `vercel deploy` — RESOLVIDO LOCALMENTE
+
+O primeiro deploy falhou com `File size limit exceeded (100 MB)`. A varredura identificou um ZIP histórico em `daily-close/26082026/` acima do limite. O arquivo não foi apagado nem movido. Foi criada uma `.vercelignore` local ignorando `daily-close/`; ela não é rastreada pelo Git. O deploy seguinte ficou Ready.
+
+### RF — Preview protegido retorna 302 para curl comum — RESOLVIDO PARA QA
+
+O Preview usa Deployment Protection da Vercel. `curl.exe` comum recebeu 302 antes de atingir a aplicação. `vercel curl --trace`, com bypass gerado pela própria Vercel, alcançou `/api/admin-session` e retornou:
+
+`{"ok":true,"authenticated":false}`
+
+Isso comprova runtime Admin inicializado e ausência esperada de sessão no request de diagnóstico. O login real subsequente no navegador alcançou o Admin.
+
+### RF — continuidade de acesso GitHub/Vercel/Supabase — REVISAR NA PRÓXIMA SESSÃO
+
+Durante o acesso ao Preview protegido, houve dificuldade de autenticar manualmente pela opção GitHub na tela da Vercel, enquanto uma sessão já aberta no navegador permitiu seguir até o Admin. Isso não prova perda de conta nem perda de credencial.
+
+Próxima ação segura:
+1. identificar como cada serviço está autenticando hoje;
+2. revisar password manager/passkeys e métodos de recuperação oficiais;
+3. confirmar e-mail/SSO de recuperação quando aplicável;
+4. redefinir/rotacionar pelo provedor se houver dúvida;
+5. nunca extrair ou registrar tokens, cookies, secrets, hashes ou senhas de arquivos/navegador para “guardar”.
+
+### Estado V19.10C
+
+Checkpoint técnico: `00bac81639d1b99833f140a1cafa27190aef80b7`.
+Baseline já medido antes do checkpoint: 271/271 testes GREEN, lint GREEN, build GREEN e `git diff --check` GREEN. Smoke visual real: positiva, porém com sugestões pendentes. Classificação: **CHECKPOINT PRÉ-REFINAMENTO — NÃO APROVADO/CONGELADO — NÃO PROMOVIDO PARA PRODUCTION**.
