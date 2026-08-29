@@ -1544,3 +1544,41 @@ Durante a rodada anterior, iniciar reconciliação documental antes do aceite vi
 - Production: ainda não alterada no instante desta reconciliação.
 
 Classificação final da unidade: **APROVADA / CONGELADA / PRONTA PARA COMMIT DOCUMENTAL, SNAPSHOT SEGURO E PROMOÇÃO CONTROLADA**.
+
+<!-- V19.10_PREPROD_GATE_FINDINGS_9d2e75e -->
+## 2026-08-29 — Gate pré-Production: portabilidade LF/CRLF e launcher Windows
+
+### RF — assertion do PDF dependia de `LF` literal — CORRIGIDO
+
+Após o fast-forward local da linha aprovada para `main`, o gate `npm test` retornou 275/276. A única falha era `V19.9A QA inicia investimento em pagina final dedicada no PDF`.
+
+A implementação continuava contendo corretamente `investment-page` seguida de `investment-block`; o falso RED vinha de uma asserção `includes()` que exigia `\n` literal entre as linhas. Na working tree Windows, o arquivo estava com `CRLF`, portanto a propriedade correta não era reconhecida pelo teste.
+
+Correção adotada:
+- alterar somente `tests/planning-client-v19.9a.test.mjs`;
+- tornar a asserção compatível com `LF` e `CRLF`;
+- não modificar `PlanningBook.jsx` nem deformar o PDF aprovado para obter GREEN.
+
+Checkpoint técnico:
+`9d2e75ebd3e7eab00444fdb1bfba8f3406ff6b2b` — `test: make PDF assertion line-ending portable`.
+
+### RF — validador R1 não conseguiu iniciar `npm.cmd` via `spawnSync` — CORRIGIDO NO R2
+
+A primeira versão do validador confirmou o arquivo focado em 25/25 GREEN, mas a suíte completa nem chegou a iniciar: `spawnSync npm.cmd EINVAL`. Isso foi classificado como falha do launcher do pacote, não como regressão da aplicação.
+
+O R2 passou a usar launcher Windows compatível e concluiu toda a medição.
+
+### Evidência final do gate pré-Production
+
+- escopo da correção: exatamente 1 arquivo de teste, 1 inserção e 1 remoção;
+- focal V19.9A: 25/25 GREEN;
+- baseline completo: 276/276 GREEN;
+- lint: GREEN;
+- build: GREEN;
+- `git diff --check`: GREEN antes do commit;
+- warning conhecido de `src/styles/colors.css` vazio: não bloqueante;
+- comportamento da aplicação: não alterado pelo pacote de correção.
+
+O snapshot aprovado criado no commit `4a8a164b798b4de38eb2e908af290924ecaf046b` permanece preservado como evidência recuperável da versão funcional aprovada, porém não é mais o snapshot final da linha que será publicada, pois o HEAD passou a incluir o commit técnico de portabilidade e esta reconciliação documental. Um novo snapshot deve ser criado somente após o commit documental e working tree limpa.
+
+No instante desta reconciliação, `main` foi avançada apenas localmente; `origin/main`/Production ainda não receberam esta linha.

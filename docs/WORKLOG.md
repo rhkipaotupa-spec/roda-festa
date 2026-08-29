@@ -1299,3 +1299,38 @@ Foi solicitada a publicação da versão aprovada no site oficial. Antes da prom
 ### Próxima melhoria registrada
 
 Adicionar botão visual **Sair/Logout** ao Admin, reutilizando o endpoint/logout server-side já existente para revogação real da sessão. Archive/Trash/Restore continua como próxima unidade funcional separada.
+
+<!-- V19.10_PREPROD_GATE_WORKLOG_9d2e75e -->
+## 2026-08-29 — Gate final de `main` antes da publicação
+
+Após o snapshot seguro da V19.10D em `4a8a164b798b4de38eb2e908af290924ecaf046b`, a branch aprovada foi promovida **localmente** para `main` por `git merge --ff-only`, saindo de `ccd16fea77cd9c8cb742916a504bbbcafaf64a91` para `4a8a164b798b4de38eb2e908af290924ecaf046b`. Nenhum push de `main` foi feito nesse momento.
+
+Antes de publicar, `npm test` foi repetido na própria `main`. O resultado inicial foi 275/276: apenas o teste `V19.9A QA inicia investimento em pagina final dedicada no PDF` falhou. A inspeção confirmou que a estrutura do PDF estava correta e que a falha era causada por uma comparação textual sensível a `LF` em ambiente Windows/`CRLF`.
+
+Foi aplicada correção test-only, sem alteração de comportamento da aplicação. O primeiro validador do pacote comprovou 25/25 no arquivo focado, mas falhou ao iniciar a suíte completa por `spawnSync npm.cmd EINVAL`. O pacote R2 corrigiu somente o launcher Windows do validador.
+
+Validação final R2:
+- scope: exatamente `tests/planning-client-v19.9a.test.mjs`;
+- focal: 25/25 GREEN;
+- `npm test`: 276/276 GREEN;
+- `npm run lint`: GREEN;
+- `npm run build`: GREEN;
+- warning conhecido de `src/styles/colors.css` vazio: não bloqueante;
+- `git diff --check`: GREEN;
+- alteração técnica: 1 inserção / 1 remoção no teste.
+
+Commit técnico:
+`9d2e75ebd3e7eab00444fdb1bfba8f3406ff6b2b` — `test: make PDF assertion line-ending portable`.
+
+Após o commit técnico, a working tree ficou limpa. Esta entrada é a micro-reconciliação documental obrigatória antes de substituir o snapshot pré-fix por um snapshot do HEAD final de publicação.
+
+Sequência restante:
+1. commit desta reconciliação documental;
+2. confirmar working tree limpa;
+3. gerar novo snapshot seguro e SHA-256 no HEAD documental final;
+4. confirmar `origin/main` ainda no baseline esperado antes do push;
+5. `git push origin main`;
+6. aguardar deploy Production da Vercel;
+7. executar smoke pós-deploy no domínio oficial.
+
+Até a conclusão dessa sequência, Production permanece sem esta promoção.

@@ -698,3 +698,14 @@ Nenhuma senha, token, cookie, hash, chave Supabase ou valor de variável de ambi
 - Manter validação humana como conceito futuro explícito; `FinalProposalSnapshot` não equivale a `Validado`.
 - Formalizar a ordem de fechamento usada nesta unidade: **implementação -> gates GREEN -> Preview -> smoke/aprovação da usuária -> reconciliação documental -> commit documental -> working tree limpa -> snapshot seguro -> promoção**. Não reconciliar documentação antes da aprovação visual final quando ainda houver refinamento aberto.
 - Autorizar a promoção desta linha para o site oficial somente depois deste fechamento documental e do snapshot seguro. A Production permanece inalterada até a promoção efetiva.
+
+<!-- V19.10_PREPROD_GATE_DECISIONS_9d2e75e -->
+## 2026-08-29 — Decisões de portabilidade do gate pré-Production
+
+- Não alterar implementação visual/funcional aprovada apenas para satisfazer teste textual sensível ao tipo de quebra de linha do sistema operacional.
+- Testes que inspecionam arquivos como texto devem ser invariantes a `LF`/`CRLF`, usando normalização explícita ou expressão compatível como `\r?\n` quando a quebra de linha fizer parte da propriedade medida.
+- Falha de tooling que impede uma suíte de iniciar não deve ser rotulada como regressão da aplicação. O registro precisa distinguir `teste RED` de `runner/launcher falhou antes de executar`.
+- Em validadores de pacote no Windows, chamadas a `npm.cmd` devem usar launcher comprovadamente compatível com o ambiente, como `cmd.exe /d /s /c`, quando `spawnSync(..., shell:false)` produzir `EINVAL`.
+- O checkpoint técnico desta correção é `9d2e75ebd3e7eab00444fdb1bfba8f3406ff6b2b` — `test: make PDF assertion line-ending portable`.
+- A correção é exclusivamente de teste; não altera Planner, PDF, Admin, motor, API, preço, catálogo, persistência ou comportamento de Production.
+- Mesmo com gates finais GREEN, a promoção continua condicionada a: reconciliação documental -> commit documental -> working tree limpa -> novo snapshot seguro do HEAD final -> push de `main` -> deploy Production -> smoke pós-deploy.
