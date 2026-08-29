@@ -141,7 +141,13 @@ function serviceStateDetail(service) {
     : "Pacote incluído na versão enviada.";
 }
 
-export default function AdminWorkspace({ sessionMessage = "", operator = null }) {
+export default function AdminWorkspace({
+  sessionMessage = "",
+  operator = null,
+  onLogout = null,
+  isLoggingOut = false,
+  logoutError = "",
+}) {
   const [quotes, setQuotes] = useState([]);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
@@ -262,6 +268,12 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
   function switchSection(section) {
     setActiveSection(section);
     setMobileMenuOpen(false);
+  }
+
+  function requestLogout() {
+    if (typeof onLogout !== "function" || isLoggingOut) return;
+    setMobileMenuOpen(false);
+    onLogout();
   }
 
   function switchQuoteView(nextView) {
@@ -468,6 +480,16 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
               <strong>{operatorName}</strong>
               <small>{operatorRole}</small>
             </div>
+
+            <button
+              type="button"
+              className="rf-admin-mobile-drawer__logout"
+              onClick={requestLogout}
+              disabled={isLoggingOut}
+              aria-busy={isLoggingOut}
+            >
+              {isLoggingOut ? "Saindo..." : "Sair da conta"}
+            </button>
           </aside>
         </div>
       ) : null}
@@ -488,6 +510,16 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
               </div>
             </div>
 
+            <button
+              type="button"
+              className="rf-admin-logout"
+              onClick={requestLogout}
+              disabled={isLoggingOut}
+              aria-busy={isLoggingOut}
+            >
+              {isLoggingOut ? "Saindo..." : "Sair"}
+            </button>
+
             <a
               className="rf-admin-new-quote"
               href="/planning-book?admin=1&return=%2Fadmin"
@@ -497,6 +529,12 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
             </a>
           </div>
         </header>
+
+        {logoutError ? (
+          <p className="rf-admin-logout-error" role="alert" aria-live="polite">
+            {logoutError}
+          </p>
+        ) : null}
 
         {activeSection === "quotes" ? (
           <>

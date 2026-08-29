@@ -6,11 +6,14 @@ import rodaFestaLogo from "../planner/planning-book/assets/logo-roda-festa.png";
 import rodaFestaLogoCreme from "../planner/planning-book/assets/logo-roda-festa-creme.png";
 
 const LOGIN_ENDPOINT = "/api/admin-login";
+const LOGOUT_ENDPOINT = "/api/admin-logout";
 const SESSION_ENDPOINT = "/api/admin-session";
 const GENERIC_LOGIN_ERROR =
   "Não foi possível entrar. Confira seus dados e tente novamente.";
 const GENERIC_SESSION_ERROR =
   "Não foi possível verificar sua sessão agora. Tente novamente em instantes.";
+const GENERIC_LOGOUT_ERROR =
+  "Não foi possível sair agora. Sua sessão continua ativa; tente novamente.";
 
 export default function AdminLogin() {
   const [identifier, setIdentifier] = useState("");
@@ -18,10 +21,12 @@ export default function AdminLogin() {
   const [status, setStatus] = useState("checking");
   const [message, setMessage] = useState("");
   const [operator, setOperator] = useState(null);
+  const [logoutStatus, setLogoutStatus] = useState("idle");
 
   const isChecking = status === "checking";
   const isSubmitting = status === "submitting";
   const isAuthenticated = status === "authenticated";
+  const isLoggingOut = logoutStatus === "submitting";
 
   async function readSession() {
     const response = await fetch(SESSION_ENDPOINT, {
@@ -117,6 +122,7 @@ export default function AdminLogin() {
 
       setCredential("");
       setOperator(authenticatedOperator);
+      setLogoutStatus("idle");
       setStatus("authenticated");
       setMessage(
         "Acesso autenticado com sucesso. Sua sessão administrativa foi criada.",
@@ -124,6 +130,37 @@ export default function AdminLogin() {
     } catch {
       setStatus("error");
       setMessage(GENERIC_LOGIN_ERROR);
+    }
+  }
+
+  async function handleLogout() {
+    if (!isAuthenticated || isLoggingOut) return;
+
+    setLogoutStatus("submitting");
+
+    try {
+      const response = await fetch(LOGOUT_ENDPOINT, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok || payload?.ok !== true) {
+        setLogoutStatus("error");
+        return;
+      }
+
+      setCredential("");
+      setIdentifier("");
+      setOperator(null);
+      setMessage("");
+      setLogoutStatus("idle");
+      setStatus("idle");
+    } catch {
+      setLogoutStatus("error");
     }
   }
 
@@ -140,7 +177,15 @@ export default function AdminLogin() {
   }
 
   if (isAuthenticated) {
-    return <AdminWorkspace sessionMessage={message} operator={operator} />;
+    return (
+      <AdminWorkspace
+        sessionMessage={message}
+        operator={operator}
+        onLogout={handleLogout}
+        isLoggingOut={isLoggingOut}
+        logoutError={logoutStatus === "error" ? GENERIC_LOGOUT_ERROR : ""}
+      />
+    );
   }
 
   return (

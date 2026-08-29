@@ -43,5 +43,11 @@ export function createAdminLoginComposition({
     login(request) {
       return authHttpBoundary.login(request);
     },
+    logout(request) {
+      if (typeof authHttpBoundary.logout !== "function") {
+        throw new Error("admin_logout_http_boundary_required");
+      }
+      return authHttpBoundary.logout(request);
+    },
   });
 }
