@@ -1522,3 +1522,173 @@
     white-space: nowrap;
   }
 }
+
+
+/* V19.10I_ADMIN_LIFECYCLE */
+.rf-admin-quote-views {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px;
+  border: 1px solid #dec39c;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .5);
+}
+
+.rf-admin-quote-views button {
+  min-height: 36px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #806451;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.rf-admin-quote-views button.is-active {
+  background: #5c1a20;
+  color: #fff4df;
+  box-shadow: 0 7px 16px rgba(91, 24, 28, .16);
+}
+
+.rf-admin-operation-notice {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #d7bd94;
+  border-radius: 12px;
+  background: #fff8ec;
+  color: #6f543f;
+  font-size: 12px;
+}
+
+.rf-admin-detail__lifecycle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding: 12px 13px;
+  border: 1px solid #dfc5a0;
+  border-radius: 15px;
+  background: rgba(255, 251, 244, .88);
+}
+
+.rf-admin-detail__lifecycle > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.rf-admin-detail__lifecycle span {
+  color: #9b6d32;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+}
+
+.rf-admin-detail__lifecycle small {
+  color: var(--rf-admin-muted);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.rf-admin-detail__lifecycle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.rf-admin-detail__lifecycle-actions button {
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid #c9a775;
+  border-radius: 10px;
+  background: #fff8ec;
+  color: #5d3d2c;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.rf-admin-detail__lifecycle-actions button.is-trash {
+  border-color: #d5aaa6;
+  color: #8a3032;
+  background: #fff4f1;
+}
+
+.rf-admin-detail__lifecycle-actions button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+/* V19.10I_DESKTOP_BACK_REFINEMENT: remove the heavy pill from V19.10H */
+@media (min-width: 721px) {
+/* V19.10I_R2_DESKTOP_BACK_FLOW */
+  .rf-admin-detail__back {
+    display: flex;
+    width: fit-content;
+    max-width: none;
+    gap: 7px;
+    margin: 0 0 16px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: rgba(255, 241, 215, .78);
+    box-shadow: none;
+  }
+
+  .rf-admin-detail__back:hover,
+  .rf-admin-detail__back:focus-visible {
+    background: transparent;
+    color: #fff7e9;
+    box-shadow: none;
+  }
+
+  .rf-admin-detail__back-icon {
+    width: 18px;
+    height: 18px;
+    flex-basis: 18px;
+  }
+}
+
+/* V19.10I_MOBILE_BACK_CLEARANCE: keep action above browser/safe-area chrome */
+@media (max-width: 720px) {
+  .rf-admin-detail__back {
+    bottom: calc(86px + env(safe-area-inset-bottom));
+  }
+
+  .rf-admin-board__toolbar {
+    align-items: stretch;
+  }
+
+  .rf-admin-quote-views {
+    width: 100%;
+    order: 2;
+  }
+
+  .rf-admin-quote-views button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .rf-admin-search {
+    order: 3;
+  }
+
+  .rf-admin-detail__lifecycle {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rf-admin-detail__lifecycle-actions {
+    justify-content: stretch;
+  }
+
+  .rf-admin-detail__lifecycle-actions button {
+    flex: 1 1 130px;
+  }
+}

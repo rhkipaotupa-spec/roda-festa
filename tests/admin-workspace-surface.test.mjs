@@ -21,7 +21,7 @@ test("login autenticado abre workspace real em vez de tela tecnica", () => {
 
 test("workspace consulta somente endpoint admin same-origin", () => {
   assert.match(workspace, /const QUOTES_ENDPOINT = "\/api\/admin-quotes"/);
-  assert.match(workspace, /fetch\(QUOTES_ENDPOINT/);
+  assert.match(workspace, /fetch\(\s*`\$\{QUOTES_ENDPOINT\}\?/);
   assert.match(workspace, /credentials:\s*"same-origin"/);
   assert.equal(/SUPABASE_SERVICE_ROLE_KEY/.test(workspace), false);
   assert.equal(/SUPABASE_URL/.test(workspace), false);

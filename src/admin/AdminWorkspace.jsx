@@ -13,6 +13,7 @@ import {
 } from "./adminJourneyPresentation.js";
 
 const QUOTES_ENDPOINT = "/api/admin-quotes";
+const QUOTE_LIFECYCLE_ENDPOINT = "/api/admin-quote-lifecycle";
 
 function formatCurrency(value) {
   return Number(value || 0).toLocaleString("pt-BR", {
@@ -149,6 +150,9 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
   const [search, setSearch] = useState("");
   const [activeSection, setActiveSection] = useState("quotes");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [quoteView, setQuoteView] = useState("ACTIVE");
+  const [operationState, setOperationState] = useState("idle");
+  const [operationMessage, setOperationMessage] = useState("");
 
   const rawOperatorName = String(operator?.displayName || "").trim();
   const firstOperatorName = rawOperatorName.split(/\s+/).filter(Boolean)[0] || "";
@@ -163,13 +167,16 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
 
     async function loadQuotes() {
       try {
-        const response = await fetch(QUOTES_ENDPOINT, {
+        const response = await fetch(
+          `${QUOTES_ENDPOINT}?state=${encodeURIComponent(quoteView)}`,
+          {
           method: "GET",
           credentials: "same-origin",
-          headers: {
-            Accept: "application/json",
+            headers: {
+              Accept: "application/json",
+            },
           },
-        });
+        );
 
         const payload = await response.json().catch(() => null);
 
@@ -195,7 +202,7 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [quoteView]);
 
   const filteredQuotes = useMemo(() => {
     const term = search.trim().toLocaleLowerCase("pt-BR");
@@ -257,6 +264,15 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
     setMobileMenuOpen(false);
   }
 
+  function switchQuoteView(nextView) {
+    if (nextView === quoteView) return;
+    setStatus("loading");
+    setError("");
+    setSearch("");
+    setOperationMessage("");
+    setQuoteView(nextView);
+  }
+
   async function openQuote(quote) {
     setSelectedQuote(quote);
     setSelectedStatus("loading");
@@ -284,6 +300,52 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
       setSelectedStatus("ready");
     } catch {
       setSelectedStatus("error");
+    }
+  }
+
+  async function changeQuoteLifecycle(action) {
+    const id = String(selectedQuote?.sessionId || "").trim();
+    if (!id || operationState === "loading") return;
+
+    if (action === "TRASH") {
+      const confirmed = window.confirm(
+        "Mover este orçamento para a lixeira? O histórico será preservado e ele poderá ser restaurado.",
+      );
+      if (!confirmed) return;
+    }
+
+    setOperationState("loading");
+    setOperationMessage("");
+
+    try {
+      const response = await fetch(QUOTE_LIFECYCLE_ENDPOINT, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, action }),
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || payload?.ok !== true || !payload?.lifecycle?.adminState) {
+        setOperationMessage("Não foi possível atualizar este orçamento agora.");
+        return;
+      }
+
+      const labels = {
+        ARCHIVE: "Orçamento arquivado. O histórico foi preservado.",
+        TRASH: "Orçamento movido para a lixeira. Ele pode ser restaurado.",
+        RESTORE: "Orçamento restaurado para os ativos.",
+      };
+      setQuotes((current) => current.filter((quote) => quote?.sessionId !== id));
+      setSelectedQuote(null);
+      setSelectedStatus("idle");
+      setOperationMessage(labels[action] || "Orçamento atualizado.");
+    } catch {
+      setOperationMessage("Não foi possível atualizar este orçamento agora.");
+    } finally {
+      setOperationState("idle");
     }
   }
 
@@ -481,7 +543,13 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
           <div className="rf-admin-board__toolbar">
             <div>
               <span className="rf-admin-eyebrow">Histórico real</span>
-              <h2>Orçamentos recentes</h2>
+              <h2>{quoteView === "ACTIVE" ? "Orçamentos recentes" : quoteView === "ARCHIVED" ? "Arquivados" : "Lixeira"}</h2>
+            </div>
+
+            <div className="rf-admin-quote-views" aria-label="Organização dos orçamentos">
+              <button type="button" className={quoteView === "ACTIVE" ? "is-active" : ""} onClick={() => switchQuoteView("ACTIVE")}>Ativos</button>
+              <button type="button" className={quoteView === "ARCHIVED" ? "is-active" : ""} onClick={() => switchQuoteView("ARCHIVED")}>Arquivados</button>
+              <button type="button" className={quoteView === "TRASHED" ? "is-active" : ""} onClick={() => switchQuoteView("TRASHED")}>Lixeira</button>
             </div>
 
             <label className="rf-admin-search">
@@ -509,11 +577,19 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
 
           {status === "ready" && filteredQuotes.length === 0 ? (
             <div className="rf-admin-empty">
-              <strong>Nenhum orçamento encontrado.</strong>
+              <strong>{quoteView === "ACTIVE" ? "Nenhum orçamento encontrado." : quoteView === "ARCHIVED" ? "Nenhum orçamento arquivado." : "A lixeira está vazia."}</strong>
               <span>
-                Crie um novo orçamento no Planning Book ou ajuste sua busca.
+                {quoteView === "ACTIVE"
+                  ? "Crie um novo orçamento no Planning Book ou ajuste sua busca."
+                  : quoteView === "ARCHIVED"
+                    ? "Os orçamentos arquivados aparecerão aqui e poderão ser restaurados."
+                    : "Orçamentos movidos para a lixeira continuarão preservados e poderão ser restaurados."}
               </span>
             </div>
+          ) : null}
+
+          {operationMessage ? (
+            <div className="rf-admin-operation-notice" role="status">{operationMessage}</div>
           ) : null}
 
           {status === "ready" && filteredQuotes.length > 0 ? (
@@ -627,6 +703,23 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
 
             {selectedStatus === "ready" ? (
               <div className="rf-admin-detail__content">
+                <section className="rf-admin-detail__lifecycle" aria-label="Organização do orçamento">
+                  <div>
+                    <span>Organização</span>
+                    <small>Nenhuma ação abaixo apaga o histórico definitivamente.</small>
+                  </div>
+                  <div className="rf-admin-detail__lifecycle-actions">
+                    {(selectedQuote?.adminState || "ACTIVE") === "ACTIVE" ? (
+                      <button type="button" disabled={operationState === "loading"} onClick={() => changeQuoteLifecycle("ARCHIVE")}>Arquivar</button>
+                    ) : (
+                      <button type="button" disabled={operationState === "loading"} onClick={() => changeQuoteLifecycle("RESTORE")}>Restaurar</button>
+                    )}
+                    {(selectedQuote?.adminState || "ACTIVE") !== "TRASHED" ? (
+                      <button type="button" className="is-trash" disabled={operationState === "loading"} onClick={() => changeQuoteLifecycle("TRASH")}>Mover para lixeira</button>
+                    ) : null}
+                  </div>
+                </section>
+
                 <section className="rf-admin-detail__facts">
                   <article>
                     <span>Data</span>

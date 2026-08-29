@@ -6,6 +6,7 @@ import { buildSupabaseRestHeaders } from "./supabase-rest-auth.js";
 
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 200;
+const ADMIN_STATES = new Set(["ACTIVE", "ARCHIVED", "TRASHED"]);
 
 function getConfig(env = process.env) {
   const url = String(env.SUPABASE_URL || "").replace(/\/$/, "");
@@ -24,6 +25,14 @@ function normalizeLimit(value) {
 
 function eq(value) {
   return `eq.${encodeURIComponent(String(value))}`;
+}
+
+function normalizeAdminState(value) {
+  const state = String(value || "ACTIVE").trim().toUpperCase();
+  if (!ADMIN_STATES.has(state)) {
+    throw new Error("planning_admin_read_admin_state_invalid");
+  }
+  return state;
 }
 
 function normalizeIsoDate(value, field) {
@@ -55,6 +64,11 @@ function normalizeRow(row) {
   return {
     sessionId: row.id,
     status: row.status,
+    adminState: normalizeAdminState(row.admin_state),
+    adminStateUpdatedAt: row.admin_state_updated_at ?? null,
+    adminStateUpdatedBy: row.admin_state_updated_by ?? null,
+    archivedAt: row.archived_at ?? null,
+    trashedAt: row.trashed_at ?? null,
     version: row.version,
     createdAt: row.created_at ?? null,
     updatedAt: row.last_activity_at ?? row.updated_at ?? null,
@@ -78,6 +92,11 @@ function normalizeRow(row) {
 function enrichSummary(model, row) {
   return Object.freeze({
     ...model,
+    adminState: row.adminState,
+    adminStateUpdatedAt: row.adminStateUpdatedAt,
+    adminStateUpdatedBy: row.adminStateUpdatedBy,
+    archivedAt: row.archivedAt,
+    trashedAt: row.trashedAt,
     client: Object.freeze({
       name: row.client?.name ?? null,
       phone: row.client?.phone ?? null,
@@ -113,10 +132,12 @@ export function createPlanningAdminReadStore({
     return text ? JSON.parse(text) : [];
   }
 
-  async function listRecent({ limit = DEFAULT_LIMIT } = {}) {
+  async function listRecent({ limit = DEFAULT_LIMIT, state = "ACTIVE" } = {}) {
     const safeLimit = normalizeLimit(limit);
+    const safeState = normalizeAdminState(state);
     const rows = await request(
-      `planning_sessions?select=*&order=last_activity_at.desc&limit=${safeLimit}`,
+      `planning_sessions?select=*&admin_state=${eq(safeState)}`
+      + `&order=last_activity_at.desc&limit=${safeLimit}`,
     );
 
     return Object.freeze(
@@ -135,7 +156,7 @@ export function createPlanningAdminReadStore({
     }
 
     const rows = await request(
-      `planning_sessions?select=*`
+      `planning_sessions?select=*&admin_state=${eq("ACTIVE")}`
       + `&input_snapshot->>eventDate=gte.${encodeURIComponent(safeFrom)}`
       + `&input_snapshot->>eventDate=lte.${encodeURIComponent(safeTo)}`
       + "&order=input_snapshot->>eventDate.asc,last_activity_at.desc",

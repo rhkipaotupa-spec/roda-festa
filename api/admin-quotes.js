@@ -2,6 +2,7 @@ import { createAdminRuntime } from "./_lib/admin-runtime.js";
 import { createPlanningAdminReadStore } from "./_lib/planning-admin-read-store.js";
 
 const JSON_CONTENT_TYPE = "application/json; charset=utf-8";
+const ADMIN_STATES = new Set(["ACTIVE", "ARCHIVED", "TRASHED"]);
 
 function sendJson(response, status, body, headers = {}) {
   response.statusCode = status;
@@ -29,6 +30,12 @@ function requestedLimit(request) {
   const raw = request?.query?.limit;
   if (Array.isArray(raw)) return raw[0];
   return raw;
+}
+
+function requestedState(request) {
+  const raw = request?.query?.state;
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  return String(value || "ACTIVE").trim().toUpperCase();
 }
 
 export function createAdminQuotesHttpHandler({
@@ -97,8 +104,15 @@ export function createAdminQuotesHttpHandler({
         return;
       }
 
+      const state = requestedState(request);
+      if (!ADMIN_STATES.has(state)) {
+        sendJson(response, 400, { ok: false, error: "invalid_admin_state" });
+        return;
+      }
+
       const quotes = await planningReadStore.listRecent({
         limit: requestedLimit(request),
+        state,
       });
 
       sendJson(response, 200, {
