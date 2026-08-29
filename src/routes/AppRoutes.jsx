@@ -9,6 +9,7 @@ import Planner from "../planner/Planner";
 import PlanningSandbox from "../planner/sandbox/PlanningSandbox";
 import BookCoverSandbox from "../planner/book/BookCoverSandbox";
 import PlanningBook from "../planner/planning-book/PlanningBook";
+import R4ShadowPreview from "../planner/planning-book/R4ShadowPreview";
 import AdminLogin from "../admin/AdminLogin";
 
 function AppRoutes() {
@@ -44,6 +45,12 @@ function AppRoutes() {
         <Route
           path="/planning-book"
           element={<PlanningBook />}
+        />
+
+        {/* Laboratorio visual isolado do RF-REC-2 R4 shadow */}
+        <Route
+          path="/r4-preview"
+          element={<R4ShadowPreview />}
         />
 
         {/* Primeira superficie visual administrativa */}
