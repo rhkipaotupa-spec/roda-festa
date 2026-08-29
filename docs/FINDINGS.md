@@ -1752,3 +1752,15 @@ Commit publicado em `main`:
 `7763b18a9fb38ee46746faded120f8836ac5299b` — `feat: add RF-REC-2 R4 executable shadow`.
 
 A R4 shadow continua explicitamente não autoritativa. RF-REC-1.0.0 permanece o motor de Produção.
+
+## 2026-08-29 - RF-REC-2 R4 commercial shadow preview checkpoint
+
+- Technical checkpoint: 8251bc1f5dc76306be0cd10f27b31c850ca51fc7
+- Scope: executable R4 shadow preview, provisional SKU allocation and RF-COM-1 commercial preview.
+- Validation: 17/17 focused tests; 372/372 full suite; lint green; build green.
+- Known nonblocking warning: src/styles/colors.css is empty.
+- Confirmed beverage datum: agua mineral 300 ml, R$ 2,50 per unit.
+- Reference 70-guest scenario: R$ 5.889,50 contracted; R$ 1.180,00 consignment; R$ 7.069,50 total estimate; R$ 100,99 per real guest.
+- Production boundary: RF-REC-1 remains authoritative in /planning-book.
+- /r4-preview may be deployed for online simulation only; it does not persist session, finalize proposal or replace RF-REC-1.
+- Promotion of RF-REC-2 to authoritative Production remains a separate future checkpoint.
