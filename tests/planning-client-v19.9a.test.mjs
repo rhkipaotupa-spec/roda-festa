@@ -184,7 +184,7 @@ test("V19.9A QA inicia investimento em pagina final dedicada no PDF", () => {
   assert.notEqual(end, -1);
   const pdfBuilder = source.slice(start, end);
   assert.ok(pdfBuilder.includes('.page.investment-page{page-break-before:always;break-before:page}'));
-  assert.ok(pdfBuilder.includes('<section class="page investment-page">\n  <div class="investment-block">'));
+  assert.match(pdfBuilder, /<section class="page investment-page">\r?\n  <div class="investment-block">/);
   assert.ok(pdfBuilder.includes('.menu-group,.fact,.money-grid,.money-card,.investment-block{page-break-inside:avoid;break-inside:avoid}'));
   assert.match(pdfBuilder, /<div class="investment-block">[\s\S]*?<h1>Investimento<\/h1>[\s\S]*?<div class="money-grid">/);
 });
