@@ -30,6 +30,22 @@ const scenarios = [
     selectedProductIds: ["pastel-carne"],
   },
   {
+    name: "Replay-base real · 60 adultos · 4h · Petiscos + somente refrigerante",
+    adults: 60,
+    olderChildren: 0,
+    children: 0,
+    serviceHours: 4,
+    selectedProductIds: [
+      "coxinha-frango-catupiry",
+      "bolinha-queijo",
+      "pastel-carne",
+      "pastel-queijo",
+      "kibe-carne",
+      "risoles-presunto-queijo",
+      "refrigerante-200ml",
+    ],
+  },
+  {
     name: "60 adultos · 6h · cardápio completo",
     adults: 60,
     olderChildren: 0,
@@ -52,11 +68,20 @@ function currency(value) {
   });
 }
 
+function liters(value) {
+  return `${(Number(value || 0) / 1000).toLocaleString("pt-BR", {
+    maximumFractionDigits: 3,
+  })} L`;
+}
+
 function naturalQuantityLabel(item) {
   if (item.naturalUnit === "gram") {
-    return `${(item.expectedNaturalQuantity / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 3 })} kg esperados | ${(item.plannedNaturalQuantity / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 3 })} kg planejados`;
+    return `${(item.plannedNaturalQuantity / 1000).toLocaleString("pt-BR", {
+      maximumFractionDigits: 3,
+    })} kg planejados`;
   }
-  return `${item.expectedNaturalQuantity.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} un. esperadas | ${item.plannedRoundedCategoryQuantity.toLocaleString("pt-BR")} un. planejadas`;
+
+  return `${item.plannedRoundedCategoryQuantity.toLocaleString("pt-BR")} un. planejadas`;
 }
 
 for (const scenario of scenarios) {
@@ -89,24 +114,42 @@ for (const scenario of scenarios) {
   console.log(`V1: ${v1.versions.recommendation} | V2: ${v2.versions.recommendation}`);
   console.log(`Convidados de planejamento V2: ${v2.guests.planningGuests}`);
   console.log(`Multiplicador de substituição V2: ${v2.selection.substitutionMultiplier}`);
+  console.log(`Semântica de sólidos V2: ${v2.parameters.solidBaselineSemantics}`);
+  console.log(`Buffer sólido adicional V2: ${v2.parameters.additionalSolidServiceBuffer}`);
+
   console.log("\nRF-REC-1.0.0 — itens:");
   for (const item of v1.items) {
     console.log(`  - ${item.name}: ${item.quantity} ${item.priceUnit || "un."}`);
   }
   console.log(`  Contratado V1: ${currency(v1.investment.total)}`);
 
-  console.log("\nRF-REC-2 alpha shadow — categorias:");
+  console.log("\nRF-REC-2 alpha shadow R3 — categorias planejadas:");
   for (const item of v2.solids.categories) {
     console.log(`  - ${item.category}: ${naturalQuantityLabel(item)}`);
   }
 
   if (v2.beverages.requested) {
-    console.log("\nBebidas V2:");
-    console.log(`  - Consumo esperado: ${(v2.beverages.expectedConsumptionMl / 1000).toLocaleString("pt-BR")} L`);
-    console.log(`  - Estoque a levar (+30%): ${(v2.beverages.stockToTakeMl / 1000).toLocaleString("pt-BR")} L`);
+    console.log("\nBebidas V2 R3:");
+    console.log(
+      `  - Referência total típica: ${liters(v2.beverages.referenceTotalExpectedConsumptionMl)}`
+    );
+    console.log(
+      `  - Cobertura esperada pelos itens Roda Festa selecionados: ${liters(v2.beverages.expectedConsumptionMl)}`
+    );
+    console.log(
+      `  - Parcela externa/não coberta: ${liters(v2.beverages.externalOrUncoveredExpectedMl)}`
+    );
+    console.log(
+      `  - Estoque Roda Festa a levar (+30% somente sobre a cobertura selecionada): ${liters(v2.beverages.stockToTakeMl)}`
+    );
+
     for (const [productId, entry] of Object.entries(v2.beverages.expectedConsumptionMlBySku)) {
       const stock = v2.beverages.stockToTakeBySku[productId];
-      console.log(`  - ${productId}: ${(entry.ml / 1000).toLocaleString("pt-BR")} L esperados | ${(stock.ml / 1000).toLocaleString("pt-BR")} L a levar`);
+      console.log(
+        `  - ${productId}: share típico ${(entry.share * 100).toLocaleString("pt-BR", {
+          maximumFractionDigits: 1,
+        })}% | ${liters(entry.ml)} esperados | ${liters(stock.ml)} a levar`
+      );
     }
   }
 

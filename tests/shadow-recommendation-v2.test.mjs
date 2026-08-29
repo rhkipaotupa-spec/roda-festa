@@ -33,20 +33,28 @@ function category(result, name) {
   return result.solids.categories.find((item) => item.category === name);
 }
 
-test("version isolation keeps commercial rules on RF-COM-1.0.0", () => {
-  assert.equal(SHADOW_ENGINE_VERSIONS.recommendation, "RF-REC-2.0.0-alpha-shadow-pregram");
+test("R3 version isolation keeps commercial rules on RF-COM-1.0.0", () => {
+  assert.equal(
+    SHADOW_ENGINE_VERSIONS.recommendation,
+    "RF-REC-2.0.0-alpha-shadow-pregram-r3"
+  );
   assert.equal(SHADOW_ENGINE_VERSIONS.commercialRules, "RF-COM-1.0.0");
   assert.equal(SHADOW_ENGINE_VERSIONS.compatibility, "RF-COMPAT-1.0.0");
+  assert.equal(SHADOW_PARAMETERS.additionalSolidServiceBuffer, 0);
+  assert.equal(
+    SHADOW_PARAMETERS.solidBaselineSemantics,
+    "conservative-planning-target"
+  );
 });
 
-test("elicited lambda reproduces approximately 11 petiscos/person when petiscos is the only solid category", () => {
+test("elicited lambda still reproduces approximately 11 petiscos/person when petiscos is the only solid category", () => {
   const multiplier = calculateShadowSelectionMultiplier(["Petiscos"]).multiplier;
   const impliedPerPerson = 6.5 * multiplier;
   assert.ok(Math.abs(impliedPerPerson - 11) < 0.02, `got ${impliedPerPerson}`);
   assert.ok(SHADOW_PARAMETERS.lambda > 0.45 && SHADOW_PARAMETERS.lambda < 0.47);
 });
 
-test("full menu 60 adults 4h reproduces elicited category baselines before buffer", () => {
+test("full menu 60 adults 4h uses elicited values directly as conservative planning targets", () => {
   const result = generateShadowRecommendation({
     adults: 60,
     serviceHours: 4,
@@ -58,42 +66,36 @@ test("full menu 60 adults 4h reproduces elicited category baselines before buffe
   assert.equal(result.selection.selectedWeight, 1);
   assert.equal(result.selection.substitutionMultiplier, 1);
 
-  assert.equal(category(result, "Petiscos").expectedNaturalQuantity, 390);
-  assert.equal(category(result, "Mini lanches").expectedNaturalQuantity, 120);
-  assert.equal(category(result, "Tortas").expectedNaturalQuantity, 4200);
-  assert.equal(category(result, "Doces").expectedNaturalQuantity, 300);
-  assert.equal(category(result, "Bolos").expectedNaturalQuantity, 7200);
+  assert.equal(category(result, "Petiscos").plannedNaturalQuantity, 390);
+  assert.equal(category(result, "Mini lanches").plannedNaturalQuantity, 120);
+  assert.equal(category(result, "Tortas").plannedNaturalQuantity, 4200);
+  assert.equal(category(result, "Doces").plannedNaturalQuantity, 300);
+  assert.equal(category(result, "Bolos").plannedNaturalQuantity, 7200);
 
-  assert.equal(category(result, "Petiscos").plannedNaturalQuantity, 429);
-  assert.equal(category(result, "Mini lanches").plannedNaturalQuantity, 132);
-  assert.equal(category(result, "Tortas").plannedNaturalQuantity, 4620);
-  assert.equal(category(result, "Doces").plannedNaturalQuantity, 330);
-  assert.equal(category(result, "Bolos").plannedNaturalQuantity, 7920);
-
-  assert.equal(category(result, "Petiscos").plannedRoundedCategoryQuantity, 429);
-  assert.equal(category(result, "Doces").plannedRoundedCategoryQuantity, 330);
+  assert.equal(category(result, "Petiscos").plannedRoundedCategoryQuantity, 390);
+  assert.equal(category(result, "Doces").plannedRoundedCategoryQuantity, 300);
+  assert.equal(category(result, "Petiscos").additionalServiceBuffer, 0);
 });
 
-test("duration curve is 1.0 at 4h, 1.2 at 6h and 1.4 at 8h", () => {
+test("duration curve remains 1.0 at 4h, 1.2 at 6h and 1.4 at 8h", () => {
   assert.equal(calculateShadowDurationFactor(4).factor, 1);
   assert.equal(calculateShadowDurationFactor(6).factor, 1.2);
   assert.equal(calculateShadowDurationFactor(8).factor, 1.4);
 });
 
-test("integer boundary is not inflated by rounded display multiplier", () => {
+test("60 adults 4h only Petiscos plans exactly 660 without a second 10% solid buffer", () => {
   const result = generateShadowRecommendation({
     adults: 60,
     serviceHours: 4,
     selectedCategories: ["Petiscos"],
   });
 
-  assert.equal(category(result, "Petiscos").expectedNaturalQuantity, 660);
-  assert.equal(category(result, "Petiscos").plannedNaturalQuantity, 726);
-  assert.equal(category(result, "Petiscos").plannedRoundedCategoryQuantity, 726);
+  assert.equal(category(result, "Petiscos").plannedNaturalQuantity, 660);
+  assert.equal(category(result, "Petiscos").plannedRoundedCategoryQuantity, 660);
   assert.equal(result.selection.substitutionMultiplier, 1.692308);
 });
 
-test("adding a solid category reduces the quantity of an existing category when lambda > 0", () => {
+test("adding a solid category reduces the planning quantity of an existing category when lambda > 0", () => {
   const onlyPetiscos = generateShadowRecommendation({
     adults: 60,
     serviceHours: 4,
@@ -106,12 +108,12 @@ test("adding a solid category reduces the quantity of an existing category when 
   });
 
   assert.ok(
-    category(petiscosAndMini, "Petiscos").expectedNaturalQuantity <
-      category(onlyPetiscos, "Petiscos").expectedNaturalQuantity
+    category(petiscosAndMini, "Petiscos").plannedNaturalQuantity <
+      category(onlyPetiscos, "Petiscos").plannedNaturalQuantity
   );
 });
 
-test("selection is invariant to category order", () => {
+test("selection remains invariant to category order", () => {
   const a = generateShadowRecommendation({
     adults: 60,
     selectedCategories: ["Petiscos", "Mini lanches", "Tortas"],
@@ -143,8 +145,8 @@ test("adding flavors inside the same category does not change category demand wi
   });
 
   assert.equal(
-    category(oneFlavor, "Petiscos").expectedNaturalQuantity,
-    category(twoFlavors, "Petiscos").expectedNaturalQuantity
+    category(oneFlavor, "Petiscos").plannedNaturalQuantity,
+    category(twoFlavors, "Petiscos").plannedNaturalQuantity
   );
 });
 
@@ -160,7 +162,7 @@ test("legacy3 uses 35% for 0-6 and 100% for 7+", () => {
   assert.equal(guests.ageResolution, "legacy3");
 });
 
-test("full5 and legacy3 are numerically compatible under current equal paired factors", () => {
+test("full5 and legacy3 remain numerically compatible under current equal paired factors", () => {
   const legacy = calculateShadowPlanningGuests({
     adults: 10,
     olderChildren: 8,
@@ -181,7 +183,7 @@ test("full5 and legacy3 are numerically compatible under current equal paired fa
   assert.equal(legacy.planningGuests, full5.planningGuests);
 });
 
-test("60 adult 4h beverages produce 42L expected and 54.6L stock", () => {
+test("60 adults 4h with all modeled beverages keeps 42L covered and 54.6L stock", () => {
   const result = generateShadowRecommendation({
     adults: 60,
     serviceHours: 4,
@@ -194,7 +196,9 @@ test("60 adult 4h beverages produce 42L expected and 54.6L stock", () => {
     productCatalog: PRODUCT_CATALOG,
   });
 
+  assert.equal(result.beverages.referenceTotalExpectedConsumptionMl, 42000);
   assert.equal(result.beverages.expectedConsumptionMl, 42000);
+  assert.equal(result.beverages.externalOrUncoveredExpectedMl, 0);
   assert.equal(result.beverages.stockToTakeMl, 54600);
 
   assert.equal(result.beverages.expectedConsumptionMlBySku["agua-mineral"].ml, 16800);
@@ -209,7 +213,7 @@ test("60 adult 4h beverages produce 42L expected and 54.6L stock", () => {
   assert.deepEqual(result.beverages.financialEstimate.missingVolumeProductIds, ["agua-mineral"]);
 });
 
-test("selected beverage mix is renormalized instead of inventing unavailable drinks", () => {
+test("selected beverage subset keeps canonical shares instead of renormalizing", () => {
   const result = generateShadowRecommendation({
     adults: 10,
     serviceHours: 4,
@@ -220,7 +224,48 @@ test("selected beverage mix is renormalized instead of inventing unavailable dri
   const juice = result.beverages.expectedConsumptionMlBySku["suco-laranja-200ml"];
   const soda = result.beverages.expectedConsumptionMlBySku["refrigerante-200ml"];
 
-  assert.equal(juice.share, 0.666667);
-  assert.equal(soda.share, 0.333333);
-  assert.equal(result.beverages.expectedConsumptionMl, 7000);
+  assert.equal(result.beverages.referenceTotalExpectedConsumptionMl, 7000);
+  assert.equal(juice.share, 0.4);
+  assert.equal(soda.share, 0.2);
+  assert.equal(result.beverages.expectedConsumptionMl, 4200);
+  assert.equal(result.beverages.externalOrUncoveredExpectedMl, 2800);
+  assert.equal(result.beverages.stockToTakeMl, 5460);
+});
+
+test("Laiana-like soda-only selection covers only typical 20% and leaves the rest external", () => {
+  const result = generateShadowRecommendation({
+    adults: 60,
+    serviceHours: 4,
+    selectedProductIds: ["refrigerante-200ml"],
+    productCatalog: PRODUCT_CATALOG,
+  });
+
+  assert.equal(result.beverages.referenceTotalExpectedConsumptionMl, 42000);
+  assert.equal(result.beverages.expectedConsumptionMl, 8400);
+  assert.equal(result.beverages.externalOrUncoveredExpectedMl, 33600);
+  assert.equal(result.beverages.stockToTakeMl, 10920);
+  assert.equal(
+    result.beverages.expectedConsumptionMlBySku["refrigerante-200ml"].share,
+    0.2
+  );
+  assert.equal(
+    result.beverages.stockToTakeBySku["refrigerante-200ml"].roundedUnitsToCurrentLot,
+    60
+  );
+});
+
+test("requested beverages with no modeled selected SKU do not invent a beverage mix", () => {
+  const result = generateShadowRecommendation({
+    adults: 10,
+    serviceHours: 4,
+    selectedCategories: ["Bebidas"],
+    includeBeverages: true,
+  });
+
+  assert.equal(result.beverages.referenceTotalExpectedConsumptionMl, 7000);
+  assert.equal(result.beverages.expectedConsumptionMl, 0);
+  assert.equal(result.beverages.externalOrUncoveredExpectedMl, 7000);
+  assert.equal(result.beverages.stockToTakeMl, 0);
+  assert.deepEqual(result.beverages.expectedConsumptionMlBySku, {});
+  assert.ok(result.warnings.some((warning) => warning.includes("without a selected modeled beverage SKU")));
 });

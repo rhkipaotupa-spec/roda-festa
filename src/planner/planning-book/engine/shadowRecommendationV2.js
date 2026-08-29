@@ -1,5 +1,5 @@
 /* =========================================================
-   RODA FESTA — RF-REC-2.0.0 ALPHA SHADOW (PRE-GRAMMAGE)
+   RODA FESTA — RF-REC-2.0.0 ALPHA SHADOW R3 (PRE-GRAMMAGE)
 
    IMPORTANT:
    - This module is shadow-only and non-authoritative.
@@ -8,11 +8,13 @@
    - It intentionally stops before per-SKU lot allocation for solids.
    - Petiscos, Mini lanches and Doces stay in their natural unit until
      measured SKU grammages are available.
+   - R3 treats elicited solid quantities as conservative planning targets;
+     no second automatic solid buffer is added.
    ========================================================= */
 
 export const SHADOW_ENGINE_VERSIONS = Object.freeze({
-  recommendation: "RF-REC-2.0.0-alpha-shadow-pregram",
-  parameters: "RF-PARAM-2.0.0-alpha-elicited-2026-08-29",
+  recommendation: "RF-REC-2.0.0-alpha-shadow-pregram-r3",
+  parameters: "RF-PARAM-2.0.0-alpha-elicited-r3-2026-08-29",
   compatibility: "RF-COMPAT-1.0.0",
   commercialRules: "RF-COM-1.0.0",
   priceBook: "RF-PRICE-2026-08-24",
@@ -35,12 +37,12 @@ const AGE_FACTORS = Object.freeze({
 });
 
 /*
- * Baseline elicited from Roda Festa operational experience for:
- * - 4 hours
- * - full solid menu selected
- * - adult-equivalent planning unit
+ * Conservative planning baselines elicited from Roda Festa operational
+ * experience for 4 hours with the complete solid menu selected.
  *
- * These are not SKU masses. They are natural category quantities.
+ * They already contain a light operational safety margin by judgement.
+ * R3 therefore does NOT add a second automatic solid service buffer.
+ * These are not SKU masses; they remain natural category quantities.
  */
 const FULL_MENU_BASELINE = Object.freeze({
   Petiscos: Object.freeze({
@@ -98,7 +100,8 @@ export const SHADOW_PARAMETERS = Object.freeze({
     Math.log(PETISCOS_SINGLE_ONLY_REFERENCE / PETISCOS_FULL_MENU_REFERENCE) /
     Math.log(1 / PETISCOS_FULL_MENU_WEIGHT),
   theta: 0,
-  solidServiceBuffer: 0.10,
+  solidBaselineSemantics: "conservative-planning-target",
+  additionalSolidServiceBuffer: 0,
   solidDuration: Object.freeze({
     minHours: 4,
     maxHours: 8,
@@ -315,55 +318,51 @@ export function calculateShadowSolidCategories({
     multiplier: round(selectionMath.multiplier, 6),
   };
 
-  const categories = selectedSolidCategories.map((category) => {
-    const baseline = FULL_MENU_BASELINE[category];
-    if (!baseline) return null;
+  const categories = selectedSolidCategories
+    .map((category) => {
+      const baseline = FULL_MENU_BASELINE[category];
+      if (!baseline) return null;
 
-    const expectedNaturalQuantity =
-      guests * baseline.value * duration.factor * selectionMath.multiplier;
-    const plannedNaturalQuantity =
-      expectedNaturalQuantity * (1 + SHADOW_PARAMETERS.solidServiceBuffer);
+      const plannedNaturalQuantity =
+        guests * baseline.value * duration.factor * selectionMath.multiplier;
 
-    const result = {
-      category,
-      naturalUnit: baseline.unit,
-      displayUnit: baseline.displayUnit,
-      baselinePerAdultEquivalent4hFullMenu: baseline.value,
-      expectedNaturalQuantity: round(expectedNaturalQuantity, 3),
-      plannedNaturalQuantity: round(plannedNaturalQuantity, 3),
-      plannedRoundedCategoryQuantity:
-        baseline.unit === "unit"
-          ? Math.ceil(round(plannedNaturalQuantity, 6))
-          : round(plannedNaturalQuantity, 1),
-      serviceBuffer: SHADOW_PARAMETERS.solidServiceBuffer,
-      durationFactor: duration.factor,
-      substitutionMultiplier: selection.multiplier,
-      lotAllocationStatus: "deferred-pending-sku-grammage-and-lot-solver",
-    };
+      const result = {
+        category,
+        naturalUnit: baseline.unit,
+        displayUnit: baseline.displayUnit,
+        baselinePerAdultEquivalent4hFullMenu: baseline.value,
+        baselineSemantics: SHADOW_PARAMETERS.solidBaselineSemantics,
+        plannedNaturalQuantity: round(plannedNaturalQuantity, 3),
+        plannedRoundedCategoryQuantity:
+          baseline.unit === "unit"
+            ? Math.ceil(round(plannedNaturalQuantity, 6))
+            : round(plannedNaturalQuantity, 1),
+        additionalServiceBuffer: SHADOW_PARAMETERS.additionalSolidServiceBuffer,
+        durationFactor: duration.factor,
+        substitutionMultiplier: selection.multiplier,
+        lotAllocationStatus: "deferred-pending-sku-grammage-and-lot-solver",
+      };
 
-    if (baseline.nominalPortionGrams) {
-      result.nominalPortionGrams = baseline.nominalPortionGrams;
-      result.expectedNominalPortions = round(
-        expectedNaturalQuantity / baseline.nominalPortionGrams,
-        3
-      );
-      result.plannedNominalPortionsBeforeLot = round(
-        plannedNaturalQuantity / baseline.nominalPortionGrams,
-        3
-      );
-      result.plannedRoundedNominalPortions = Math.ceil(
-        plannedNaturalQuantity / baseline.nominalPortionGrams
-      );
-    }
+      if (baseline.nominalPortionGrams) {
+        result.nominalPortionGrams = baseline.nominalPortionGrams;
+        result.plannedNominalPortionsBeforeLot = round(
+          plannedNaturalQuantity / baseline.nominalPortionGrams,
+          3
+        );
+        result.plannedRoundedNominalPortions = Math.ceil(
+          plannedNaturalQuantity / baseline.nominalPortionGrams
+        );
+      }
 
-    if (baseline.elicitedRange) {
-      result.elicitedRangePerAdultEquivalent4hFullMenu = [
-        ...baseline.elicitedRange,
-      ];
-    }
+      if (baseline.elicitedRange) {
+        result.elicitedRangePerAdultEquivalent4hFullMenu = [
+          ...baseline.elicitedRange,
+        ];
+      }
 
-    return result;
-  }).filter(Boolean);
+      return result;
+    })
+    .filter(Boolean);
 
   return {
     duration,
@@ -372,15 +371,12 @@ export function calculateShadowSolidCategories({
   };
 }
 
-function normalizeSelectedBeverageWeights(selectedBeverageProductIds = []) {
+function selectedBeverageMix(selectedBeverageProductIds = []) {
   const knownMix = SHADOW_PARAMETERS.beverages.mix;
-  const selected = selectedBeverageProductIds.filter((id) => knownMix[id] > 0);
-  const effective = selected.length ? selected : Object.keys(knownMix);
-  const totalWeight = effective.reduce((sum, id) => sum + knownMix[id], 0);
+  const selected = [...new Set(selectedBeverageProductIds.map(String))]
+    .filter((id) => knownMix[id] > 0);
 
-  return Object.fromEntries(
-    effective.map((id) => [id, knownMix[id] / totalWeight])
-  );
+  return Object.fromEntries(selected.map((id) => [id, knownMix[id]]));
 }
 
 export function calculateShadowBeverages({
@@ -393,10 +389,13 @@ export function calculateShadowBeverages({
   if (!includeBeverages) {
     return {
       requested: false,
+      referenceTotalExpectedConsumptionMl: 0,
       expectedConsumptionMl: 0,
+      externalOrUncoveredExpectedMl: 0,
       stockToTakeMl: 0,
       expectedConsumptionMlBySku: {},
       stockToTakeBySku: {},
+      unmodeledSelectedProductIds: [],
       financialEstimate: {
         complete: true,
         knownExpectedValue: 0,
@@ -407,14 +406,19 @@ export function calculateShadowBeverages({
 
   const guests = asNonNegativeNumber(planningGuests);
   const duration = calculateShadowDurationFactor(serviceHours);
-  const expectedConsumptionMl =
+  const referenceTotalExpectedConsumptionMl =
     guests *
     SHADOW_PARAMETERS.beverages.expectedMlPerAdultEquivalentPerHour *
     duration.effectiveHours;
+
+  const mix = selectedBeverageMix(selectedBeverageProductIds);
+  const coveredShare = Object.values(mix).reduce((sum, share) => sum + share, 0);
+  const expectedConsumptionMl = referenceTotalExpectedConsumptionMl * coveredShare;
+  const externalOrUncoveredExpectedMl =
+    referenceTotalExpectedConsumptionMl - expectedConsumptionMl;
   const stockToTakeMl =
     expectedConsumptionMl * (1 + SHADOW_PARAMETERS.beverages.stockBuffer);
 
-  const mix = normalizeSelectedBeverageWeights(selectedBeverageProductIds);
   const expectedConsumptionMlBySku = {};
   const stockToTakeBySku = {};
   const catalog = normalizeProductCatalog(productCatalog);
@@ -422,10 +426,15 @@ export function calculateShadowBeverages({
   const missingVolumeProductIds = [];
   let knownExpectedValue = 0;
 
+  const modeledSelectedIds = new Set(Object.keys(mix));
+  const unmodeledSelectedProductIds = [...new Set(selectedBeverageProductIds.map(String))]
+    .filter((id) => !modeledSelectedIds.has(id));
+
   Object.entries(mix).forEach(([productId, share]) => {
-    const expectedMl = expectedConsumptionMl * share;
-    const stockMl = stockToTakeMl * share;
-    const volumePerUnitMl = SHADOW_PARAMETERS.beverages.volumePerUnitMl[productId] || null;
+    const expectedMl = referenceTotalExpectedConsumptionMl * share;
+    const stockMl = expectedMl * (1 + SHADOW_PARAMETERS.beverages.stockBuffer);
+    const volumePerUnitMl =
+      SHADOW_PARAMETERS.beverages.volumePerUnitMl[productId] || null;
     const product = byId.get(productId);
     const lotSize = asNonNegativeNumber(product?.lotSize) || 1;
 
@@ -463,19 +472,27 @@ export function calculateShadowBeverages({
 
   return {
     requested: true,
+    referenceTotalExpectedConsumptionMl: round(referenceTotalExpectedConsumptionMl, 3),
     expectedConsumptionMl: round(expectedConsumptionMl, 3),
+    externalOrUncoveredExpectedMl: round(externalOrUncoveredExpectedMl, 3),
+    coveredTypicalShare: round(coveredShare, 6),
     stockBuffer: SHADOW_PARAMETERS.beverages.stockBuffer,
     stockToTakeMl: round(stockToTakeMl, 3),
     expectedConsumptionMlBySku,
     stockToTakeBySku,
+    unmodeledSelectedProductIds,
     financialEstimate: {
-      complete: missingVolumeProductIds.length === 0,
+      complete:
+        missingVolumeProductIds.length === 0 &&
+        unmodeledSelectedProductIds.length === 0,
       knownExpectedValue: round(knownExpectedValue, 2),
       missingVolumeProductIds,
       note:
         missingVolumeProductIds.length > 0
-          ? "Expected financial value is incomplete until volume per unit is confirmed for every selected beverage SKU."
-          : null,
+          ? "Expected financial value is incomplete until volume per unit is confirmed for every modeled selected beverage SKU."
+          : unmodeledSelectedProductIds.length > 0
+            ? "Expected financial value is incomplete because at least one selected beverage SKU has no typical-mix coefficient in this alpha."
+            : null,
     },
   };
 }
@@ -534,6 +551,16 @@ export function generateShadowRecommendation({
       `Beverage financial estimate is incomplete: missing unit volume for ${beverages.financialEstimate.missingVolumeProductIds.join(", ")}.`
     );
   }
+  if (beverages.unmodeledSelectedProductIds?.length) {
+    warnings.push(
+      `Beverage alpha has no typical-mix coefficient for ${beverages.unmodeledSelectedProductIds.join(", ")}; no volume was invented for those SKUs.`
+    );
+  }
+  if (beveragesRequested && selection.selectedBeverageProductIds.length === 0) {
+    warnings.push(
+      "Beverages were requested without a selected modeled beverage SKU; the reference demand remains uncovered instead of being invented."
+    );
+  }
   if (selection.selectedSolidCategories.length === 0 && !beveragesRequested) {
     warnings.push("No supported category was selected for the shadow calculation.");
   }
@@ -542,12 +569,14 @@ export function generateShadowRecommendation({
     mode: "shadow",
     authoritative: false,
     productionMutationAllowed: false,
-    semanticStatus: "pre-grammage-operational-alpha",
+    semanticStatus: "pre-grammage-conservative-planning-alpha-r3",
     versions: { ...SHADOW_ENGINE_VERSIONS },
     parameters: {
       lambda: round(SHADOW_PARAMETERS.lambda, 6),
       theta: SHADOW_PARAMETERS.theta,
-      solidServiceBuffer: SHADOW_PARAMETERS.solidServiceBuffer,
+      solidBaselineSemantics: SHADOW_PARAMETERS.solidBaselineSemantics,
+      additionalSolidServiceBuffer:
+        SHADOW_PARAMETERS.additionalSolidServiceBuffer,
       beverageStockBuffer: SHADOW_PARAMETERS.beverages.stockBuffer,
     },
     guests,
@@ -560,6 +589,7 @@ export function generateShadowRecommendation({
     solids,
     beverages,
     deferred: {
+      observedConsumptionSeparation: true,
       skuMasses: true,
       solidMassConservationProof: true,
       perSkuIntegerLotSolver: true,
