@@ -1582,3 +1582,99 @@ O R2 passou a usar launcher Windows compatível e concluiu toda a medição.
 O snapshot aprovado criado no commit `4a8a164b798b4de38eb2e908af290924ecaf046b` permanece preservado como evidência recuperável da versão funcional aprovada, porém não é mais o snapshot final da linha que será publicada, pois o HEAD passou a incluir o commit técnico de portabilidade e esta reconciliação documental. Um novo snapshot deve ser criado somente após o commit documental e working tree limpa.
 
 No instante desta reconciliação, `main` foi avançada apenas localmente; `origin/main`/Production ainda não receberam esta linha.
+
+
+<!-- V19.10I_FINAL_RECONCILIATION_40af86e -->
+## 2026-08-29 — V19.10I: lifecycle administrativo reversível e smoke Production — RESOLVIDO / APROVADO
+
+### Escopo entregue
+
+A V19.10I introduziu o ciclo administrativo reversível dos orçamentos sem alterar o estado comercial da jornada e sem hard delete.
+
+Estados administrativos persistidos em `public.planning_sessions`:
+- `ACTIVE`;
+- `ARCHIVED`;
+- `TRASHED`.
+
+Ações administrativas:
+- Arquivar: `ACTIVE -> ARCHIVED`;
+- Mover para lixeira: estado atual -> `TRASHED`;
+- Restaurar: `ARCHIVED/TRASHED -> ACTIVE`.
+
+Nenhuma dessas ações reescreve `status`, `recommendation_snapshot`, `planning_changes` ou `final_proposal_snapshot`. A exclusão disponível nesta versão é lógica e reversível; exclusão física não foi implementada.
+
+### Segurança e integridade
+
+O endpoint de mutação administrativa:
+- aceita somente POST;
+- exige origem confiável;
+- exige sessão administrativa autenticada e autorizada;
+- registra o ator server-side em `admin_state_updated_by`;
+- usa atualização otimista condicionada ao estado administrativo atual;
+- retorna erros públicos neutros;
+- mantém acesso ao Supabase restrito ao backend privilegiado.
+
+A leitura administrativa passou a filtrar `ACTIVE` por padrão. A Agenda também permanece restrita a `ACTIVE`, de forma que itens arquivados ou enviados à lixeira deixam de aparecer na operação corrente sem perder histórico.
+
+### Migration Production e postflight
+
+Migration versionada:
+`infra/migrations/20260829_v19_10i_admin_quote_lifecycle.sql`.
+
+A migration foi aplicada no Supabase Production canônico **antes** do push/deploy do código consumidor. Resultado no SQL Editor: `Success. No rows returned`.
+
+Postflight read-only confirmou:
+- 5 colunas novas: `admin_state`, `admin_state_updated_at`, `admin_state_updated_by`, `archived_at`, `trashed_at`;
+- `admin_state` como `text NOT NULL DEFAULT 'ACTIVE'`;
+- constraint `planning_sessions_admin_state_check` aceitando somente `ACTIVE | ARCHIVED | TRASHED`;
+- índice `planning_sessions_admin_state_activity_idx` em `(admin_state, last_activity_at DESC)`;
+- 15 registros existentes no momento da prova, todos preservados como `ACTIVE`.
+
+### Refinamentos visuais incluídos
+
+A mesma unidade consolidou microajustes aprovados:
+- retorno do detalhe no desktop em linha própria, sem sobrepor o eyebrow `ORÇAMENTO`;
+- retorno flutuante do mobile elevado para ficar totalmente visível acima da área inferior/safe area;
+- valor de `Investimento contratado` harmonizado com a tipografia financeira de `Estimativa geral do evento`;
+- scroll pós-render do Planner previamente aprovado permaneceu preservado.
+
+### Gates e checkpoint técnico
+
+Checkpoint técnico publicado em `main`:
+`40af86e95c045a8db174ff99f640d4cd63f6548f` — `feat: add reversible quote lifecycle and admin refinements`.
+
+Validação final antes do commit:
+- escopo exato: 12 arquivos;
+- suíte completa: 305/305 GREEN;
+- lint: GREEN;
+- build: GREEN;
+- `git diff --check`: GREEN;
+- `git diff --cached --check`: GREEN;
+- warning conhecido `src/styles/colors.css is empty`: permaneceu não bloqueante.
+
+O Vercel reportou o deployment associado ao commit como concluído com sucesso.
+
+### Smoke real de Production
+
+Smoke final executado em desktop e mobile: **APROVADO 100%**.
+
+Foram conferidos com sucesso:
+- visual de Ativos / Arquivados / Lixeira;
+- arquivamento;
+- envio para lixeira;
+- restauração;
+- retorno correto entre views;
+- preservação da experiência desktop e mobile;
+- refinamentos do botão de retorno e tipografia financeira.
+
+Classificação final: **APROVADA / CONGELADA EM PRODUCTION**.
+
+### Aprendizados de tooling desta rodada
+
+- Um teste legado de same-origin estava acoplado à forma textual `fetch(QUOTES_ENDPOINT` e ficou RED quando a URL passou a incluir `?state=...` em chamada multiline. A implementação não foi deformada; o teste foi atualizado para medir a propriedade real de endpoint relativo + credenciais same-origin.
+- O lint capturou `setState` síncrono dentro do corpo de `useEffect`. Os resets de view foram movidos para a ação explícita do usuário, preservando `react-hooks/set-state-in-effect` ativa.
+- Um pacote intermediário interpretou incorretamente a primeira linha de `git status --porcelain` por uso de `.trim()`, removendo o espaço de status e transformando `api/...` em `pi/...`. O pacote falhou fechado e nenhum arquivo foi alterado; versões seguintes preservaram os espaços de status.
+
+### Fechamento e snapshot
+
+Esta reconciliação documental ocorre somente após o smoke final aprovado, conforme a governança vigente. O snapshot final da V19.10I deve ser gerado apenas depois do commit documental desta seção e da confirmação de working tree limpa.

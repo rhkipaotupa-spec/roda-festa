@@ -709,3 +709,22 @@ Nenhuma senha, token, cookie, hash, chave Supabase ou valor de variável de ambi
 - O checkpoint técnico desta correção é `9d2e75ebd3e7eab00444fdb1bfba8f3406ff6b2b` — `test: make PDF assertion line-ending portable`.
 - A correção é exclusivamente de teste; não altera Planner, PDF, Admin, motor, API, preço, catálogo, persistência ou comportamento de Production.
 - Mesmo com gates finais GREEN, a promoção continua condicionada a: reconciliação documental -> commit documental -> working tree limpa -> novo snapshot seguro do HEAD final -> push de `main` -> deploy Production -> smoke pós-deploy.
+
+
+<!-- V19.10I_FINAL_RECONCILIATION_40af86e -->
+## 2026-08-29 — Decisões finais V19.10I: Archive / Trash / Restore
+
+- Declarar a V19.10I **APROVADA / CONGELADA EM PRODUCTION** após gates 305/305 + lint + build GREEN e smoke real 100% em desktop e mobile.
+- Tratar “Excluir” nesta fase como **mover para Lixeira**, de forma reversível. Não existe hard delete administrativo na V19.10I.
+- Manter o estado administrativo separado do estado comercial da jornada. `admin_state` não substitui nem reinterpreta `planning_sessions.status`.
+- Estados administrativos permitidos: `ACTIVE`, `ARCHIVED`, `TRASHED`.
+- `Arquivar` remove o orçamento da operação corrente, mas preserva todo o histórico e permite restauração.
+- `Lixeira` também preserva histórico e permite restauração. Uma futura exclusão física, se algum dia necessária, será unidade independente com confirmação forte, política de auditoria/retenção e avaliação de impacto; não herdar automaticamente a semântica da Lixeira atual.
+- Agenda e listagem operacional padrão devem considerar somente `ACTIVE`. Arquivados e itens da Lixeira permanecem acessíveis por views administrativas explícitas.
+- Toda mutação de lifecycle deve passar por backend autenticado/autorizado, proteção de origem e identidade server-side do ator. O navegador não é autoridade sobre `admin_state_updated_by`.
+- Preservar snapshots e timeline: lifecycle administrativo não pode alterar recomendação, `PlanningChange[]`, proposta final ou valores comerciais.
+- Manter a estratégia de rollout usada nesta unidade para mudanças que exigem schema: **migration Production -> postflight read-only -> push do consumidor -> deploy -> smoke real**.
+- Não deformar implementação aprovada para satisfazer teste textual obsoleto. Testes de superfície devem medir a propriedade de segurança/UX desejada, não uma formatação incidental do código.
+- Manter regras de lint ativas; corrigir o fluxo React em vez de silenciar `react-hooks/set-state-in-effect` em código novo.
+- O commit técnico canônico da unidade é `40af86e95c045a8db174ff99f640d4cd63f6548f`.
+- O snapshot final desta unidade só pode ser produzido depois do commit desta reconciliação documental e de working tree limpa.

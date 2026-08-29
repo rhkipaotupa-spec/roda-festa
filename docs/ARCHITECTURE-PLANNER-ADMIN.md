@@ -1088,3 +1088,101 @@ A infraestrutura HTTP já possui logout com revogação server-side. O Admin ain
 ### Estado para promoção
 
 No momento desta reconciliação, a branch `feat/admin-agenda-v19.10` está tecnicamente aprovada e pronta para o fechamento documental. Production ainda não foi alterada por esta reconciliação; a promoção deve ocorrer somente após commit documental, working tree limpa e snapshot seguro.
+
+<!-- V19.10I_FINAL_RECONCILIATION_40af86e -->
+## 2026-08-29 — V19.10I: lifecycle administrativo reversível sobre PlanningSession
+
+A V19.10I adiciona uma dimensão administrativa ortogonal ao estado comercial já existente em `public.planning_sessions`.
+
+### Modelo de estado
+
+Estado comercial existente:
+`planning_sessions.status` — continua representando a jornada comercial/técnica (por exemplo ACTIVE/FINALIZED conforme contrato existente).
+
+Estado administrativo novo:
+`planning_sessions.admin_state` — representa apenas visibilidade/organização operacional no Admin:
+- `ACTIVE`;
+- `ARCHIVED`;
+- `TRASHED`.
+
+Esses dois eixos são independentes. Arquivar ou enviar para Lixeira não desfaz finalização, não recalcula proposta e não modifica snapshots.
+
+### Schema adicionado
+
+Migration:
+`infra/migrations/20260829_v19_10i_admin_quote_lifecycle.sql`.
+
+Colunas:
+- `admin_state text NOT NULL DEFAULT 'ACTIVE'`;
+- `admin_state_updated_at timestamptz`;
+- `admin_state_updated_by text`;
+- `archived_at timestamptz`;
+- `trashed_at timestamptz`.
+
+Constraint:
+`planning_sessions_admin_state_check` limita o domínio a `ACTIVE | ARCHIVED | TRASHED`.
+
+Índice operacional:
+`planning_sessions_admin_state_activity_idx (admin_state, last_activity_at DESC)`.
+
+### Camada de leitura
+
+`createPlanningAdminReadStore` passa a:
+- normalizar `admin_state` com fallback defensivo `ACTIVE` para fixtures/linhas históricas;
+- permitir `listRecent({ state })`;
+- filtrar `ACTIVE` por padrão;
+- manter a Agenda explicitamente filtrada em `ACTIVE`;
+- expor metadados administrativos sem recalcular snapshots.
+
+### Camada de mutação
+
+Novo store server-side:
+`api/_lib/planning-admin-lifecycle-store.js`.
+
+Novo endpoint:
+`POST /api/admin-quote-lifecycle`.
+
+Contrato de mutação:
+`{ id, action }`, com `action in ARCHIVE | TRASH | RESTORE`.
+
+Propriedades:
+- autenticação pela composição Admin existente;
+- autorização pela boundary Admin existente;
+- validação de origem reutilizando `isTrustedMutationRequest`;
+- ator derivado de `session.principal.userId`;
+- PATCH somente das colunas de lifecycle administrativo;
+- filtro otimista `id + admin_state atual` para detectar mudança concorrente;
+- nenhum DELETE SQL/REST;
+- nenhuma escrita em `status`, snapshots, timeline ou ledger.
+
+### Transições
+
+- `ARCHIVE`: destino `ARCHIVED`; grava `archived_at` e limpa `trashed_at`.
+- `TRASH`: destino `TRASHED`; grava `trashed_at`.
+- `RESTORE`: destino `ACTIVE`; limpa `archived_at` e `trashed_at`.
+
+A operação é idempotente quando o registro já está no estado de destino.
+
+### UI administrativa
+
+O workspace de Orçamentos passa a expor três views explícitas:
+`Ativos | Arquivados | Lixeira`.
+
+As ações ficam no detalhe do orçamento para reduzir acionamentos acidentais. A ida para Lixeira exige confirmação visual e informa que o histórico será preservado e poderá ser restaurado.
+
+### Rollout e prova
+
+Ordem aplicada:
+`commit local GREEN -> migration Production -> postflight read-only -> push main -> Vercel -> smoke Production`.
+
+Postflight comprovou schema, constraint, índice e 15 linhas preexistentes preservadas como `ACTIVE` antes da ativação do consumidor.
+
+Checkpoint técnico:
+`40af86e95c045a8db174ff99f640d4cd63f6548f`.
+
+Gates: 305/305 testes, lint GREEN, build GREEN, diff checks GREEN. Smoke final desktop/mobile, incluindo arquivar, lixeira e restaurar: **GREEN 100%**.
+
+A cadeia arquitetural principal permanece:
+`InputSnapshot -> RecommendationSnapshot -> PlanningChange[] -> FinalProposalSnapshot -> Admin read model -> validação humana`.
+
+`admin_state` é uma camada operacional de organização e não uma nova fonte de verdade comercial.
