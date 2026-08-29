@@ -728,3 +728,20 @@ Nenhuma senha, token, cookie, hash, chave Supabase ou valor de variável de ambi
 - Manter regras de lint ativas; corrigir o fluxo React em vez de silenciar `react-hooks/set-state-in-effect` em código novo.
 - O commit técnico canônico da unidade é `40af86e95c045a8db174ff99f640d4cd63f6548f`.
 - O snapshot final desta unidade só pode ser produzido depois do commit desta reconciliação documental e de working tree limpa.
+
+## 2026-08-29 — Decisões RF-REC-2 para preparação da R4
+
+1. RF-REC-1.0.0 permanece autoritativo em Produção.
+2. R3 permanece congelada como shadow histórico; não receber ajustes locais para “bater” replays.
+3. Não implementar matriz cheia de substituição.
+4. O contrato futuro distingue `S_contratado` de `S_presente = S_contratado ∪ S_externo`.
+5. Presença externa de Mini lanches/Tortas é obrigatória para o cálculo de B1.
+6. `lambda_out = 0` está identificado pela elicitação Q2-prime com ausência real de sobremesa.
+7. `lambda_in` não será congelado enquanto a revisão metodológica permanecer aberta; valor atual ~0,381860 é provisório.
+8. Sigma antigo/prior deixa de ser usado; `sigma_c` é derivado de `M_c / b_adulto`.
+9. `M`, `M*`, `Q`, takeaway e sobra são grandezas distintas e devem permanecer explícitas.
+10. Mini lanches: consumo 1,5/pessoa e planejamento 2/pessoa; a diferença não é quantização por lote.
+11. Tortas/Bolos: variedade pode aumentar consumo de 1 para 2+ sabores, mas o efeito satura e não cresce com o catálogo.
+12. Takeaway de Bolos/Doces será componente separado e não será inventado antes de elicitação/medição.
+13. Fichas de campo corretas antes de 26/09 têm prioridade sobre nova implementação funcional.
+14. Replays R4 serão pré-registrados antes de reabrir os finais humanos.

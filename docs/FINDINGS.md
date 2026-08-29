@@ -1678,3 +1678,37 @@ Classificação final: **APROVADA / CONGELADA EM PRODUCTION**.
 ### Fechamento e snapshot
 
 Esta reconciliação documental ocorre somente após o smoke final aprovado, conforme a governança vigente. O snapshot final da V19.10I deve ser gerado apenas depois do commit documental desta seção e da confirmação de working tree limpa.
+
+## 2026-08-29 — RF-REC-2 R3/R4: replays reais revelaram falhas de especificação, não justificativa para matriz — DOCUMENTADO
+
+### Evidência
+
+Foram analisados três replays reais preservados (Laiana, Maysa e Yasmin). Os finais humanos apresentam intensidades de intervenção muito diferentes e não formam uma curva monotônica adequada para estimar substituição. Por isso, finais contratados não podem ser usados como proxy de consumo observado nem como alvo de fitting.
+
+### Correções estruturais consolidadas
+
+- não construir matriz cheia de substituição;
+- separar `S_contratado` de `S_presente` e considerar fornecedor externo;
+- B1 = Petiscos/Mini/Tortas; B2 = Doces/Bolos;
+- Q2-prime com ausência real identificou `lambda_out = 0` na elicitação atual;
+- `lambda_in` permanece derivado provisoriamente e não congelado;
+- separar `M_c`, `M*_c`, `Q_c`, takeaway e sobra;
+- efeito de variedade de Tortas/Bolos é saturante em 2+ sabores, não linear;
+- finais humanos passam a ser contexto/fixture, não critério de proximidade.
+
+### Medições físicas
+
+- fritos padrão 23 g cru / 25 g pronto;
+- pastel 30 g cru / 34 g pronto;
+- Mini 115–125 g pronto;
+- Doces 15–18 g/un.;
+- prior de mix Petiscos 40% Pastel / 40% Coxinha / 20% Bolinha;
+- midpoint atual `b_adulto = 638,4 g`;
+- sigma derivado P .2912 / M .2820 / T .1096 / D .1292 / B .1880;
+- `lambda_in ~0,381860` permanece PROVISÓRIO.
+
+### Checkpoint
+
+Commit técnico publicado: `10310735535dd6ad1dc60208b5a6cef67f476db0` — `add RF-REC-2 R4 preflight checkpoint`.
+
+O checkpoint é explicitamente não autoritativo e não altera RF-REC-1, PlanningBook, API, ledger, Admin, banco ou Produção.

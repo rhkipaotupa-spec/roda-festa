@@ -1,21 +1,18 @@
 # CHECKLIST — PRÓXIMA SESSÃO
 
-1. Abrir o projeto.
-2. Rodar `git status`.
-3. Confirmar que os arquivos locais mais recentes estão salvos.
-4. Criar commit de segurança antes da Cena Viva 2.0.
-5. Não alterar Welcome.
-6. Não alterar couro, papel ou encadernação.
-7. Confirmar que `PlanningBook.jsx`, `PlanningBook.css`, `planningRules.js` e `buildPlanningScene.js` funcionam.
-8. Criar `SceneDirector.js` completo.
-9. Reescrever `SceneLayoutEngine.js` completo.
-10. Só depois ajustar `EventScene.jsx`, `Cart.jsx` e `EventScene.css`.
-11. Testar com 1, 2 e 3 carrinhos.
-12. Testar com e sem mesa de doces.
-13. Testar infantil, casamento e corporativo.
-14. Validar que aparecem no máximo 2 ou 3 produtos por carrinho.
-15. Validar que produtos estão apoiados no balcão.
-16. Validar que não há cards permanentes.
-17. Tirar prints antes/depois.
-18. Atualizar documentação ao final.
-19. Fazer commit e push.
+1. Abrir `C:\Projetos\roda-festa` e confirmar `main` + working tree limpa.
+2. Confirmar que o fechamento documental de 29/08 e o snapshot final foram concluídos.
+3. Ler `docs/HANDOFF-2026-08-29.md` e `docs/recommendation-engine/RF-REC-2-R4-preflight.md` antes de qualquer evolução.
+4. NÃO alterar RF-REC-1.0.0 de Produção.
+5. NÃO promover R3 ou R4 para Produção.
+6. Registrar a resposta final da consultoria ao preflight atualizado.
+7. Elicitar takeaway de Bolos e Doces sem inventar constantes.
+8. Revisar a ficha de campo antes de 26/09: M, M*, Q, sobra, takeaway e consumo derivado.
+9. Confirmar campos de presença externa para B1: Mini lanches e Tortas de outros fornecedores.
+10. Manter `lambda_out = 0` como elicitação atual e `lambda_in` como provisório/não congelado.
+11. Preservar gramaturas físicas atuais e o mix 40/40/20 como prior operacional, não dado observado.
+12. Fechar invariantes I8a/I8b/I9/I10/I11 na especificação antes de código funcional.
+13. Pré-registrar os replays Laiana/Maysa/Yasmin antes de olhar novamente os finais humanos.
+14. Só depois implementar a R4 shadow executável.
+15. Rodar testes focados, suíte completa, lint, build e `git diff --check` antes de qualquer checkpoint.
+16. Reconciliar FINDINGS/DECISIONS/WORKLOG antes do próximo snapshot.

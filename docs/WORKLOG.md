@@ -1334,3 +1334,22 @@ Sequência restante:
 7. executar smoke pós-deploy no domínio oficial.
 
 Até a conclusão dessa sequência, Production permanece sem esta promoção.
+
+## 2026-08-29 — Motor de recomendação: R3, replays, consultoria e R4 preflight
+
+- R3 aplicada, validada e publicada: sólidos sem buffer duplicado e bebidas sem renormalização.
+- R3 local: 14/14 focados; suíte 328/328; lint/build GREEN.
+- Commit R3: `475c68eedd6cfaf8fe9c3287b330dc653e555b24` — `refine RF-REC-2 alpha shadow semantics`.
+- Replays reais Laiana, Maysa e Yasmin extraídos com estrutura técnica sanitizada e analisados.
+- Consultoria rejeitou fitting por finais humanos e matriz cheia; diagnóstico reformulado para conservação, presença real e intensidade de intervenção.
+- Elicitação refeita separando consumo esperado de planejamento conservador.
+- Q2-prime confirmou Petiscos 6–7 mesmo sem Doces/Bolo presentes; `lambda_out = 0` identificado.
+- Q1 confirmou 8–10 Petiscos quando não há Mini/Torta externos.
+- Pesagens/medidas operacionais registradas: fritos 23/25 g, pastel 30/34 g, Mini 115–125 g, Doces 15–18 g.
+- Prior de consumo Petiscos: Pastel 40%, Coxinha 40%, Bolinha 20% -> 28,6 g médio pronto.
+- Novo midpoint físico: `b_adulto = 638,4 g`; sigma derivado; `lambda_in ~0,381860` provisório.
+- R4 preflight criado como checkpoint de especificação, não motor.
+- R4 preflight: 14/14 focados; suíte completa 342/342; lint GREEN; build GREEN; warning `colors.css` vazio conhecido/não bloqueante.
+- Commit técnico R4 preflight: `10310735535dd6ad1dc60208b5a6cef67f476db0` — `add RF-REC-2 R4 preflight checkpoint`.
+- Push confirmado em `main`.
+- Próximo passo: reconciliação documental, commit/push documental, working tree limpa e snapshot final.
