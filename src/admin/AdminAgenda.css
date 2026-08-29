@@ -948,3 +948,20 @@ button.rf-admin-calendar-day:hover {
     margin-bottom: 6px;
   }
 }
+
+/* V19.10G_COMPACT_AGENDA_SECTIONS */
+@media (max-width: 720px) {
+  .rf-admin-agenda__metrics {
+    padding: 0 !important;
+  }
+
+  .rf-admin-agenda__metrics article {
+    min-height: 60px;
+    align-content: center;
+    padding: 8px 6px;
+  }
+
+  .rf-admin-agenda__board {
+    padding: 0 !important;
+  }
+}

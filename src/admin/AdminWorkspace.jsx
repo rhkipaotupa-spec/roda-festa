@@ -611,7 +611,6 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
 
               <span className="rf-admin-eyebrow">Orçamento</span>
               <h2>{selectedQuote?.client?.name || "Cliente"}</h2>
-              <p>{selectedQuote.sessionId}</p>
             </header>
 
             {selectedStatus === "loading" ? (
