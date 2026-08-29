@@ -2,8 +2,8 @@ import crypto from "node:crypto";
 import {
   ENGINE_VERSIONS,
   PRODUCTS,
-  generatePlanningSuggestion,
 } from "../src/planner/planning-book/engine/planningRules.js";
+import { generateR4ProductionSuggestion } from "../src/planner/planning-book/engine/r4ProductionRecommendation.js";
 import {
   compareRecommendationToFinal,
   createRecommendationSnapshot,
@@ -100,19 +100,18 @@ function normalizeStartInput(body) {
 
 export function buildAuthoritativeRecommendation(input) {
   const includeBeverages = input.selectedProductIds.some((id) => PRODUCT_BY_ID.get(id)?.consignment);
-  const planningAdults = input.adults + input.olderChildren;
-  const realGuests = planningAdults + input.children;
-  const equivalentGuests = planningAdults + input.children * 0.5;
-  const suggestion = generatePlanningSuggestion({
-    adults: planningAdults,
+  const realGuests = input.adults + input.olderChildren + input.children;
+  const suggestion = generateR4ProductionSuggestion({
+    adults: input.adults,
+    olderChildren: input.olderChildren,
     children: input.children,
     serviceHours: input.duration,
     selectedProductIds: input.selectedProductIds,
     includeWaiters: input.includeWaiters,
     includeDisposables: input.includeDisposables,
     includeBeverages,
-    additionalProductIds: [],
   });
+  const equivalentGuests = suggestion.guests.equivalentGuests;
 
   const context = {
     eventType: input.eventType,

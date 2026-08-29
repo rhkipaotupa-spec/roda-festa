@@ -27,7 +27,7 @@ test("start cria recomendacao autoritativa no servidor e preserva tres carrinhos
   const result = await startPlanningSessionCommand({ body: startBody(), token: "token-owner", repository, idFactory: () => "session-1" });
   assert.equal(result.sessionId, "session-1");
   assert.equal(result.recommendation.totalCarts, 3);
-  assert.equal(result.recommendation.versions.recommendation, "RF-REC-1.0.0");
+  assert.equal(result.recommendation.versions.recommendation, "RF-REC-2.0.0");
   const stored = await repository.getOwned({ sessionId: "session-1", tokenHash: (await import("../api/_lib/planning-session-security.js")).hashSessionToken("token-owner") });
   assert.equal(stored.recommendation_snapshot.totalCarts, 3);
 });

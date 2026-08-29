@@ -1,11 +1,11 @@
 import {
-  ENGINE_VERSIONS,
   PRODUCTS,
   calculateCarts,
   calculateDisposables,
   calculateInvestment,
   calculateWaiters,
 } from "../src/planner/planning-book/engine/planningRules.js";
+import { R4_PRODUCTION_VERSIONS } from "../src/planner/planning-book/engine/r4ProductionRecommendation.js";
 
 const MAX_BODY_BYTES = 150_000;
 const MAX_ITEM_QUANTITY = 10_000;
@@ -100,7 +100,7 @@ export function rebuildAuthoritativeSnapshot(snapshot) {
   const olderChildren = Math.max(0, Number(snapshot.olderChildren) || 0);
   const children = Math.max(0, Number(snapshot.children) || 0);
   const realGuests = adults + olderChildren + children;
-  const equivalentGuests = adults + olderChildren + children * 0.5;
+  const equivalentGuests = adults + olderChildren + children * 0.35;
   const duration = Math.max(4, Number(snapshot.duration) || 4);
 
   const items = (snapshot.items || []).map((requestedItem) => {
@@ -136,7 +136,7 @@ export function rebuildAuthoritativeSnapshot(snapshot) {
     ...snapshot,
     schemaVersion: 3,
     serverValidatedAt: new Date().toISOString(),
-    versions: { ...ENGINE_VERSIONS },
+    versions: { ...R4_PRODUCTION_VERSIONS },
     adults,
     olderChildren,
     children,
