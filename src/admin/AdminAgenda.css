@@ -719,3 +719,176 @@ button.rf-admin-calendar-day:hover {
     text-overflow: ellipsis;
   }
 }
+
+@media (max-width: 720px) {
+  .rf-admin-mobile-nav {
+    display: none !important;
+  }
+
+  .rf-admin-agenda {
+    gap: 8px;
+    padding-top: 10px;
+  }
+
+  .rf-admin-agenda__intro {
+    min-height: 0;
+    padding: 13px 14px 13px 16px;
+    border: 1px solid #dfc5a0;
+    border-left: 3px solid var(--rf-admin-gold);
+    border-radius: 14px;
+    background: rgba(255, 251, 244, .78);
+    color: var(--rf-admin-ink);
+    box-shadow: none;
+  }
+
+  .rf-admin-agenda__intro .rf-admin-eyebrow {
+    color: #9a6b31;
+    font-size: 8px;
+  }
+
+  .rf-admin-agenda__intro h2 {
+    margin: 4px 0 0;
+    color: var(--rf-admin-wine);
+    font-size: 20px;
+    line-height: 1.12;
+  }
+
+  .rf-admin-agenda__intro p,
+  .rf-admin-agenda__intro-mark {
+    display: none;
+  }
+
+  .rf-admin-agenda__metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid #dfc5a0;
+    border-radius: 14px;
+    background: rgba(255, 251, 244, .78);
+  }
+
+  .rf-admin-agenda__metrics article {
+    min-width: 0;
+    gap: 2px;
+    padding: 9px 8px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .rf-admin-agenda__metrics article + article {
+    border-left: 1px solid #ead7bc;
+  }
+
+  .rf-admin-agenda__metrics span {
+    font-size: 7px;
+    line-height: 1.18;
+    letter-spacing: .04em;
+  }
+
+  .rf-admin-agenda__metrics strong {
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .rf-admin-agenda__upcoming {
+    padding: 11px;
+    border-radius: 15px;
+    box-shadow: none;
+  }
+
+  .rf-admin-agenda__upcoming h2 {
+    font-size: 20px;
+  }
+
+  .rf-admin-agenda__upcoming-list {
+    gap: 4px;
+  }
+
+  .rf-admin-agenda__upcoming-item {
+    grid-template-columns: 68px minmax(0, 1fr) 12px;
+    padding: 8px 7px;
+    border-radius: 11px;
+  }
+
+  .rf-admin-calendar,
+  .rf-admin-agenda-day {
+    border-radius: 16px;
+    box-shadow: none;
+  }
+
+  .rf-admin-calendar {
+    padding: 10px 6px;
+  }
+
+  .rf-admin-calendar__toolbar {
+    grid-template-columns: 36px 1fr 36px;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .rf-admin-calendar__toolbar button {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    font-size: 22px;
+  }
+
+  .rf-admin-calendar__toolbar h2 {
+    font-size: 22px;
+  }
+
+  .rf-admin-calendar__weekdays {
+    margin-bottom: 4px;
+  }
+
+  .rf-admin-calendar__weekdays span {
+    padding: 5px 2px;
+    font-size: 8px;
+  }
+
+  .rf-admin-calendar__grid {
+    gap: 3px;
+  }
+
+  .rf-admin-calendar-day {
+    min-height: 53px;
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  .rf-admin-calendar-day__number {
+    width: 23px;
+    height: 23px;
+    font-size: 10px;
+  }
+
+  .rf-admin-calendar-day__count {
+    font-size: 7px;
+  }
+
+  .rf-admin-agenda-day > header {
+    padding: 14px 14px 12px;
+  }
+
+  .rf-admin-agenda-day h2 {
+    margin-top: 5px;
+    font-size: 23px;
+  }
+
+  .rf-admin-agenda-day__list {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .rf-admin-agenda-event {
+    gap: 4px;
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .rf-admin-agenda-event > strong {
+    font-size: 17px;
+  }
+}

@@ -346,3 +346,35 @@
   font-size: 22px;
   font-weight: 500;
 }
+
+@media (max-width: 620px) {
+  .rf-admin-login__access {
+    min-height: 100dvh;
+    place-items: start center;
+    padding: 26px 20px 42px;
+  }
+
+  .rf-admin-login__access-inner {
+    width: min(100%, 390px);
+  }
+
+  .rf-admin-login__logo-mobile {
+    display: block;
+    width: 118px;
+    margin: 0 0 24px;
+    padding: 11px 13px;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #4c2b19 0%, #2b170d 100%);
+    box-shadow: 0 10px 24px rgba(52, 29, 17, .14);
+  }
+
+  .rf-admin-login__access h2 {
+    margin-top: 8px;
+    font-size: 35px;
+  }
+
+  .rf-admin-login__intro {
+    margin-bottom: 22px;
+    font-size: 14px;
+  }
+}

@@ -148,6 +148,7 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
   const [selectedStatus, setSelectedStatus] = useState("idle");
   const [search, setSearch] = useState("");
   const [activeSection, setActiveSection] = useState("quotes");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const rawOperatorName = String(operator?.displayName || "").trim();
   const firstOperatorName = rawOperatorName.split(/\s+/).filter(Boolean)[0] || "";
@@ -251,6 +252,11 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
     return buildServiceHistory(selectedQuote?.history?.changes);
   }, [selectedQuote, selectedStatus]);
 
+  function switchSection(section) {
+    setActiveSection(section);
+    setMobileMenuOpen(false);
+  }
+
   async function openQuote(quote) {
     setSelectedQuote(quote);
     setSelectedStatus("loading");
@@ -290,6 +296,16 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
             <span>Roda Festa</span>
             <small>Área administrativa</small>
           </div>
+          <button
+            type="button"
+            className="rf-admin-mobile-menu-trigger"
+            aria-label="Abrir menu administrativo"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="rf-admin-mobile-drawer"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <span aria-hidden="true">☰</span>
+          </button>
         </div>
 
         <nav className="rf-admin-nav" aria-label="Navegação administrativa">
@@ -334,24 +350,63 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
         </div>
       </aside>
 
-      <section className="rf-admin-main">
-        <nav className="rf-admin-mobile-nav" aria-label="Navegação administrativa móvel">
+      {mobileMenuOpen ? (
+        <div className="rf-admin-mobile-drawer-layer" role="presentation">
           <button
             type="button"
-            className={activeSection === "quotes" ? "is-active" : ""}
-            onClick={() => setActiveSection("quotes")}
-          >
-            Orçamentos
-          </button>
-          <button
-            type="button"
-            className={activeSection === "agenda" ? "is-active" : ""}
-            onClick={() => setActiveSection("agenda")}
-          >
-            Agenda
-          </button>
-        </nav>
+            className="rf-admin-mobile-drawer__backdrop"
+            aria-label="Fechar menu administrativo"
+            onClick={() => setMobileMenuOpen(false)}
+          />
 
+          <aside
+            id="rf-admin-mobile-drawer"
+            className="rf-admin-mobile-drawer"
+            aria-label="Menu administrativo"
+          >
+            <header className="rf-admin-mobile-drawer__header">
+              <div>
+                <span>Roda Festa</span>
+                <small>Área administrativa</small>
+              </div>
+              <button
+                type="button"
+                aria-label="Fechar menu"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                ×
+              </button>
+            </header>
+
+            <nav className="rf-admin-mobile-drawer__nav">
+              <button
+                type="button"
+                className={activeSection === "quotes" ? "is-active" : ""}
+                onClick={() => switchSection("quotes")}
+              >
+                <span>Orçamentos</span>
+                <small>Acompanhar propostas</small>
+              </button>
+              <button
+                type="button"
+                className={activeSection === "agenda" ? "is-active" : ""}
+                onClick={() => switchSection("agenda")}
+              >
+                <span>Agenda</span>
+                <small>Datas e eventos</small>
+              </button>
+            </nav>
+
+            <div className="rf-admin-mobile-drawer__operator">
+              <span>Sessão ativa</span>
+              <strong>{operatorName}</strong>
+              <small>{operatorRole}</small>
+            </div>
+          </aside>
+        </div>
+      ) : null}
+
+      <section className="rf-admin-main">
         <header className="rf-admin-topbar">
           <div>
             <span className="rf-admin-eyebrow">Painel Roda Festa</span>
@@ -528,7 +583,17 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
             <header>
               <button
                 type="button"
+                className="rf-admin-detail__back"
+                onClick={() => setSelectedQuote(null)}
+              >
+                <span aria-hidden="true">←</span>
+                Voltar para {activeSection === "agenda" ? "agenda" : "orçamentos"}
+              </button>
+
+              <button
+                type="button"
                 className="rf-admin-detail__close"
+                aria-label="Fechar detalhes"
                 onClick={() => setSelectedQuote(null)}
               >
                 ×
