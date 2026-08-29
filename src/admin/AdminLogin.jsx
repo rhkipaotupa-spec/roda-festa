@@ -17,25 +17,30 @@ export default function AdminLogin() {
   const [credential, setCredential] = useState("");
   const [status, setStatus] = useState("checking");
   const [message, setMessage] = useState("");
+  const [operator, setOperator] = useState(null);
 
   const isChecking = status === "checking";
   const isSubmitting = status === "submitting";
   const isAuthenticated = status === "authenticated";
+
+  async function readSession() {
+    const response = await fetch(SESSION_ENDPOINT, {
+      method: "GET",
+      credentials: "same-origin",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+    const payload = await response.json().catch(() => null);
+    return { response, payload };
+  }
 
   useEffect(() => {
     let cancelled = false;
 
     async function restoreSession() {
       try {
-        const response = await fetch(SESSION_ENDPOINT, {
-          method: "GET",
-          credentials: "same-origin",
-          headers: {
-            Accept: "application/json",
-          },
-        });
-
-        const payload = await response.json().catch(() => null);
+        const { response, payload } = await readSession();
 
         if (cancelled) return;
 
@@ -46,6 +51,7 @@ export default function AdminLogin() {
         }
 
         if (payload.authenticated === true) {
+          setOperator(payload.operator || null);
           setStatus("authenticated");
           setMessage("Sessão administrativa restaurada com segurança.");
           return;
@@ -97,7 +103,20 @@ export default function AdminLogin() {
         return;
       }
 
+      let authenticatedOperator = null;
+      try {
+        const sessionResult = await readSession();
+        if (sessionResult.response.ok
+            && sessionResult.payload?.ok === true
+            && sessionResult.payload?.authenticated === true) {
+          authenticatedOperator = sessionResult.payload.operator || null;
+        }
+      } catch {
+        // A identidade visual pode usar fallback sem invalidar o login já confirmado.
+      }
+
       setCredential("");
+      setOperator(authenticatedOperator);
       setStatus("authenticated");
       setMessage(
         "Acesso autenticado com sucesso. Sua sessão administrativa foi criada.",
@@ -121,7 +140,7 @@ export default function AdminLogin() {
   }
 
   if (isAuthenticated) {
-    return <AdminWorkspace sessionMessage={message} />;
+    return <AdminWorkspace sessionMessage={message} operator={operator} />;
   }
 
   return (

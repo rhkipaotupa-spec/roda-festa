@@ -97,6 +97,7 @@ export function createAdminSessionRepository(adapter, {
       capabilities: Object.freeze([...(record.capabilities || [])]),
       issuedAt: record.issuedAt,
       expiresAt: record.expiresAt,
+      metadata: record.metadata ?? null,
       active: true,
     });
   }

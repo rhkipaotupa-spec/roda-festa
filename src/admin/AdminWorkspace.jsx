@@ -81,6 +81,13 @@ function initials(value) {
   return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase();
 }
 
+function operatorRoleLabel(role) {
+  const normalized = String(role || "").trim().toUpperCase();
+  if (normalized === "OWNER") return "Responsável";
+  if (normalized === "ADMIN") return "Administrador";
+  return "Acesso administrativo";
+}
+
 function guestBreakdownText(event) {
   const adults = Number(event?.adults || 0);
   const olderChildren = Number(event?.olderChildren || 0);
@@ -133,7 +140,7 @@ function serviceStateDetail(service) {
     : "Pacote incluído na versão enviada.";
 }
 
-export default function AdminWorkspace({ sessionMessage = "" }) {
+export default function AdminWorkspace({ sessionMessage = "", operator = null }) {
   const [quotes, setQuotes] = useState([]);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
@@ -141,6 +148,9 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
   const [selectedStatus, setSelectedStatus] = useState("idle");
   const [search, setSearch] = useState("");
   const [activeSection, setActiveSection] = useState("quotes");
+
+  const operatorName = String(operator?.displayName || "").trim() || "Acesso administrativo";
+  const operatorRole = operatorRoleLabel(operator?.role);
 
   useEffect(() => {
     let cancelled = false;
@@ -313,7 +323,11 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
 
         <div className="rf-admin-sidebar__footer">
           <span>Sessão segura</span>
-          <small>{sessionMessage || "Acesso administrativo ativo"}</small>
+          <strong>{operatorName}</strong>
+          <small>{operatorRole}</small>
+          <small className="rf-admin-sidebar__session-note">
+            {sessionMessage || "Acesso administrativo ativo"}
+          </small>
         </div>
       </aside>
 
@@ -341,13 +355,23 @@ export default function AdminWorkspace({ sessionMessage = "" }) {
             <h1>{activeSection === "agenda" ? "Agenda" : "Orçamentos"}</h1>
           </div>
 
-          <a
-            className="rf-admin-new-quote"
-            href="/planning-book?admin=1&return=%2Fadmin"
-          >
-            <span>+</span>
-            Novo orçamento
-          </a>
+          <div className="rf-admin-topbar__actions">
+            <div className="rf-admin-operator-chip" aria-label={`Acesso de ${operatorName}`}>
+              <span>{initials(operatorName)}</span>
+              <div>
+                <strong>{operatorName}</strong>
+                <small>{operatorRole}</small>
+              </div>
+            </div>
+
+            <a
+              className="rf-admin-new-quote"
+              href="/planning-book?admin=1&return=%2Fadmin"
+            >
+              <span>+</span>
+              Novo orçamento
+            </a>
+          </div>
         </header>
 
         {activeSection === "quotes" ? (

@@ -4,6 +4,8 @@ import "./AdminAgenda.css";
 const AGENDA_ENDPOINT = "/api/admin-agenda";
 const SAO_PAULO_TIME_ZONE = "America/Sao_Paulo";
 const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const UPCOMING_WINDOW_DAYS = 21;
+const UPCOMING_LIMIT = 4;
 
 function pad2(value) {
   return String(value).padStart(2, "0");
@@ -23,6 +25,41 @@ function currentDateKey() {
 
 function currentMonthKey() {
   return currentDateKey().slice(0, 7);
+}
+
+function dateKeyToUtc(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || ""));
+  if (!match) return null;
+  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+  if (Number.isNaN(date.getTime())) return null;
+  const normalized = `${date.getUTCFullYear()}-${pad2(date.getUTCMonth() + 1)}-${pad2(date.getUTCDate())}`;
+  return normalized === value ? date : null;
+}
+
+function addDays(value, days) {
+  const date = dateKeyToUtc(value);
+  if (!date) return value;
+  date.setUTCDate(date.getUTCDate() + Number(days || 0));
+  return `${date.getUTCFullYear()}-${pad2(date.getUTCMonth() + 1)}-${pad2(date.getUTCDate())}`;
+}
+
+function relativeDateLabel(value, today) {
+  const eventDate = dateKeyToUtc(value);
+  const todayDate = dateKeyToUtc(today);
+  if (!eventDate || !todayDate) return longDate(value);
+  const days = Math.round((eventDate.getTime() - todayDate.getTime()) / 86_400_000);
+  if (days === 0) return "Hoje";
+  if (days === 1) return "Amanhã";
+  return `Em ${days} dias`;
+}
+
+function newQuoteHref(dateKey) {
+  const params = new URLSearchParams({
+    admin: "1",
+    return: "/admin",
+    eventDate: dateKey,
+  });
+  return `/planning-book?${params.toString()}`;
 }
 
 function parseMonthKey(monthKey) {
@@ -127,6 +164,8 @@ export default function AdminAgendaView({ onOpenQuote }) {
   const [events, setEvents] = useState([]);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [upcomingStatus, setUpcomingStatus] = useState("loading");
 
   const range = useMemo(() => monthRange(monthKey), [monthKey]);
 
@@ -179,6 +218,56 @@ export default function AdminAgendaView({ onOpenQuote }) {
     };
   }, [monthKey, range]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const from = today;
+    const to = addDays(today, UPCOMING_WINDOW_DAYS);
+
+    async function loadUpcoming() {
+      setUpcomingStatus("loading");
+      try {
+        const response = await fetch(
+          `${AGENDA_ENDPOINT}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+          {
+            method: "GET",
+            credentials: "same-origin",
+            headers: { Accept: "application/json" },
+          },
+        );
+        const payload = await response.json().catch(() => null);
+        if (cancelled) return;
+
+        if (!response.ok || payload?.ok !== true || !Array.isArray(payload.events)) {
+          setUpcomingEvents([]);
+          setUpcomingStatus("error");
+          return;
+        }
+
+        const ordered = payload.events
+          .filter((event) => !["ABANDONED", "EXPIRED"].includes(String(event?.status || "").toUpperCase()))
+          .filter((event) => String(event?.event?.date || "") >= today)
+          .sort((left, right) => {
+            const byDate = String(left?.event?.date || "").localeCompare(String(right?.event?.date || ""));
+            if (byDate !== 0) return byDate;
+            return String(left?.client?.name || "").localeCompare(String(right?.client?.name || ""), "pt-BR");
+          })
+          .slice(0, UPCOMING_LIMIT);
+
+        setUpcomingEvents(ordered);
+        setUpcomingStatus("ready");
+      } catch {
+        if (cancelled) return;
+        setUpcomingEvents([]);
+        setUpcomingStatus("error");
+      }
+    }
+
+    loadUpcoming();
+    return () => {
+      cancelled = true;
+    };
+  }, [today]);
+
   const eventsByDate = useMemo(() => {
     const grouped = new Map();
     for (const event of events) {
@@ -195,6 +284,7 @@ export default function AdminAgendaView({ onOpenQuote }) {
   const selectedEvents = eventsByDate.get(selectedDate) || [];
   const occupiedDays = eventsByDate.size;
   const multipleEventDays = [...eventsByDate.values()].filter((list) => list.length > 1).length;
+  const canCreateForSelectedDate = Boolean(dateKeyToUtc(selectedDate)) && selectedDate >= today;
 
   function moveMonth(delta) {
     const nextMonth = shiftMonth(monthKey, delta);
@@ -233,6 +323,52 @@ export default function AdminAgendaView({ onOpenQuote }) {
           <strong>{multipleEventDays}</strong>
           <small>Datas que merecem atenção operacional adicional.</small>
         </article>
+      </section>
+
+      <section className="rf-admin-agenda__upcoming" aria-label="Próximos orçamentos">
+        <header>
+          <div>
+            <span className="rf-admin-eyebrow">Atenção operacional</span>
+            <h2>Próximos orçamentos</h2>
+          </div>
+          <small>Próximos {UPCOMING_WINDOW_DAYS} dias</small>
+        </header>
+
+        {upcomingStatus === "loading" ? (
+          <div className="rf-admin-agenda__upcoming-state" role="status">Atualizando próximos eventos...</div>
+        ) : null}
+
+        {upcomingStatus === "ready" && upcomingEvents.length === 0 ? (
+          <div className="rf-admin-agenda__upcoming-state">Nenhum orçamento com evento próximo neste intervalo.</div>
+        ) : null}
+
+        {upcomingStatus === "ready" && upcomingEvents.length > 0 ? (
+          <div className="rf-admin-agenda__upcoming-list">
+            {upcomingEvents.map((event) => {
+              const stage = agendaStage(event);
+              const eventDate = String(event?.event?.date || "").slice(0, 10);
+              return (
+                <button
+                  type="button"
+                  className="rf-admin-agenda__upcoming-item"
+                  key={`upcoming-${event.sessionId}`}
+                  onClick={() => onOpenQuote?.(event)}
+                >
+                  <span className="rf-admin-agenda__upcoming-date">
+                    <strong>{relativeDateLabel(eventDate, today)}</strong>
+                    <small>{longDate(eventDate)}</small>
+                  </span>
+                  <span className="rf-admin-agenda__upcoming-client">
+                    <strong>{event?.client?.name || "Cliente ainda não identificado"}</strong>
+                    <small>{eventTypeLabel(event?.event?.type)} · {Number(event?.event?.guests || 0)} convidados</small>
+                  </span>
+                  <span className={`rf-admin-agenda-event__stage ${stage.className}`}>{stage.label}</span>
+                  <b aria-hidden="true">→</b>
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
       </section>
 
       <section className="rf-admin-agenda__board">
@@ -300,6 +436,16 @@ export default function AdminAgendaView({ onOpenQuote }) {
                 ? "Nenhum evento registrado nesta data."
                 : `${selectedEvents.length} ${selectedEvents.length === 1 ? "evento registrado" : "eventos registrados"}.`}
             </p>
+            {canCreateForSelectedDate ? (
+              <a
+                className="rf-admin-agenda-day__create"
+                href={newQuoteHref(selectedDate)}
+              >
+                <span>+</span> Criar orçamento para esta data
+              </a>
+            ) : (
+              <small className="rf-admin-agenda-day__past-note">Data passada · criação de novo orçamento indisponível.</small>
+            )}
           </header>
 
           <div className="rf-admin-agenda-day__list">

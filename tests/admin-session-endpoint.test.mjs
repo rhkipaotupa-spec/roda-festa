@@ -64,7 +64,7 @@ test("sem cookie valido endpoint responde nao autenticado sem erro interno", asy
   });
 });
 
-test("sessao valida devolve apenas estado publico minimo", async () => {
+test("sessao valida devolve identidade publica minima sem vazar material interno", async () => {
   const handler = createAdminSessionHttpHandler({
     authenticationComposition: {
       authenticate: async ({ cookieHeader }) => {
@@ -79,9 +79,11 @@ test("sessao valida devolve apenas estado publico minimo", async () => {
             capabilities: ["ADMIN_READ"],
             active: true,
           },
+          metadata: { displayName: "Operador Teste", internalNote: "private-note" },
         };
       },
     },
+    resolveOperator: async () => ({ displayName: "  Operador\u0000\n  Teste  ", role: "OWNER" }),
   });
   const response = createResponseRecorder();
 
@@ -96,11 +98,48 @@ test("sessao valida devolve apenas estado publico minimo", async () => {
     authenticated: true,
     role: "OWNER",
     expiresAt: "2026-08-26T18:00:00.000Z",
+    operator: {
+      displayName: "Operador Teste",
+      role: "OWNER",
+    },
   });
   assert.equal(response.body.includes("secret-session-id"), false);
   assert.equal(response.body.includes("private-user-id"), false);
   assert.equal(response.body.includes("ADMIN_READ"), false);
   assert.equal(response.body.includes("opaque-value"), false);
+  assert.equal(response.body.includes("private-note"), false);
+});
+
+test("falha ao enriquecer operador nao derruba sessao autenticada", async () => {
+  const handler = createAdminSessionHttpHandler({
+    authenticationComposition: {
+      authenticate: async () => ({
+        sessionId: "session-1",
+        issuedAt: "2026-08-26T10:00:00.000Z",
+        expiresAt: "2026-08-26T18:00:00.000Z",
+        principal: { userId: "user-1", role: "ADMIN", capabilities: [], active: true },
+      }),
+    },
+    resolveOperator: async () => {
+      throw new Error("identity-read-failed");
+    },
+  });
+  const response = createResponseRecorder();
+
+  await handler({ method: "GET", headers: {} }, response);
+
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(response.json(), {
+    ok: true,
+    authenticated: true,
+    role: "ADMIN",
+    expiresAt: "2026-08-26T18:00:00.000Z",
+    operator: {
+      displayName: "Administrador",
+      role: "ADMIN",
+    },
+  });
+  assert.equal(response.body.includes("identity-read-failed"), false);
 });
 
 test("sessao invalida ou expirada falha fechada como nao autenticada", async () => {

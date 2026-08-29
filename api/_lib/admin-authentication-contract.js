@@ -44,6 +44,7 @@ function normalizeTrustedSession(session, nowMs) {
     issuedAt: new Date(issuedAtMs).toISOString(),
     expiresAt: new Date(expiresAtMs).toISOString(),
     principal,
+    metadata: session.metadata ?? null,
   });
 }
 

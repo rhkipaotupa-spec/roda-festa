@@ -91,6 +91,24 @@ function getToday() {
   return local.toISOString().slice(0, 10);
 }
 
+function getPrefilledEventDate() {
+  if (typeof window === "undefined") return "";
+
+  const candidate = String(new URLSearchParams(window.location.search).get("eventDate") || "").trim();
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(candidate);
+  if (!match || candidate < getToday()) return "";
+
+  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+  if (Number.isNaN(date.getTime())) return "";
+  const normalized = [
+    date.getUTCFullYear(),
+    String(date.getUTCMonth() + 1).padStart(2, "0"),
+    String(date.getUTCDate()).padStart(2, "0"),
+  ].join("-");
+
+  return normalized === candidate ? candidate : "";
+}
+
 function createPlanningCode() {
   const now = new Date();
   const datePart = `${String(now.getFullYear()).slice(-2)}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
@@ -346,7 +364,7 @@ export default function PlanningBook() {
   const [stepIndex, setStepIndex] = useState(0);
   const [clientName, setClientName] = useState("");
   const [phone, setPhone] = useState("");
-  const [eventDate, setEventDate] = useState("");
+  const [eventDate, setEventDate] = useState(() => getPrefilledEventDate());
   const [selectedEvent, setSelectedEvent] = useState("");
   const [adults, setAdults] = useState(0);
   const [olderChildren, setOlderChildren] = useState(0);
