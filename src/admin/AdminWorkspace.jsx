@@ -296,6 +296,10 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
             <span>Roda Festa</span>
             <small>Área administrativa</small>
           </div>
+          <div className="rf-admin-mobile-session" aria-label={`Logado como ${operatorName}`}>
+            <small>Logado</small>
+            <strong>{operatorName}</strong>
+          </div>
           <button
             type="button"
             className="rf-admin-mobile-menu-trigger"
@@ -584,10 +588,16 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
               <button
                 type="button"
                 className="rf-admin-detail__back"
+                aria-label={`Voltar para ${activeSection === "agenda" ? "agenda" : "orçamentos"}`}
                 onClick={() => setSelectedQuote(null)}
               >
-                <span aria-hidden="true">←</span>
-                Voltar para {activeSection === "agenda" ? "agenda" : "orçamentos"}
+                <svg className="rf-admin-detail__back-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M9 7 4 12l5 5" />
+                  <path d="M4 12h9a7 7 0 0 1 7 7" />
+                </svg>
+                <span className="rf-admin-detail__back-label">
+                  Voltar para {activeSection === "agenda" ? "agenda" : "orçamentos"}
+                </span>
               </button>
 
               <button

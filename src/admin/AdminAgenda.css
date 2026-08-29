@@ -892,3 +892,59 @@ button.rf-admin-calendar-day:hover {
     font-size: 17px;
   }
 }
+
+
+/* V19.10F_AGENDA_PRIORITY */
+@media (max-width: 720px) {
+  .rf-admin-agenda {
+    gap: 7px;
+    padding-top: 10px;
+  }
+
+  .rf-admin-agenda__intro {
+    order: 1;
+    padding: 11px 13px 11px 15px;
+  }
+
+  .rf-admin-agenda__metrics {
+    order: 2;
+    min-height: 0 !important;
+    height: auto !important;
+    align-self: start;
+  }
+
+  .rf-admin-agenda__metrics article {
+    min-height: 60px;
+    align-content: center;
+    padding: 8px 6px;
+  }
+
+  .rf-admin-agenda__metrics small {
+    display: none !important;
+  }
+
+  .rf-admin-agenda__metrics strong {
+    font-size: 22px;
+  }
+
+  .rf-admin-agenda__board {
+    order: 3;
+    gap: 7px;
+    margin: 0;
+  }
+
+  .rf-admin-agenda__upcoming {
+    order: 4;
+    margin: 0;
+    padding: 10px 11px;
+  }
+
+  .rf-admin-calendar {
+    margin: 0;
+    padding: 9px 7px;
+  }
+
+  .rf-admin-calendar__toolbar {
+    margin-bottom: 6px;
+  }
+}

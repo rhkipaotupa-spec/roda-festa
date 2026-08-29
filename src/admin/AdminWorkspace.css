@@ -1333,3 +1333,138 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* V19.10F_MOBILE_BREATHING_ROOM */
+.rf-admin-mobile-session {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .rf-admin-main {
+    padding: 0 20px 34px;
+  }
+
+  .rf-admin-sidebar__brand {
+    gap: 8px;
+  }
+
+  .rf-admin-mobile-session {
+    min-width: 48px;
+    margin-left: auto;
+    display: grid !important;
+    gap: 1px;
+    text-align: right;
+  }
+
+  .rf-admin-mobile-session small {
+    color: rgba(255, 241, 215, .58);
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .rf-admin-mobile-session strong {
+    max-width: 72px;
+    overflow: hidden;
+    color: #fff3df;
+    font-family: var(--rf-admin-serif);
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .rf-admin-mobile-menu-trigger {
+    margin-left: 0;
+  }
+
+  .rf-admin-hero {
+    padding: 11px 13px 11px 15px;
+  }
+
+  .rf-admin-metrics {
+    min-height: 0 !important;
+    height: auto !important;
+    align-self: start;
+  }
+
+  .rf-admin-metrics article {
+    min-height: 62px;
+    align-content: center;
+    padding: 8px 7px;
+  }
+
+  .rf-admin-metrics .rf-admin-metric-help {
+    display: none !important;
+  }
+
+  .rf-admin-metrics strong {
+    font-size: 22px;
+  }
+
+  .rf-admin-board {
+    padding: 12px 13px;
+  }
+
+  .rf-admin-detail > header {
+    padding: 18px 20px 20px;
+  }
+
+  .rf-admin-detail__content {
+    padding: 18px 20px 92px;
+  }
+
+  .rf-admin-detail__back {
+    position: fixed;
+    right: 18px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    z-index: 65;
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 0;
+    border: 1px solid rgba(232, 201, 132, .48);
+    border-radius: 50%;
+    background: #4c2c1a;
+    color: #fff3df;
+    box-shadow: 0 12px 28px rgba(42, 23, 13, .24);
+  }
+
+  .rf-admin-detail__back:hover,
+  .rf-admin-detail__back:focus-visible {
+    background: #382014;
+    box-shadow: 0 0 0 3px rgba(201, 154, 77, .18), 0 12px 28px rgba(42, 23, 13, .24);
+  }
+
+  .rf-admin-detail__back-icon {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .rf-admin-detail__back-label {
+    display: none;
+  }
+}
+
+@media (max-width: 390px) {
+  .rf-admin-main {
+    padding-inline: 18px;
+  }
+
+  .rf-admin-detail__content {
+    padding-inline: 18px;
+  }
+
+  .rf-admin-mobile-session strong {
+    max-width: 58px;
+  }
+}
