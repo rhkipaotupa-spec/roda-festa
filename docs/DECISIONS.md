@@ -745,3 +745,14 @@ Nenhuma senha, token, cookie, hash, chave Supabase ou valor de variável de ambi
 12. Takeaway de Bolos/Doces será componente separado e não será inventado antes de elicitação/medição.
 13. Fichas de campo corretas antes de 26/09 têm prioridade sobre nova implementação funcional.
 14. Replays R4 serão pré-registrados antes de reabrir os finais humanos.
+
+## 2026-08-29 — Decisões pós-repesagem para RF-REC-2 R4 shadow
+
+1. A repesagem pré-registrada confirmou Coxinha = 25 g/un. e Pastelzinho = 30 g/un.; razão = 1,20, classificada na zona cinzenta do gate pré-definido.
+2. `kappa_P` não será congelado. Permanece parâmetro de baixa confiança até consumo observado por SKU.
+3. O shadow usa provisoriamente âncora de contagem com corredor de massa [145; 235] g/adulto como guarda de extrapolação.
+4. O `sigma` estrutural permanece fixo no mix de referência; variação de sabor afeta conversão contagem->massa, não a substituição entre categorias.
+5. `lambda_in` central atual ~= 0,367449 e continua acompanhado do intervalo de sensibilidade [0,35; 0,43].
+6. RF-REC-2 R4 pode existir e ser testada como shadow executável, mas não substitui RF-REC-1.0.0 em Produção nesta etapa.
+7. Os três replays continuam fixtures de regressão e não alvos de fitting.
+8. A ficha de campo antes de 26/09 continua prioridade irrecuperável e deve coletar Petiscos por SKU para resolver `kappa_P` empiricamente.

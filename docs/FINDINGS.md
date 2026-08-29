@@ -1712,3 +1712,43 @@ Foram analisados três replays reais preservados (Laiana, Maysa e Yasmin). Os fi
 Commit técnico publicado: `10310735535dd6ad1dc60208b5a6cef67f476db0` — `add RF-REC-2 R4 preflight checkpoint`.
 
 O checkpoint é explicitamente não autoritativo e não altera RF-REC-1, PlanningBook, API, ledger, Admin, banco ou Produção.
+
+## 2026-08-29 — RF-REC-2 R4 shadow executável publicada — GREEN / NÃO AUTORITATIVA
+
+### Gate técnico final
+
+Após a repesagem pré-registrada, 10 Coxinhas prontas totalizaram 250 g (25 g/un.) e 10 Pastelzinhos prontos totalizaram 300 g (30 g/un.), com razão Pastel/Coxinha = 1,20. O resultado caiu na zona cinzenta do gate pré-registrado [1,08; 1,28]. A produção é mecanizada e a variação operacional informada é de aproximadamente 5%, portanto o shadow preserva `kappa_P` como provisório/baixa confiança e usa corredor de massa apenas como guarda.
+
+Foi implementada a R4 como shadow executável isolada, sem wiring de PlanningBook, API, ledger, Admin, banco ou Produção.
+
+### Parâmetros atuais da shadow
+
+- Coxinha pronta: 25 g/un.;
+- Pastelzinho pronto: 30 g/un.;
+- mix de referência Petiscos: 40% Pastel / 40% Coxinha / 20% Bolinha;
+- `g_bar_P = 27 g`;
+- `b_adulto_ref = 628 g`;
+- `lambda_out = 0`;
+- `lambda_in` central ~= 0,367449, com sensibilidade obrigatória [0,35; 0,43];
+- corredor provisório de Petiscos [145; 235] g/adulto;
+- `M_Mini = 1,5`, `M*_Mini = 2`;
+- variedade de Tortas/Bolos satura em 2+ sabores, com teto total de 15%;
+- presença externa de Mini/Tortas permanece parte do contrato de `S_presente`;
+- takeaway espontâneo permanece destino de sobra; lembrancinha contratada segue fora do orçamento de apetite.
+
+### Evidência de validação
+
+- escopo: 4 arquivos novos;
+- testes focados R4 shadow: 13/13 GREEN;
+- replays anonimizados executados sem fitting aos finais humanos;
+- suíte completa: 355/355 GREEN;
+- lint: GREEN;
+- build: GREEN;
+- warning conhecido `src/styles/colors.css` vazio permaneceu não bloqueante.
+
+### Checkpoint técnico
+
+Commit publicado em `main`:
+`7763b18a9fb38ee46746faded120f8836ac5299b` — `feat: add RF-REC-2 R4 executable shadow`.
+
+A R4 shadow continua explicitamente não autoritativa. RF-REC-1.0.0 permanece o motor de Produção.

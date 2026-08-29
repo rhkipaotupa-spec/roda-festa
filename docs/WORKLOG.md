@@ -1353,3 +1353,21 @@ Até a conclusão dessa sequência, Production permanece sem esta promoção.
 - Commit técnico R4 preflight: `10310735535dd6ad1dc60208b5a6cef67f476db0` — `add RF-REC-2 R4 preflight checkpoint`.
 - Push confirmado em `main`.
 - Próximo passo: reconciliação documental, commit/push documental, working tree limpa e snapshot final.
+
+## 2026-08-29 — Fechamento adicional: R4 shadow executável
+
+Após o snapshot documental `99c23a0`, a sessão foi reaberta por poucos minutos para concluir o próximo degrau seguro do motor.
+
+Atividades concluídas:
+- repesagem pré-registrada: 10 Coxinhas = 250 g; 10 Pastelzinhos = 300 g;
+- aplicação do gate pré-registrado: razão 1,20 => zona cinzenta;
+- implementação isolada de `shadowRecommendationR4.js`;
+- documentação da R4 shadow e runner de três replays anonimizados;
+- 13/13 testes focados GREEN;
+- 355/355 testes da suíte completa GREEN;
+- lint GREEN;
+- build GREEN;
+- escopo confirmado em 4 arquivos novos, sem wiring de Produção;
+- commit técnico publicado: `7763b18a9fb38ee46746faded120f8836ac5299b` (`feat: add RF-REC-2 R4 executable shadow`).
+
+Estado ao final desta unidade: R4 executável disponível para comparação/teste em shadow; RF-REC-1.0.0 continua autoritativo em Produção; nova promoção permanece diferida.
