@@ -14,6 +14,11 @@ test("V19.10D mantem identidade do operador derivada da sessao e sem nomes hardc
   assert.match(login, /setOperator\(payload\.operator \|\| null\)/);
   assert.match(workspace, /operatorName/);
   assert.match(workspace, /rf-admin-operator-chip/);
+  assert.match(workspace, /const firstOperatorName = rawOperatorName\.split\(\/\\s\+\/\)/);
+  const quotesNav = workspace.match(/data-admin-section="quotes"[\s\S]*?<\/button>/)?.[0] || "";
+  const agendaNav = workspace.match(/data-admin-section="agenda"[\s\S]*?<\/button>/)?.[0] || "";
+  assert.equal(/<small>/.test(quotesNav), false);
+  assert.equal(/<small>/.test(agendaNav), false);
   assert.match(sessionEndpoint, /operator:/);
   assert.match(sessionEndpoint, /metadataOperatorName/);
   assert.equal(/Adrielly/.test(workspace), false);

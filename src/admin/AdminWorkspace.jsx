@@ -149,7 +149,12 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
   const [search, setSearch] = useState("");
   const [activeSection, setActiveSection] = useState("quotes");
 
-  const operatorName = String(operator?.displayName || "").trim() || "Acesso administrativo";
+  const rawOperatorName = String(operator?.displayName || "").trim();
+  const firstOperatorName = rawOperatorName.split(/\s+/).filter(Boolean)[0] || "";
+  const operatorName = firstOperatorName
+    ? firstOperatorName.charAt(0).toLocaleUpperCase("pt-BR")
+      + firstOperatorName.slice(1).toLocaleLowerCase("pt-BR")
+    : "Acesso administrativo";
   const operatorRole = operatorRoleLabel(operator?.role);
 
   useEffect(() => {
@@ -296,7 +301,6 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
             onClick={() => setActiveSection("quotes")}
           >
             <span>Orçamentos</span>
-            <small>{metrics.total}</small>
           </button>
 
           <button
@@ -307,7 +311,6 @@ export default function AdminWorkspace({ sessionMessage = "", operator = null })
             onClick={() => setActiveSection("agenda")}
           >
             <span>Agenda</span>
-            <small>calendário</small>
           </button>
 
           <button type="button" disabled>
