@@ -965,3 +965,49 @@ button.rf-admin-calendar-day:hover {
     padding: 0 !important;
   }
 }
+
+
+/* V19.10H_DESKTOP_UPCOMING: desktop-only breathing room; mobile remains frozen */
+@media (min-width: 721px) {
+  .rf-admin-agenda__upcoming {
+    padding: 20px 22px;
+    border-radius: 22px;
+  }
+
+  .rf-admin-agenda__upcoming > header {
+    margin-bottom: 13px;
+  }
+
+  .rf-admin-agenda__upcoming h2 {
+    font-size: 28px;
+  }
+
+  .rf-admin-agenda__upcoming > header > small {
+    font-size: 11px;
+  }
+
+  .rf-admin-agenda__upcoming-list {
+    gap: 10px;
+  }
+
+  .rf-admin-agenda__upcoming-item {
+    grid-template-columns: 112px minmax(0, 1fr) auto 18px;
+    gap: 13px;
+    min-height: 58px;
+    padding: 12px 14px;
+    border-radius: 15px;
+  }
+
+  .rf-admin-agenda__upcoming-date strong {
+    font-size: 12px;
+  }
+
+  .rf-admin-agenda__upcoming-client strong {
+    font-size: 14px;
+  }
+
+  .rf-admin-agenda__upcoming-date small,
+  .rf-admin-agenda__upcoming-client small {
+    font-size: 10px;
+  }
+}

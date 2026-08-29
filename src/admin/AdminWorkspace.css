@@ -1487,3 +1487,38 @@
     padding-bottom: 0 !important;
   }
 }
+
+
+/* V19.10H_DESKTOP_BACK: repair desktop back action without touching approved mobile */
+@media (min-width: 721px) {
+  .rf-admin-detail__back {
+    display: inline-flex;
+    width: auto;
+    max-width: calc(100% - 56px);
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 20px;
+    padding: 7px 11px;
+    border: 1px solid rgba(255, 241, 215, .24);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .055);
+    color: rgba(255, 241, 215, .86);
+    white-space: nowrap;
+  }
+
+  .rf-admin-detail__back-icon {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .rf-admin-detail__back-label {
+    display: inline;
+    white-space: nowrap;
+  }
+}

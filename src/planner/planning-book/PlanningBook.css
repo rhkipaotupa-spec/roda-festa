@@ -951,7 +951,7 @@
   box-shadow: 0 18px 34px rgba(50, 28, 16, .18);
 }
 
-/* V19.9A_QA_CONTRACTED_CONCLUSION: separate contracted total from the dark cost breakdown */
+/* V19.10H_CONTRACTED_CARD: keep the contracted total visually grouped with the financial cards */
 .rf-cost-card > div:last-child {
   border-bottom: 0;
 }
@@ -959,9 +959,12 @@
 .rf-contracted-conclusion {
   display: grid;
   gap: 7px;
-  margin: 14px 4px 0;
-  padding: 16px 0 2px;
-  border-top: 1px solid rgba(153, 103, 55, .34);
+  margin: 14px 0 0;
+  padding: 16px 18px;
+  border: 1px solid #dfc5a0;
+  border-radius: 17px;
+  background: rgba(255, 251, 244, .86);
+  box-shadow: 0 10px 24px rgba(74, 42, 22, .055);
 }
 
 .rf-contracted-conclusion > div {

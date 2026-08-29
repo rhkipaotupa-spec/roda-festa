@@ -173,7 +173,15 @@ test("V19.9A QA separa investimento contratado do detalhamento de custos", () =>
   assert.match(source, /Investimento contratado*/);
   assert.match(source, /\* Não inclui bebidas em consignação\./);
   assert.doesNotMatch(source, /className="rf-cost-card__total"/);
-  assert.match(css, /V19.9A_QA_CONTRACTED_CONCLUSION/);
+  const contractedStart = css.indexOf(".rf-contracted-conclusion {");
+  assert.notEqual(contractedStart, -1);
+  const contractedEnd = css.indexOf("}", contractedStart);
+  assert.notEqual(contractedEnd, -1);
+  const contractedCardCss = css.slice(contractedStart, contractedEnd + 1);
+  assert.match(contractedCardCss, /border:\s*1px solid #dfc5a0;/);
+  assert.match(contractedCardCss, /border-radius:\s*17px;/);
+  assert.match(contractedCardCss, /background:\s*rgba\(255,\s*251,\s*244,\s*\.86\);/);
+  assert.match(contractedCardCss, /box-shadow:/);
 });
 
 test("V19.9A QA inicia investimento em pagina final dedicada no PDF", () => {
@@ -335,4 +343,20 @@ test("V19.9A QA alinha resumo ao cardapio selecionado e usa slogan em caixa alta
   assert.match(pdfBuilder, /class="terms-grid"/);
   assert.match(pdfBuilder, /class="page investment-page"/);
   assert.match(css, /V19\.9A_QA_VISUAL_POLISH_V15_R2/);
+});
+
+
+test("V19.10H cobre as quatro microcorrecoes sem reabrir o mobile aprovado", () => {
+  const plannerSource = fs.readFileSync(new URL("../src/planner/planning-book/PlanningBook.jsx", import.meta.url), "utf8");
+  const plannerCss = fs.readFileSync(new URL("../src/planner/planning-book/PlanningBook.css", import.meta.url), "utf8");
+  const agendaCss = fs.readFileSync(new URL("../src/admin/AdminAgenda.css", import.meta.url), "utf8");
+  const workspaceCss = fs.readFileSync(new URL("../src/admin/AdminWorkspace.css", import.meta.url), "utf8");
+
+  assert.match(plannerSource, /useEffect\(\(\) => \{[\s\S]*requestAnimationFrame[\s\S]*scrollTo\(\{ top: 0, left: 0, behavior: "auto" \}\)[\s\S]*\}, \[stepIndex\]\);/);
+  assert.doesNotMatch(plannerSource, /function goTo\(index\) \{[\s\S]*?window\.scrollTo[\s\S]*?\n  \}/);
+  assert.match(plannerCss, /V19\.10H_CONTRACTED_CARD/);
+  assert.match(plannerCss, /\.rf-contracted-conclusion \{[\s\S]*border: 1px solid #dfc5a0;[\s\S]*border-radius: 17px;[\s\S]*background: rgba\(255, 251, 244, \.86\);/);
+  assert.match(agendaCss, /V19\.10H_DESKTOP_UPCOMING[\s\S]*@media \(min-width: 721px\)/);
+  assert.match(workspaceCss, /V19\.10H_DESKTOP_BACK[\s\S]*@media \(min-width: 721px\)/);
+  assert.match(workspaceCss, /@media \(max-width: 720px\)[\s\S]*\.rf-admin-detail__back \{[\s\S]*position: fixed;/);
 });

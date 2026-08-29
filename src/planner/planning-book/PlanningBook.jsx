@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import "./PlanningBook.css";
 
@@ -432,11 +432,20 @@ export default function PlanningBook() {
     realGuests,
   });
 
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [stepIndex]);
+
   function goTo(index) {
     setErrors({});
     setFormNotice("");
     setStepIndex(Math.max(0, Math.min(STEPS.length - 1, index)));
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function validateWelcome() {
