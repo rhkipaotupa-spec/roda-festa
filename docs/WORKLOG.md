@@ -1240,3 +1240,62 @@ Também ficou agendada revisão segura de acesso a GitHub, Vercel e Supabase. Ne
 - Production: não alterada;
 - V19.10C: checkpoint pré-refinamento, não aprovação final;
 - próxima sequência: commit desta reconciliação documental -> working tree limpa -> snapshot seguro -> retomada das sugestões na próxima sessão.
+<!-- V19.10D_FINAL_RECONCILIATION_630b41d -->
+## 2026-08-29 — V19.10D: refinamento operacional, smoke final e autorização de publicação
+
+A sessão retomou `feat/admin-agenda-v19.10` no checkpoint documental pré-refinamento da V19.10C e aplicou o feedback visual da responsável do produto somente depois de preservar o comportamento aprovado de Agenda/Orçamentos.
+
+### R1 — refinamento operacional
+
+A primeira rodada V19.10D incorporou:
+- redução de vazios/altura no Admin;
+- **Próximos orçamentos**;
+- ação **Criar orçamento para esta data**;
+- prefill de `eventDate` no Planner, validado e editável;
+- identidade do operador derivada da sessão;
+- ajustes responsivos sem remover Agenda nem Orçamentos.
+
+Validação da R1:
+- escopo controlado: 11 arquivos;
+- focais: 17/17 GREEN;
+- baseline: 276/276 GREEN;
+- lint: GREEN;
+- build: GREEN.
+
+Checkpoint técnico R1:
+`1395ebc1ed6d0c08f41827f0aff73143230deabe` — `feat: refine admin agenda operations v19.10d`.
+
+A primeira smoke real aprovou todo o fluxo, restando apenas dois polishes: mostrar somente o primeiro nome do operador e remover as informações auxiliares ao lado de `Orçamentos`/`Agenda`.
+
+### R2 — polish final
+
+A R2 alterou somente:
+- `src/admin/AdminWorkspace.jsx`;
+- `tests/admin-agenda-workspace-v19.10d.test.mjs`.
+
+Validação final:
+- package self-test: GREEN;
+- scope: exatamente 2 arquivos GREEN;
+- focais: 11/11 GREEN;
+- `npm test`: 276/276 GREEN;
+- `npm run lint`: GREEN;
+- `npm run build`: GREEN;
+- `git diff --check`: GREEN;
+- aviso já conhecido de `src/styles/colors.css` vazio permaneceu não bloqueante.
+
+Checkpoint técnico final:
+`630b41d0dde035367c8b4203f854489aa003eb69` — `feat: finalize admin agenda smoke polish`.
+
+### Identidade administrativa
+
+O smoke mostrou que um fallback baseado no identificador concatenado não fornecia separação confiável do primeiro nome. A identidade persistida foi corrigida para fornecer `metadata.displayName` legível, preservando o material de verificação da senha e sem registrar credenciais ou o endereço de e-mail nos documentos. O Preview passou a exibir corretamente apenas o primeiro nome.
+
+### Smoke e decisão de publicação
+
+A responsável do produto declarou a smoke final **100% aprovada**. Também foi testado compartilhamento externo do Preview; a proteção da Vercel continuou solicitando autenticação em dispositivo sem sessão, portanto o Preview não será tratado como URL pública canônica.
+
+Foi solicitada a publicação da versão aprovada no site oficial. Antes da promoção, permanece obrigatório concluir esta reconciliação, criar commit documental separado, confirmar working tree limpa e gerar snapshot seguro. Somente depois a linha aprovada poderá ser promovida para `main`/Production e submetida a smoke pós-deploy no domínio oficial.
+
+### Próxima melhoria registrada
+
+Adicionar botão visual **Sair/Logout** ao Admin, reutilizando o endpoint/logout server-side já existente para revogação real da sessão. Archive/Trash/Restore continua como próxima unidade funcional separada.

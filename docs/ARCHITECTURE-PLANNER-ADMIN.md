@@ -1040,3 +1040,51 @@ O Preview protegido pela Vercel respondeu, após bypass autenticado do próprio 
 ### Estado de aprovação
 
 A primeira smoke visual foi positiva e a usuária declarou ter gostado da Agenda, porém registrou que possui sugestões para a próxima sessão. Portanto, este checkpoint é **pré-refinamento** e **não está aprovado/congelado**. Nenhuma promoção para `main` ou Production foi realizada nesta unidade.
+<!-- V19.10D_FINAL_RECONCILIATION_630b41d -->
+## 2026-08-29 — V19.10D Admin Agenda — refinamento operacional aprovado
+
+A V19.10 foi concluída visual e funcionalmente após o checkpoint pré-refinamento da V19.10C. O refinamento final permaneceu sobre a mesma arquitetura de **Agenda como read model derivado de `planning_sessions`**, sem criar uma fonte paralela de eventos e sem alterar motor, preços, catálogo, ledger, schema ou migrations.
+
+### Refinamentos incorporados
+
+A V19.10D consolida:
+- redução de espaços verticais no Admin, preservando legibilidade em desktop e mobile;
+- bloco de **Próximos orçamentos** como leitura operacional da mesma fonte persistida;
+- seleção de uma data na Agenda com ação **Criar orçamento para esta data**;
+- abertura do Planner com `eventDate` apenas como prefill válido e ainda editável pela usuária;
+- identidade do operador derivada da sessão autenticada, sem nome hardcoded no frontend;
+- `metadata.displayName` como fonte preferencial de nome legível, mantendo o identificador apenas como fallback técnico;
+- apresentação compacta pelo primeiro nome no workspace;
+- navegação primária reduzida aos rótulos **Orçamentos** e **Agenda**, sem contadores/textos auxiliares ao lado dos itens.
+
+A correção de identidade operacional foi concluída na persistência administrativa por atualização de identificador/metadata, sem registrar credenciais, hashes, salts, tokens ou o endereço de e-mail nos documentos do projeto. A senha não precisou ser reemitida porque identidade e material de verificação de credencial permanecem responsabilidades separadas.
+
+### Checkpoints técnicos finais
+
+- `1395ebc1ed6d0c08f41827f0aff73143230deabe` — `feat: refine admin agenda operations v19.10d`: refinamento operacional principal;
+- `630b41d0dde035367c8b4203f854489aa003eb69` — `feat: finalize admin agenda smoke polish`: polish final aprovado, limitado à apresentação do primeiro nome e limpeza dos rótulos da navegação primária.
+
+Validação final da R2 antes do checkpoint `630b41d`:
+- escopo exato de 2 arquivos: GREEN;
+- testes focais: 11/11 GREEN;
+- suíte completa: 276/276 GREEN;
+- lint: GREEN;
+- build: GREEN;
+- aviso conhecido `src/styles/colors.css is empty`: não bloqueante;
+- smoke real no Preview: **APROVADA 100%** pela responsável do produto.
+
+### Invariantes preservadas
+
+A cadeia permanece:
+
+`InputSnapshot -> RecommendationSnapshot -> PlanningChange[] -> FinalProposalSnapshot -> Admin read model -> validação humana`
+
+A Agenda continua sem afirmar conflito quando só existe coincidência de data e sem chamar `FinalProposalSnapshot` de validação humana. Arquivamento/lixeira/restauração e fila de validação humana continuam unidades futuras separadas.
+
+### Logout visível como evolução de UX
+
+A infraestrutura HTTP já possui logout com revogação server-side. O Admin ainda precisa expor uma ação visual clara de **Sair/Logout**, acessível a partir do shell autenticado e retornando à tela de login após revogar a sessão. Essa evolução é de UX/autenticação de superfície e não altera a arquitetura de sessão já aprovada.
+
+### Estado para promoção
+
+No momento desta reconciliação, a branch `feat/admin-agenda-v19.10` está tecnicamente aprovada e pronta para o fechamento documental. Production ainda não foi alterada por esta reconciliação; a promoção deve ocorrer somente após commit documental, working tree limpa e snapshot seguro.

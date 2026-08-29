@@ -1507,3 +1507,40 @@ Próxima ação segura:
 
 Checkpoint técnico: `00bac81639d1b99833f140a1cafa27190aef80b7`.
 Baseline já medido antes do checkpoint: 271/271 testes GREEN, lint GREEN, build GREEN e `git diff --check` GREEN. Smoke visual real: positiva, porém com sugestões pendentes. Classificação: **CHECKPOINT PRÉ-REFINAMENTO — NÃO APROVADO/CONGELADO — NÃO PROMOVIDO PARA PRODUCTION**.
+<!-- V19.10D_FINAL_RECONCILIATION_630b41d -->
+## 2026-08-29 — V19.10D: fechamento do refinamento e aprendizados de smoke
+
+### Identidade legível não deve depender do local-part do e-mail — RESOLVIDO
+
+O primeiro refinamento de identidade passou a exibir apenas o primeiro token do `displayName`. No smoke real, a sessão ainda fornecia um fallback derivado de identificador sem separadores, portanto a UI não tinha informação suficiente para descobrir onde terminava o primeiro nome.
+
+Correção adotada:
+- manter o backend priorizando `metadata.displayName`;
+- corrigir a identidade administrativa persistida com nome legível explícito;
+- não hardcodar nomes na UI;
+- não tentar inserir heurística para quebrar identificadores concatenados.
+
+Resultado observado no Preview após a correção: operador exibido apenas pelo primeiro nome, conforme aprovado. Nenhum e-mail pessoal ou material de credencial é registrado nesta documentação.
+
+### Shareable Link da Vercel não substituiu a proteção ativa do Preview — OBSERVADO / NÃO BLOQUEANTE
+
+Foi criado um link compartilhável de Preview, porém o teste em celular sem sessão prévia ainda apresentou a barreira de autenticação da Vercel. Isso é comportamento de infraestrutura/proteção do Preview, não defeito do Roda Festa. A decisão foi não enfraquecer a Production nem alterar proteção global apenas para demonstração; a publicação canônica seguirá pelo fluxo Git/Production após o fechamento seguro.
+
+### Governança de documentação — REGRA REFORÇADA
+
+Durante a rodada anterior, iniciar reconciliação documental antes do aceite visual criaria retrabalho quando surgissem ajustes finais. A regra consolidada passa a ser: documentar o fechamento somente **depois** da smoke/aprovação visual, preservando commit técnico e evidências de teste como checkpoint intermediário quando necessário.
+
+### Evidência final V19.10D
+
+- checkpoint operacional R1: `1395ebc1ed6d0c08f41827f0aff73143230deabe`;
+- checkpoint técnico final: `630b41d0dde035367c8b4203f854489aa003eb69`;
+- R2 com escopo exato de 2 arquivos: GREEN;
+- focais: 11/11 GREEN;
+- baseline: 276/276 GREEN;
+- lint: GREEN;
+- build: GREEN;
+- warning conhecido de `src/styles/colors.css` vazio: não bloqueante;
+- smoke real final: **APROVADA 100%**;
+- Production: ainda não alterada no instante desta reconciliação.
+
+Classificação final da unidade: **APROVADA / CONGELADA / PRONTA PARA COMMIT DOCUMENTAL, SNAPSHOT SEGURO E PROMOÇÃO CONTROLADA**.

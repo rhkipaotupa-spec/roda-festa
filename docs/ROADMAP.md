@@ -918,3 +918,39 @@ Production permanece inalterada em 28/08. A promoção deve ocorrer somente apó
 - [ ] confirmar métodos de login, passkeys/password manager e recuperação;
 - [ ] se necessário, redefinir/rotacionar credenciais no provedor;
 - [ ] não armazenar senha/token/secret em Git, docs, chat ou arquivos de handoff.
+<!-- V19.10D_FINAL_RECONCILIATION_630b41d -->
+## 2026-08-29 — V19.10 Admin Agenda — fechamento aprovado
+
+### V19.10 concluída
+
+- [x] V19.10A — read store por intervalo de data: `0a67f64d6d7085178c1af46bef81c56ad18a61be`;
+- [x] V19.10B — endpoint autenticado `GET /api/admin-agenda`: `ee408dde31c639019dd898d2fa1f00271f7534ff`;
+- [x] V19.10C — calendário mensal e integração com Orçamentos;
+- [x] V19.10D — densidade operacional refinada;
+- [x] bloco **Próximos orçamentos**;
+- [x] criar orçamento a partir da data selecionada com prefill editável no Planner;
+- [x] identidade real do operador derivada da sessão e nome legível via metadata;
+- [x] navegação primária reduzida a **Orçamentos** e **Agenda**;
+- [x] baseline final 276/276 GREEN;
+- [x] lint GREEN;
+- [x] build GREEN;
+- [x] smoke final no Preview APROVADA 100%;
+- [x] checkpoint técnico final `630b41d0dde035367c8b4203f854489aa003eb69`;
+- [ ] commit documental desta reconciliação;
+- [ ] snapshot seguro pós-commit documental;
+- [ ] promoção controlada para `main`/Production e smoke pós-deploy no domínio oficial.
+
+### Próximas unidades do Admin
+
+- [ ] **Sair/Logout visível no shell Admin**: ação acessível que chama o logout server-side existente, revoga a sessão e retorna à tela de login;
+- [ ] **Admin Operations — Archive/Trash/Restore**: arquivamento reversível, lixeira e restauração, sem delete físico V1;
+- [ ] **Validação humana**: proposta finalizada entra em fila `Aguardando validação`; Admin autorizado confirma `Validado`;
+- [ ] busca administrativa por cliente/evento/código;
+- [ ] PDF canônico único e persistido, idêntico para cliente e Admin;
+- [ ] tabela comercial versionada e histórico de preços;
+- [ ] pós-evento e base real de aprendizado;
+- [ ] saúde/versionamento do recomendador.
+
+### Gate imediato de publicação
+
+A V19.10D está aprovada. A publicação canônica deve respeitar: **commit documental -> working tree limpa -> snapshot seguro -> promoção para `main` -> Vercel Production -> smoke no domínio oficial**. Não usar o Preview protegido como substituto da Production e não desabilitar proteção de Production para facilitar compartilhamento.

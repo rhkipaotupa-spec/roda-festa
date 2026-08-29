@@ -684,3 +684,17 @@ O snapshot final desta unidade somente pode ser gerado depois do commit desta re
 Fica registrada uma revisão operacional para a próxima sessão sobre continuidade de acesso a GitHub, Vercel e Supabase. A revisão **não deve procurar, copiar ou registrar senhas/tokens/secrets escondidos em código, arquivos, navegador, Git ou documentação**. O caminho seguro é identificar o método real de autenticação de cada provedor (senha própria, GitHub/Google SSO, passkey, gerenciador de senhas), validar métodos de recuperação e, quando necessário, redefinir/rotacionar credenciais pelos fluxos oficiais.
 
 Nenhuma senha, token, cookie, hash, chave Supabase ou valor de variável de ambiente deve ser registrado nestes documentos.
+<!-- V19.10D_FINAL_RECONCILIATION_630b41d -->
+## 2026-08-29 — Decisões finais V19.10D: aprovação, identidade e promoção
+
+- Declarar a V19.10D **APROVADA / CONGELADA** após smoke real 100% no Preview e checkpoint técnico final `630b41d0dde035367c8b4203f854489aa003eb69`.
+- Manter a Agenda como projeção de `planning_sessions.input_snapshot.eventDate`; não introduzir tabela paralela apenas para calendário.
+- Preservar a ação **Criar orçamento para esta data** como prefill do Planner, nunca como data imutável ou nova autoridade de negócio.
+- Derivar a identidade do operador da sessão autenticada. Nome legível deve priorizar `metadata.displayName`; o frontend pode apresentar apenas o primeiro nome. Não hardcodar pessoas e não tentar inferir separação de nome a partir de identificadores concatenados.
+- Alterações de identificador administrativo podem preservar a mesma senha quando o material de verificação de credencial não muda. Nunca registrar senha, hash, salt, token, cookie, service role ou credencial em documentação.
+- Simplificar a navegação primária para **Orçamentos** e **Agenda** sem informação auxiliar ao lado dos rótulos aprovados.
+- Adicionar ao roadmap uma ação visual de **Sair/Logout** no Admin. A execução deve reutilizar o logout server-side já existente, revogar a sessão e retornar ao login; não criar logout apenas visual/local.
+- Manter **Archive/Trash/Restore** fora da V19.10D. Essa capacidade reversível continua como próxima unidade de Admin Operations.
+- Manter validação humana como conceito futuro explícito; `FinalProposalSnapshot` não equivale a `Validado`.
+- Formalizar a ordem de fechamento usada nesta unidade: **implementação -> gates GREEN -> Preview -> smoke/aprovação da usuária -> reconciliação documental -> commit documental -> working tree limpa -> snapshot seguro -> promoção**. Não reconciliar documentação antes da aprovação visual final quando ainda houver refinamento aberto.
+- Autorizar a promoção desta linha para o site oficial somente depois deste fechamento documental e do snapshot seguro. A Production permanece inalterada até a promoção efetiva.
