@@ -30,7 +30,7 @@ export const R4_PRODUCTION_POLICY = Object.freeze({
   ageResolution: "legacy3",
   youngChildFactor: 0.35,
   skuStrategy: "equal-share-lot-aware-minimum-overage-provisional",
-  tachoPolicy: "80g-per-equivalent-guest-one-flavor-option-shares-beverage-cart",
+  tachoPolicy: "80g-per-real-guest-one-option-shares-beverage-cart",
 });
 
 const TACHO_CATEGORY = "Brigadeiro no tacho";
@@ -46,7 +46,7 @@ function unique(values) {
   return [...new Set(values.map(String))];
 }
 
-function buildTachoItems({ tachoIds, equivalentGuests, byId }) {
+function buildTachoItems({ tachoIds, realGuests, byId }) {
   if (tachoIds.length === 0) return [];
   if (tachoIds.length > 1) {
     throw new Error("r4_production_tacho_requires_single_option");
@@ -61,13 +61,13 @@ function buildTachoItems({ tachoIds, equivalentGuests, byId }) {
     throw new Error("r4_production_tacho_portion_contract_invalid");
   }
 
-  const quantity = Math.max(1, Math.ceil(Number(equivalentGuests) || 0));
+  const quantity = Math.max(1, Math.ceil(Number(realGuests) || 0));
   const estimatedValue = Math.round(quantity * Number(product.unitPrice || 0) * 100) / 100;
   return [{
     ...product,
     quantity,
     estimatedValue,
-    r4ProductionSource: "tacho-80g-per-equivalent-guest",
+    r4ProductionSource: "tacho-80g-per-real-guest",
   }];
 }
 
@@ -218,7 +218,7 @@ export function generateR4ProductionSuggestion({
 
   const equivalentGuests = Number(recommendation?.guests?.planningGuests || 0);
   const realGuests = Number(recommendation?.guests?.realGuests || 0);
-  const tachoItems = buildTachoItems({ tachoIds, equivalentGuests, byId });
+  const tachoItems = buildTachoItems({ tachoIds, realGuests, byId });
   const items = [...commercial.items.map((item) => ({ ...item })), ...tachoItems];
   const carts = composeTachoCarts({
     baseCarts: commercial.carts,
