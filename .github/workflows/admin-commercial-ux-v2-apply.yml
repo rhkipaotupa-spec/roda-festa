@@ -1,0 +1,39 @@
+name: Admin Commercial UX V2 Apply
+
+on:
+  push:
+    branches:
+      - feat/admin-commercial-v1
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/admin-commercial-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Apply integrated Admin UX
+        run: node scripts/apply-admin-commercial-ux-v2.mjs
+
+      - name: Verify staged scope
+        run: |
+          git status --short
+          git diff --check
+
+      - name: Commit integrated Admin UX
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/admin/AdminLogin.jsx src/admin/AdminWorkspace.jsx src/admin/AdminProductsView.jsx src/admin/AdminQuoteEditIndex.jsx src/admin/AdminQuoteEditView.jsx src/admin/AdminCommercialIntegrated.css tests/admin-commercial-v1-ux-integration.test.mjs
+          git commit -m "refactor: integrate commercial tools into admin shell"
+          git push origin HEAD:feat/admin-commercial-v1
