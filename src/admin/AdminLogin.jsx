@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./AdminLogin.css";
+import "./AdminCommercial.css";
 
 import AdminWorkspace from "./AdminWorkspace.jsx";
 import AdminProductsView from "./AdminProductsView.jsx";
@@ -11,12 +12,21 @@ import rodaFestaLogoCreme from "../planner/planning-book/assets/logo-roda-festa-
 const LOGIN_ENDPOINT = "/api/admin-login";
 const LOGOUT_ENDPOINT = "/api/admin-logout";
 const SESSION_ENDPOINT = "/api/admin-session";
-const GENERIC_LOGIN_ERROR =
-  "Não foi possível entrar. Confira seus dados e tente novamente.";
-const GENERIC_SESSION_ERROR =
-  "Não foi possível verificar sua sessão agora. Tente novamente em instantes.";
-const GENERIC_LOGOUT_ERROR =
-  "Não foi possível sair agora. Sua sessão continua ativa; tente novamente.";
+const GENERIC_LOGIN_ERROR = "Não foi possível entrar. Confira seus dados e tente novamente.";
+const GENERIC_SESSION_ERROR = "Não foi possível verificar sua sessão agora. Tente novamente em instantes.";
+const GENERIC_LOGOUT_ERROR = "Não foi possível sair agora. Sua sessão continua ativa; tente novamente.";
+
+function AdminWorkspaceWithCommercialShortcuts(props) {
+  return (
+    <>
+      <AdminWorkspace {...props} />
+      <nav className="rf-admin-commercial-shortcuts" aria-label="Atalhos comerciais do Admin">
+        <a href="/admin/editar-pedido">Editar pedido</a>
+        <a href="/admin/produtos">Produtos</a>
+      </nav>
+    </>
+  );
+}
 
 function AuthenticatedAdminView({
   view,
@@ -31,7 +41,7 @@ function AuthenticatedAdminView({
   if (view === "quote-edit-index") return <AdminQuoteEditIndex />;
   if (view === "quote-edit") return <AdminQuoteEditView sessionId={sessionId} />;
   return (
-    <AdminWorkspace
+    <AdminWorkspaceWithCommercialShortcuts
       sessionMessage={sessionMessage}
       operator={operator}
       onLogout={onLogout}
@@ -66,25 +76,21 @@ export default function AdminLogin({ view = "workspace", sessionId = "" }) {
 
   useEffect(() => {
     let cancelled = false;
-
     async function restoreSession() {
       try {
         const { response, payload } = await readSession();
         if (cancelled) return;
-
         if (!response.ok || payload?.ok !== true) {
           setStatus("error");
           setMessage(GENERIC_SESSION_ERROR);
           return;
         }
-
         if (payload.authenticated === true) {
           setOperator(payload.operator || null);
           setStatus("authenticated");
           setMessage("Sessão administrativa restaurada com segurança.");
           return;
         }
-
         setStatus("idle");
         setMessage("");
       } catch {
@@ -93,7 +99,6 @@ export default function AdminLogin({ view = "workspace", sessionId = "" }) {
         setMessage(GENERIC_SESSION_ERROR);
       }
     }
-
     restoreSession();
     return () => { cancelled = true; };
   }, []);
@@ -101,7 +106,6 @@ export default function AdminLogin({ view = "workspace", sessionId = "" }) {
   async function handleSubmit(event) {
     event.preventDefault();
     if (isChecking || isSubmitting || isAuthenticated) return;
-
     setStatus("submitting");
     setMessage("");
 
@@ -109,13 +113,9 @@ export default function AdminLogin({ view = "workspace", sessionId = "" }) {
       const response = await fetch(LOGIN_ENDPOINT, {
         method: "POST",
         credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ identifier, credential }),
       });
-
       const payload = await response.json().catch(() => null);
       if (!response.ok || payload?.ok !== true) {
         setStatus("error");
@@ -149,7 +149,6 @@ export default function AdminLogin({ view = "workspace", sessionId = "" }) {
   async function handleLogout() {
     if (!isAuthenticated || isLoggingOut) return;
     setLogoutStatus("submitting");
-
     try {
       const response = await fetch(LOGOUT_ENDPOINT, {
         method: "POST",
@@ -157,12 +156,10 @@ export default function AdminLogin({ view = "workspace", sessionId = "" }) {
         headers: { Accept: "application/json" },
       });
       const payload = await response.json().catch(() => null);
-
       if (!response.ok || payload?.ok !== true) {
         setLogoutStatus("error");
         return;
       }
-
       setCredential("");
       setIdentifier("");
       setOperator(null);
@@ -208,11 +205,7 @@ export default function AdminLogin({ view = "workspace", sessionId = "" }) {
           <img src={rodaFestaLogoCreme} alt="" />
           <span className="rf-admin-login__eyebrow">Roda Festa</span>
           <h1>O cuidado de cada festa continua aqui.</h1>
-          <p>
-            Acompanhe sugestões, revisões e versões validadas em um ambiente
-            pensado para o atendimento diário.
-          </p>
-
+          <p>Acompanhe sugestões, revisões e versões validadas em um ambiente pensado para o atendimento diário.</p>
           <div className="rf-admin-login__story-note">
             <strong>Sugestão → revisão → validação</strong>
             <small>Cada mudança preserva contexto para melhorar decisões futuras.</small>
@@ -223,54 +216,18 @@ export default function AdminLogin({ view = "workspace", sessionId = "" }) {
       <section className="rf-admin-login__access" aria-labelledby="admin-login-title">
         <div className="rf-admin-login__access-inner">
           <img className="rf-admin-login__logo-mobile" src={rodaFestaLogo} alt="Roda Festa" />
-
           <span className="rf-admin-login__eyebrow">Área administrativa</span>
           <h2 id="admin-login-title">Bem-vinda de volta.</h2>
-          <p className="rf-admin-login__intro">
-            Entre para cuidar dos orçamentos e acompanhar a jornada de cada cliente.
-          </p>
+          <p className="rf-admin-login__intro">Entre para cuidar dos orçamentos e acompanhar a jornada de cada cliente.</p>
 
           <form className="rf-admin-login__form" onSubmit={handleSubmit}>
-            <label>
-              E-mail
-              <input
-                type="email"
-                autoComplete="username"
-                value={identifier}
-                onChange={(event) => setIdentifier(event.target.value)}
-                placeholder="seu@email.com"
-                required
-                disabled={isSubmitting}
-              />
-            </label>
-
-            <label>
-              Senha
-              <input
-                type="password"
-                autoComplete="current-password"
-                value={credential}
-                onChange={(event) => setCredential(event.target.value)}
-                placeholder="Sua senha"
-                required
-                disabled={isSubmitting}
-              />
-            </label>
-
-            <button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
-              {isSubmitting ? "Entrando..." : "Entrar no Admin"}
-            </button>
+            <label>E-mail<input type="email" autoComplete="username" value={identifier} onChange={(event) => setIdentifier(event.target.value)} placeholder="seu@email.com" required disabled={isSubmitting} /></label>
+            <label>Senha<input type="password" autoComplete="current-password" value={credential} onChange={(event) => setCredential(event.target.value)} placeholder="Sua senha" required disabled={isSubmitting} /></label>
+            <button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>{isSubmitting ? "Entrando..." : "Entrar no Admin"}</button>
           </form>
 
-          {message ? (
-            <p className="rf-admin-login__notice rf-admin-login__notice--error" role="alert" aria-live="polite">
-              {message}
-            </p>
-          ) : null}
-
-          <p className="rf-admin-login__security">
-            Sessão protegida por cookie HttpOnly. A senha não fica armazenada pelo Roda Festa no navegador.
-          </p>
+          {message ? <p className="rf-admin-login__notice rf-admin-login__notice--error" role="alert" aria-live="polite">{message}</p> : null}
+          <p className="rf-admin-login__security">Sessão protegida por cookie HttpOnly. A senha não fica armazenada pelo Roda Festa no navegador.</p>
         </div>
       </section>
     </main>
