@@ -2,63 +2,38 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  useParams,
 } from "react-router-dom";
 
 import App from "../App";
 import Planner from "../planner/Planner";
 import PlanningSandbox from "../planner/sandbox/PlanningSandbox";
 import BookCoverSandbox from "../planner/book/BookCoverSandbox";
-import PlanningBook from "../planner/planning-book/PlanningBook";
+import RuntimePlanningBook from "../planner/planning-book/RuntimePlanningBook";
 import R4ShadowPreview from "../planner/planning-book/R4ShadowPreview";
 import AdminLogin from "../admin/AdminLogin";
+
+function AdminQuoteEditRoute() {
+  const { sessionId } = useParams();
+  return <AdminLogin view="quote-edit" sessionId={sessionId} />;
+}
 
 function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/planner" element={<Planner />} />
+        <Route path="/planner-sandbox" element={<PlanningSandbox />} />
+        <Route path="/book-cover" element={<BookCoverSandbox />} />
 
-        {/* Home */}
-        <Route
-          path="/"
-          element={<App />}
-        />
+        <Route path="/planning-book" element={<RuntimePlanningBook />} />
+        <Route path="/r4-preview" element={<R4ShadowPreview />} />
 
-        {/* Planner atual */}
-        <Route
-          path="/planner"
-          element={<Planner />}
-        />
-
-        {/* Sandbox antigo */}
-        <Route
-          path="/planner-sandbox"
-          element={<PlanningSandbox />}
-        />
-
-        {/* Teste do conceito do caderno */}
-        <Route
-          path="/book-cover"
-          element={<BookCoverSandbox />}
-        />
-
-        {/* Novo Planner (em desenvolvimento) */}
-        <Route
-          path="/planning-book"
-          element={<PlanningBook />}
-        />
-
-        {/* Laboratorio visual isolado do RF-REC-2 R4 shadow */}
-        <Route
-          path="/r4-preview"
-          element={<R4ShadowPreview />}
-        />
-
-        {/* Primeira superficie visual administrativa */}
-        <Route
-          path="/admin"
-          element={<AdminLogin />}
-        />
-
+        <Route path="/admin" element={<AdminLogin view="workspace" />} />
+        <Route path="/admin/produtos" element={<AdminLogin view="products" />} />
+        <Route path="/admin/editar-pedido" element={<AdminLogin view="quote-edit-index" />} />
+        <Route path="/admin/orcamentos/:sessionId/editar" element={<AdminQuoteEditRoute />} />
       </Routes>
     </BrowserRouter>
   );
