@@ -61,6 +61,10 @@ function normalizeIsoDate(value, field) {
 function normalizeRow(row) {
   if (!row || typeof row !== "object") return null;
 
+  const originalFinalProposalSnapshot = row.final_proposal_snapshot ?? null;
+  const effectiveFinalProposalSnapshot = row.admin_effective_snapshot
+    ?? originalFinalProposalSnapshot;
+
   return {
     sessionId: row.id,
     status: row.status,
@@ -74,7 +78,15 @@ function normalizeRow(row) {
     updatedAt: row.last_activity_at ?? row.updated_at ?? null,
     inputSnapshot: row.input_snapshot ?? null,
     recommendationSnapshot: row.recommendation_snapshot ?? null,
-    finalProposalSnapshot: row.final_proposal_snapshot ?? null,
+    finalProposalSnapshot: effectiveFinalProposalSnapshot,
+    originalFinalProposalSnapshot,
+    adminEffectiveSnapshot: row.admin_effective_snapshot ?? null,
+    adminRevisionHistory: Array.isArray(row.admin_revision_history)
+      ? row.admin_revision_history
+      : [],
+    adminCommercialRevision: Number(row.admin_commercial_revision || 0),
+    adminCommercialUpdatedAt: row.admin_commercial_updated_at ?? null,
+    adminCommercialUpdatedBy: row.admin_commercial_updated_by ?? null,
     planningChanges: Array.isArray(row.planning_changes)
       ? row.planning_changes
       : [],
@@ -97,6 +109,11 @@ function enrichSummary(model, row) {
     adminStateUpdatedBy: row.adminStateUpdatedBy,
     archivedAt: row.archivedAt,
     trashedAt: row.trashedAt,
+    adminCommercialRevision: row.adminCommercialRevision,
+    adminCommercialUpdatedAt: row.adminCommercialUpdatedAt,
+    adminRevisionHistory: Object.freeze([...row.adminRevisionHistory]),
+    originalFinalProposalSnapshot: row.originalFinalProposalSnapshot,
+    adminEffectiveSnapshot: row.adminEffectiveSnapshot,
     client: Object.freeze({
       name: row.client?.name ?? null,
       phone: row.client?.phone ?? null,
