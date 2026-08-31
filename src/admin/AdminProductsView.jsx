@@ -66,6 +66,18 @@ function draftFromProduct(product) {
   };
 }
 
+async function fetchProducts() {
+  const response = await fetch(ENDPOINT, {
+    credentials: "same-origin",
+    headers: { Accept: "application/json" },
+  });
+  const payload = await response.json().catch(() => null);
+  if (!response.ok || payload?.ok !== true || !Array.isArray(payload.products)) {
+    throw new Error("load_failed");
+  }
+  return payload.products;
+}
+
 export default function AdminProductsView() {
   const [products, setProducts] = useState([]);
   const [status, setStatus] = useState("loading");
@@ -78,12 +90,8 @@ export default function AdminProductsView() {
   async function loadProducts() {
     setStatus("loading");
     try {
-      const response = await fetch(ENDPOINT, { credentials: "same-origin", headers: { Accept: "application/json" } });
-      const payload = await response.json().catch(() => null);
-      if (!response.ok || payload?.ok !== true || !Array.isArray(payload.products)) {
-        throw new Error("load_failed");
-      }
-      setProducts(payload.products);
+      const nextProducts = await fetchProducts();
+      setProducts(nextProducts);
       setStatus("ready");
     } catch {
       setStatus("error");
@@ -91,7 +99,23 @@ export default function AdminProductsView() {
     }
   }
 
-  useEffect(() => { loadProducts(); }, []);
+  useEffect(() => {
+    let cancelled = false;
+    async function loadInitialProducts() {
+      try {
+        const nextProducts = await fetchProducts();
+        if (cancelled) return;
+        setProducts(nextProducts);
+        setStatus("ready");
+      } catch {
+        if (cancelled) return;
+        setStatus("error");
+        setMessage("Não foi possível carregar o catálogo agora.");
+      }
+    }
+    loadInitialProducts();
+    return () => { cancelled = true; };
+  }, []);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLocaleLowerCase("pt-BR");
