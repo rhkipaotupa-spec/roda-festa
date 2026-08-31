@@ -1,0 +1,47 @@
+name: Apply Admin Commercial PlanningBook Patch
+
+on:
+  push:
+    branches:
+      - feat/admin-commercial-v1
+    paths:
+      - scripts/patch-admin-commercial-planning-book.mjs
+      - .github/workflows/apply-admin-commercial-planning-book.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/admin-commercial-v1
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Apply fail-closed source patch
+        run: node scripts/patch-admin-commercial-planning-book.mjs
+
+      - name: Verify exact changed sources
+        shell: bash
+        run: |
+          changed="$(git status --short)"
+          printf '%s\n' "$changed"
+          expected=$' M src/planner/planning-book/PlanningBook.jsx\n M src/planner/planning-book/engine/planningRules.js'
+          test "$changed" = "$expected"
+
+      - name: Commit generated integration
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/planner/planning-book/PlanningBook.jsx src/planner/planning-book/engine/planningRules.js
+          git commit -m "feat: wire Brigadeiro no Tacho into PlanningBook"
+          git push origin HEAD:feat/admin-commercial-v1
