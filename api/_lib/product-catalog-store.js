@@ -13,21 +13,9 @@ function getConfig(env = process.env) {
   return { url, serviceRoleKey };
 }
 
-function eq(value) {
-  return `eq.${encodeURIComponent(String(value))}`;
-}
-
-function nowIso(now) {
-  const value = typeof now === "function" ? now() : new Date().toISOString();
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) throw new Error("product_catalog_clock_invalid");
-  return date.toISOString();
-}
-
 export function createProductCatalogStore({
   env = process.env,
   fetchImpl = globalThis.fetch,
-  now = () => new Date().toISOString(),
 } = {}) {
   if (typeof fetchImpl !== "function") throw new Error("product_catalog_fetch_required");
 
@@ -67,13 +55,27 @@ export function createProductCatalogStore({
     return includeInactive ? merged : Object.freeze(merged.filter((product) => product.active));
   }
 
-  async function getOverride(productId) {
-    const id = String(productId || "").trim();
-    if (!id) throw new Error("product_catalog_product_id_required");
-    const rows = await request(
-      `product_catalog_overrides?product_id=${eq(id)}&select=product_id,product_data,active,revision,updated_at,updated_by&limit=1`,
-    );
-    return rows?.[0] || null;
+  async function writeAtomically({ normalized, actor, initialAction }) {
+    const rows = await request("rpc/rf_admin_write_product_catalog", {
+      method: "POST",
+      body: {
+        p_product_id: normalized.id,
+        p_product_data: normalized,
+        p_active: normalized.active,
+        p_actor: actor,
+        p_initial_action: initialAction,
+      },
+    });
+    const result = Array.isArray(rows) ? rows[0] : rows;
+    if (!result || !Number.isInteger(Number(result.revision))) {
+      throw new Error("product_catalog_atomic_write_invalid_response");
+    }
+    return {
+      product: normalized,
+      revision: Number(result.revision),
+      action: String(result.action || initialAction),
+      persisted: result,
+    };
   }
 
   async function upsert({ product, actorUserId } = {}) {
@@ -85,49 +87,12 @@ export function createProductCatalogStore({
     const requestedId = String(product?.id || "").trim();
     const existing = currentById.get(requestedId) || null;
     const normalized = normalizeProductCatalogRecord(product, { existing });
-    const currentOverride = await getOverride(normalized.id);
-    const revision = Number(currentOverride?.revision || 0) + 1;
-    const timestamp = nowIso(now);
-    const action = currentOverride
-      ? (!currentOverride.active && normalized.active ? "REACTIVATE" : "UPDATE")
-      : (existing ? "UPDATE" : "CREATE");
 
-    const rows = await request(
-      "product_catalog_overrides?on_conflict=product_id",
-      {
-        method: "POST",
-        prefer: "resolution=merge-duplicates,return=representation",
-        body: {
-          product_id: normalized.id,
-          product_data: normalized,
-          active: normalized.active,
-          revision,
-          updated_at: timestamp,
-          updated_by: actor,
-        },
-      },
-    );
-
-    await request("product_catalog_history", {
-      method: "POST",
-      prefer: "return=minimal",
-      body: {
-        product_id: normalized.id,
-        revision,
-        product_data: normalized,
-        active: normalized.active,
-        changed_at: timestamp,
-        changed_by: actor,
-        action,
-      },
+    return writeAtomically({
+      normalized,
+      actor,
+      initialAction: existing ? "UPDATE" : "CREATE",
     });
-
-    return {
-      product: normalized,
-      revision,
-      action,
-      persisted: rows?.[0] || null,
-    };
   }
 
   async function setActive({ productId, active, actorUserId } = {}) {
@@ -140,40 +105,16 @@ export function createProductCatalogStore({
     const existing = productCatalogById(catalog).get(id);
     if (!existing) return null;
 
-    const currentOverride = await getOverride(id);
-    const revision = Number(currentOverride?.revision || 0) + 1;
-    const timestamp = nowIso(now);
-    const normalized = normalizeProductCatalogRecord({ ...existing, active: Boolean(active) }, { existing });
-    const action = normalized.active ? "REACTIVATE" : "DEACTIVATE";
+    const normalized = normalizeProductCatalogRecord(
+      { ...existing, active: Boolean(active) },
+      { existing },
+    );
 
-    const rows = await request("product_catalog_overrides?on_conflict=product_id", {
-      method: "POST",
-      prefer: "resolution=merge-duplicates,return=representation",
-      body: {
-        product_id: id,
-        product_data: normalized,
-        active: normalized.active,
-        revision,
-        updated_at: timestamp,
-        updated_by: actor,
-      },
+    return writeAtomically({
+      normalized,
+      actor,
+      initialAction: normalized.active ? "REACTIVATE" : "DEACTIVATE",
     });
-
-    await request("product_catalog_history", {
-      method: "POST",
-      prefer: "return=minimal",
-      body: {
-        product_id: id,
-        revision,
-        product_data: normalized,
-        active: normalized.active,
-        changed_at: timestamp,
-        changed_by: actor,
-        action,
-      },
-    });
-
-    return { product: normalized, revision, action, persisted: rows?.[0] || null };
   }
 
   return Object.freeze({
