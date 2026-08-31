@@ -17,7 +17,8 @@ const agendaCss = await readFile(
 
 test("V19.10C adiciona Agenda como segunda superficie real sem remover Orcamentos", () => {
   assert.match(workspace, /import AdminAgendaView from "\.\/AdminAgendaView\.jsx"/);
-  assert.match(workspace, /useState\("quotes"\)/);
+  assert.match(workspace, /initialSection = "quotes"/);
+  assert.match(workspace, /useState\(initialSection\)/);
   assert.match(workspace, /setActiveSection\("quotes"\)/);
   assert.match(workspace, /setActiveSection\("agenda"\)/);
   assert.match(workspace, /data-admin-section="quotes"/);
