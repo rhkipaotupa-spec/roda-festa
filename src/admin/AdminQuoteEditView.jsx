@@ -17,7 +17,7 @@ function snapshotItemMap(snapshot) {
   return new Map((snapshot?.items || []).map((item) => [String(item.id), item]));
 }
 
-export default function AdminQuoteEditView({ sessionId }) {
+export default function AdminQuoteEditView({ sessionId, embedded = false }) {
   const [quote, setQuote] = useState(null);
   const [products, setProducts] = useState([]);
   const [items, setItems] = useState([]);
@@ -136,19 +136,21 @@ export default function AdminQuoteEditView({ sessionId }) {
     }
   }
 
-  if (status === "loading") return <main className="rf-commercial-page"><p>Carregando pedido...</p></main>;
-  if (status === "error") return <main className="rf-commercial-page"><a href="/admin">Voltar ao Admin</a><p>{message}</p></main>;
-  if (status === "requires-final") return <main className="rf-commercial-page"><a href="/admin">Voltar ao Admin</a><h1>Este orçamento ainda não tem proposta final.</h1><p>A edição administrativa comercial fica disponível depois da primeira finalização.</p></main>;
+  if (status === "loading") return <section className={embedded ? "rf-commercial-page rf-commercial-page--embedded" : "rf-commercial-page"}><p>Carregando pedido...</p></section>;
+  if (status === "error") return <section className={embedded ? "rf-commercial-page rf-commercial-page--embedded" : "rf-commercial-page"}>{!embedded ? <a href="/admin">Voltar ao Admin</a> : null}<p>{message}</p></section>;
+  if (status === "requires-final") return <section className={embedded ? "rf-commercial-page rf-commercial-page--embedded" : "rf-commercial-page"}>{!embedded ? <a href="/admin">Voltar ao Admin</a> : null}<h1>Este orçamento ainda não tem proposta final.</h1><p>A edição administrativa comercial fica disponível depois da primeira finalização.</p></section>;
 
   return (
-    <main className="rf-commercial-page">
+    <section className={embedded ? "rf-commercial-page rf-commercial-page--embedded" : "rf-commercial-page"}>
       <header className="rf-commercial-header">
         <div>
           <span>Roda Festa · Revisão administrativa</span>
           <h1>Editar pedido</h1>
           <p>{quote?.client?.name || "Cliente"} · o evento, convidados e data permanecem congelados; esta tela altera composição comercial e serviços.</p>
         </div>
-        <div className="rf-commercial-header__actions"><a href="/admin">Voltar ao Admin</a></div>
+        <div className="rf-commercial-header__actions">
+          <a href={embedded ? "/admin/editar-pedido" : "/admin"}>{embedded ? "← Voltar para pedidos" : "Voltar ao Admin"}</a>
+        </div>
       </header>
 
       {message ? <div className="rf-commercial-notice" role="status">{message}</div> : null}
@@ -199,6 +201,6 @@ export default function AdminQuoteEditView({ sessionId }) {
           <p className="rf-commercial-footnote">Preços já contratados são preservados para itens existentes. Produtos adicionados nesta revisão usam o preço atual do catálogo.</p>
         </section>
       </div>
-    </main>
+    </section>
   );
 }

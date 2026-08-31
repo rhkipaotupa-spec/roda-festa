@@ -3,6 +3,10 @@ import "./AdminWorkspace.css";
 import "./AdminJourneyEnhancements.css";
 
 import AdminAgendaView from "./AdminAgendaView.jsx";
+import AdminProductsView from "./AdminProductsView.jsx";
+import AdminQuoteEditIndex from "./AdminQuoteEditIndex.jsx";
+import AdminQuoteEditView from "./AdminQuoteEditView.jsx";
+import "./AdminCommercialIntegrated.css";
 import rodaFestaLogoCreme from "../planner/planning-book/assets/logo-roda-festa-creme.png";
 import {
   buildItemComparison,
@@ -147,6 +151,8 @@ export default function AdminWorkspace({
   onLogout = null,
   isLoggingOut = false,
   logoutError = "",
+  initialSection = "quotes",
+  editSessionId = "",
 }) {
   const [quotes, setQuotes] = useState([]);
   const [status, setStatus] = useState("loading");
@@ -154,7 +160,7 @@ export default function AdminWorkspace({
   const [selectedQuote, setSelectedQuote] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("idle");
   const [search, setSearch] = useState("");
-  const [activeSection, setActiveSection] = useState("quotes");
+  const [activeSection, setActiveSection] = useState(initialSection);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [quoteView, setQuoteView] = useState("ACTIVE");
   const [operationState, setOperationState] = useState("idle");
@@ -269,6 +275,13 @@ export default function AdminWorkspace({
     setActiveSection(section);
     setMobileMenuOpen(false);
   }
+
+  const sectionTitle = {
+    quotes: "Orçamentos",
+    agenda: "Agenda",
+    orders: "Pedidos",
+    products: "Produtos",
+  }[activeSection] || "Admin";
 
   function requestLogout() {
     if (typeof onLogout !== "function" || isLoggingOut) return;
@@ -407,6 +420,26 @@ export default function AdminWorkspace({
             <span>Agenda</span>
           </button>
 
+          <button
+            type="button"
+            className={activeSection === "orders" ? "is-active" : ""}
+            data-admin-section="orders"
+            aria-label="Pedidos"
+            onClick={() => switchSection("orders")}
+          >
+            <span>Pedidos</span>
+          </button>
+
+          <button
+            type="button"
+            className={activeSection === "products" ? "is-active" : ""}
+            data-admin-section="products"
+            aria-label="Produtos"
+            onClick={() => switchSection("products")}
+          >
+            <span>Produtos</span>
+          </button>
+
           <button type="button" disabled>
             <span>Clientes</span>
             <small>em breve</small>
@@ -473,6 +506,22 @@ export default function AdminWorkspace({
                 <span>Agenda</span>
                 <small>Datas e eventos</small>
               </button>
+              <button
+                type="button"
+                className={activeSection === "orders" ? "is-active" : ""}
+                onClick={() => switchSection("orders")}
+              >
+                <span>Pedidos</span>
+                <small>Revisões comerciais</small>
+              </button>
+              <button
+                type="button"
+                className={activeSection === "products" ? "is-active" : ""}
+                onClick={() => switchSection("products")}
+              >
+                <span>Produtos</span>
+                <small>Catálogo, preços e capacidades</small>
+              </button>
             </nav>
 
             <div className="rf-admin-mobile-drawer__operator">
@@ -498,7 +547,7 @@ export default function AdminWorkspace({
         <header className="rf-admin-topbar">
           <div>
             <span className="rf-admin-eyebrow">Painel Roda Festa</span>
-            <h1>{activeSection === "agenda" ? "Agenda" : "Orçamentos"}</h1>
+            <h1>{sectionTitle}</h1>
           </div>
 
           <div className="rf-admin-topbar__actions">
@@ -680,8 +729,14 @@ export default function AdminWorkspace({
           ) : null}
         </section>
           </>
-        ) : (
+        ) : activeSection === "agenda" ? (
           <AdminAgendaView onOpenQuote={openQuote} />
+        ) : activeSection === "products" ? (
+          <AdminProductsView embedded />
+        ) : editSessionId ? (
+          <AdminQuoteEditView sessionId={editSessionId} embedded />
+        ) : (
+          <AdminQuoteEditIndex embedded />
         )}
       </section>
 

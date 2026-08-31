@@ -13,7 +13,7 @@ function dateLabel(value) {
   return year && month && day ? `${day}/${month}/${year}` : "Data a definir";
 }
 
-export default function AdminQuoteEditIndex() {
+export default function AdminQuoteEditIndex({ embedded = false } = {}) {
   const [quotes, setQuotes] = useState([]);
   const [status, setStatus] = useState("loading");
   const [search, setSearch] = useState("");
@@ -54,17 +54,19 @@ export default function AdminQuoteEditIndex() {
   }, [quotes, search]);
 
   return (
-    <main className="rf-commercial-page">
+    <section className={embedded ? "rf-commercial-page rf-commercial-page--embedded" : "rf-commercial-page"}>
       <header className="rf-commercial-header">
         <div>
           <span>Roda Festa · Admin</span>
-          <h1>Editar pedido</h1>
+          <h1>{embedded ? "Pedidos validados" : "Editar pedido"}</h1>
           <p>Escolha uma proposta já validada. A versão original fica preservada e cada salvamento cria uma nova revisão administrativa.</p>
         </div>
-        <div className="rf-commercial-header__actions">
-          <a href="/admin">Voltar ao Admin</a>
-          <a href="/admin/produtos">Produtos</a>
-        </div>
+        {!embedded ? (
+          <div className="rf-commercial-header__actions">
+            <a href="/admin">Voltar ao Admin</a>
+            <a href="/admin/produtos">Produtos</a>
+          </div>
+        ) : null}
       </header>
 
       <section className="rf-commercial-list" style={{ maxWidth: 1240, margin: "0 auto" }}>
@@ -94,6 +96,6 @@ export default function AdminQuoteEditIndex() {
           </article>
         )) : null}
       </section>
-    </main>
+    </section>
   );
 }

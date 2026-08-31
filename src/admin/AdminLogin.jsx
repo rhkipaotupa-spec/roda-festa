@@ -3,9 +3,6 @@ import "./AdminLogin.css";
 import "./AdminCommercial.css";
 
 import AdminWorkspace from "./AdminWorkspace.jsx";
-import AdminProductsView from "./AdminProductsView.jsx";
-import AdminQuoteEditIndex from "./AdminQuoteEditIndex.jsx";
-import AdminQuoteEditView from "./AdminQuoteEditView.jsx";
 import rodaFestaLogo from "../planner/planning-book/assets/logo-roda-festa.png";
 import rodaFestaLogoCreme from "../planner/planning-book/assets/logo-roda-festa-creme.png";
 
@@ -16,18 +13,6 @@ const GENERIC_LOGIN_ERROR = "Não foi possível entrar. Confira seus dados e ten
 const GENERIC_SESSION_ERROR = "Não foi possível verificar sua sessão agora. Tente novamente em instantes.";
 const GENERIC_LOGOUT_ERROR = "Não foi possível sair agora. Sua sessão continua ativa; tente novamente.";
 
-function AdminWorkspaceWithCommercialShortcuts(props) {
-  return (
-    <>
-      <AdminWorkspace {...props} />
-      <nav className="rf-admin-commercial-shortcuts" aria-label="Atalhos comerciais do Admin">
-        <a href="/admin/editar-pedido">Editar pedido</a>
-        <a href="/admin/produtos">Produtos</a>
-      </nav>
-    </>
-  );
-}
-
 function AuthenticatedAdminView({
   view,
   sessionId,
@@ -37,11 +22,17 @@ function AuthenticatedAdminView({
   isLoggingOut,
   logoutError,
 }) {
-  if (view === "products") return <AdminProductsView />;
-  if (view === "quote-edit-index") return <AdminQuoteEditIndex />;
-  if (view === "quote-edit") return <AdminQuoteEditView sessionId={sessionId} />;
+  const sectionByView = {
+    workspace: "quotes",
+    products: "products",
+    "quote-edit-index": "orders",
+    "quote-edit": "orders",
+  };
+
   return (
-    <AdminWorkspaceWithCommercialShortcuts
+    <AdminWorkspace
+      initialSection={sectionByView[view] || "quotes"}
+      editSessionId={view === "quote-edit" ? sessionId : ""}
       sessionMessage={sessionMessage}
       operator={operator}
       onLogout={onLogout}

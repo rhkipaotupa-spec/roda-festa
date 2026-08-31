@@ -78,7 +78,7 @@ async function fetchProducts() {
   return payload.products;
 }
 
-export default function AdminProductsView() {
+export default function AdminProductsView({ embedded = false } = {}) {
   const [products, setProducts] = useState([]);
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("");
@@ -86,6 +86,7 @@ export default function AdminProductsView() {
   const [draft, setDraft] = useState(() => emptyDraft());
   const [editingExisting, setEditingExisting] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(false);
 
   async function loadProducts() {
     setStatus("loading");
@@ -131,12 +132,14 @@ export default function AdminProductsView() {
     setDraft(emptyDraft());
     setEditingExisting(false);
     setMessage("");
+    setEditorOpen(true);
   }
 
   function editProduct(product) {
     setDraft(draftFromProduct(product));
     setEditingExisting(true);
     setMessage("");
+    setEditorOpen(true);
   }
 
   function changeCategory(category) {
@@ -183,6 +186,7 @@ export default function AdminProductsView() {
       setMessage(`Produto salvo. Revisão ${payload.revision}.`);
       setDraft(draftFromProduct(payload.product));
       setEditingExisting(true);
+      setEditorOpen(false);
       await loadProducts();
     } catch {
       setMessage("Não foi possível salvar. Confira preço, lote, capacidade e categoria.");
@@ -212,7 +216,7 @@ export default function AdminProductsView() {
   }
 
   return (
-    <main className="rf-commercial-page">
+    <section className={embedded ? "rf-commercial-page rf-commercial-page--embedded" : "rf-commercial-page"}>
       <header className="rf-commercial-header">
         <div>
           <span>Roda Festa · Admin</span>
@@ -220,8 +224,8 @@ export default function AdminProductsView() {
           <p>Preço, lote e capacidade podem mudar sem apagar o histórico dos orçamentos antigos.</p>
         </div>
         <div className="rf-commercial-header__actions">
-          <a href="/admin">Voltar ao Admin</a>
-          <a href="/admin/editar-pedido">Editar pedido</a>
+          {!embedded ? <a href="/admin">Voltar ao Admin</a> : null}
+          {!embedded ? <a href="/admin/editar-pedido">Pedidos</a> : null}
           <button type="button" onClick={newProduct}>+ Cadastrar produto</button>
         </div>
       </header>
@@ -258,8 +262,18 @@ export default function AdminProductsView() {
           )) : null}
         </section>
 
-        <section className="rf-commercial-editor">
+        {embedded && editorOpen ? (
+          <button
+            type="button"
+            className="rf-commercial-drawer-backdrop"
+            aria-label="Fechar editor de produto"
+            onClick={() => setEditorOpen(false)}
+          />
+        ) : null}
+
+        <section className={`rf-commercial-editor ${embedded && editorOpen ? "is-open" : ""}`}>
           <div className="rf-commercial-editor__heading">
+            {embedded ? <button type="button" className="rf-commercial-drawer-close" onClick={() => setEditorOpen(false)} aria-label="Fechar editor">×</button> : null}
             <span>{editingExisting ? "Editar produto" : "Novo produto"}</span>
             <h2>{editingExisting ? draft.name : "Cadastrar no catálogo"}</h2>
             {editingExisting ? <small>O código é permanente para proteger orçamentos históricos.</small> : null}
@@ -284,6 +298,6 @@ export default function AdminProductsView() {
           </form>
         </section>
       </div>
-    </main>
+    </section>
   );
 }
