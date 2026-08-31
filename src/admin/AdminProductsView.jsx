@@ -14,13 +14,13 @@ const CATEGORIES = [
 ];
 
 const CATEGORY_DEFAULTS = {
-  Petiscos: { operationalGroup: "fried", lotSize: 25, priceUnit: "unit", portionGrams: "" },
-  "Mini lanches": { operationalGroup: "hotSandwiches", lotSize: 5, priceUnit: "unit", portionGrams: "" },
-  Tortas: { operationalGroup: "hotSandwiches", lotSize: 1, priceUnit: "portion150g", portionGrams: 150 },
-  Doces: { operationalGroup: "sweets", lotSize: 10, priceUnit: "unit", portionGrams: "" },
-  Bolos: { operationalGroup: "cake", lotSize: 1, priceUnit: "portion120g", portionGrams: 120 },
-  "Brigadeiro no tacho": { operationalGroup: "tacho", lotSize: 1, priceUnit: "portion80g", portionGrams: 80 },
-  Bebidas: { operationalGroup: "beverages", lotSize: 10, priceUnit: "unit", portionGrams: "" },
+  Petiscos: { operationalGroup: "fried", lotSize: 25, priceUnit: "unit", portionGrams: "", productionPerHour: 120 },
+  "Mini lanches": { operationalGroup: "hotSandwiches", lotSize: 5, priceUnit: "unit", portionGrams: "", productionPerHour: 80 },
+  Tortas: { operationalGroup: "hotSandwiches", lotSize: 1, priceUnit: "portion150g", portionGrams: 150, productionPerHour: 40 },
+  Doces: { operationalGroup: "sweets", lotSize: 10, priceUnit: "unit", portionGrams: "", productionPerHour: 200 },
+  Bolos: { operationalGroup: "cake", lotSize: 1, priceUnit: "portion120g", portionGrams: 120, productionPerHour: 100 },
+  "Brigadeiro no tacho": { operationalGroup: "tacho", lotSize: 1, priceUnit: "portion80g", portionGrams: 80, productionPerHour: "" },
+  Bebidas: { operationalGroup: "beverages", lotSize: 10, priceUnit: "unit", portionGrams: "", productionPerHour: 150 },
 };
 
 function slugify(value) {
@@ -45,7 +45,7 @@ function emptyDraft() {
     description: "",
     commercialCategory: "Petiscos",
     operationalGroup: defaults.operationalGroup,
-    productionPerHour: 120,
+    productionPerHour: defaults.productionPerHour,
     suggestedUnitsPerEquivalentGuest: 1,
     lotSize: defaults.lotSize,
     unitPrice: 0,
@@ -61,6 +61,7 @@ function draftFromProduct(product) {
   return {
     ...emptyDraft(),
     ...product,
+    productionPerHour: product?.productionPerHour ?? "",
     portionGrams: product?.portionGrams ?? "",
   };
 }
@@ -123,6 +124,7 @@ export default function AdminProductsView() {
       lotSize: defaults.lotSize,
       priceUnit: defaults.priceUnit,
       portionGrams: defaults.portionGrams,
+      productionPerHour: defaults.productionPerHour,
       consignment: category === "Bebidas",
       countsAsMainCart: !["Doces", "Bolos"].includes(category),
     }));
@@ -138,7 +140,7 @@ export default function AdminProductsView() {
     const product = {
       ...draft,
       id,
-      productionPerHour: Number(draft.productionPerHour),
+      productionPerHour: draft.productionPerHour === "" ? null : Number(draft.productionPerHour),
       suggestedUnitsPerEquivalentGuest: Number(draft.suggestedUnitsPerEquivalentGuest || 0),
       lotSize: Number(draft.lotSize),
       unitPrice: Number(draft.unitPrice),
@@ -195,6 +197,7 @@ export default function AdminProductsView() {
         </div>
         <div className="rf-commercial-header__actions">
           <a href="/admin">Voltar ao Admin</a>
+          <a href="/admin/editar-pedido">Editar pedido</a>
           <button type="button" onClick={newProduct}>+ Cadastrar produto</button>
         </div>
       </header>
@@ -219,7 +222,7 @@ export default function AdminProductsView() {
               </div>
               <div className="rf-product-row__numbers">
                 <span>{currency(product.unitPrice)}</span>
-                <small>Lote {product.lotSize} · capacidade {product.productionPerHour}/h</small>
+                <small>Lote {product.lotSize} · capacidade {product.productionPerHour == null ? "não medida" : `${product.productionPerHour}/h`}</small>
               </div>
               <div className="rf-product-row__actions">
                 <button type="button" onClick={() => editProduct(product)}>Editar</button>
@@ -247,7 +250,7 @@ export default function AdminProductsView() {
             <div className="rf-commercial-form-grid">
               <label>Preço<input type="number" min="0" step="0.01" required value={draft.unitPrice} onChange={(event) => setDraft((current) => ({ ...current, unitPrice: event.target.value }))} /></label>
               <label>Lote mínimo<input type="number" min="0.01" step="0.01" required value={draft.lotSize} onChange={(event) => setDraft((current) => ({ ...current, lotSize: event.target.value }))} /></label>
-              <label>Capacidade / hora<input type="number" min="0.01" step="0.01" required value={draft.productionPerHour} onChange={(event) => setDraft((current) => ({ ...current, productionPerHour: event.target.value }))} /></label>
+              <label>Capacidade / hora<input type="number" min="0.01" step="0.01" required={draft.commercialCategory !== "Brigadeiro no tacho"} placeholder={draft.commercialCategory === "Brigadeiro no tacho" ? "Ainda não medida" : "Ex.: 120"} value={draft.productionPerHour} onChange={(event) => setDraft((current) => ({ ...current, productionPerHour: event.target.value }))} /></label>
               <label>Unidade<select value={draft.priceUnit} disabled={draft.commercialCategory === "Brigadeiro no tacho"} onChange={(event) => setDraft((current) => ({ ...current, priceUnit: event.target.value }))}><option value="unit">Unidade</option><option value="portion80g">Porção 80 g</option><option value="portion120g">Porção 120 g</option><option value="portion150g">Porção 150 g</option><option value="kg">Kg</option></select></label>
             </div>
 
