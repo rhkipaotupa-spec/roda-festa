@@ -20,7 +20,7 @@ const FULL_MENU_70 = [
   "refrigerante-200ml",
 ];
 
-test("RF-REC-2 Production reproduces the validated 70-person commercial reference", () => {
+test("RF-REC-2 Production preserves the validated 70-person commercial reference after 2.1 evolution", () => {
   const result = generateR4ProductionSuggestion({
     adults: 55,
     olderChildren: 15,
@@ -32,7 +32,7 @@ test("RF-REC-2 Production reproduces the validated 70-person commercial referenc
     includeBeverages: true,
   });
 
-  assert.equal(result.versions.recommendation, "RF-REC-2.0.0");
+  assert.equal(result.versions.recommendation, "RF-REC-2.1.0");
   assert.equal(result.policy.authoritative, true);
   assert.equal(result.guests.realGuests, 70);
   assert.equal(result.guests.equivalentGuests, 70);
@@ -83,10 +83,10 @@ test("authoritative browser and PlanningSession are wired through the same RF-RE
   assert.match(planningSessions, /const equivalentGuests = suggestion\.guests\.equivalentGuests/);
 });
 
-test("final commercial validation stamps RF-REC-2 and the 35 percent child factor", () => {
+test("final commercial validation stamps current RF-REC-2 and the 35 percent child factor", () => {
   const submissions = fs.readFileSync(new URL("../api/planning-submissions.js", import.meta.url), "utf8");
   assert.match(submissions, /R4_PRODUCTION_VERSIONS/);
   assert.match(submissions, /children \* 0\.35/);
   assert.doesNotMatch(submissions, /children \* 0\.5/);
-  assert.equal(R4_PRODUCTION_VERSIONS.recommendation, "RF-REC-2.0.0");
+  assert.equal(R4_PRODUCTION_VERSIONS.recommendation, "RF-REC-2.1.0");
 });
