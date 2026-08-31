@@ -166,7 +166,7 @@ export async function startPlanningSessionCommand({
 
   const serverFingerprint = productCatalogFingerprint(productCatalog);
   const clientFingerprint = String(body?.catalogFingerprint || "").trim();
-  if (!clientFingerprint || clientFingerprint !== serverFingerprint) {
+  if (clientFingerprint && clientFingerprint !== serverFingerprint) {
     throw new Error("planning_catalog_changed");
   }
 
