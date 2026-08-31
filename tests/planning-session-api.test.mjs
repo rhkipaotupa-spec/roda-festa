@@ -3,11 +3,14 @@ import assert from "node:assert/strict";
 import { createPlanningSessionRepository } from "../api/_lib/planning-session-repository.js";
 import { createMemoryPlanningSessionAdapter } from "../api/_lib/planning-session-adapters/memory.js";
 import { appendPlanningChangesCommand, startPlanningSessionCommand, finalizePlanningSessionCommand, readPlanningJourneyCommand } from "../api/planning-sessions.js";
+import { PRODUCTS } from "../src/planner/planning-book/engine/planningRules.js";
+import { productCatalogFingerprint } from "../src/planner/planning-book/engine/productCatalog.js";
 
 function repo() { return createPlanningSessionRepository(createMemoryPlanningSessionAdapter()); }
 function startBody() {
   return {
     clientRequestId: "client-request-1234567890",
+    catalogFingerprint: productCatalogFingerprint(Object.values(PRODUCTS)),
     clientName: "Cliente Teste",
     phone: "14999999999",
     eventType: "infantil",
@@ -27,9 +30,21 @@ test("start cria recomendacao autoritativa no servidor e preserva tres carrinhos
   const result = await startPlanningSessionCommand({ body: startBody(), token: "token-owner", repository, idFactory: () => "session-1" });
   assert.equal(result.sessionId, "session-1");
   assert.equal(result.recommendation.totalCarts, 3);
-  assert.equal(result.recommendation.versions.recommendation, "RF-REC-2.0.0");
+  assert.equal(result.recommendation.versions.recommendation, "RF-REC-2.1.0");
+  assert.equal(result.catalogFingerprint, startBody().catalogFingerprint);
   const stored = await repository.getOwned({ sessionId: "session-1", tokenHash: (await import("../api/_lib/planning-session-security.js")).hashSessionToken("token-owner") });
   assert.equal(stored.recommendation_snapshot.totalCarts, 3);
+  assert.equal(stored.input_snapshot.catalogFingerprint, startBody().catalogFingerprint);
+  assert.ok(Array.isArray(stored.input_snapshot.productCatalogSnapshot));
+});
+
+test("start rejeita fingerprint de catalogo divergente antes de persistir", async () => {
+  const body = startBody();
+  body.catalogFingerprint = "rfcat-v1-deadbeef";
+  await assert.rejects(
+    () => startPlanningSessionCommand({ body, token: "token-owner", repository: repo() }),
+    /planning_catalog_changed/,
+  );
 });
 
 test("start rejeita produto inexistente antes de persistir", async () => {
@@ -51,7 +66,6 @@ test("finalizacao usa recomendacao guardada, recalcula final e deriva delta no s
     adults: 20, olderChildren: 0, children: 0, duration: 4, totalCarts: 3, waiters: 0, includeDisposables: false,
     items: finalItems, investmentTotal: 0,
   };
-  // O servidor exige o total correto; obtemos a referencia sem confiar nela como autoridade final.
   const originalItems = seed.items;
   const products = (await import("../src/planner/planning-book/engine/planningRules.js")).PRODUCTS;
   const rules = await import("../src/planner/planning-book/engine/planningRules.js");
@@ -74,7 +88,6 @@ test("finalizacao de sessao alheia e rejeitada", async () => {
   await assert.rejects(() => finalizePlanningSessionCommand({ body: { sessionId:"session-1", expectedVersion:1, finalSnapshot:{} }, token:"intruder", repository }), /not_found/);
 });
 
-
 test("finalizacao rejeita mudanca de contexto que nao pertence a mesma recomendacao", async () => {
   const repository = repo();
   await startPlanningSessionCommand({ body: startBody(), token: "token-owner", repository, idFactory: () => "session-1" });
@@ -83,7 +96,6 @@ test("finalizacao rejeita mudanca de contexto que nao pertence a mesma recomenda
     token: "token-owner", repository,
   }), /planning_context_mismatch:eventDate/);
 });
-
 
 test("timeline normaliza ator e timestamp no servidor e preserva ordem", async () => {
   const repository = repo();
@@ -108,7 +120,6 @@ test("timeline rejeita tipo, produto e ownership invalidos", async () => {
   await assert.rejects(() => appendPlanningChangesCommand({ body:{sessionId:"session-1",expectedVersion:1,changes:[{type:"ITEM_ADDED",productId:"nao-existe"}]}, token:"token-owner", repository }), /unknown_product/);
   await assert.rejects(() => appendPlanningChangesCommand({ body:{sessionId:"session-1",expectedVersion:1,changes:[{type:"SERVICE_ADDED",service:"WAITERS"}]}, token:"intruder", repository }), /not_found/);
 });
-
 
 test("read command retorna jornada protegida por ownership sem recalcular historico", async () => {
   const repository = repo();
