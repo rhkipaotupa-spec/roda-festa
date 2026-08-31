@@ -30,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Focused Admin Commercial tests
-        run: node --test tests/admin-commercial-v1-domain.test.mjs
+        run: node --test tests/admin-commercial-v1-*.test.mjs
 
       - name: Full test suite
         run: npm test
