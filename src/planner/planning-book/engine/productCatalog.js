@@ -46,6 +46,13 @@ function text(value, field, max = 160) {
   return normalized;
 }
 
+function normalizeProductionPerHour(value, operationalGroup) {
+  if ((value == null || value === "") && operationalGroup === "tacho") {
+    return null;
+  }
+  return finitePositive(value, "production_per_hour");
+}
+
 export function normalizeProductCatalogRecord(input = {}, { existing = null } = {}) {
   const id = text(input.id ?? existing?.id, "id", 120).toLowerCase();
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) {
@@ -81,6 +88,11 @@ export function normalizeProductCatalogRecord(input = {}, { existing = null } = 
     ? null
     : finitePositive(portionGramsRaw, "portion_grams");
 
+  if (commercialCategory === "Brigadeiro no tacho"
+      && (priceUnit !== "portion80g" || portionGrams !== 80 || operationalGroup !== "tacho")) {
+    throw new Error("product_catalog_invalid_tacho_contract");
+  }
+
   const descriptionValue = input.description ?? existing?.description ?? "";
   const description = String(descriptionValue || "").trim().slice(0, 500);
 
@@ -90,9 +102,9 @@ export function normalizeProductCatalogRecord(input = {}, { existing = null } = 
     description,
     commercialCategory,
     operationalGroup,
-    productionPerHour: finitePositive(
+    productionPerHour: normalizeProductionPerHour(
       input.productionPerHour ?? existing?.productionPerHour,
-      "production_per_hour",
+      operationalGroup,
     ),
     suggestedUnitsPerEquivalentGuest: finitePositive(
       input.suggestedUnitsPerEquivalentGuest
@@ -147,4 +159,37 @@ export function mergeProductCatalogOverrides(overrides = []) {
 
 export function productCatalogById(catalog = []) {
   return new Map((Array.isArray(catalog) ? catalog : []).map((product) => [product.id, product]));
+}
+
+function catalogComparableProduct(product = {}) {
+  return {
+    id: String(product.id || ""),
+    name: String(product.name || ""),
+    commercialCategory: String(product.commercialCategory || ""),
+    operationalGroup: String(product.operationalGroup || ""),
+    productionPerHour: product.productionPerHour == null ? null : Number(product.productionPerHour),
+    suggestedUnitsPerEquivalentGuest: Number(product.suggestedUnitsPerEquivalentGuest || 0),
+    lotSize: Number(product.lotSize || 0),
+    unitPrice: Number(product.unitPrice || 0),
+    priceUnit: String(product.priceUnit || "unit"),
+    portionGrams: product.portionGrams == null ? null : Number(product.portionGrams),
+    active: Boolean(product.active),
+    consignment: Boolean(product.consignment),
+    countsAsMainCart: Boolean(product.countsAsMainCart),
+  };
+}
+
+export function productCatalogFingerprint(catalog = []) {
+  const canonical = (Array.isArray(catalog) ? catalog : [])
+    .map(catalogComparableProduct)
+    .sort((a, b) => a.id.localeCompare(b.id));
+  const serialized = JSON.stringify(canonical);
+
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < serialized.length; index += 1) {
+    hash ^= serialized.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+
+  return `rfcat-v${PRODUCT_CATALOG_SCHEMA_VERSION}-${(hash >>> 0).toString(16).padStart(8, "0")}`;
 }
