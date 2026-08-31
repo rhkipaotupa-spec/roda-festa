@@ -14,7 +14,7 @@ test("login visual chama somente o endpoint administrativo same-origin", () => {
 });
 
 test("login visual envia apenas identifier e credential em JSON", () => {
-  assert.match(source, /JSON\.stringify\(\{\s*identifier,\s*credential,\s*\}\)/s);
+  assert.match(source, /JSON\.stringify\(\{\s*identifier,\s*credential,?\s*\}\)/s);
   assert.equal(/SUPABASE_SERVICE_ROLE_KEY/.test(source), false);
   assert.equal(/SUPABASE_URL/.test(source), false);
 });
