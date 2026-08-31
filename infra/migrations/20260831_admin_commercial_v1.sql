@@ -37,25 +37,26 @@ alter table public.planning_sessions
   add column if not exists admin_commercial_updated_at timestamptz,
   add column if not exists admin_commercial_updated_by text;
 
--- Brigadeiro no tacho nasce como catálogo administrável. O total recomendado
--- permanece 80 g por adulto equivalente; a opção meio a meio representa
--- 40 g de chocolate + 40 g de Ninho na mesma porção comercial de 80 g.
+-- Brigadeiro no tacho: 80 g por convidado real, R$ 12 por porção.
+-- Meio a meio = 40 g chocolate + 40 g Ninho na mesma porção de 80 g.
+-- A capacidade por hora ainda não foi medida; permanece NULL para não inventar
+-- um parâmetro que depois será usado pelo futuro gate de peak capacity.
 insert into public.product_catalog_overrides (
   product_id, product_data, active, revision, updated_at, updated_by
 ) values
 (
   'brigadeiro-tacho-chocolate',
-  '{"id":"brigadeiro-tacho-chocolate","name":"Brigadeiro no tacho - Chocolate","description":"Porção de 80 g por pessoa","commercialCategory":"Brigadeiro no tacho","operationalGroup":"tacho","productionPerHour":120,"suggestedUnitsPerEquivalentGuest":1,"lotSize":1,"unitPrice":12,"priceUnit":"portion80g","portionGrams":80,"active":true,"consignment":false,"countsAsMainCart":true,"catalogSchemaVersion":1}'::jsonb,
+  '{"id":"brigadeiro-tacho-chocolate","name":"Brigadeiro no tacho - Chocolate","description":"Porção de 80 g por pessoa","commercialCategory":"Brigadeiro no tacho","operationalGroup":"tacho","productionPerHour":null,"suggestedUnitsPerEquivalentGuest":1,"lotSize":1,"unitPrice":12,"priceUnit":"portion80g","portionGrams":80,"active":true,"consignment":false,"countsAsMainCart":true,"catalogSchemaVersion":1}'::jsonb,
   true, 1, now(), 'migration:20260831'
 ),
 (
   'brigadeiro-tacho-ninho',
-  '{"id":"brigadeiro-tacho-ninho","name":"Brigadeiro no tacho - Leite Ninho","description":"Porção de 80 g por pessoa","commercialCategory":"Brigadeiro no tacho","operationalGroup":"tacho","productionPerHour":120,"suggestedUnitsPerEquivalentGuest":1,"lotSize":1,"unitPrice":12,"priceUnit":"portion80g","portionGrams":80,"active":true,"consignment":false,"countsAsMainCart":true,"catalogSchemaVersion":1}'::jsonb,
+  '{"id":"brigadeiro-tacho-ninho","name":"Brigadeiro no tacho - Leite Ninho","description":"Porção de 80 g por pessoa","commercialCategory":"Brigadeiro no tacho","operationalGroup":"tacho","productionPerHour":null,"suggestedUnitsPerEquivalentGuest":1,"lotSize":1,"unitPrice":12,"priceUnit":"portion80g","portionGrams":80,"active":true,"consignment":false,"countsAsMainCart":true,"catalogSchemaVersion":1}'::jsonb,
   true, 1, now(), 'migration:20260831'
 ),
 (
   'brigadeiro-tacho-meio-a-meio',
-  '{"id":"brigadeiro-tacho-meio-a-meio","name":"Brigadeiro no tacho - Meio a meio","description":"40 g chocolate + 40 g Leite Ninho por pessoa","commercialCategory":"Brigadeiro no tacho","operationalGroup":"tacho","productionPerHour":120,"suggestedUnitsPerEquivalentGuest":1,"lotSize":1,"unitPrice":12,"priceUnit":"portion80g","portionGrams":80,"active":true,"consignment":false,"countsAsMainCart":true,"catalogSchemaVersion":1}'::jsonb,
+  '{"id":"brigadeiro-tacho-meio-a-meio","name":"Brigadeiro no tacho - Meio a meio","description":"40 g chocolate + 40 g Leite Ninho por pessoa","commercialCategory":"Brigadeiro no tacho","operationalGroup":"tacho","productionPerHour":null,"suggestedUnitsPerEquivalentGuest":1,"lotSize":1,"unitPrice":12,"priceUnit":"portion80g","portionGrams":80,"active":true,"consignment":false,"countsAsMainCart":true,"catalogSchemaVersion":1}'::jsonb,
   true, 1, now(), 'migration:20260831'
 )
 on conflict (product_id) do nothing;
