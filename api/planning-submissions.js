@@ -6,10 +6,12 @@ import {
   calculateWaiters,
 } from "../src/planner/planning-book/engine/planningRules.js";
 import { R4_PRODUCTION_VERSIONS } from "../src/planner/planning-book/engine/r4ProductionRecommendation.js";
+import { productCatalogById } from "../src/planner/planning-book/engine/productCatalog.js";
+import { createProductCatalogStore } from "./_lib/product-catalog-store.js";
 
 const MAX_BODY_BYTES = 150_000;
 const MAX_ITEM_QUANTITY = 10_000;
-const PRODUCT_BY_ID = new Map(Object.values(PRODUCTS).map((product) => [product.id, product]));
+const TACHO_CATEGORY = "Brigadeiro no tacho";
 
 function htmlEscape(value) {
   return String(value ?? "")
@@ -52,8 +54,9 @@ function buildEmail(snapshot) {
       </tr>`)
     .join("");
 
+  const snapshotById = new Map((snapshot.items || []).map((item) => [String(item.id), item]));
   const changeRows = (snapshot.changesFromRecommendation || []).map((change) => {
-    const product = PRODUCT_BY_ID.get(change.productId);
+    const product = snapshotById.get(String(change.productId));
     const label = product?.name || change.productId;
     return `<li><strong>${htmlEscape(change.type)}</strong> · ${htmlEscape(label)} · ${htmlEscape(change.before)} → ${htmlEscape(change.after)}</li>`;
   }).join("");
@@ -77,8 +80,7 @@ function buildEmail(snapshot) {
     <h2>Comparação com a recomendação original</h2>
     <p>${(snapshot.changesFromRecommendation || []).length} alteração(ões) comercialmente relevante(s) entre a sugestão inicial e a proposta final.</p>
     ${changeRows ? `<ul>${changeRows}</ul>` : "<p>Nenhuma alteração de item/quantidade detectada.</p>"}
-    <p style="font-size:12px;color:#806b61">Nesta fase, a recomendação original ainda é capturada no navegador. A próxima fundação moverá esse histórico para PlanningSession server-side.</p>
-    <p style="font-size:12px;color:#806b61;margin-top:18px">Os valores desta via foram recalculados no servidor usando catálogo e regras comerciais confiáveis. O frontend não é autoridade do preço oficial.</p>
+    <p style="font-size:12px;color:#806b61">Os valores desta via foram recalculados no servidor usando catálogo e regras comerciais confiáveis. O frontend não é autoridade do preço oficial.</p>
   </div>`;
 }
 
@@ -95,7 +97,57 @@ export function normalizeEventDate(value, now = new Date()) {
   return value >= businessToday ? value : null;
 }
 
-export function rebuildAuthoritativeSnapshot(snapshot) {
+function calculateTachoAwareCarts({ items, serviceHours }) {
+  const tachoItems = items.filter((item) => item.commercialCategory === TACHO_CATEGORY);
+  const baseItems = items.filter((item) => item.commercialCategory !== TACHO_CATEGORY);
+  const base = calculateCarts({ items: baseItems, serviceHours });
+  if (tachoItems.length === 0) return base;
+  if (tachoItems.length > 1) throw new Error("commercial_tacho_single_option_required");
+
+  const hasBeverages = baseItems.some(
+    (item) => item.quantity > 0 && (item.operationalGroup === "beverages" || item.consignment),
+  );
+  if (hasBeverages) {
+    return {
+      ...base,
+      groups: (base.groups || []).map((group) => (
+        group.operationalGroup === "beverages"
+          ? { ...group, sharedOperationalGroups: ["beverages", "tacho"] }
+          : group
+      )),
+      tachoCartRule: "shared-with-beverages",
+    };
+  }
+
+  const maximumAvailable = Number(base.maximumAvailable || 3);
+  if (Number(base.totalCarts || 0) >= maximumAvailable) {
+    throw new Error("commercial_tacho_cart_capacity_exceeded");
+  }
+  const totalCarts = Number(base.totalCarts || 0) + 1;
+  return {
+    ...base,
+    totalCarts,
+    groups: [
+      ...(base.groups || []),
+      {
+        operationalGroup: "tacho",
+        items: tachoItems,
+        totalLoadInHours: 0,
+        cartsRequired: 1,
+        capacityUsage: 0,
+        withinPlannedCapacity: true,
+      },
+    ],
+    reachedMaximum: totalCarts === maximumAvailable,
+    tachoCartRule: "exclusive-without-beverages",
+  };
+}
+
+export function rebuildAuthoritativeSnapshot(
+  snapshot,
+  { productCatalog = Object.values(PRODUCTS) } = {},
+) {
+  const productById = productCatalogById(productCatalog);
   const adults = Math.max(0, Number(snapshot.adults) || 0);
   const olderChildren = Math.max(0, Number(snapshot.olderChildren) || 0);
   const children = Math.max(0, Number(snapshot.children) || 0);
@@ -103,16 +155,24 @@ export function rebuildAuthoritativeSnapshot(snapshot) {
   const equivalentGuests = adults + olderChildren + children * 0.35;
   const duration = Math.max(4, Number(snapshot.duration) || 4);
 
+  const seen = new Set();
   const items = (snapshot.items || []).map((requestedItem) => {
-    const product = PRODUCT_BY_ID.get(requestedItem.id);
-    if (!product?.active) throw new Error(`unknown_product:${requestedItem.id}`);
+    const id = String(requestedItem.id || "");
+    if (!id || seen.has(id)) throw new Error("commercial_duplicate_or_missing_product");
+    seen.add(id);
+    const product = productById.get(id);
+    if (!product) throw new Error(`unknown_product:${id}`);
     const quantity = Number(requestedItem.quantity);
     if (!Number.isFinite(quantity) || quantity <= 0 || quantity > MAX_ITEM_QUANTITY) {
-      throw new Error(`invalid_quantity:${requestedItem.id}`);
+      throw new Error(`invalid_quantity:${id}`);
     }
     const lotSize = Number(product.lotSize) || 1;
     if (Math.abs(quantity / lotSize - Math.round(quantity / lotSize)) > Number.EPSILON) {
-      throw new Error(`invalid_lot:${requestedItem.id}`);
+      throw new Error(`invalid_lot:${id}`);
+    }
+    if (product.commercialCategory === TACHO_CATEGORY
+        && (Number(product.portionGrams) !== 80 || String(product.priceUnit) !== "portion80g")) {
+      throw new Error("commercial_tacho_portion_contract_invalid");
     }
     return {
       ...product,
@@ -121,7 +181,7 @@ export function rebuildAuthoritativeSnapshot(snapshot) {
     };
   });
 
-  const carts = calculateCarts({ items, serviceHours: duration, equivalentGuests });
+  const carts = calculateTachoAwareCarts({ items, serviceHours: duration });
   const waiters = calculateWaiters({ realGuests, includeWaiters: Number(snapshot.waiters) > 0 });
   const disposables = calculateDisposables({ equivalentGuests, includeDisposables: Boolean(snapshot.includeDisposables) });
   const investment = calculateInvestment({ items, totalCarts: carts.totalCarts, serviceHours: duration, waiters, disposables });
@@ -134,7 +194,7 @@ export function rebuildAuthoritativeSnapshot(snapshot) {
 
   return {
     ...snapshot,
-    schemaVersion: 3,
+    schemaVersion: Math.max(4, Number(snapshot.schemaVersion) || 0),
     serverValidatedAt: new Date().toISOString(),
     versions: { ...R4_PRODUCTION_VERSIONS },
     adults,
@@ -155,12 +215,16 @@ export function rebuildAuthoritativeSnapshot(snapshot) {
       operationalGroup: item.operationalGroup,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
+      lotSize: item.lotSize,
+      productionPerHour: item.productionPerHour,
       priceUnit: item.priceUnit || "unit",
+      portionGrams: item.portionGrams ?? null,
       consignment: Boolean(item.consignment),
       estimatedValue: item.estimatedValue,
     })),
     commercialLedger: investment.ledger,
     commercialReconciliation: investment.reconciliation,
+    operationalCarts: carts,
   };
 }
 
@@ -183,9 +247,18 @@ export default async function handler(request, response) {
     return response.status(400).json({ error: "invalid_snapshot" });
   }
 
+  let productCatalog;
+  try {
+    const catalogStore = createProductCatalogStore();
+    productCatalog = await catalogStore.listCatalog({ includeInactive: true });
+  } catch (error) {
+    console.error("proposal_product_catalog_failed", error?.message || error);
+    return response.status(503).json({ error: "product_catalog_unavailable" });
+  }
+
   let snapshot;
   try {
-    snapshot = rebuildAuthoritativeSnapshot(submitted);
+    snapshot = rebuildAuthoritativeSnapshot(submitted, { productCatalog });
   } catch (error) {
     console.error("proposal_commercial_validation_failed", error?.message || error);
     return response.status(409).json({ error: "commercial_validation_failed" });
