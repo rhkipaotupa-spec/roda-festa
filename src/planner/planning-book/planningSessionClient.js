@@ -1,3 +1,6 @@
+import { PRODUCTS } from "./engine/planningRules.js";
+import { productCatalogFingerprint } from "./engine/productCatalog.js";
+
 function createClientRequestId() {
   if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
   const random = Math.random().toString(36).slice(2);
@@ -30,7 +33,6 @@ async function postPlanningSession(payload, fetchImpl = globalThis.fetch) {
   return { available: true, ...body };
 }
 
-
 function comparableRecommendation(snapshot) {
   return {
     versions: snapshot?.versions || null,
@@ -54,7 +56,8 @@ export function isPlanningSessionPersistenceEnabled(env = import.meta.env) {
 }
 
 export async function startPlanningSession(input, { fetchImpl = globalThis.fetch, clientRequestId = createClientRequestId() } = {}) {
-  return postPlanningSession({ action: "start", clientRequestId, ...input }, fetchImpl);
+  const catalogFingerprint = productCatalogFingerprint(Object.values(PRODUCTS));
+  return postPlanningSession({ action: "start", clientRequestId, catalogFingerprint, ...input }, fetchImpl);
 }
 
 export async function finalizePlanningSession({ sessionId, expectedVersion, finalSnapshot }, { fetchImpl = globalThis.fetch } = {}) {
@@ -64,7 +67,6 @@ export async function finalizePlanningSession({ sessionId, expectedVersion, fina
 export async function recordPlanningChanges({ sessionId, expectedVersion, changes }, { fetchImpl = globalThis.fetch } = {}) {
   return postPlanningSession({ action: "changes", sessionId, expectedVersion, changes }, fetchImpl);
 }
-
 
 export async function readPlanningJourney(sessionId, { fetchImpl = globalThis.fetch } = {}) {
   return postPlanningSession({ action: "read", sessionId }, fetchImpl);
