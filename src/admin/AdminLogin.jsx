@@ -25,8 +25,8 @@ function AuthenticatedAdminView({
   const sectionByView = {
     workspace: "quotes",
     products: "products",
-    "quote-edit-index": "orders",
-    "quote-edit": "orders",
+    "quote-edit-index": "quotes",
+    "quote-edit": "quotes",
   };
 
   return (

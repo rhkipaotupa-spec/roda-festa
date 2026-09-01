@@ -64,7 +64,7 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
       } catch {
         if (cancelled) return;
         setStatus("error");
-        setMessage("Não foi possível abrir este pedido para edição.");
+        setMessage("Não foi possível abrir este orçamento para edição.");
       }
     }
     load();
@@ -125,18 +125,18 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
       }
       setSavedSnapshot(payload.effectiveSnapshot);
       setItems(payload.effectiveSnapshot.items.map((item) => ({ id: item.id, quantity: item.quantity })));
-      setMessage(`Pedido atualizado com segurança. Revisão administrativa ${payload.revision}.`);
+      setMessage(`Orçamento atualizado com segurança. Revisão administrativa ${payload.revision}.`);
     } catch (error) {
       const reason = String(error?.message || "");
       setMessage(reason === "quote_changed_concurrently"
-        ? "Este pedido mudou em outra tela. Reabra antes de editar novamente."
+        ? "Este orçamento mudou em outra tela. Reabra antes de editar novamente."
         : "Não foi possível salvar. Verifique lotes e quantidades dos produtos.");
     } finally {
       setSaving(false);
     }
   }
 
-  if (status === "loading") return <section className={embedded ? "rf-commercial-page rf-commercial-page--embedded" : "rf-commercial-page"}><p>Carregando pedido...</p></section>;
+  if (status === "loading") return <section className={embedded ? "rf-commercial-page rf-commercial-page--embedded" : "rf-commercial-page"}><p>Carregando orçamento...</p></section>;
   if (status === "error") return <section className={embedded ? "rf-commercial-page rf-commercial-page--embedded" : "rf-commercial-page"}>{!embedded ? <a href="/admin">Voltar ao Admin</a> : null}<p>{message}</p></section>;
   if (status === "requires-final") return <section className={embedded ? "rf-commercial-page rf-commercial-page--embedded" : "rf-commercial-page"}>{!embedded ? <a href="/admin">Voltar ao Admin</a> : null}<h1>Este orçamento ainda não tem proposta final.</h1><p>A edição administrativa comercial fica disponível depois da primeira finalização.</p></section>;
 
@@ -145,11 +145,11 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
       <header className="rf-commercial-header">
         <div>
           <span>Roda Festa · Revisão administrativa</span>
-          <h1>Editar pedido</h1>
+          <h1>Editar orçamento</h1>
           <p>{quote?.client?.name || "Cliente"} · o evento, convidados e data permanecem congelados; esta tela altera composição comercial e serviços.</p>
         </div>
         <div className="rf-commercial-header__actions">
-          <a href={embedded ? "/admin/editar-pedido" : "/admin"}>{embedded ? "← Voltar para pedidos" : "Voltar ao Admin"}</a>
+          <a href="/admin">← Voltar para orçamentos</a>
         </div>
       </header>
 
@@ -187,7 +187,7 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
         </section>
 
         <section className="rf-commercial-editor">
-          <div className="rf-commercial-editor__heading"><span>Serviços e conferência</span><h2>Revisão do pedido</h2></div>
+          <div className="rf-commercial-editor__heading"><span>Serviços e conferência</span><h2>Revisão do orçamento</h2></div>
           <label className="rf-commercial-check"><input type="checkbox" checked={includeWaiters} onChange={(event) => setIncludeWaiters(event.target.checked)} /> Incluir garçons</label>
           <label className="rf-commercial-check"><input type="checkbox" checked={includeDisposables} onChange={(event) => setIncludeDisposables(event.target.checked)} /> Incluir descartáveis</label>
 
@@ -197,7 +197,7 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
             {savedSnapshot ? <><small>Último total contratado: {money(savedSnapshot.investmentTotal)}</small><small>Consignação estimada: {money(savedSnapshot.consignmentTotal)}</small><small>Carrinhos: {savedSnapshot.totalCarts}</small></> : null}
           </div>
 
-          <button type="button" className="rf-commercial-save" disabled={saving || items.length === 0} onClick={saveRevision}>{saving ? "Salvando revisão..." : "Salvar revisão do pedido"}</button>
+          <button type="button" className="rf-commercial-save" disabled={saving || items.length === 0} onClick={saveRevision}>{saving ? "Salvando revisão..." : "Salvar revisão do orçamento"}</button>
           <p className="rf-commercial-footnote">Preços já contratados são preservados para itens existentes. Produtos adicionados nesta revisão usam o preço atual do catálogo.</p>
         </section>
       </div>
