@@ -80,6 +80,8 @@ describe("backup/recovery safety boundary", () => {
     assert.match(text, /RESTORE_BACKUP_SHA256_MISMATCH/);
     assert.match(text, /pg_restore/);
     assert.match(text, /--list/);
+    assert.match(text, /--clean/);
+    assert.match(text, /--if-exists/);
     assert.match(text, /BACKUP_AND_RESTORE_RECOVERY_PROOF_OK/);
     assert.ok(integrityIndex >= 0 && dropIndex > integrityIndex);
   });
