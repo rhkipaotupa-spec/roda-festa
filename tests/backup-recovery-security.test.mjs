@@ -15,35 +15,39 @@ function source(path) {
 }
 
 describe("backup/recovery safety boundary", () => {
-  test("parser accepts postgres URL without exposing raw URL as a return field", () => {
+  test("parser accepts password separated from URL and keeps raw URL out of return fields", () => {
     const parsed = parsePostgresConnection(
-      "postgresql://user:secret@db.example.test:5432/app?sslmode=require",
+      "postgresql://user@db.example.test:5432/app?sslmode=require",
       "TEST_URL",
+      { password: "s3cr@t:/?#%" },
     );
 
     assert.equal(parsed.hostname, "db.example.test");
     assert.equal(parsed.database, "app");
-    assert.equal(parsed.childEnv.PGPASSWORD, "secret");
+    assert.equal(parsed.childEnv.PGPASSWORD, "s3cr@t:/?#%");
     assert.equal(parsed.childEnv.PGSSLMODE, "require");
     assert.equal(Object.hasOwn(parsed, "url"), false);
   });
 
   test("restore target is fail-closed to the reserved local database", () => {
     const local = parsePostgresConnection(
-      "postgresql://postgres:local@127.0.0.1:5432/roda_festa_restore_test",
+      "postgresql://postgres@127.0.0.1:5432/roda_festa_restore_test",
       "RESTORE",
+      { password: "local" },
     );
     assert.doesNotThrow(() => assertLocalRestoreTarget(local));
 
     const remote = parsePostgresConnection(
-      "postgresql://postgres:x@db.example.test:5432/roda_festa_restore_test",
+      "postgresql://postgres@db.example.test:5432/roda_festa_restore_test",
       "RESTORE",
+      { password: "x" },
     );
     assert.throws(() => assertLocalRestoreTarget(remote), /RESTORE_TARGET_MUST_BE_LOCALHOST/);
 
     const wrongDatabase = parsePostgresConnection(
-      "postgresql://postgres:x@127.0.0.1:5432/postgres",
+      "postgresql://postgres@127.0.0.1:5432/postgres",
       "RESTORE",
+      { password: "x" },
     );
     assert.throws(() => assertLocalRestoreTarget(wrongDatabase), /RESTORE_TARGET_DATABASE_NAME_INVALID/);
   });
@@ -52,6 +56,7 @@ describe("backup/recovery safety boundary", () => {
     const text = source("scripts/db/create-production-backup.mjs");
     assert.match(text, /ALLOW_RODA_FESTA_DB_BACKUP/);
     assert.match(text, /CREATE_READ_ONLY_BACKUP/);
+    assert.match(text, /RODA_FESTA_DATABASE_PASSWORD/);
     assert.match(text, /--format=custom/);
     assert.match(text, /createHash\("sha256"\)/);
     assert.match(text, /sourceCounts/);
@@ -59,6 +64,7 @@ describe("backup/recovery safety boundary", () => {
     assert.match(text, /product_catalog_overrides/);
     assert.match(text, /product_catalog_history/);
     assert.doesNotMatch(text, /console\.log\([^\n]*RODA_FESTA_DATABASE_URL/);
+    assert.doesNotMatch(text, /console\.log\([^\n]*RODA_FESTA_DATABASE_PASSWORD/);
     assert.doesNotMatch(text, /console\.log\([^\n]*PGPASSWORD/);
   });
 
@@ -69,6 +75,7 @@ describe("backup/recovery safety boundary", () => {
 
     assert.match(text, /ALLOW_RODA_FESTA_RESTORE_TEST/);
     assert.match(text, /ERASE_LOCAL_RESTORE_TARGET/);
+    assert.match(text, /RODA_FESTA_RESTORE_PASSWORD/);
     assert.match(text, /assertLocalRestoreTarget\(target\)/);
     assert.match(text, /RESTORE_BACKUP_SHA256_MISMATCH/);
     assert.match(text, /pg_restore/);
