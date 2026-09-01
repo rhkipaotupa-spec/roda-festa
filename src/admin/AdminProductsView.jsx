@@ -38,6 +38,50 @@ function currency(value) {
   return Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+function formatCatalogNumber(value) {
+  return Number(value || 0).toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+}
+
+function categoryMetrics(items) {
+  const allItems = Array.isArray(items) ? items : [];
+  const activeItems = allItems.filter((item) => item.active);
+  const referenceItems = activeItems.length > 0 ? activeItems : allItems;
+  const prices = referenceItems
+    .map((item) => Number(item.unitPrice))
+    .filter((value) => Number.isFinite(value));
+
+  let priceLabel = "Preço não informado";
+  if (prices.length > 0) {
+    const minimum = Math.min(...prices);
+    const maximum = Math.max(...prices);
+    priceLabel = Math.abs(maximum - minimum) < 0.005
+      ? `Preço ${currency(minimum)}`
+      : `Preço ${currency(minimum)} – ${currency(maximum)}`;
+  }
+
+  const lotFrequency = new Map();
+  referenceItems.forEach((item) => {
+    const lot = Number(item.lotSize);
+    if (!Number.isFinite(lot)) return;
+    const key = String(lot);
+    lotFrequency.set(key, (lotFrequency.get(key) || 0) + 1);
+  });
+  const rankedLots = [...lotFrequency.entries()].sort((a, b) => b[1] - a[1]);
+  const hasUniquePredominantLot = rankedLots.length === 1
+    || (rankedLots.length > 1 && rankedLots[0][1] > rankedLots[1][1]);
+  const lotLabel = rankedLots.length === 0
+    ? "Lote não informado"
+    : hasUniquePredominantLot
+      ? `Lote ${formatCatalogNumber(rankedLots[0][0])}`
+      : "Lotes variados";
+
+  const activeLabel = activeItems.length === allItems.length
+    ? `${activeItems.length} ativo${activeItems.length === 1 ? "" : "s"}`
+    : `${activeItems.length}/${allItems.length} ativos`;
+
+  return { activeLabel, priceLabel, lotLabel };
+}
+
 function emptyDraft() {
   const defaults = CATEGORY_DEFAULTS.Petiscos;
   return {
@@ -110,6 +154,7 @@ export default function AdminProductsView({ embedded = false } = {}) {
   const [bulkCategory, setBulkCategory] = useState("");
   const [bulkDraft, setBulkDraft] = useState(() => bulkDraftFromProducts([]));
   const [bulkSaving, setBulkSaving] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState([]);
 
   async function loadProducts() {
     setStatus("loading");
@@ -141,6 +186,8 @@ export default function AdminProductsView({ embedded = false } = {}) {
     return () => { cancelled = true; };
   }, []);
 
+  const searchActive = Boolean(search.trim());
+
   const filtered = useMemo(() => {
     const term = search.trim().toLocaleLowerCase("pt-BR");
     if (!term) return products;
@@ -152,12 +199,40 @@ export default function AdminProductsView({ embedded = false } = {}) {
   }, [products, search]);
 
   const groupedProducts = useMemo(() => CATEGORIES
-    .map((category) => ({
-      category,
-      products: filtered.filter((product) => product.commercialCategory === category),
-      total: products.filter((product) => product.commercialCategory === category).length,
-    }))
+    .map((category) => {
+      const categoryProducts = products.filter((product) => product.commercialCategory === category);
+      return {
+        category,
+        products: filtered.filter((product) => product.commercialCategory === category),
+        total: categoryProducts.length,
+        metrics: categoryMetrics(categoryProducts),
+      };
+    })
     .filter((group) => group.products.length > 0), [filtered, products]);
+
+  const allVisibleExpanded = groupedProducts.length > 0
+    && groupedProducts.every((group) => expandedCategories.includes(group.category));
+
+  function categoryIsExpanded(category) {
+    return searchActive || expandedCategories.includes(category);
+  }
+
+  function toggleCategory(category) {
+    if (searchActive) return;
+    setExpandedCategories((current) => current.includes(category)
+      ? current.filter((item) => item !== category)
+      : [...current, category]);
+  }
+
+  function expandAllCategories() {
+    if (searchActive) return;
+    setExpandedCategories(groupedProducts.map((group) => group.category));
+  }
+
+  function collapseAllCategories() {
+    if (searchActive) return;
+    setExpandedCategories([]);
+  }
 
   function closeEditors() {
     setEditorOpen(false);
@@ -348,6 +423,23 @@ export default function AdminProductsView({ embedded = false } = {}) {
             <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Nome, categoria ou código" />
           </label>
 
+          {status === "ready" && groupedProducts.length > 0 ? (
+            <div className="rf-product-categories__toolbar">
+              <div>
+                <strong>Visão por categoria</strong>
+                <span>
+                  {searchActive
+                    ? "A busca abre automaticamente as categorias com resultados."
+                    : `${groupedProducts.length} categoria${groupedProducts.length === 1 ? "" : "s"} · abra somente o que quiser conferir.`}
+                </span>
+              </div>
+              <div className="rf-product-categories__toolbar-actions">
+                <button type="button" onClick={expandAllCategories} disabled={searchActive || allVisibleExpanded}>Expandir todas</button>
+                <button type="button" onClick={collapseAllCategories} disabled={searchActive || expandedCategories.length === 0}>Recolher todas</button>
+              </div>
+            </div>
+          ) : null}
+
           {status === "loading" ? <p>Carregando catálogo...</p> : null}
           {status === "error" ? <p>Catálogo indisponível.</p> : null}
           {status === "ready" && groupedProducts.length === 0 ? (
@@ -355,46 +447,68 @@ export default function AdminProductsView({ embedded = false } = {}) {
           ) : null}
           {status === "ready" && groupedProducts.length > 0 ? (
             <div className="rf-product-categories">
-              {groupedProducts.map((group) => (
-                <section className="rf-product-category" key={group.category}>
-                  <header className="rf-product-category__header">
-                    <div>
-                      <span>Categoria</span>
-                      <h2>{group.category}</h2>
-                      <small>
-                        {search.trim() && group.products.length !== group.total
-                          ? `${group.products.length} de ${group.total} produtos nesta busca`
-                          : `${group.total} produto${group.total === 1 ? "" : "s"}`}
-                      </small>
-                    </div>
-                    <button type="button" className="rf-product-category__edit" onClick={() => editCategory(group.category)}>
-                      Editar categoria
-                    </button>
-                  </header>
+              {groupedProducts.map((group) => {
+                const expanded = categoryIsExpanded(group.category);
+                return (
+                  <section className={`rf-product-category ${expanded ? "is-expanded" : ""}`} key={group.category}>
+                    <div className="rf-product-category__header">
+                      <button
+                        type="button"
+                        className="rf-product-category__toggle"
+                        aria-expanded={expanded}
+                        aria-controls={`rf-product-category-${slugify(group.category)}`}
+                        onClick={() => toggleCategory(group.category)}
+                        disabled={searchActive}
+                      >
+                        <span className="rf-product-category__chevron" aria-hidden="true">›</span>
+                        <span className="rf-product-category__identity">
+                          <span className="rf-product-category__eyebrow">Categoria</span>
+                          <strong>{group.category}</strong>
+                          <small>
+                            {searchActive && group.products.length !== group.total
+                              ? `${group.products.length} de ${group.total} produtos nesta busca`
+                              : `${group.total} produto${group.total === 1 ? "" : "s"}`}
+                          </small>
+                        </span>
+                      </button>
 
-                  <div className="rf-product-category__items">
-                    {group.products.map((product) => (
-                      <article key={product.id} className={`rf-product-row ${product.active ? "" : "is-inactive"}`}>
-                        <div>
-                          <span>{product.active ? "Ativo" : "Inativo"}</span>
-                          <strong>{product.name}</strong>
-                          <small>{product.id}</small>
-                        </div>
-                        <div className="rf-product-row__numbers">
-                          <span>{currency(product.unitPrice)}</span>
-                          <small>Lote {product.lotSize} · capacidade {product.productionPerHour == null ? "não medida" : `${product.productionPerHour}/h`}</small>
-                        </div>
-                        <div className="rf-product-row__actions">
-                          <button type="button" onClick={() => editProduct(product)}>Editar</button>
-                          <button type="button" className={product.active ? "is-danger" : ""} onClick={() => toggleActive(product)}>
-                            {product.active ? "Desativar" : "Reativar"}
-                          </button>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </section>
-              ))}
+                      <div className="rf-product-category__indicators" aria-label={`Resumo de ${group.category}`}>
+                        <span className="rf-product-category__indicator">{group.metrics.activeLabel}</span>
+                        <span className="rf-product-category__indicator">{group.metrics.priceLabel}</span>
+                        <span className="rf-product-category__indicator">{group.metrics.lotLabel}</span>
+                      </div>
+
+                      <button type="button" className="rf-product-category__edit" onClick={() => editCategory(group.category)}>
+                        Editar categoria
+                      </button>
+                    </div>
+
+                    {expanded ? (
+                      <div className="rf-product-category__items" id={`rf-product-category-${slugify(group.category)}`}>
+                        {group.products.map((product) => (
+                          <article key={product.id} className={`rf-product-row ${product.active ? "" : "is-inactive"}`}>
+                            <div>
+                              <span>{product.active ? "Ativo" : "Inativo"}</span>
+                              <strong>{product.name}</strong>
+                              <small>{product.id}</small>
+                            </div>
+                            <div className="rf-product-row__numbers">
+                              <span>{currency(product.unitPrice)}</span>
+                              <small>Lote {product.lotSize} · capacidade {product.productionPerHour == null ? "não medida" : `${product.productionPerHour}/h`}</small>
+                            </div>
+                            <div className="rf-product-row__actions">
+                              <button type="button" onClick={() => editProduct(product)}>Editar</button>
+                              <button type="button" className={product.active ? "is-danger" : ""} onClick={() => toggleActive(product)}>
+                                {product.active ? "Desativar" : "Reativar"}
+                              </button>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    ) : null}
+                  </section>
+                );
+              })}
             </div>
           ) : null}
         </section>
