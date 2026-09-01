@@ -56,10 +56,11 @@ const MENU_CATEGORIES = [
   { id: "tortas", title: "Tortas", commercialCategory: "Tortas", subtitle: "Porções individuais de 150 g." },
   { id: "doces", title: "Doces", commercialCategory: "Doces", subtitle: "Doces entregues prontos." },
   { id: "bolos", title: "Bolos", commercialCategory: "Bolos", subtitle: "Porções individuais de 120 g." },
+  { id: "tacho", title: "Brigadeiro no tacho", commercialCategory: "Brigadeiro no tacho", subtitle: "80 g por pessoa · chocolate, Leite Ninho ou meio a meio." },
   { id: "bebidas", title: "Bebidas", commercialCategory: "Bebidas", subtitle: "Em consignação: cobradas apenas conforme o consumo." },
 ];
 
-const CATEGORY_ORDER = ["Petiscos", "Mini lanches", "Tortas", "Doces", "Bolos", "Bebidas"];
+const CATEGORY_ORDER = ["Petiscos", "Mini lanches", "Tortas", "Doces", "Bolos", "Brigadeiro no tacho", "Bebidas"];
 const PRODUCT_CATALOG = Object.values(PRODUCTS);
 
 const COMMERCIAL_TERMS = {
@@ -128,6 +129,7 @@ function createPlanningCode() {
 function getPriceLabel(product) {
   if (product.priceUnit === "portion150g") return `${formatCurrency(product.unitPrice)} / 150 g`;
   if (product.priceUnit === "portion120g") return `${formatCurrency(product.unitPrice)} / 120 g`;
+  if (product.priceUnit === "portion80g") return `${formatCurrency(product.unitPrice)} / 80 g`;
   if (product.priceUnit === "kg") return `${formatCurrency(product.unitPrice)} / kg`;
   return `${formatCurrency(product.unitPrice)} / un.`;
 }
@@ -136,6 +138,7 @@ function getQuantityLabel(item) {
   const quantity = Number(item.quantity) || 0;
   if (item.priceUnit === "portion150g") return `${quantity} ${quantity === 1 ? "porção" : "porções"} de 150 g`;
   if (item.priceUnit === "portion120g") return `${quantity} ${quantity === 1 ? "porção" : "porções"} de 120 g`;
+  if (item.priceUnit === "portion80g") return `${quantity} ${quantity === 1 ? "porção" : "porções"} de 80 g`;
   if (item.priceUnit === "kg") return `${quantity.toLocaleString("pt-BR", { maximumFractionDigits: 2 })} kg`;
   return `${quantity.toLocaleString("pt-BR")} un.`;
 }
@@ -482,9 +485,15 @@ export default function PlanningBook() {
   }
 
   function toggleProduct(productId) {
-    setSelectedProductIds((current) => current.includes(productId)
-      ? current.filter((id) => id !== productId)
-      : [...current, productId]);
+    const product = PRODUCT_CATALOG.find((item) => item.id === productId);
+    setSelectedProductIds((current) => {
+      if (current.includes(productId)) return current.filter((id) => id !== productId);
+      if (product?.commercialCategory !== "Brigadeiro no tacho") return [...current, productId];
+      const withoutOtherTacho = current.filter((id) =>
+        PRODUCT_CATALOG.find((item) => item.id === id)?.commercialCategory !== "Brigadeiro no tacho"
+      );
+      return [...withoutOtherTacho, productId];
+    });
   }
 
   function generateSuggestionAndContinue() {
@@ -570,8 +579,17 @@ export default function PlanningBook() {
 
   function addProductToSuggestion(product) {
     if (!suggestion || suggestion.items.some((item) => item.id === product.id)) return;
+    const existingTacho = product.commercialCategory === "Brigadeiro no tacho"
+      ? suggestion.items.find((item) => item.commercialCategory === "Brigadeiro no tacho")
+      : null;
+    if (existingTacho) {
+      replaceSuggestionItem(existingTacho.id, product);
+      return;
+    }
     const lot = Number(product.lotSize) || 1;
-    const suggested = calculateSuggestedProductQuantity({ product, equivalentGuests });
+    const suggested = product.commercialCategory === "Brigadeiro no tacho"
+      ? realGuests
+      : calculateSuggestedProductQuantity({ product, equivalentGuests });
     const quantity = Math.max(lot, Number(suggested) || lot);
     const nextItem = {
       ...product,

@@ -3,14 +3,17 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const routes = fs.readFileSync("src/routes/AppRoutes.jsx", "utf8");
+const runtimePlanningBook = fs.readFileSync("src/planner/planning-book/RuntimePlanningBook.jsx", "utf8");
 const preview = fs.readFileSync("src/planner/planning-book/R4ShadowPreview.jsx", "utf8");
 const allocator = fs.readFileSync("src/planner/planning-book/engine/shadowR4SkuAllocation.js", "utf8");
 const planningBook = fs.readFileSync("src/planner/planning-book/PlanningBook.jsx", "utf8");
 
-test("R4 visual preview keeps a dedicated route without replacing PlanningBook", () => {
+test("R4 visual preview keeps a dedicated route without replacing authoritative PlanningBook", () => {
   assert.match(routes, /path="\/r4-preview"/);
   assert.match(routes, /element=\{<R4ShadowPreview\s*\/>\}/);
-  assert.match(routes, /path="\/planning-book"[\s\S]*element=\{<PlanningBook\s*\/>\}/);
+  assert.match(routes, /path="\/planning-book"[\s\S]*element=\{<RuntimePlanningBook\s*\/>\}/);
+  assert.match(runtimePlanningBook, /import\("\.\/PlanningBook\.jsx"\)/);
+  assert.match(runtimePlanningBook, /\/api\/product-catalog/);
 });
 
 test("R4 preview calls the executable shadow engine and preview-only SKU allocator", () => {

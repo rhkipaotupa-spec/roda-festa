@@ -8,6 +8,10 @@ import {
   compareRecommendationToFinal,
   createRecommendationSnapshot,
 } from "../src/planner/planning-book/engine/planningHistory.js";
+import {
+  productCatalogById,
+  productCatalogFingerprint,
+} from "../src/planner/planning-book/engine/productCatalog.js";
 import { rebuildAuthoritativeSnapshot } from "./planning-submissions.js";
 import {
   buildPlanningSessionCookie,
@@ -17,11 +21,11 @@ import {
   isTrustedMutationRequest,
 } from "./_lib/planning-session-security.js";
 import { createPlanningSessionRuntime } from "./_lib/planning-session-runtime.js";
+import { createProductCatalogStore } from "./_lib/product-catalog-store.js";
 
 const MAX_BODY_BYTES = 120_000;
 const MAX_PRODUCTS = 100;
 const EVENT_TYPES = new Set(["infantil", "casamento", "cha-bebe", "corporativo"]);
-const PRODUCT_BY_ID = new Map(Object.values(PRODUCTS).map((product) => [product.id, product]));
 const PLANNING_CHANGE_TYPES = new Set([
   "ITEM_QUANTITY_CHANGED", "ITEM_ADDED", "ITEM_REMOVED", "ITEM_REPLACED",
   "CATEGORY_ADDED", "CATEGORY_REMOVED", "SERVICE_ADDED", "SERVICE_REMOVED",
@@ -51,7 +55,8 @@ function normalizeNonNegativeInteger(value, max = 1000) {
   return number;
 }
 
-function normalizeStartInput(body) {
+function normalizeStartInput(body, productCatalog = Object.values(PRODUCTS)) {
+  const productById = productCatalogById(productCatalog);
   const clientRequestId = String(body.clientRequestId || "").trim();
   if (!/^[a-zA-Z0-9_-]{16,120}$/.test(clientRequestId)) throw new Error("invalid_client_request_id");
 
@@ -62,14 +67,20 @@ function normalizeStartInput(body) {
   const olderChildren = normalizeNonNegativeInteger(body.olderChildren, 500);
   const children = normalizeNonNegativeInteger(body.children, 500);
   const duration = normalizeNonNegativeInteger(body.duration, 24);
-  if ([adults, olderChildren, children, duration].some((value) => value === null) || adults + olderChildren + children <= 0 || duration < 4) {
+  if ([adults, olderChildren, children, duration].some((value) => value === null)
+      || adults + olderChildren + children <= 0
+      || duration < 4) {
     throw new Error("invalid_event_context");
   }
 
-  const selectedProductIds = Array.isArray(body.selectedProductIds) ? [...new Set(body.selectedProductIds.map(String))] : [];
-  if (selectedProductIds.length === 0 || selectedProductIds.length > MAX_PRODUCTS) throw new Error("invalid_product_selection");
+  const selectedProductIds = Array.isArray(body.selectedProductIds)
+    ? [...new Set(body.selectedProductIds.map(String))]
+    : [];
+  if (selectedProductIds.length === 0 || selectedProductIds.length > MAX_PRODUCTS) {
+    throw new Error("invalid_product_selection");
+  }
   for (const id of selectedProductIds) {
-    if (!PRODUCT_BY_ID.get(id)?.active) throw new Error(`unknown_product:${id}`);
+    if (!productById.get(id)?.active) throw new Error(`unknown_product:${id}`);
   }
 
   const clientName = String(body.clientName || "").trim().slice(0, 160);
@@ -98,8 +109,9 @@ function normalizeStartInput(body) {
   };
 }
 
-export function buildAuthoritativeRecommendation(input) {
-  const includeBeverages = input.selectedProductIds.some((id) => PRODUCT_BY_ID.get(id)?.consignment);
+export function buildAuthoritativeRecommendation(input, productCatalog = Object.values(PRODUCTS)) {
+  const productById = productCatalogById(productCatalog);
+  const includeBeverages = input.selectedProductIds.some((id) => productById.get(id)?.consignment);
   const realGuests = input.adults + input.olderChildren + input.children;
   const suggestion = generateR4ProductionSuggestion({
     adults: input.adults,
@@ -110,6 +122,7 @@ export function buildAuthoritativeRecommendation(input) {
     includeWaiters: input.includeWaiters,
     includeDisposables: input.includeDisposables,
     includeBeverages,
+    productCatalog,
   });
   const equivalentGuests = suggestion.guests.equivalentGuests;
 
@@ -130,6 +143,8 @@ export function buildAuthoritativeRecommendation(input) {
       selectedProductIds: [...input.selectedProductIds],
       includeWaiters: input.includeWaiters,
       includeDisposables: input.includeDisposables,
+      catalogFingerprint: productCatalogFingerprint(productCatalog),
+      productCatalogSnapshot: productCatalog.map((product) => ({ ...product })),
     },
     recommendationSnapshot: createRecommendationSnapshot({
       suggestion,
@@ -139,10 +154,23 @@ export function buildAuthoritativeRecommendation(input) {
   };
 }
 
-export async function startPlanningSessionCommand({ body, token, repository, idFactory = () => crypto.randomUUID() }) {
-  const input = normalizeStartInput(body || {});
+export async function startPlanningSessionCommand({
+  body,
+  token,
+  repository,
+  productCatalog = Object.values(PRODUCTS),
+  idFactory = () => crypto.randomUUID(),
+}) {
+  const input = normalizeStartInput(body || {}, productCatalog);
   if (!token) throw new Error("planning_session_token_required");
-  const authoritative = buildAuthoritativeRecommendation(input);
+
+  const serverFingerprint = productCatalogFingerprint(productCatalog);
+  const clientFingerprint = String(body?.catalogFingerprint || "").trim();
+  if (clientFingerprint && clientFingerprint !== serverFingerprint) {
+    throw new Error("planning_catalog_changed");
+  }
+
+  const authoritative = buildAuthoritativeRecommendation(input, productCatalog);
   const created = await repository.create({
     id: idFactory(),
     clientRequestId: input.clientRequestId,
@@ -163,10 +191,16 @@ export async function startPlanningSessionCommand({ body, token, repository, idF
     version: Number(created.session.version) || 1,
     created: created.created,
     recommendation: authoritative.recommendationSnapshot,
+    catalogFingerprint: serverFingerprint,
   };
 }
 
-function normalizePlanningChange(change, { now = new Date(), idFactory = () => crypto.randomUUID() } = {}) {
+function normalizePlanningChange(change, {
+  productCatalog = Object.values(PRODUCTS),
+  now = new Date(),
+  idFactory = () => crypto.randomUUID(),
+} = {}) {
+  const productById = productCatalogById(productCatalog);
   const type = String(change?.type || "");
   if (!PLANNING_CHANGE_TYPES.has(type)) throw new Error("invalid_planning_change_type");
   const normalized = { id: idFactory(), type, actor: "CLIENT", recordedAt: now.toISOString() };
@@ -176,7 +210,7 @@ function normalizePlanningChange(change, { now = new Date(), idFactory = () => c
     const fromProductId = String(change.fromProductId || "").trim();
     const toProductId = String(change.toProductId || "").trim();
     for (const id of [productId, fromProductId, toProductId].filter(Boolean)) {
-      if (!PRODUCT_BY_ID.has(id)) throw new Error(`unknown_product:${id}`);
+      if (!productById.has(id)) throw new Error(`unknown_product:${id}`);
     }
     if (type === "ITEM_REPLACED") {
       if (!fromProductId || !toProductId || fromProductId === toProductId) throw new Error("invalid_item_replacement");
@@ -188,7 +222,10 @@ function normalizePlanningChange(change, { now = new Date(), idFactory = () => c
     }
     if (change.beforeQuantity != null) normalized.beforeQuantity = normalizeNonNegativeInteger(change.beforeQuantity, 100000);
     if (change.afterQuantity != null) normalized.afterQuantity = normalizeNonNegativeInteger(change.afterQuantity, 100000);
-    if ((change.beforeQuantity != null && normalized.beforeQuantity === null) || (change.afterQuantity != null && normalized.afterQuantity === null)) throw new Error("invalid_change_quantity");
+    if ((change.beforeQuantity != null && normalized.beforeQuantity === null)
+        || (change.afterQuantity != null && normalized.afterQuantity === null)) {
+      throw new Error("invalid_change_quantity");
+    }
   }
 
   if (type.startsWith("CATEGORY_")) {
@@ -205,7 +242,14 @@ function normalizePlanningChange(change, { now = new Date(), idFactory = () => c
   return normalized;
 }
 
-export async function appendPlanningChangesCommand({ body, token, repository, now = new Date(), idFactory = () => crypto.randomUUID() }) {
+export async function appendPlanningChangesCommand({
+  body,
+  token,
+  repository,
+  productCatalog = Object.values(PRODUCTS),
+  now = new Date(),
+  idFactory = () => crypto.randomUUID(),
+}) {
   const sessionId = String(body?.sessionId || "").trim();
   const expectedVersion = Number(body?.expectedVersion);
   const rawChanges = Array.isArray(body?.changes) ? body.changes : [];
@@ -214,7 +258,14 @@ export async function appendPlanningChangesCommand({ body, token, repository, no
   const tokenHash = hashSessionToken(token);
   const owned = await repository.getOwned({ sessionId, tokenHash });
   if (!owned) throw new Error("planning_session_not_found");
-  const changes = rawChanges.map((change) => normalizePlanningChange(change, { now, idFactory }));
+  const sessionCatalog = Array.isArray(owned.input_snapshot?.productCatalogSnapshot)
+    ? owned.input_snapshot.productCatalogSnapshot
+    : productCatalog;
+  const changes = rawChanges.map((change) => normalizePlanningChange(change, {
+    productCatalog: sessionCatalog,
+    now,
+    idFactory,
+  }));
   const result = await repository.appendChanges({ sessionId, tokenHash, changes, expectedVersion });
   return { sessionId, version: Number(result.session.version), appended: result.appended, changes };
 }
@@ -229,13 +280,15 @@ export async function readPlanningJourneyCommand({ body, token, repository }) {
   });
   if (!journey) throw new Error("planning_session_not_found");
 
-  return {
-    sessionId,
-    journey,
-  };
+  return { sessionId, journey };
 }
 
-export async function finalizePlanningSessionCommand({ body, token, repository }) {
+export async function finalizePlanningSessionCommand({
+  body,
+  token,
+  repository,
+  productCatalog = Object.values(PRODUCTS),
+}) {
   const sessionId = String(body?.sessionId || "").trim();
   const expectedVersion = Number(body?.expectedVersion);
   if (!sessionId || !Number.isInteger(expectedVersion) || expectedVersion < 1 || !token) throw new Error("invalid_finalize_context");
@@ -246,7 +299,6 @@ export async function finalizePlanningSessionCommand({ body, token, repository }
   if (!owned.recommendation_snapshot) throw new Error("planning_session_recommendation_missing");
 
   const submittedFinal = { ...(body.finalSnapshot || {}) };
-  // proposal code is server-owned; never trust/reuse the browser sequence as authority.
   delete submittedFinal.code;
   if (!Array.isArray(submittedFinal.items) || !normalizeEventDate(submittedFinal.eventDate)) throw new Error("invalid_final_snapshot");
   const origin = owned.input_snapshot || {};
@@ -256,7 +308,10 @@ export async function finalizePlanningSessionCommand({ body, token, repository }
   if (owned.client_name && String(submittedFinal.clientName || "").trim() !== String(owned.client_name).trim()) throw new Error("planning_context_mismatch:clientName");
   if (owned.phone && String(submittedFinal.phone || "").trim() !== String(owned.phone).trim()) throw new Error("planning_context_mismatch:phone");
 
-  const authoritativeFinal = rebuildAuthoritativeSnapshot(submittedFinal);
+  const sessionCatalog = Array.isArray(origin.productCatalogSnapshot)
+    ? origin.productCatalogSnapshot
+    : productCatalog;
+  const authoritativeFinal = rebuildAuthoritativeSnapshot(submittedFinal, { productCatalog: sessionCatalog });
   const changes = compareRecommendationToFinal(owned.recommendation_snapshot, authoritativeFinal.items);
   const finalized = await repository.finalize({
     sessionId,
@@ -265,6 +320,7 @@ export async function finalizePlanningSessionCommand({ body, token, repository }
       ...authoritativeFinal,
       recommendationOriginal: owned.recommendation_snapshot,
       changesFromRecommendation: changes,
+      catalogFingerprint: origin.catalogFingerprint || productCatalogFingerprint(sessionCatalog),
     },
     changes,
     expectedVersion,
@@ -307,6 +363,17 @@ export default async function handler(request, response) {
   }
 
   const action = String(request.body?.action || "");
+  let productCatalog = Object.values(PRODUCTS);
+  if (["start", "changes", "finalize"].includes(action)) {
+    try {
+      const catalogStore = createProductCatalogStore();
+      productCatalog = await catalogStore.listCatalog({ includeInactive: true });
+    } catch (error) {
+      console.error("planning_product_catalog_error", error?.message || error);
+      return sendError(response, 503, "product_catalog_unavailable");
+    }
+  }
+
   let token = getPlanningSessionToken(request);
   let setCookie = false;
   if (!token && action === "start") {
@@ -316,7 +383,7 @@ export default async function handler(request, response) {
 
   try {
     if (action === "start") {
-      const result = await startPlanningSessionCommand({ body: request.body, token, repository });
+      const result = await startPlanningSessionCommand({ body: request.body, token, repository, productCatalog });
       if (setCookie) {
         const secure = process.env.NODE_ENV === "production";
         response.setHeader("Set-Cookie", buildPlanningSessionCookie(token, { secure }));
@@ -325,7 +392,7 @@ export default async function handler(request, response) {
     }
 
     if (action === "changes") {
-      const result = await appendPlanningChangesCommand({ body: request.body, token, repository });
+      const result = await appendPlanningChangesCommand({ body: request.body, token, repository, productCatalog });
       return response.status(200).json({ ok: true, ...result });
     }
 
@@ -335,13 +402,14 @@ export default async function handler(request, response) {
     }
 
     if (action === "finalize") {
-      const result = await finalizePlanningSessionCommand({ body: request.body, token, repository });
+      const result = await finalizePlanningSessionCommand({ body: request.body, token, repository, productCatalog });
       return response.status(200).json({ ok: true, ...result });
     }
 
     return sendError(response, 400, "unsupported_action");
   } catch (error) {
     const message = String(error?.message || "");
+    if (message === "planning_catalog_changed") return sendError(response, 409, "product_catalog_changed_reload_required");
     if (message.includes("not_found")) return sendError(response, 404, "planning_session_not_found");
     if (message.includes("concurrent_update")) return sendError(response, 409, "planning_session_concurrent_update");
     if (message.includes("already_finalized")) return sendError(response, 409, "planning_session_already_finalized");

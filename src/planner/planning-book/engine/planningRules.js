@@ -384,6 +384,7 @@ export function calculateCarts({
     "fried",
     "hotSandwiches",
     "beverages",
+    "tacho",
   ];
 
   const groupedItems = items.reduce(
@@ -404,8 +405,12 @@ export function calculateCarts({
         };
 
       group.items.push(item);
-      group.totalLoadInHours +=
-        item.quantity / item.productionPerHour;
+      const measuredCapacity = Number(item.productionPerHour);
+      if (Number.isFinite(measuredCapacity) && measuredCapacity > 0) {
+        group.totalLoadInHours += item.quantity / measuredCapacity;
+      } else {
+        group.capacityUnmeasured = true;
+      }
 
       accumulator[item.operationalGroup] = group;
       return accumulator;
@@ -425,20 +430,31 @@ export function calculateCarts({
    * carrinho de cada categoria durante o evento. Por isso, o
    * volume não cria um segundo carrinho da mesma categoria.
    */
+  if (groupedItems.tacho && groupedItems.beverages) {
+    groupedItems.beverages = {
+      ...groupedItems.beverages,
+      items: [...groupedItems.beverages.items, ...groupedItems.tacho.items],
+      capacityUnmeasured: Boolean(groupedItems.beverages.capacityUnmeasured || groupedItems.tacho.capacityUnmeasured),
+      sharedOperationalGroups: ["beverages", "tacho"],
+    };
+    delete groupedItems.tacho;
+  }
+
   let cartGroups = cartGroupOrder
     .filter((groupId) => groupedItems[groupId])
     .map((groupId) => {
       const group = groupedItems[groupId];
-      const capacityUsage =
-        operationalHours > 0
-          ? group.totalLoadInHours / operationalHours
-          : 0;
+      const capacityMeasured = !group.capacityUnmeasured;
+      const capacityUsage = capacityMeasured && operationalHours > 0
+        ? group.totalLoadInHours / operationalHours
+        : null;
 
       return {
         ...group,
         cartsRequired: 1,
+        capacityMeasured,
         capacityUsage,
-        withinPlannedCapacity: capacityUsage <= 1,
+        withinPlannedCapacity: capacityMeasured ? capacityUsage <= 1 : null,
       };
     });
 

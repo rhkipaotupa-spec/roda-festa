@@ -17,7 +17,8 @@ const agendaCss = await readFile(
 
 test("V19.10C adiciona Agenda como segunda superficie real sem remover Orcamentos", () => {
   assert.match(workspace, /import AdminAgendaView from "\.\/AdminAgendaView\.jsx"/);
-  assert.match(workspace, /useState\("quotes"\)/);
+  assert.match(workspace, /initialSection = "quotes"/);
+  assert.match(workspace, /useState\(initialSection\)/);
   assert.match(workspace, /setActiveSection\("quotes"\)/);
   assert.match(workspace, /setActiveSection\("agenda"\)/);
   assert.match(workspace, /data-admin-section="quotes"/);
@@ -72,7 +73,8 @@ test("V19.10C/V19.10E mantem Agenda acessivel no mobile com navegacao evoluida p
 
 test("V19.10C preserva o conteudo funcional aprovado de Orcamentos", () => {
   assert.match(workspace, /Central de atendimento/);
-  assert.match(workspace, /Or\u00e7amentos recentes/);
+  assert.match(workspace, /Hist\u00f3rico real/);
+  assert.match(workspace, /groupQuotesByEventMonth/);
   assert.match(workspace, /Da sugest\u00e3o do motor \u00e0 proposta final/);
   assert.match(workspace, /Motor x vers\u00e3o final/);
   assert.match(workspace, /Servi\u00e7os escolhidos/);
