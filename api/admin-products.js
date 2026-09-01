@@ -4,7 +4,7 @@ import { isTrustedMutationRequest } from "./_lib/planning-session-security.js";
 
 const JSON_CONTENT_TYPE = "application/json; charset=utf-8";
 const MAX_BODY_BYTES = 40_000;
-const ACTIONS = new Set(["UPSERT", "SET_ACTIVE"]);
+const ACTIONS = new Set(["UPSERT", "SET_ACTIVE", "BULK_UPDATE"]);
 
 function sendJson(response, status, body, headers = {}) {
   response.statusCode = status;
@@ -42,7 +42,8 @@ export function createAdminProductsHttpHandler({
   if (!catalogStore
       || typeof catalogStore.listCatalog !== "function"
       || typeof catalogStore.upsert !== "function"
-      || typeof catalogStore.setActive !== "function") {
+      || typeof catalogStore.setActive !== "function"
+      || typeof catalogStore.bulkUpdateByCategory !== "function") {
     throw new Error("admin_products_store_required");
   }
 
@@ -92,13 +93,23 @@ export function createAdminProductsHttpHandler({
 
     try {
       const actorUserId = session?.principal?.userId;
-      const result = action === "UPSERT"
-        ? await catalogStore.upsert({ product: body.product, actorUserId })
-        : await catalogStore.setActive({
+      let result;
+
+      if (action === "UPSERT") {
+        result = await catalogStore.upsert({ product: body.product, actorUserId });
+      } else if (action === "SET_ACTIVE") {
+        result = await catalogStore.setActive({
           productId: body.productId,
           active: Boolean(body.active),
           actorUserId,
         });
+      } else {
+        result = await catalogStore.bulkUpdateByCategory({
+          commercialCategory: body.commercialCategory,
+          updates: body.updates,
+          actorUserId,
+        });
+      }
 
       if (!result) {
         sendJson(response, 404, { ok: false, error: "product_not_found" });

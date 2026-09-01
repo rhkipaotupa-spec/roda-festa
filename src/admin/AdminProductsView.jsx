@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "./AdminCommercial.css";
+import "./AdminProductsCatalog.css";
 
 const ENDPOINT = "/api/admin-products";
 
@@ -66,6 +67,24 @@ function draftFromProduct(product) {
   };
 }
 
+function commonValue(items, field) {
+  if (!Array.isArray(items) || items.length === 0) return "";
+  const first = items[0]?.[field] ?? "";
+  const allEqual = items.every((item) => (item?.[field] ?? "") === first);
+  return allEqual ? first : "";
+}
+
+function bulkDraftFromProducts(items) {
+  return {
+    changeUnitPrice: false,
+    unitPrice: commonValue(items, "unitPrice"),
+    changeLotSize: false,
+    lotSize: commonValue(items, "lotSize"),
+    changeProductionPerHour: false,
+    productionPerHour: commonValue(items, "productionPerHour"),
+  };
+}
+
 async function fetchProducts() {
   const response = await fetch(ENDPOINT, {
     credentials: "same-origin",
@@ -87,6 +106,10 @@ export default function AdminProductsView({ embedded = false } = {}) {
   const [editingExisting, setEditingExisting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [categoryEditorOpen, setCategoryEditorOpen] = useState(false);
+  const [bulkCategory, setBulkCategory] = useState("");
+  const [bulkDraft, setBulkDraft] = useState(() => bulkDraftFromProducts([]));
+  const [bulkSaving, setBulkSaving] = useState(false);
 
   async function loadProducts() {
     setStatus("loading");
@@ -128,10 +151,24 @@ export default function AdminProductsView({ embedded = false } = {}) {
       .includes(term));
   }, [products, search]);
 
+  const groupedProducts = useMemo(() => CATEGORIES
+    .map((category) => ({
+      category,
+      products: filtered.filter((product) => product.commercialCategory === category),
+      total: products.filter((product) => product.commercialCategory === category).length,
+    }))
+    .filter((group) => group.products.length > 0), [filtered, products]);
+
+  function closeEditors() {
+    setEditorOpen(false);
+    setCategoryEditorOpen(false);
+  }
+
   function newProduct() {
     setDraft(emptyDraft());
     setEditingExisting(false);
     setMessage("");
+    setCategoryEditorOpen(false);
     setEditorOpen(true);
   }
 
@@ -139,7 +176,17 @@ export default function AdminProductsView({ embedded = false } = {}) {
     setDraft(draftFromProduct(product));
     setEditingExisting(true);
     setMessage("");
+    setCategoryEditorOpen(false);
     setEditorOpen(true);
+  }
+
+  function editCategory(category) {
+    const categoryProducts = products.filter((product) => product.commercialCategory === category);
+    setBulkCategory(category);
+    setBulkDraft(bulkDraftFromProducts(categoryProducts));
+    setMessage("");
+    setEditorOpen(false);
+    setCategoryEditorOpen(true);
   }
 
   function changeCategory(category) {
@@ -195,6 +242,64 @@ export default function AdminProductsView({ embedded = false } = {}) {
     }
   }
 
+  async function saveCategory(event) {
+    event.preventDefault();
+    if (bulkSaving) return;
+
+    const updates = {};
+    if (bulkDraft.changeUnitPrice) updates.unitPrice = Number(bulkDraft.unitPrice);
+    if (bulkDraft.changeLotSize) updates.lotSize = Number(bulkDraft.lotSize);
+    if (bulkDraft.changeProductionPerHour) {
+      updates.productionPerHour = Number(bulkDraft.productionPerHour);
+    }
+
+    const changedFields = Object.keys(updates);
+    if (changedFields.length === 0) {
+      setMessage("Selecione pelo menos um campo para atualizar na categoria.");
+      return;
+    }
+
+    const affectedCount = products.filter(
+      (product) => product.commercialCategory === bulkCategory,
+    ).length;
+    if (affectedCount === 0) {
+      setMessage("Esta categoria não possui produtos para atualizar.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Aplicar as alterações em ${affectedCount} produto${affectedCount === 1 ? "" : "s"} de ${bulkCategory}? Cada produto receberá uma nova revisão histórica.`,
+    );
+    if (!confirmed) return;
+
+    setBulkSaving(true);
+    setMessage("");
+    try {
+      const response = await fetch(ENDPOINT, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "BULK_UPDATE",
+          commercialCategory: bulkCategory,
+          updates,
+        }),
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || payload?.ok !== true) throw new Error(payload?.error || "bulk_save_failed");
+      setMessage(
+        `${payload.updatedCount} produto${payload.updatedCount === 1 ? "" : "s"} de ${bulkCategory} atualizado${payload.updatedCount === 1 ? "" : "s"}. O histórico individual foi preservado.`,
+      );
+      setCategoryEditorOpen(false);
+      await loadProducts();
+    } catch {
+      setMessage("Não foi possível concluir a atualização em massa. O catálogo foi recarregado; confira a categoria antes de repetir.");
+      await loadProducts();
+    } finally {
+      setBulkSaving(false);
+    }
+  }
+
   async function toggleActive(product) {
     setMessage("");
     try {
@@ -215,6 +320,10 @@ export default function AdminProductsView({ embedded = false } = {}) {
     }
   }
 
+  const bulkAffectedCount = products.filter(
+    (product) => product.commercialCategory === bulkCategory,
+  ).length;
+
   return (
     <section className={embedded ? "rf-commercial-page rf-commercial-page--embedded" : "rf-commercial-page"}>
       <header className="rf-commercial-header">
@@ -226,7 +335,7 @@ export default function AdminProductsView({ embedded = false } = {}) {
         <div className="rf-commercial-header__actions">
           {!embedded ? <a href="/admin">Voltar ao Admin</a> : null}
           {!embedded ? <a href="/admin/editar-pedido">Pedidos</a> : null}
-          <button type="button" onClick={newProduct}>+ Cadastrar produto</button>
+          <button className="rf-commercial-create-product" type="button" onClick={newProduct}>+ Cadastrar produto</button>
         </div>
       </header>
 
@@ -241,33 +350,61 @@ export default function AdminProductsView({ embedded = false } = {}) {
 
           {status === "loading" ? <p>Carregando catálogo...</p> : null}
           {status === "error" ? <p>Catálogo indisponível.</p> : null}
-          {status === "ready" ? filtered.map((product) => (
-            <article key={product.id} className={`rf-product-row ${product.active ? "" : "is-inactive"}`}>
-              <div>
-                <span>{product.commercialCategory}</span>
-                <strong>{product.name}</strong>
-                <small>{product.id}</small>
-              </div>
-              <div className="rf-product-row__numbers">
-                <span>{currency(product.unitPrice)}</span>
-                <small>Lote {product.lotSize} · capacidade {product.productionPerHour == null ? "não medida" : `${product.productionPerHour}/h`}</small>
-              </div>
-              <div className="rf-product-row__actions">
-                <button type="button" onClick={() => editProduct(product)}>Editar</button>
-                <button type="button" className={product.active ? "is-danger" : ""} onClick={() => toggleActive(product)}>
-                  {product.active ? "Desativar" : "Reativar"}
-                </button>
-              </div>
-            </article>
-          )) : null}
+          {status === "ready" && groupedProducts.length === 0 ? (
+            <div className="rf-product-categories__empty">Nenhum produto encontrado para esta busca.</div>
+          ) : null}
+          {status === "ready" && groupedProducts.length > 0 ? (
+            <div className="rf-product-categories">
+              {groupedProducts.map((group) => (
+                <section className="rf-product-category" key={group.category}>
+                  <header className="rf-product-category__header">
+                    <div>
+                      <span>Categoria</span>
+                      <h2>{group.category}</h2>
+                      <small>
+                        {search.trim() && group.products.length !== group.total
+                          ? `${group.products.length} de ${group.total} produtos nesta busca`
+                          : `${group.total} produto${group.total === 1 ? "" : "s"}`}
+                      </small>
+                    </div>
+                    <button type="button" className="rf-product-category__edit" onClick={() => editCategory(group.category)}>
+                      Editar categoria
+                    </button>
+                  </header>
+
+                  <div className="rf-product-category__items">
+                    {group.products.map((product) => (
+                      <article key={product.id} className={`rf-product-row ${product.active ? "" : "is-inactive"}`}>
+                        <div>
+                          <span>{product.active ? "Ativo" : "Inativo"}</span>
+                          <strong>{product.name}</strong>
+                          <small>{product.id}</small>
+                        </div>
+                        <div className="rf-product-row__numbers">
+                          <span>{currency(product.unitPrice)}</span>
+                          <small>Lote {product.lotSize} · capacidade {product.productionPerHour == null ? "não medida" : `${product.productionPerHour}/h`}</small>
+                        </div>
+                        <div className="rf-product-row__actions">
+                          <button type="button" onClick={() => editProduct(product)}>Editar</button>
+                          <button type="button" className={product.active ? "is-danger" : ""} onClick={() => toggleActive(product)}>
+                            {product.active ? "Desativar" : "Reativar"}
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          ) : null}
         </section>
 
-        {embedded && editorOpen ? (
+        {embedded && (editorOpen || categoryEditorOpen) ? (
           <button
             type="button"
             className="rf-commercial-drawer-backdrop"
-            aria-label="Fechar editor de produto"
-            onClick={() => setEditorOpen(false)}
+            aria-label="Fechar editor de catálogo"
+            onClick={closeEditors}
           />
         ) : null}
 
@@ -297,6 +434,57 @@ export default function AdminProductsView({ embedded = false } = {}) {
             <button className="rf-commercial-save" type="submit" disabled={saving}>{saving ? "Salvando..." : "Salvar produto"}</button>
           </form>
         </section>
+
+        {categoryEditorOpen ? (
+          <section className={`rf-commercial-editor rf-commercial-category-editor ${embedded ? "is-open" : ""}`}>
+            <div className="rf-commercial-editor__heading">
+              {embedded ? <button type="button" className="rf-commercial-drawer-close" onClick={() => setCategoryEditorOpen(false)} aria-label="Fechar edição da categoria">×</button> : null}
+              <span>Editar categoria</span>
+              <h2>{bulkCategory}</h2>
+              <small>Altere somente os campos que devem ficar iguais para toda a categoria.</small>
+            </div>
+
+            <form onSubmit={saveCategory} className="rf-commercial-bulk-form">
+              <div className="rf-commercial-bulk-summary">
+                <strong>{bulkAffectedCount} produto{bulkAffectedCount === 1 ? "" : "s"}</strong>
+                <span>Inclui itens ativos e inativos da categoria. Cada um manterá revisão e histórico próprios.</span>
+              </div>
+
+              <label className="rf-commercial-bulk-field">
+                <span className="rf-commercial-bulk-field__toggle">
+                  <input type="checkbox" checked={bulkDraft.changeUnitPrice} onChange={(event) => setBulkDraft((current) => ({ ...current, changeUnitPrice: event.target.checked }))} />
+                  <strong>Definir o mesmo preço</strong>
+                </span>
+                <input type="number" min="0" step="0.01" required={bulkDraft.changeUnitPrice} disabled={!bulkDraft.changeUnitPrice} value={bulkDraft.unitPrice} onChange={(event) => setBulkDraft((current) => ({ ...current, unitPrice: event.target.value }))} placeholder="Ex.: 1,75" />
+              </label>
+
+              <label className="rf-commercial-bulk-field">
+                <span className="rf-commercial-bulk-field__toggle">
+                  <input type="checkbox" checked={bulkDraft.changeLotSize} onChange={(event) => setBulkDraft((current) => ({ ...current, changeLotSize: event.target.checked }))} />
+                  <strong>Definir o mesmo lote mínimo</strong>
+                </span>
+                <input type="number" min="0.01" step="0.01" required={bulkDraft.changeLotSize} disabled={!bulkDraft.changeLotSize} value={bulkDraft.lotSize} onChange={(event) => setBulkDraft((current) => ({ ...current, lotSize: event.target.value }))} placeholder="Ex.: 25" />
+              </label>
+
+              <label className="rf-commercial-bulk-field">
+                <span className="rf-commercial-bulk-field__toggle">
+                  <input type="checkbox" checked={bulkDraft.changeProductionPerHour} onChange={(event) => setBulkDraft((current) => ({ ...current, changeProductionPerHour: event.target.checked }))} />
+                  <strong>Definir a mesma capacidade / hora</strong>
+                </span>
+                <input type="number" min="0.01" step="0.01" required={bulkDraft.changeProductionPerHour} disabled={!bulkDraft.changeProductionPerHour} value={bulkDraft.productionPerHour} onChange={(event) => setBulkDraft((current) => ({ ...current, productionPerHour: event.target.value }))} placeholder="Use apenas capacidade realmente medida" />
+                <small>Só marque este campo quando houver uma medição operacional confiável.</small>
+              </label>
+
+              <div className="rf-commercial-bulk-warning">
+                Nome, código, unidade, composição e categoria dos produtos não são alterados por esta ação.
+              </div>
+
+              <button className="rf-commercial-save" type="submit" disabled={bulkSaving}>
+                {bulkSaving ? "Aplicando..." : `Aplicar em ${bulkAffectedCount} produto${bulkAffectedCount === 1 ? "" : "s"}`}
+              </button>
+            </form>
+          </section>
+        ) : null}
       </div>
     </section>
   );

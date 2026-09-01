@@ -6,11 +6,31 @@ import {
   productCatalogById,
 } from "../../src/planner/planning-book/engine/productCatalog.js";
 
+const BULK_ALLOWED_FIELDS = new Set([
+  "unitPrice",
+  "lotSize",
+  "productionPerHour",
+]);
+
 function getConfig(env = process.env) {
   const url = String(env.SUPABASE_URL || "").replace(/\/$/, "");
   const serviceRoleKey = String(env.SUPABASE_SERVICE_ROLE_KEY || "");
   if (!url || !serviceRoleKey) throw new Error("product_catalog_not_configured");
   return { url, serviceRoleKey };
+}
+
+function normalizeBulkUpdates(updates = {}) {
+  if (!updates || typeof updates !== "object" || Array.isArray(updates)) {
+    throw new Error("product_catalog_invalid_bulk_updates");
+  }
+
+  const entries = Object.entries(updates);
+  if (entries.length === 0) throw new Error("product_catalog_invalid_bulk_updates");
+  if (entries.some(([field]) => !BULK_ALLOWED_FIELDS.has(field))) {
+    throw new Error("product_catalog_invalid_bulk_field");
+  }
+
+  return Object.fromEntries(entries);
 }
 
 export function createProductCatalogStore({
@@ -117,11 +137,53 @@ export function createProductCatalogStore({
     });
   }
 
+  async function bulkUpdateByCategory({
+    commercialCategory,
+    updates,
+    actorUserId,
+  } = {}) {
+    const actor = String(actorUserId || "").trim();
+    const category = String(commercialCategory || "").trim();
+    if (!actor) throw new Error("product_catalog_actor_required");
+    if (!category) throw new Error("product_catalog_commercial_category_required");
+
+    const safeUpdates = normalizeBulkUpdates(updates);
+    const catalog = await listCatalog({ includeInactive: true });
+    const targets = catalog.filter((product) => product.commercialCategory === category);
+    if (targets.length === 0) return null;
+
+    // Valida o lote inteiro antes da primeira escrita para evitar erro de domínio no meio da operação.
+    const normalizedTargets = targets.map((existing) => normalizeProductCatalogRecord(
+      { ...existing, ...safeUpdates },
+      { existing },
+    ));
+
+    const results = [];
+    for (const normalized of normalizedTargets) {
+      results.push(await writeAtomically({
+        normalized,
+        actor,
+        initialAction: "UPDATE",
+      }));
+    }
+
+    return {
+      commercialCategory: category,
+      updatedCount: results.length,
+      productIds: results.map((result) => result.product.id),
+      revisions: results.map((result) => ({
+        productId: result.product.id,
+        revision: result.revision,
+      })),
+    };
+  }
+
   return Object.freeze({
     baseCatalog: baseProductCatalog,
     listOverrides,
     listCatalog,
     upsert,
     setActive,
+    bulkUpdateByCategory,
   });
 }
