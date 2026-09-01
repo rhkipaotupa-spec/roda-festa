@@ -54,6 +54,7 @@ O restore de prova:
 - valida SHA-256 e tamanho antes do restore;
 - executa `pg_restore --list` antes de apagar/criar o alvo;
 - recria somente o banco local reservado;
+- usa `pg_restore --clean --if-exists` para limpar objetos pré-existentes no banco descartável antes da restauração;
 - compara automaticamente as contagens restauradas com o manifesto;
 - remove o banco descartável depois de GREEN, salvo pedido explícito para inspeção.
 
@@ -67,6 +68,37 @@ No momento em que esta frente foi desenhada, a origem possuía:
 - 3 registros em `product_catalog_history`.
 
 Esses números são evidência histórica, não valores hardcoded. Cada novo backup consulta a origem e grava suas próprias contagens no manifesto.
+
+## Evidência real de backup e restore — 01/09/2026
+
+Primeira prova completa desta frente executada localmente contra o banco de Production do Roda Festa, usando PostgreSQL 18.6 no Windows.
+
+Backup lógico independente criado com sucesso:
+
+- resultado: `RODA_FESTA_DB_BACKUP_OK`;
+- arquivo: `roda-festa-production-2026-09-01T18-50-52Z-ec75129.dump`;
+- tamanho: `61165` bytes;
+- SHA-256: `1a463fe3f37ad710d94cba19544de1837b7609b80e5ff1734ebd966cb3592210`;
+- commit registrado no nome do backup: `ec75129`;
+- tabelas públicas na origem: `6`;
+- `planning_sessions`: `21`;
+- `product_catalog_overrides`: `3`;
+- `product_catalog_history`: `3`.
+
+A primeira tentativa de restore validou o arquivo (`RESTORE_ARCHIVE_READABLE_OK`), mas falhou de forma segura porque um banco recém-criado no PostgreSQL local já possuía o schema `public`, enquanto o dump também tentava criá-lo. Production não foi alterada. O script foi corrigido para usar `pg_restore --clean --if-exists`, alinhado ao procedimento já comprovado no projeto Simplify.
+
+Após a correção, o mesmo backup foi restaurado no banco local descartável `roda_festa_restore_test` e passou integralmente:
+
+- `RESTORE_ARCHIVE_READABLE_OK`;
+- `RODA_FESTA_DB_RESTORE_VERIFY_OK`;
+- `RESTORED_PUBLIC_TABLES=6`;
+- `RESTORED_PLANNING_SESSIONS=21`;
+- `RESTORED_CATALOG_OVERRIDES=3`;
+- `RESTORED_CATALOG_HISTORY=3`;
+- `BACKUP_AND_RESTORE_RECOVERY_PROOF_OK`;
+- `RESTORE_TEST_DATABASE_REMOVED`.
+
+Resultado: **backup e recuperação foram comprovados com restore real isolado e contagens idênticas às da origem.**
 
 ## Configuração local — NÃO COMMITAR CREDENCIAIS
 
@@ -183,3 +215,5 @@ Antes de promoção:
 7. banco descartável removido;
 8. evidência registrada;
 9. aprovação explícita antes de merge.
+
+Em 01/09/2026, os itens 1 a 8 foram comprovados. O item 9 permanece deliberadamente pendente: **não promover para `main` sem aprovação explícita.**
