@@ -74,13 +74,17 @@ O projeto ignora `.env` e `.env.*`. Criar localmente um arquivo `.env.backup.loc
 
 **Nunca enviar senha, connection string, token, service role key ou conteúdo desse arquivo por chat, documento, commit ou screenshot.**
 
+As senhas devem ficar separadas das URLs para evitar problemas com caracteres especiais e reduzir risco de exposição acidental.
+
 Exemplo estrutural, com placeholders:
 
 ```text
 POSTGRES_BIN=C:\Program Files\PostgreSQL\18\bin
-RODA_FESTA_DATABASE_URL=postgresql://<usuario>:<senha>@<host>:5432/<banco>?sslmode=require
+RODA_FESTA_DATABASE_URL=postgresql://<usuario>@<host>:5432/<banco>?sslmode=require
+RODA_FESTA_DATABASE_PASSWORD=<senha-do-banco-supabase>
 ALLOW_RODA_FESTA_DB_BACKUP=CREATE_READ_ONLY_BACKUP
-RODA_FESTA_RESTORE_DATABASE_URL=postgresql://postgres:<senha-local>@127.0.0.1:5432/roda_festa_restore_test
+RODA_FESTA_RESTORE_DATABASE_URL=postgresql://postgres@127.0.0.1:5432/roda_festa_restore_test
+RODA_FESTA_RESTORE_PASSWORD=<senha-local-postgresql>
 ALLOW_RODA_FESTA_RESTORE_TEST=ERASE_LOCAL_RESTORE_TARGET
 ```
 
