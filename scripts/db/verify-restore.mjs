@@ -112,10 +112,12 @@ function main() {
   const source = parsePostgresConnection(
     process.env.RODA_FESTA_DATABASE_URL,
     "RODA_FESTA_DATABASE_URL",
+    { password: process.env.RODA_FESTA_DATABASE_PASSWORD },
   );
   const target = parsePostgresConnection(
     process.env.RODA_FESTA_RESTORE_DATABASE_URL,
     "RODA_FESTA_RESTORE_DATABASE_URL",
+    { password: process.env.RODA_FESTA_RESTORE_PASSWORD },
   );
 
   assertLocalRestoreTarget(target);
