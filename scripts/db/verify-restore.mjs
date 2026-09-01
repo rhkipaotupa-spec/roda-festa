@@ -141,6 +141,8 @@ function main() {
   let verified = false;
   try {
     execFileSync(postgresTool("pg_restore"), [
+      "--clean",
+      "--if-exists",
       "--exit-on-error",
       "--no-owner",
       "--no-privileges",
