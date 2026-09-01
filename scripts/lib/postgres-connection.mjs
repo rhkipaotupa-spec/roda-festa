@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 
-export function parsePostgresConnection(value, label) {
+export function parsePostgresConnection(value, label, { password } = {}) {
   if (!value) throw new Error(`${label}_MISSING`);
 
   let url;
@@ -23,14 +23,21 @@ export function parsePostgresConnection(value, label) {
     throw new Error(`${label}_INCOMPLETE`);
   }
 
+  const embeddedPassword = decodeURIComponent(url.password || "");
+  const resolvedPassword = password === undefined
+    ? embeddedPassword
+    : String(password);
+
   const childEnv = {
     ...process.env,
     PGHOST: hostname,
     PGPORT: port,
     PGUSER: username,
-    PGPASSWORD: decodeURIComponent(url.password),
     PGDATABASE: database,
   };
+
+  delete childEnv.PGPASSWORD;
+  if (resolvedPassword) childEnv.PGPASSWORD = resolvedPassword;
 
   const sslMode = url.searchParams.get("sslmode");
   if (sslMode) childEnv.PGSSLMODE = sslMode;
@@ -38,7 +45,9 @@ export function parsePostgresConnection(value, label) {
   delete childEnv.DATABASE_URL;
   delete childEnv.DIRECT_URL;
   delete childEnv.RODA_FESTA_DATABASE_URL;
+  delete childEnv.RODA_FESTA_DATABASE_PASSWORD;
   delete childEnv.RODA_FESTA_RESTORE_DATABASE_URL;
+  delete childEnv.RODA_FESTA_RESTORE_PASSWORD;
 
   return Object.freeze({
     childEnv,
