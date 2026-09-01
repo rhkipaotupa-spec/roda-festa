@@ -55,6 +55,7 @@ function main() {
   const connection = parsePostgresConnection(
     process.env.RODA_FESTA_DATABASE_URL,
     "RODA_FESTA_DATABASE_URL",
+    { password: process.env.RODA_FESTA_DATABASE_PASSWORD },
   );
 
   execFileSync(postgresTool("pg_dump"), ["--version"], {
