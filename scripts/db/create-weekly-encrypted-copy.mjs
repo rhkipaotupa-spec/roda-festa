@@ -1,8 +1,8 @@
-import { createHash } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
   readFileSync,
+  rmSync,
   statSync,
   writeFileSync,
 } from "node:fs";
@@ -36,7 +36,7 @@ function resolveWeeklyDirectory() {
   return outputDirectory;
 }
 
-function readSourceManifest(backupPath) {
+async function readSourceManifest(backupPath) {
   const manifestPath = `${backupPath}.json`;
   if (!existsSync(manifestPath)) throw new Error("WEEKLY_SOURCE_MANIFEST_MISSING");
 
@@ -57,7 +57,7 @@ function readSourceManifest(backupPath) {
   }
 
   const sourceSize = statSync(backupPath).size;
-  const sourceHash = createHash("sha256").update(readFileSync(backupPath)).digest("hex");
+  const sourceHash = await sha256File(backupPath);
 
   if (sourceSize !== Number(manifest.bytes)) {
     throw new Error("WEEKLY_SOURCE_SIZE_MISMATCH");
@@ -80,7 +80,7 @@ async function main() {
   }
 
   const key = parseEncryptionKey(process.env.RODA_FESTA_BACKUP_ENCRYPTION_KEY);
-  const source = readSourceManifest(backupPath);
+  const source = await readSourceManifest(backupPath);
   const outputDirectory = resolveWeeklyDirectory();
   mkdirSync(outputDirectory, { recursive: true });
 
@@ -89,62 +89,70 @@ async function main() {
   const encryptedManifestName = `${sourceName}.json.rfenc`;
   const encryptedBackupPath = resolve(outputDirectory, encryptedBackupName);
   const encryptedManifestPath = resolve(outputDirectory, encryptedManifestName);
+  const envelopePath = resolve(outputDirectory, `${sourceName}.weekly.json`);
 
-  if (existsSync(encryptedBackupPath) || existsSync(encryptedManifestPath)) {
+  if (
+    existsSync(encryptedBackupPath)
+    || existsSync(encryptedManifestPath)
+    || existsSync(envelopePath)
+  ) {
     throw new Error("WEEKLY_ENCRYPTED_OUTPUT_ALREADY_EXISTS");
   }
 
-  const backupEncryption = await encryptFile({
-    sourcePath: backupPath,
-    outputPath: encryptedBackupPath,
-    key,
-    aad: source.sourceHash,
-  });
-
+  let backupEncryption;
   try {
+    backupEncryption = await encryptFile({
+      sourcePath: backupPath,
+      outputPath: encryptedBackupPath,
+      key,
+      aad: source.sourceHash,
+    });
+
     await encryptFile({
       sourcePath: source.manifestPath,
       outputPath: encryptedManifestPath,
       key,
       aad: source.sourceHash,
     });
+
+    const encryptedBackupSha256 = await sha256File(encryptedBackupPath);
+    const encryptedManifestSha256 = await sha256File(encryptedManifestPath);
+
+    const envelope = {
+      createdAt: new Date().toISOString(),
+      format: WEEKLY_ENCRYPTION_FORMAT,
+      algorithm: "AES-256-GCM",
+      source: {
+        file: sourceName,
+        bytes: source.sourceSize,
+        sha256: source.sourceHash,
+      },
+      encrypted: {
+        backupFile: encryptedBackupName,
+        backupBytes: statSync(encryptedBackupPath).size,
+        backupSha256: encryptedBackupSha256,
+        manifestFile: encryptedManifestName,
+        manifestBytes: statSync(encryptedManifestPath).size,
+        manifestSha256: encryptedManifestSha256,
+        authTagBytes: backupEncryption.authTagBytes,
+      },
+    };
+
+    writeFileSync(envelopePath, `${JSON.stringify(envelope, null, 2)}\n`, "utf8");
+
+    console.log("RODA_FESTA_WEEKLY_ENCRYPTED_COPY_OK");
+    console.log(`WEEKLY_ENCRYPTED_BACKUP=${encryptedBackupPath}`);
+    console.log(`WEEKLY_ENCRYPTED_MANIFEST=${encryptedManifestPath}`);
+    console.log(`WEEKLY_ENVELOPE=${envelopePath}`);
+    console.log(`SOURCE_BACKUP_SHA256=${source.sourceHash}`);
+    console.log(`ENCRYPTED_BACKUP_SHA256=${encryptedBackupSha256}`);
+    console.log(`ENCRYPTED_MANIFEST_SHA256=${encryptedManifestSha256}`);
   } catch (error) {
-    throw new Error("WEEKLY_MANIFEST_ENCRYPTION_FAILED", { cause: error });
+    rmSync(encryptedBackupPath, { force: true });
+    rmSync(encryptedManifestPath, { force: true });
+    rmSync(envelopePath, { force: true });
+    throw error;
   }
-
-  const encryptedBackupSha256 = await sha256File(encryptedBackupPath);
-  const encryptedManifestSha256 = await sha256File(encryptedManifestPath);
-  const envelopePath = resolve(outputDirectory, `${sourceName}.weekly.json`);
-
-  const envelope = {
-    createdAt: new Date().toISOString(),
-    format: WEEKLY_ENCRYPTION_FORMAT,
-    algorithm: "AES-256-GCM",
-    source: {
-      file: sourceName,
-      bytes: source.sourceSize,
-      sha256: source.sourceHash,
-    },
-    encrypted: {
-      backupFile: encryptedBackupName,
-      backupBytes: statSync(encryptedBackupPath).size,
-      backupSha256: encryptedBackupSha256,
-      manifestFile: encryptedManifestName,
-      manifestBytes: statSync(encryptedManifestPath).size,
-      manifestSha256: encryptedManifestSha256,
-      authTagBytes: backupEncryption.authTagBytes,
-    },
-  };
-
-  writeFileSync(envelopePath, `${JSON.stringify(envelope, null, 2)}\n`, "utf8");
-
-  console.log("RODA_FESTA_WEEKLY_ENCRYPTED_COPY_OK");
-  console.log(`WEEKLY_ENCRYPTED_BACKUP=${encryptedBackupPath}`);
-  console.log(`WEEKLY_ENCRYPTED_MANIFEST=${encryptedManifestPath}`);
-  console.log(`WEEKLY_ENVELOPE=${envelopePath}`);
-  console.log(`SOURCE_BACKUP_SHA256=${source.sourceHash}`);
-  console.log(`ENCRYPTED_BACKUP_SHA256=${encryptedBackupSha256}`);
-  console.log(`ENCRYPTED_MANIFEST_SHA256=${encryptedManifestSha256}`);
 }
 
 await main();
