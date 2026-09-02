@@ -1,6 +1,6 @@
 # Roda Festa — Weekly Encrypted Offsite V1
 
-Status: implementação em validação na branch `chore/dr-weekly-offsite-v1`; camada criptográfica local comprovada em 02/09/2026, offsite ainda pendente.
+Status: implementação em validação na branch `chore/dr-weekly-offsite-v1`; camada criptográfica local e ciclo offsite Google Drive comprovados em 02/09/2026, pendentes apenas reconciliação final de CI, revisão de segurança da conta e aprovação de merge.
 
 ## Objetivo
 
@@ -41,7 +41,6 @@ A RF-DR-POLICY-V1 já estava concluída, com:
 
 ## Não faz parte desta primeira etapa
 
-- escolher automaticamente um provedor de nuvem;
 - enviar dumps brutos para nuvem;
 - guardar chave em GitHub, Vercel, Supabase, documentação versionada ou chat;
 - excluir backups antigos;
@@ -206,7 +205,7 @@ Resultado GREEN esperado:
 - `WEEKLY_DECRYPTION_AUTHENTICATION_OK`;
 - `WEEKLY_VERIFY_TEMP_REMOVED`.
 
-## Evidência real de verificação — 02/09/2026
+## Evidência real de verificação local — 02/09/2026
 
 A geração semanal acima foi verificada com sucesso:
 
@@ -228,19 +227,51 @@ Ela não substitui o restore drill PostgreSQL. Periodicamente, uma geração sem
 
 ## Segunda cópia off-machine
 
-O provedor ainda será escolhido deliberadamente.
+Destino V1 escolhido em 02/09/2026:
 
-Critérios mínimos:
+- provedor: Google Drive;
+- pasta operacional: `Meu Drive / roda-festa / backups-semanais`;
+- conta sob controle do responsável pelo projeto;
+- somente artefatos já criptografados são enviados;
+- o dump bruto e o `.env.backup.local` não são enviados.
+
+Critérios mínimos preservados:
 
 - ficar fora da máquina local;
 - não ser o próprio Supabase;
 - receber somente arquivos já cifrados;
 - suportar pelo menos 4 gerações semanais;
 - permitir recuperação/download sem depender do ambiente Production;
-- acesso protegido por MFA quando disponível;
+- acesso protegido por autenticação forte e, quando disponível, MFA/Verificação em duas etapas;
 - exclusão e retenção só serão automatizadas após prova de recuperação.
 
-Possibilidades práticas incluem OneDrive, Google Drive ou outro storage sob controle do responsável. Nenhuma opção está aprovada até validação explícita.
+## Evidência real do ciclo offsite — 02/09/2026
+
+Foi enviada ao Google Drive uma geração completa contendo somente:
+
+1. `roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump.rfenc`;
+2. `roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump.json.rfenc`;
+3. `roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump.weekly.json`.
+
+A presença dos três arquivos na pasta offsite foi comprovada visualmente. Nenhum `.dump` bruto foi enviado.
+
+Os três artefatos foram então baixados novamente do Google Drive e extraídos em diretório temporário isolado:
+
+`C:\Temp\rf-offsite-verify`
+
+A verificação foi executada contra o envelope **baixado da nuvem**, não contra a cópia original em `D:`.
+
+Resultado:
+
+- `RODA_FESTA_WEEKLY_ENCRYPTED_VERIFY_OK`;
+- SHA-256 recuperado: `fdf0f0722c9dfff652b7aafd52592442b279f9d41640d5097d58a9328e0bb42f`;
+- tamanho recuperado: `61165` bytes;
+- `WEEKLY_DECRYPTION_AUTHENTICATION_OK`;
+- `WEEKLY_VERIFY_TEMP_REMOVED`.
+
+Portanto foi comprovado o ciclo:
+
+**backup diário validado → criptografia autenticada → staging semanal no D: → upload de artefatos cifrados ao Google Drive → download da nuvem → validação de hash/tamanho → autenticação AES-256-GCM → decifragem → bytes originais idênticos → limpeza temporária.**
 
 ## Retenção V1
 
@@ -248,7 +279,8 @@ Meta aprovada:
 
 - 1 geração semanal;
 - manter 4 gerações semanais;
-- nenhuma exclusão automática enquanto a cópia offsite e a recuperação da chave não estiverem comprovadas.
+- nenhuma exclusão automática até que a operação recorrente seja observada e a política de retenção destrutiva tenha teste específico;
+- manter por enquanto a geração local em `D:` mesmo depois do upload, além da cópia offsite.
 
 ## Gates desta frente
 
@@ -261,11 +293,12 @@ Antes de promover para `main`:
 5. criação real de uma geração semanal cifrada — GREEN em 02/09/2026;
 6. verificação real dessa geração — GREEN em 02/09/2026;
 7. chave com cópia de recuperação fora da máquina — GREEN em 02/09/2026;
-8. destino offsite escolhido — pendente;
-9. envio de uma geração cifrada ao destino offsite — pendente;
-10. download de volta a partir do destino offsite — pendente;
-11. verificação da cópia baixada — pendente;
-12. CI completo GREEN — GREEN (run #69; nova reconciliação documental exige novo CI no head atualizado);
-13. aprovação explícita antes do merge — pendente.
+8. destino offsite escolhido — GREEN: Google Drive;
+9. envio de uma geração cifrada ao destino offsite — GREEN em 02/09/2026;
+10. download de volta a partir do destino offsite — GREEN em 02/09/2026;
+11. verificação da cópia baixada — GREEN em 02/09/2026;
+12. CI completo GREEN — GREEN histórico no run #69; novo CI do head documental final ainda deve ficar GREEN;
+13. revisão de segurança da conta offsite (MFA/Verificação em duas etapas quando disponível) — pendente;
+14. aprovação explícita antes do merge — pendente.
 
 Até os gates aplicáveis desta V1 estarem comprovados, não declarar a segunda cópia offsite como concluída.
