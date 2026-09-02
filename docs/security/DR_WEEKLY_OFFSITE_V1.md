@@ -97,7 +97,7 @@ Em 02/09/2026 a chave local foi gerada diretamente em `.env.backup.local`, sem i
 - `WEEKLY_KEY_FORMAT_OK`;
 - `WEEKLY_KEY_BYTES=32`.
 
-A existência de cópia de recuperação fora da máquina permanece pendente.
+Em 02/09/2026 também foi comprovada uma cópia de recuperação da chave fora da máquina local, armazenada em gerenciador de senhas sincronizado. A evidência foi visual, com o valor secreto mantido oculto; nenhum conteúdo da chave foi registrado em Git, documentação ou chat.
 
 ## Destino semanal local de staging
 
@@ -260,12 +260,12 @@ Antes de promover para `main`:
 4. scripts não podem imprimir chave — GREEN (CI #69);
 5. criação real de uma geração semanal cifrada — GREEN em 02/09/2026;
 6. verificação real dessa geração — GREEN em 02/09/2026;
-7. chave com cópia de recuperação fora da máquina — pendente;
+7. chave com cópia de recuperação fora da máquina — GREEN em 02/09/2026;
 8. destino offsite escolhido — pendente;
 9. envio de uma geração cifrada ao destino offsite — pendente;
 10. download de volta a partir do destino offsite — pendente;
 11. verificação da cópia baixada — pendente;
-12. CI completo GREEN — GREEN (run #69);
+12. CI completo GREEN — GREEN (run #69; nova reconciliação documental exige novo CI no head atualizado);
 13. aprovação explícita antes do merge — pendente.
 
 Até os gates aplicáveis desta V1 estarem comprovados, não declarar a segunda cópia offsite como concluída.
