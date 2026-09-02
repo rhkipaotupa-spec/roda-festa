@@ -68,6 +68,13 @@ describe("backup/recovery safety boundary", () => {
     assert.doesNotMatch(text, /console\.log\([^\n]*PGPASSWORD/);
   });
 
+  test("backup destination defaults to dedicated D drive on Windows and remains configurable", () => {
+    const text = source("scripts/db/create-production-backup.mjs");
+    assert.match(text, /D:\\\\Backups\\\\Roda-Festa\\\\daily/);
+    assert.match(text, /RODA_FESTA_BACKUP_DIR/);
+    assert.match(text, /BACKUP_DIRECTORY_MUST_BE_OUTSIDE_REPOSITORY/);
+  });
+
   test("restore verifies archive and manifest before recreating local target", () => {
     const text = source("scripts/db/verify-restore.mjs");
     const integrityIndex = text.indexOf("verifyArchiveIntegrity(backupPath, manifest)");

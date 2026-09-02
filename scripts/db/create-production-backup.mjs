@@ -1,12 +1,13 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { resolve, sep } from "node:path";
 
 import { parsePostgresConnection, postgresTool } from "../lib/postgres-connection.mjs";
 
 const ROOT = process.cwd();
 const REQUIRED_CONFIRMATION = "CREATE_READ_ONLY_BACKUP";
+const DEFAULT_WINDOWS_BACKUP_DIRECTORY = "D:\\Backups\\Roda-Festa\\daily";
 
 function runText(tool, args, env) {
   return execFileSync(postgresTool(tool), args, {
@@ -47,6 +48,23 @@ function readSourceCounts(connection) {
   });
 }
 
+function resolveBackupDirectory() {
+  const configured = process.env.RODA_FESTA_BACKUP_DIR?.trim();
+  const candidate = configured
+    || (process.platform === "win32"
+      ? DEFAULT_WINDOWS_BACKUP_DIRECTORY
+      : resolve(ROOT, "..", "roda-festa-backups"));
+
+  const outputDirectory = resolve(candidate);
+  const repositoryPrefix = `${resolve(ROOT)}${sep}`;
+
+  if (outputDirectory === resolve(ROOT) || outputDirectory.startsWith(repositoryPrefix)) {
+    throw new Error("BACKUP_DIRECTORY_MUST_BE_OUTSIDE_REPOSITORY");
+  }
+
+  return outputDirectory;
+}
+
 function main() {
   if (process.env.ALLOW_RODA_FESTA_DB_BACKUP !== REQUIRED_CONFIRMATION) {
     throw new Error("BACKUP_EXPLICIT_CONFIRMATION_REQUIRED");
@@ -78,7 +96,7 @@ function main() {
     .replaceAll(":", "-")
     .replace(/\.\d{3}Z$/, "Z");
 
-  const outputDirectory = resolve(ROOT, "..", "roda-festa-backups");
+  const outputDirectory = resolveBackupDirectory();
   mkdirSync(outputDirectory, { recursive: true });
 
   const outputPath = resolve(
