@@ -1,6 +1,6 @@
 # Roda Festa — Weekly Encrypted Offsite V1
 
-Status: implementação em validação na branch `chore/dr-weekly-offsite-v1`.
+Status: implementação em validação na branch `chore/dr-weekly-offsite-v1`; camada criptográfica local comprovada em 02/09/2026, offsite ainda pendente.
 
 ## Objetivo
 
@@ -90,6 +90,15 @@ Regras obrigatórias:
 - a cópia de recuperação deve ficar em local seguro e independente, como um gerenciador de senhas confiável ou outro cofre de segredos sob controle do responsável;
 - perder a chave significa perder a capacidade de restaurar os backups cifrados.
 
+Em 02/09/2026 a chave local foi gerada diretamente em `.env.backup.local`, sem impressão em terminal/chat, e validada apenas por formato:
+
+- `WEEKLY_KEY_CREATED`;
+- `WEEKLY_ENV_GATES_CONFIGURED`;
+- `WEEKLY_KEY_FORMAT_OK`;
+- `WEEKLY_KEY_BYTES=32`.
+
+A existência de cópia de recuperação fora da máquina permanece pendente.
+
 ## Destino semanal local de staging
 
 Padrão Windows:
@@ -151,6 +160,22 @@ Antes de cifrar, o script exige:
 
 Se qualquer passo falhar, a geração não é considerada válida e os artefatos parciais são removidos.
 
+## Evidência real de criação — 02/09/2026
+
+Backup diário de origem previamente comprovado por restore:
+
+`D:\Backups\Roda-Festa\daily\roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump`
+
+Resultado da criação semanal:
+
+- `RODA_FESTA_WEEKLY_ENCRYPTED_COPY_OK`;
+- backup cifrado criado em `D:\Backups\Roda-Festa\weekly\roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump.rfenc`;
+- manifesto cifrado criado em `D:\Backups\Roda-Festa\weekly\roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump.json.rfenc`;
+- envelope criado em `D:\Backups\Roda-Festa\weekly\roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump.weekly.json`;
+- SHA-256 do backup original: `fdf0f0722c9dfff652b7aafd52592442b279f9d41640d5097d58a9328e0bb42f`;
+- SHA-256 do backup cifrado: `4f2d8684d53fa03ebdcb356f264986baaac95b98dffdc8038179be616f7affd1`;
+- SHA-256 do manifesto cifrado: `b312da00ad3095d91037a172b4f8de1a8aad215da1e13cf156d4029f0dacc68d`.
+
 ## Verificação criptográfica
 
 Comando previsto:
@@ -180,6 +205,18 @@ Resultado GREEN esperado:
 - `RODA_FESTA_WEEKLY_ENCRYPTED_VERIFY_OK`;
 - `WEEKLY_DECRYPTION_AUTHENTICATION_OK`;
 - `WEEKLY_VERIFY_TEMP_REMOVED`.
+
+## Evidência real de verificação — 02/09/2026
+
+A geração semanal acima foi verificada com sucesso:
+
+- `RODA_FESTA_WEEKLY_ENCRYPTED_VERIFY_OK`;
+- SHA-256 recuperado: `fdf0f0722c9dfff652b7aafd52592442b279f9d41640d5097d58a9328e0bb42f`;
+- tamanho recuperado: `61165` bytes;
+- `WEEKLY_DECRYPTION_AUTHENTICATION_OK`;
+- `WEEKLY_VERIFY_TEMP_REMOVED`.
+
+A igualdade de SHA-256 e tamanho prova que a cópia cifrada voltou exatamente aos bytes do backup original usado como origem.
 
 ## Prova adicional de recuperabilidade
 
@@ -217,18 +254,18 @@ Meta aprovada:
 
 Antes de promover para `main`:
 
-1. implementação criptográfica isolada — pendente de CI;
-2. round-trip criptográfico automatizado — pendente de CI;
-3. chave errada deve falhar fechada — pendente de CI;
-4. scripts não podem imprimir chave — pendente de CI;
-5. criação real de uma geração semanal cifrada — pendente;
-6. verificação real dessa geração — pendente;
+1. implementação criptográfica isolada — GREEN (CI #69);
+2. round-trip criptográfico automatizado — GREEN (CI #69);
+3. chave errada deve falhar fechada — GREEN (CI #69);
+4. scripts não podem imprimir chave — GREEN (CI #69);
+5. criação real de uma geração semanal cifrada — GREEN em 02/09/2026;
+6. verificação real dessa geração — GREEN em 02/09/2026;
 7. chave com cópia de recuperação fora da máquina — pendente;
 8. destino offsite escolhido — pendente;
 9. envio de uma geração cifrada ao destino offsite — pendente;
 10. download de volta a partir do destino offsite — pendente;
 11. verificação da cópia baixada — pendente;
-12. CI completo GREEN — pendente;
+12. CI completo GREEN — GREEN (run #69);
 13. aprovação explícita antes do merge — pendente.
 
 Até os gates aplicáveis desta V1 estarem comprovados, não declarar a segunda cópia offsite como concluída.
