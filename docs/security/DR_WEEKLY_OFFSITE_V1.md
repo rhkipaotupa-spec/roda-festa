@@ -1,6 +1,6 @@
 # Roda Festa — Weekly Encrypted Offsite V1
 
-Status: implementação em validação na branch `chore/dr-weekly-offsite-v1`; camada criptográfica local e ciclo offsite Google Drive comprovados em 02/09/2026, pendentes apenas reconciliação final de CI, revisão de segurança da conta e aprovação de merge.
+Status: implementação em validação na branch `chore/dr-weekly-offsite-v1`; camada criptográfica local, ciclo offsite Google Drive e revisão de segurança da conta offsite comprovados em 02/09/2026. Pendentes apenas CI final do head reconciliado e aprovação explícita antes do merge.
 
 ## Objetivo
 
@@ -242,8 +242,10 @@ Critérios mínimos preservados:
 - receber somente arquivos já cifrados;
 - suportar pelo menos 4 gerações semanais;
 - permitir recuperação/download sem depender do ambiente Production;
-- acesso protegido por autenticação forte e, quando disponível, MFA/Verificação em duas etapas;
+- acesso protegido por autenticação forte;
 - exclusão e retenção só serão automatizadas após prova de recuperação.
+
+A revisão de segurança da conta offsite foi concluída em 02/09/2026. Detalhes de autenticação da conta não são versionados neste repositório público.
 
 ## Evidência real do ciclo offsite — 02/09/2026
 
@@ -297,8 +299,8 @@ Antes de promover para `main`:
 9. envio de uma geração cifrada ao destino offsite — GREEN em 02/09/2026;
 10. download de volta a partir do destino offsite — GREEN em 02/09/2026;
 11. verificação da cópia baixada — GREEN em 02/09/2026;
-12. CI completo GREEN — GREEN histórico no run #69; novo CI do head documental final ainda deve ficar GREEN;
-13. revisão de segurança da conta offsite (MFA/Verificação em duas etapas quando disponível) — pendente;
+12. CI completo GREEN — GREEN histórico até run #72; o head desta reconciliação final ainda exige CI GREEN;
+13. revisão de segurança da conta offsite — GREEN em 02/09/2026; detalhes sensíveis não versionados;
 14. aprovação explícita antes do merge — pendente.
 
-Até os gates aplicáveis desta V1 estarem comprovados, não declarar a segunda cópia offsite como concluída.
+Até o item 14 ser cumprido, não promover esta frente para `main`.
