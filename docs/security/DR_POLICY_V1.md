@@ -1,6 +1,6 @@
 # Roda Festa — DR Operational Policy V1
 
-Status: política técnica aprovada em 02/09/2026; destino local dedicado, restore real e CI comprovados na branch `chore/dr-policy-v1`; aprovação de merge ainda pendente.
+Status: **CONCLUÍDA em 02/09/2026**. Política técnica aprovada, destino local dedicado comprovado, restore real comprovado, CI final GREEN e PR #3 mergeado em `main` no commit `bbfa75a004d3614f160e2af9d3367ad0743e1a67`.
 
 ## Objetivo
 
@@ -221,7 +221,7 @@ Revisar a cada 3 meses ou antes se ocorrer qualquer um destes gatilhos:
 
 ## Gate desta frente
 
-Antes de promover `RF-DR-POLICY-V1` para `main`:
+Resultado final de `RF-DR-POLICY-V1`:
 
 1. política documentada — GREEN;
 2. destino local `D:` implementado de forma controlada — GREEN;
@@ -230,8 +230,10 @@ Antes de promover `RF-DR-POLICY-V1` para `main`:
 5. SHA-256 da cópia igual ao original — GREEN;
 6. novo backup real criado diretamente no destino `D:` — GREEN;
 7. restore real do novo backup GREEN — GREEN;
-8. CI completo GREEN — GREEN (run #66, head `7786bbfffc3341303ecb831369fbd201d3733342`);
+8. CI completo GREEN — GREEN (run #67, head final `0e6ccd623cf42ebef273d6874dae0cdcff62e31b`);
 9. evidência registrada — GREEN;
-10. aprovação explícita antes do merge — pendente.
+10. aprovação explícita antes do merge — GREEN, registrada em 02/09/2026;
+11. PR #3 mergeado em `main` — GREEN, commit `bbfa75a004d3614f160e2af9d3367ad0743e1a67`;
+12. `main` local reconciliada com `origin/main` e working tree limpa — GREEN.
 
-Até o item 10 ser cumprido, **não mergear esta branch em `main`**.
+**RF-DR-POLICY-V1 encerrada.** A próxima unidade de DR é a segunda cópia semanal criptografada e armazenada fora da máquina local.
