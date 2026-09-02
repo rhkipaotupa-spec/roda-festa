@@ -1,6 +1,6 @@
 # Roda Festa — DR Operational Policy V1
 
-Status: proposta técnica aprovada pelo usuário em 02/09/2026, em validação na branch `chore/dr-policy-v1`.
+Status: política técnica aprovada em 02/09/2026; destino local dedicado e restore real comprovados na branch `chore/dr-policy-v1`; CI e aprovação de merge ainda pendentes.
 
 ## Objetivo
 
@@ -68,7 +68,9 @@ O backup continua usando:
 
 ## Destino local padrão
 
-Por decisão operacional de 02/09/2026, o destino local padrão deve migrar para a unidade `D:`.
+Por decisão operacional de 02/09/2026, o destino local padrão no Windows é:
+
+`D:\Backups\Roda-Festa\daily`
 
 Estrutura aprovada:
 
@@ -80,13 +82,48 @@ D:\Backups\Roda-Festa\
   recovery-evidence\
 ```
 
-Destino de backups diários:
+O script aceita override explícito por `RODA_FESTA_BACKUP_DIR`, porém recusa diretório dentro do repositório. No Windows, sem override, usa `D:\Backups\Roda-Festa\daily`.
 
-`D:\Backups\Roda-Festa\daily`
+A cópia de recuperação comprovada de 01/09/2026 foi preservada no local original em `C:\Projetos\roda-festa-backups` e também copiada para `D:`. A cópia no `D:` foi validada sem mover/apagar a origem:
 
-O backup comprovado de 01/09/2026 permanece preservado em `C:\Projetos\roda-festa-backups` até ser copiado para `D:`, validado por tamanho e SHA-256 e só então houver decisão explícita sobre a cópia antiga.
+- arquivo: `roda-festa-production-2026-09-01T18-50-52Z-ec75129.dump`;
+- tamanho: `61165` bytes;
+- SHA-256: `1a463fe3f37ad710d94cba19544de1837b7609b80e5ff1734ebd966cb3592210`;
+- hash e tamanho idênticos ao backup original.
 
-**Não mover/apagar o backup comprovado antigo antes da validação da cópia.**
+A cópia antiga em `C:` não deve ser removida automaticamente. Qualquer limpeza futura exige decisão explícita depois de a segunda cópia criptografada estar comprovada.
+
+## Evidência real do destino D: — 02/09/2026
+
+Na branch `chore/dr-policy-v1`, após teste estático GREEN (`6/6`), foi criado um novo backup real diretamente no destino dedicado:
+
+- resultado: `RODA_FESTA_DB_BACKUP_OK`;
+- arquivo: `D:\Backups\Roda-Festa\daily\roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump`;
+- manifesto: mesmo caminho com sufixo `.json`;
+- tamanho: `61165` bytes;
+- SHA-256: `fdf0f0722c9dfff652b7aafd52592442b279f9d41640d5097d58a9328e0bb42f`;
+- commit registrado no nome: `b3732a0`;
+- tabelas públicas na origem: `6`;
+- `planning_sessions`: `21`;
+- `product_catalog_overrides`: `3`;
+- `product_catalog_history`: `3`.
+
+O mesmo arquivo criado diretamente no `D:` foi submetido ao restore de prova real no banco local descartável `roda_festa_restore_test`.
+
+Resultado:
+
+- `RESTORE_ARCHIVE_READABLE_OK`;
+- `RODA_FESTA_DB_RESTORE_VERIFY_OK`;
+- `RESTORED_PUBLIC_TABLES=6`;
+- `RESTORED_PLANNING_SESSIONS=21`;
+- `RESTORED_CATALOG_OVERRIDES=3`;
+- `RESTORED_CATALOG_HISTORY=3`;
+- `BACKUP_AND_RESTORE_RECOVERY_PROOF_OK`;
+- `RESTORE_TEST_DATABASE_REMOVED`.
+
+Durante o fluxo, `dropdb --if-exists` informou que `roda_festa_restore_test` ainda não existia antes da recriação. Essa mensagem é esperada e não representa falha.
+
+Resultado da unidade: **Production → backup direto no D: → manifesto/SHA-256 → restore real local → contagens idênticas → banco descartável removido** foi comprovado.
 
 ## Retenção local
 
@@ -115,7 +152,7 @@ Nenhum dump bruto deve ser enviado para GitHub, chat, armazenamento público ou 
 
 **Frequência V1 = mensal.**
 
-O drill deve repetir o padrão comprovado em 01/09/2026:
+O drill deve repetir o padrão comprovado em 01/09/2026 e novamente em 02/09/2026:
 
 1. escolher backup + manifesto;
 2. validar tamanho e SHA-256;
@@ -186,15 +223,15 @@ Revisar a cada 3 meses ou antes se ocorrer qualquer um destes gatilhos:
 
 Antes de promover `RF-DR-POLICY-V1` para `main`:
 
-1. política documentada;
-2. destino local `D:` implementado de forma controlada;
-3. backup comprovado copiado para `D:` sem apagar origem;
-4. tamanho da cópia igual ao original;
-5. SHA-256 da cópia igual ao original;
-6. novo backup real criado diretamente no destino `D:`;
-7. restore real do novo backup GREEN;
-8. CI GREEN;
-9. evidência registrada;
-10. aprovação explícita antes do merge.
+1. política documentada — GREEN;
+2. destino local `D:` implementado de forma controlada — GREEN;
+3. backup comprovado copiado para `D:` sem apagar origem — GREEN;
+4. tamanho da cópia igual ao original — GREEN;
+5. SHA-256 da cópia igual ao original — GREEN;
+6. novo backup real criado diretamente no destino `D:` — GREEN;
+7. restore real do novo backup GREEN — GREEN;
+8. CI completo GREEN — pendente;
+9. evidência registrada — GREEN;
+10. aprovação explícita antes do merge — pendente.
 
-Até esses gates serem cumpridos, **não mergear esta branch em `main`**.
+Até os itens 8 e 10 serem cumpridos, **não mergear esta branch em `main`**.
