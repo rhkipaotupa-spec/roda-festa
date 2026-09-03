@@ -32,6 +32,9 @@ jobs:
       - name: Focused Admin Commercial tests
         run: node --test tests/admin-commercial-v1-*.test.mjs
 
+      - name: Security regression gates
+        run: npm run test:security
+
       - name: Full test suite
         run: npm test
 
