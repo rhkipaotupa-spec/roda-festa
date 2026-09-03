@@ -58,6 +58,40 @@ test("identity store normaliza identificador e usa service role somente server-s
   );
 });
 
+test("identity store consulta identidade atual por userId para validar sessao", async () => {
+  let request = null;
+
+  const store = createSupabaseAdminIdentityStore({
+    env: {
+      SUPABASE_URL: "https://project.supabase.test/",
+      SUPABASE_SERVICE_ROLE_KEY: "service-role-test-only",
+    },
+    fetchImpl: async (url, options) => {
+      request = { url, options };
+      return response([{
+        id: "admin-1",
+        role: "ADMIN",
+        capabilities: ["journey:read"],
+        active: false,
+        credential_algorithm: "scrypt",
+        credential_salt: "salt-value",
+        credential_hash: "hash-value",
+        credential_key_length: 32,
+        metadata: { source: "supabase" },
+      }]);
+    },
+  });
+
+  const identity = await store.findByUserId("  admin-1  ");
+
+  assert.match(request.url, /admin_users\?id=eq\.admin-1/);
+  assert.equal(request.options.method, "GET");
+  assert.equal(identity.userId, "admin-1");
+  assert.equal(identity.role, "ADMIN");
+  assert.deepEqual(identity.capabilities, ["journey:read"]);
+  assert.equal(identity.active, false);
+});
+
 test("identity store mapeia registro Supabase para contrato do verifier", async () => {
   const store = createSupabaseAdminIdentityStore({
     env: {
@@ -95,7 +129,7 @@ test("identity store mapeia registro Supabase para contrato do verifier", async 
   });
 });
 
-test("identity store retorna null para identificador inexistente", async () => {
+test("identity store retorna null para identificador ou userId inexistente", async () => {
   const store = createSupabaseAdminIdentityStore({
     env: {
       SUPABASE_URL: "https://project.supabase.test",
@@ -106,6 +140,10 @@ test("identity store retorna null para identificador inexistente", async () => {
 
   assert.equal(
     await store.findByIdentifier("missing@example.test"),
+    null,
+  );
+  assert.equal(
+    await store.findByUserId("missing-user"),
     null,
   );
 });
