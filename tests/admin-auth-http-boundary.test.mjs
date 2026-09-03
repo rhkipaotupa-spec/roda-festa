@@ -25,6 +25,16 @@ function fixture({
       capabilities: ["journey:read"],
     };
   },
+  resolveIdentityByUserId = async (userId) => (
+    userId === "owner-1"
+      ? {
+          userId: "owner-1",
+          role: "OWNER",
+          capabilities: ["journey:read"],
+          active: true,
+        }
+      : null
+  ),
 } = {}) {
   const adapter = createMemoryAdminSessionAdapter({ env: { NODE_ENV: "test" } });
   const repository = createAdminSessionRepository(adapter, {
@@ -38,6 +48,7 @@ function fixture({
   const composition = createAdminAuthenticationComposition({
     sessionRepository: repository,
     authorizationBoundary: boundary,
+    resolveIdentityByUserId,
     now: () => new Date(NOW),
   });
   const env = {

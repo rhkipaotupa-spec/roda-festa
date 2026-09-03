@@ -83,19 +83,27 @@ Para qualquer nova tela administrativa, botão privilegiado, configuração ou e
 
 ### S3 — Sessões administrativas e revogação de privilégios
 
-A auditoria de 03/09/2026 confirmou um risco real: uma sessão Admin já emitida pode continuar usando `role`/`capabilities` armazenadas em `admin_sessions` mesmo após a identidade em `admin_users` ser desativada ou rebaixada.
+A auditoria de 03/09/2026 confirmou um risco real: uma sessão Admin já emitida podia continuar usando `role`/`capabilities` armazenadas em `admin_sessions` mesmo após a identidade em `admin_users` ser desativada ou rebaixada.
 
-Portanto, esta correção entra no fluxo como **P1 de segurança** e deve ser tratada em unidade técnica própria antes de considerar o modelo de sessão completamente endurecido.
+A unidade P1 implementa o fechamento por **revalidação da identidade atual em toda autenticação de sessão Admin**:
+
+- a sessão opaca continua sendo validada por token, revogação e expiração;
+- em seguida o servidor consulta `admin_users` pelo `userId` confiável da sessão;
+- `active=false`, identidade ausente ou identidade incompatível invalidam a autenticação;
+- `role` e `capabilities` usados pela autorização são reconstruídos a partir do registro atual de `admin_users`, e não do snapshot antigo da sessão;
+- falha no lookup de identidade permanece fail-closed;
+- nenhuma credencial é revalidada a cada request e nenhum segredo novo é exposto.
 
 Critério mínimo para fechamento:
 
-- [ ] sessão existente deixa de autorizar imediatamente após `active=false` no usuário; ou
-- [ ] todas as sessões daquele usuário são revogadas de forma confiável na mesma alteração de identidade;
-- [ ] redução de role/capability não permanece válida em sessão antiga;
-- [ ] testes RED → GREEN cobrem desativação, downgrade de papel/capability e sessão expirada/revogada;
-- [ ] nenhuma regressão em login, logout, refresh/rotação e endpoints Admin atuais.
+- [x] sessão existente deixa de autorizar imediatamente após `active=false` no usuário;
+- [x] redução de role/capability não permanece válida em sessão antiga;
+- [x] testes RED → GREEN cobrem desativação e downgrade de papel/capability;
+- [x] regressões de revogação, rotação e expiração continuam cobertas pela suíte existente;
+- [x] login/logout/refresh e endpoints Admin continuam cobertos pela suíte integral;
+- [ ] merge aprovado e reconciliação pós-merge concluídos.
 
-Até essa correção ser concluída, qualquer alteração em autenticação/autorização deve considerar esse risco explicitamente.
+A correção só é considerada definitivamente fechada em Production depois do último item acima.
 
 ### S4 — IDOR
 
@@ -184,11 +192,13 @@ Após merge autorizado:
 5. para mudanças de banco, confirmar integridade e executar backup pós-mudança quando exigido;
 6. registrar novo checkpoint/snapshot seguro quando a frente justificar.
 
-## 7. Prioridades abertas derivadas da auditoria de 03/09/2026
+## 7. Prioridades derivadas da auditoria de 03/09/2026
 
 ### P1 — Corrigir revogação/downgrade de sessão Admin
 
-Achado verificado e acionável. Deve ser a primeira correção de segurança desta auditoria.
+**Estado: CORREÇÃO IMPLEMENTADA / AGUARDANDO MERGE E RECONCILIAÇÃO FINAL.**
+
+A prova RED confirmou os três comportamentos inseguros esperados: sessão inativa continuava autenticada, downgrade continuava com role antiga e o runtime não possuía lookup atual por `userId`. A implementação posterior deixou esses testes GREEN e preservou as regressões existentes de login, logout, rotação, revogação e expiração.
 
 ### P2 — Automatizar security regression gates
 

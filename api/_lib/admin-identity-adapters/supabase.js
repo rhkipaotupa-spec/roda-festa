@@ -19,24 +19,55 @@ function normalizeIdentifier(value) {
   return String(value || "").trim().toLowerCase();
 }
 
-function mapIdentity(row) {
+function normalizeUserId(value) {
+  return String(value || "").trim();
+}
+
+function identitySelect({ includeCredential = true } = {}) {
+  const fields = [
+    "id",
+    "identifier",
+    "role",
+    "capabilities",
+    "active",
+    "metadata",
+  ];
+
+  if (includeCredential) {
+    fields.splice(5, 0,
+      "credential_algorithm",
+      "credential_salt",
+      "credential_hash",
+      "credential_key_length",
+    );
+  }
+
+  return fields.join(",");
+}
+
+function mapIdentity(row, { includeCredential = true } = {}) {
   if (!row) return null;
 
-  return Object.freeze({
+  const identity = {
     userId: String(row.id || "").trim(),
     role: String(row.role || "").trim(),
     capabilities: Object.freeze(
       Array.isArray(row.capabilities) ? [...row.capabilities] : [],
     ),
     active: row.active !== false,
-    credential: Object.freeze({
+    metadata: row.metadata ?? null,
+  };
+
+  if (includeCredential) {
+    identity.credential = Object.freeze({
       algorithm: String(row.credential_algorithm || ""),
       salt: String(row.credential_salt || ""),
       hash: String(row.credential_hash || ""),
       keyLength: Number(row.credential_key_length),
-    }),
-    metadata: row.metadata ?? null,
-  });
+    });
+  }
+
+  return Object.freeze(identity);
 }
 
 export function createSupabaseAdminIdentityStore({
@@ -64,29 +95,30 @@ export function createSupabaseAdminIdentityStore({
     return text ? JSON.parse(text) : [];
   }
 
+  async function findByIdentifier(identifier) {
+    const normalized = normalizeIdentifier(identifier);
+    if (!normalized) return null;
+
+    const rows = await request(
+      `admin_users?identifier=${eq(normalized)}&select=${identitySelect()}&limit=1`,
+    );
+
+    return mapIdentity(rows?.[0] || null);
+  }
+
+  async function findByUserId(userId) {
+    const normalized = normalizeUserId(userId);
+    if (!normalized) return null;
+
+    const rows = await request(
+      `admin_users?id=${eq(normalized)}&select=${identitySelect({ includeCredential: false })}&limit=1`,
+    );
+
+    return mapIdentity(rows?.[0] || null, { includeCredential: false });
+  }
+
   return Object.freeze({
-    async findByIdentifier(identifier) {
-      const normalized = normalizeIdentifier(identifier);
-      if (!normalized) return null;
-
-      const select = [
-        "id",
-        "identifier",
-        "role",
-        "capabilities",
-        "active",
-        "credential_algorithm",
-        "credential_salt",
-        "credential_hash",
-        "credential_key_length",
-        "metadata",
-      ].join(",");
-
-      const rows = await request(
-        `admin_users?identifier=${eq(normalized)}&select=${select}&limit=1`,
-      );
-
-      return mapIdentity(rows?.[0] || null);
-    },
+    findByIdentifier,
+    findByUserId,
   });
 }

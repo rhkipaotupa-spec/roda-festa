@@ -16,22 +16,37 @@ function createFixture({
     env: { NODE_ENV: "test" },
   });
 
-  const repository = createAdminSessionRepository(adapter, {
+  const rawRepository = createAdminSessionRepository(adapter, {
     now: () => new Date(NOW),
     tokenFactory: () => tokens.shift(),
+  });
+  const identities = new Map();
+  const repository = Object.freeze({
+    ...rawRepository,
+    async createSession(input) {
+      const userId = String(input?.userId || "").trim();
+      identities.set(userId, Object.freeze({
+        userId,
+        role: String(input?.role || "").trim(),
+        capabilities: Object.freeze([...(input?.capabilities || [])]),
+        active: true,
+      }));
+      return rawRepository.createSession(input);
+    },
   });
 
   const boundary = createAdminAuthorizationBoundary({ allowedRoles });
   const composition = createAdminAuthenticationComposition({
     sessionRepository: repository,
     authorizationBoundary: boundary,
+    resolveIdentityByUserId: async (userId) => identities.get(String(userId)) || null,
     now: () => new Date(NOW),
   });
 
-  return { adapter, repository, boundary, composition };
+  return { adapter, repository, boundary, composition, identities };
 }
 
-test("composicao exige repository e boundary reais", () => {
+test("composicao exige repository, boundary e resolver de identidade reais", () => {
   const boundary = createAdminAuthorizationBoundary();
 
   assert.throws(
@@ -44,6 +59,14 @@ test("composicao exige repository e boundary reais", () => {
       sessionRepository: { resolveSession: async () => null },
     }),
     /admin_auth_composition_authorization_boundary_required/,
+  );
+
+  assert.throws(
+    () => createAdminAuthenticationComposition({
+      sessionRepository: { resolveSession: async () => null },
+      authorizationBoundary: boundary,
+    }),
+    /admin_auth_composition_identity_resolver_required/,
   );
 });
 
@@ -185,6 +208,12 @@ test("sessao expirada no repository nao chega ao autenticador", async () => {
   const composition = createAdminAuthenticationComposition({
     sessionRepository: repository,
     authorizationBoundary: boundary,
+    resolveIdentityByUserId: async (userId) => ({
+      userId,
+      role: "OWNER",
+      capabilities: ["journey:read"],
+      active: true,
+    }),
     now: () => new Date(current),
   });
 

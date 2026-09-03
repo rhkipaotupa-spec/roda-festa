@@ -46,7 +46,11 @@ export function createAdminRuntime({
     fetchImpl,
   });
 
-  if (!identityStore || typeof identityStore.findByIdentifier !== "function") {
+  if (
+    !identityStore
+    || typeof identityStore.findByIdentifier !== "function"
+    || typeof identityStore.findByUserId !== "function"
+  ) {
     throw new Error("admin_runtime_identity_store_invalid");
   }
 
@@ -71,6 +75,7 @@ export function createAdminRuntime({
   const authenticationComposition = createAuthenticationComposition({
     sessionRepository,
     authorizationBoundary,
+    resolveIdentityByUserId: identityStore.findByUserId,
     cookieName,
     now,
   });

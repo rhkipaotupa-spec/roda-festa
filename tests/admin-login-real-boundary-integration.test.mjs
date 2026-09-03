@@ -25,12 +25,6 @@ function createFixture() {
     allowedRoles: ["OWNER"],
   });
 
-  const authenticationComposition = createAdminAuthenticationComposition({
-    sessionRepository,
-    authorizationBoundary,
-    now: () => new Date(NOW),
-  });
-
   const credentialRecord = {
     userId: "owner-1",
     role: "OWNER",
@@ -40,6 +34,15 @@ function createFixture() {
       salt: Buffer.alloc(16, 31),
     }),
   };
+
+  const authenticationComposition = createAdminAuthenticationComposition({
+    sessionRepository,
+    authorizationBoundary,
+    resolveIdentityByUserId: async (userId) => (
+      userId === credentialRecord.userId ? credentialRecord : null
+    ),
+    now: () => new Date(NOW),
+  });
 
   const verifyCredential = createAdminCredentialVerifier({
     findByIdentifier: async (identifier) => (

@@ -38,6 +38,8 @@ test("runtime admin exige fetch server-side valido", () => {
 
 test("runtime compoe identity verifier session repository authorization e login", () => {
   const calls = [];
+  const findByIdentifier = async () => null;
+  const findByUserId = async () => null;
 
   const runtime = createAdminRuntime({
     env: ENV,
@@ -47,7 +49,8 @@ test("runtime compoe identity verifier session repository authorization e login"
     createIdentityStore(options) {
       calls.push(["identity", options.env, options.fetchImpl]);
       return {
-        findByIdentifier: async () => null,
+        findByIdentifier,
+        findByUserId,
       };
     },
     createCredentialVerifier(options) {
@@ -81,6 +84,7 @@ test("runtime compoe identity verifier session repository authorization e login"
     },
     createAuthenticationComposition(options) {
       calls.push(["authentication", options]);
+      assert.equal(options.resolveIdentityByUserId, findByUserId);
       return {
         authenticate() {},
       };
@@ -111,6 +115,21 @@ test("runtime compoe identity verifier session repository authorization e login"
   );
 });
 
+test("runtime rejeita identity store sem lookup atual por userId", () => {
+  assert.throws(
+    () => createAdminRuntime({
+      env: ENV,
+      fetchImpl: async () => {
+        throw new Error("not_used");
+      },
+      createIdentityStore: () => ({
+        findByIdentifier: async () => null,
+      }),
+    }),
+    /admin_runtime_identity_store_invalid/,
+  );
+});
+
 test("runtime nao contem fallback para adapter admin em memoria", async () => {
   const source = await readFile(
     new URL("../api/_lib/admin-runtime.js", import.meta.url),
@@ -135,6 +154,7 @@ test("runtime nao expoe service role em seu objeto publico", () => {
     },
     createIdentityStore: () => ({
       findByIdentifier: async () => null,
+      findByUserId: async () => null,
     }),
     createSessionAdapter: () => ({
       create() {},
@@ -177,25 +197,36 @@ test("runtime real fecha login ponta a ponta usando adapters Supabase simulados"
   });
 
   let sessionRow = null;
+  const identityRow = {
+    id: "owner-1",
+    identifier: "owner@example.test",
+    role: "OWNER",
+    capabilities: ["journey:read"],
+    active: true,
+    credential_algorithm: credential.algorithm,
+    credential_salt: credential.salt,
+    credential_hash: credential.hash,
+    credential_key_length: credential.keyLength,
+    metadata: { source: "test" },
+  };
 
   const fetchImpl = async (url, options = {}) => {
-    if (url.includes("/rest/v1/admin_users?")) {
+    if (url.includes("/rest/v1/admin_users?identifier=")) {
       return {
         ok: true,
         status: 200,
         async text() {
-          return JSON.stringify([{
-            id: "owner-1",
-            identifier: "owner@example.test",
-            role: "OWNER",
-            capabilities: ["journey:read"],
-            active: true,
-            credential_algorithm: credential.algorithm,
-            credential_salt: credential.salt,
-            credential_hash: credential.hash,
-            credential_key_length: credential.keyLength,
-            metadata: { source: "test" },
-          }]);
+          return JSON.stringify([identityRow]);
+        },
+      };
+    }
+
+    if (url.includes("/rest/v1/admin_users?id=")) {
+      return {
+        ok: true,
+        status: 200,
+        async text() {
+          return JSON.stringify([identityRow]);
         },
       };
     }
