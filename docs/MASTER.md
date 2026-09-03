@@ -15,14 +15,33 @@ Não deve parecer um formulário tradicional. Deve funcionar como uma experiênc
 1. Encantar antes de pedir dados.
 2. Explicar recomendações em linguagem humana.
 3. Nunca fazer uma recomendação parecer apenas uma venda.
-4. Mostrar segurança operacional: capacidade, quantidade, tempo, filas e equilíbrio.
+4. Mostrar segurança operacional sem inventar capacidade ou evidência inexistente.
 5. Manter estética premium, escura, dourada, elegante e cinematográfica.
-6. Priorizar textos em HTML/CSS; evitar textos incorporados em imagens quando a qualidade e responsividade forem importantes.
-7. Cada tela precisa manter o nível visual alcançado na Welcome.
+6. Priorizar textos em HTML/CSS; evitar textos incorporados em imagens quando qualidade e responsividade forem importantes.
+7. Preservar histórico, snapshots e versões em vez de reescrever fatos antigos.
+8. Tratar recomendação automática como ponto de partida editável, não imposição.
+9. Servidor é autoridade de preço e integridade comercial.
+10. Alterações aprovadas/congeladas só devem ser reabertas por feedback real ou necessidade funcional comprovada.
 
-## Status atual
+## Estado reconciliado — 03/09/2026
 
-### Welcome
+Baseline seguro de retomada:
+
+`3ba6b42696993916a1cb28991f32e9049e7fe66b`
+
+Estado principal:
+
+- Planning Book ativo em `/planning-book`;
+- catálogo persistido carregado em runtime por `/api/product-catalog`;
+- Admin autenticado em `/admin`;
+- navegação Admin atual: **Orçamentos → Agenda → Produtos**;
+- Archive / Trash / Restore implementados de forma reversível;
+- edição administrativa de orçamento preservando histórico;
+- catálogo com edição individual e em massa por categoria;
+- Admin Commercial V1 aprovado/congelado até feedback real;
+- Disaster Recovery V1 concluído, incluindo backup lógico, restore real, política operacional e segunda cópia semanal criptografada/offsite.
+
+## Welcome
 
 **STATUS: APROVADA / CONGELADA — v1.0**
 
@@ -42,33 +61,138 @@ Características aprovadas:
 - texto de apoio: `Montando os primeiros detalhes do seu evento...`;
 - barra de progresso e pontos animados.
 
-Regra: não reabrir refinamentos da Welcome sem um motivo funcional real.
+Regra: não reabrir refinamentos da Welcome sem motivo funcional real.
 
-## Próxima frente
+## Arquitetura funcional atual
 
-Evoluir a tela de seleção de evento e o planejador, mantendo o mesmo nível premium da Welcome.
+A jornada principal do cliente segue o fluxo:
 
-## Arquitetura funcional já existente
+`Início → Evento → Cardápio → Ajustes → Validação → Conclusão`
+
+A arquitetura atual inclui:
 
 - seleção do tipo de evento;
-- seleção de perfil do planejamento;
-- motor de cálculo (`PlannerEngine`);
-- catálogo de itens e perfis;
-- regras de quantidade;
-- cena com carrinhos;
-- estado inicial do planejador;
-- rodapé de progresso.
+- data e composição de convidados;
+- seleção de cardápio por categoria;
+- recomendação autoritativa RF-REC-2;
+- ajustes manuais completos da recomendação;
+- cálculo de carrinhos, equipe, serviços e investimento;
+- Commercial Ledger como fonte financeira canônica;
+- persistência server-side de PlanningSession;
+- RecommendationSnapshot e FinalProposalSnapshot históricos;
+- Admin com leitura da jornada, agenda, lifecycle e catálogo;
+- revisão administrativa de proposta sem apagar a origem;
+- PDF/proposta com investimento contratado, consignação e estimativa geral separados semanticamente.
 
-## Modelo de convidados
+## Motor autoritativo
 
-- o cliente informa quantidade de adultos e crianças;
-- para cálculo, 1 criança equivale a 0,5 adulto;
-- o sistema considera início e término do evento;
+Versões efetivas reconciliadas em 03/09/2026:
+
+- recomendação: `RF-REC-2.1.0`;
+- parâmetros: `RF-PARAM-2.0.0-r4-elicited-2026-08-29`;
+- regras comerciais: `RF-COM-1.0.0`;
+- price book: `RF-PRICE-2026-08-24`.
+
+A promoção histórica de `RF-REC-2.0.0` em 29/08/2026 permanece verdadeira e não deve ser reescrita. A versão `2.1.0` é evolução posterior relacionada à integração do Brigadeiro no Tacho e à correção da sua quantidade por convidados reais.
+
+Dados reais calibram versões candidatas; não alteram automaticamente o motor em Production.
+
+## Modelo de convidados atual
+
+- adultos: fator `1,0`;
+- crianças de 7 anos ou mais: fator `1,0`;
+- crianças de 0–6 anos: fator `0,35` para convidados equivalentes;
+- contagem real de convidados continua preservada separadamente;
 - preço-base contempla 4 horas;
-- hora adicional é calculada por carrinho.
+- hora adicional é calculada segundo a estrutura/carrinhos cobrados.
 
-## Capacidade e operação
+A regra antiga de `1 criança = 0,5 adulto` é histórica e não representa o motor autoritativo atual.
 
-- Mini X-Burguer e Mini Hot Dog podem compartilhar o mesmo carrinho;
-- a recomendação deve considerar capacidade do carrinho, produção média, duração e número equivalente de convidados;
-- o sistema deve explicar por que recomenda determinada quantidade de carrinhos.
+## Brigadeiro no Tacho
+
+Contrato atual:
+
+- 80 g por pessoa real;
+- R$ 12,00 por porção de 80 g;
+- opções: Chocolate, Leite Ninho e Meio a Meio;
+- Meio a Meio representa 40 g + 40 g por pessoa;
+- capacidade por hora ainda não foi medida: `productionPerHour = null`;
+- com bebidas, compartilha o carrinho de bebidas;
+- sem bebidas, exige carrinho próprio;
+- não compartilhar com frituras, mini lanches ou tortas.
+
+Não inventar capacidade operacional para o Tacho.
+
+## Catálogo e capacidade
+
+O catálogo persistido alimenta o Planning Book em runtime. Alterações de preço, lote ou capacidade devem ser versionadas e não podem reprecificar propostas históricas automaticamente.
+
+Existe um ponto de atenção não bloqueante: o cadastro de produto novo atualmente herda defaults de `productionPerHour` conforme a categoria, exceto Tacho. Esses defaults são valores históricos do catálogo-base e **não devem ser apresentados conceitualmente como nova medição operacional**. A proveniência/captura futura de capacidade deve ser tratada em unidade própria antes de qualquer mudança de comportamento.
+
+## Admin
+
+Estado aprovado/congelado:
+
+- Orçamentos: Ativos / Arquivados / Lixeira;
+- agrupamento por mês do evento;
+- busca que abre grupos relevantes;
+- Histórico;
+- Editar orçamento quando aplicável;
+- Agenda derivada de `planning_sessions`, sem tabela paralela;
+- múltiplos eventos na mesma data = atenção operacional, não conflito presumido;
+- Produtos agrupados por categoria;
+- edição individual;
+- edição em massa de preço, lote e capacidade;
+- histórico/versionamento preservados;
+- sem hard delete operacional nesta versão.
+
+`Clientes` e `Aprendizados` permanecem futuros. Não criar módulo `Pedidos` enquanto não existir entidade/lifecycle operacional distinta do orçamento validado.
+
+## Disaster Recovery
+
+Estado atual: **CONCLUÍDO**.
+
+Camadas comprovadas:
+
+1. Git/GitHub para histórico de código e checkpoints;
+2. Vercel para deployments e rollback;
+3. backups físicos/restore do Supabase;
+4. backup lógico independente com `pg_dump`, manifesto, SHA-256 e contagens;
+5. restore real isolado em `roda_festa_restore_test`;
+6. cópia semanal autenticadamente cifrada com AES-256-GCM;
+7. cópia off-machine no Google Drive somente dos artefatos cifrados;
+8. download da cópia offsite e verificação criptográfica contra os bytes recuperados.
+
+Política V1:
+
+- RPO = 24 horas;
+- RTO = 4 horas;
+- backup lógico diário;
+- backup adicional antes/depois de migration ou intervenção relevante de dados;
+- pelo menos 14 gerações diárias locais;
+- uma cópia semanal cifrada/offsite;
+- meta de 4 gerações semanais;
+- restore drill mensal;
+- PITR desligado no estágio atual;
+- nenhuma retenção destrutiva automatizada sem unidade própria, testes e prova fail-closed.
+
+Destino local padrão:
+
+`D:\Backups\Roda-Festa\daily`
+
+Staging semanal:
+
+`D:\Backups\Roda-Festa\weekly`
+
+Nenhum segredo, chave, token, senha, cookie, connection string privilegiada ou conteúdo de `.env*` deve ser registrado em Git ou documentação.
+
+## Próxima direção
+
+A prioridade volta a ser produto e operação real:
+
+1. usar Production em casos reais;
+2. coletar feedback da operação;
+3. preservar casos reais confiáveis para teste cego do recomendador;
+4. não recalibrar motor sem evidência suficiente;
+5. evoluir Peak Capacity somente quando existirem dados reais de throughput, equipamento, equipe, duração e concorrência entre produtos;
+6. manter documentação e snapshots reconciliados a cada novo checkpoint relevante.
