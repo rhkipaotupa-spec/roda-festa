@@ -19,6 +19,25 @@ function normalizeIdentifier(value) {
   return String(value || "").trim().toLowerCase();
 }
 
+function normalizeUserId(value) {
+  return String(value || "").trim();
+}
+
+function identitySelect() {
+  return [
+    "id",
+    "identifier",
+    "role",
+    "capabilities",
+    "active",
+    "credential_algorithm",
+    "credential_salt",
+    "credential_hash",
+    "credential_key_length",
+    "metadata",
+  ].join(",");
+}
+
 function mapIdentity(row) {
   if (!row) return null;
 
@@ -64,29 +83,30 @@ export function createSupabaseAdminIdentityStore({
     return text ? JSON.parse(text) : [];
   }
 
+  async function findByIdentifier(identifier) {
+    const normalized = normalizeIdentifier(identifier);
+    if (!normalized) return null;
+
+    const rows = await request(
+      `admin_users?identifier=${eq(normalized)}&select=${identitySelect()}&limit=1`,
+    );
+
+    return mapIdentity(rows?.[0] || null);
+  }
+
+  async function findByUserId(userId) {
+    const normalized = normalizeUserId(userId);
+    if (!normalized) return null;
+
+    const rows = await request(
+      `admin_users?id=${eq(normalized)}&select=${identitySelect()}&limit=1`,
+    );
+
+    return mapIdentity(rows?.[0] || null);
+  }
+
   return Object.freeze({
-    async findByIdentifier(identifier) {
-      const normalized = normalizeIdentifier(identifier);
-      if (!normalized) return null;
-
-      const select = [
-        "id",
-        "identifier",
-        "role",
-        "capabilities",
-        "active",
-        "credential_algorithm",
-        "credential_salt",
-        "credential_hash",
-        "credential_key_length",
-        "metadata",
-      ].join(",");
-
-      const rows = await request(
-        `admin_users?identifier=${eq(normalized)}&select=${select}&limit=1`,
-      );
-
-      return mapIdentity(rows?.[0] || null);
-    },
+    findByIdentifier,
+    findByUserId,
   });
 }
