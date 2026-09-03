@@ -207,6 +207,12 @@ Após merge autorizado:
 
 **FECHADO na cobertura executada em 03/09/2026.** Histórico Git/object database local, `src/planner.zip` e bundle Vite foram verificados sem findings do Gitleaks v8.30.1. Ver `docs/security/P3_SECRET_SCAN_2026-09-03.md`.
 
+### P4 — Auditoria de dependências npm
+
+**VALIDADO LOCALMENTE em 03/09/2026; fechamento condicionado ao merge aprovado da PR.** A investigação separou runtime de tooling, atualizou `react-router-dom/react-router` para 7.18.2, `brace-expansion` para 5.0.9 e `nanoid` para 3.3.18. Após a remediação, `npm audit --json` e `npm audit --omit=dev --json` retornaram zero vulnerabilidades; `npm run test:security`, `npm test`, lint, build e `git diff --check` passaram no conteúdo técnico commitado. Evidência detalhada: `docs/security/P4_DEPENDENCY_AUDIT_2026-09-03.md`.
+
+Até o merge aprovado e a reconciliação pós-merge, o baseline seguro oficial permanece `5cb1f43bb16e4d21c40604e9a7df9fbfac43fd5a`.
+
 ## 9. Regra de segurança para velocidade
 
 - mudança pequena → gates proporcionais;
