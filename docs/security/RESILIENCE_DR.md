@@ -6,7 +6,7 @@ Status: **CONCLUÍDO e reconciliado em 03/09/2026**.
 
 O Roda Festa não deve depender de um único caminho de recuperação. A operação combina histórico de código/deploy, backups gerenciados do Supabase, backup lógico independente, restore real isolado e uma segunda cópia semanal criptografada fora da máquina local.
 
-Princípio: **backup só é considerado comprovado quando sua integridade é validada e um restore isolado real foi executado com sucesso.** Para a camada offsite, a cadeia inclui também autenticação criptográfica, download de volta e comparação com os bytes originais.
+Princípio: **backup só é considerado comprovado quando um restore isolado foi executado e validado.** A integridade do arquivo também deve ser validada antes do restore. Para a camada offsite, a cadeia inclui ainda autenticação criptográfica, download de volta e comparação com os bytes originais.
 
 ## Baseline reconciliado
 
