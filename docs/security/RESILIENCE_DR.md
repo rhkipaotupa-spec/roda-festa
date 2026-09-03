@@ -1,93 +1,153 @@
 # Roda Festa — Resiliência, Backups e Disaster Recovery
 
-Status: implementação em validação na branch `chore/backup-recovery-v1`.
+Status: **CONCLUÍDO e reconciliado em 03/09/2026**.
 
 ## Objetivo
 
-O Roda Festa não deve depender de um único caminho de recuperação. O banco gerenciado pelo Supabase possui backups físicos agendados, mas a operação também deve manter uma cópia lógica independente e uma prova periódica de restore real.
+O Roda Festa não deve depender de um único caminho de recuperação. A operação combina histórico de código/deploy, backups gerenciados do Supabase, backup lógico independente, restore real isolado e uma segunda cópia semanal criptografada fora da máquina local.
 
-Princípio: **backup só é considerado comprovado quando um restore isolado foi executado e validado.**
+Princípio: **backup só é considerado comprovado quando sua integridade é validada e um restore isolado real foi executado com sucesso.** Para a camada offsite, a cadeia inclui também autenticação criptográfica, download de volta e comparação com os bytes originais.
+
+## Baseline reconciliado
+
+Baseline seguro de retomada após o fechamento do DR em 02/09/2026:
+
+`3ba6b42696993916a1cb28991f32e9049e7fe66b`
+
+Esse commit é o merge do PR #5 `RF-DR-WEEKLY-OFFSITE-V1`.
 
 ## Camadas de proteção
 
 ### 1. Código e deploy
 
-- GitHub preserva histórico de código e checkpoints.
-- Vercel permite rollback para deployment anterior ou específico.
-- Checkpoint de Production na criação desta frente: `410f76217d2d8192a427ad046d37457ff4b7e8a0`.
+- GitHub preserva histórico de código e checkpoints;
+- Vercel permite rollback/promote de deployments;
+- `main` é linha canônica de Production e não deve ser usada para experimentação;
+- mudanças relevantes passam por branch isolada, gates e PR;
+- merge exige aprovação explícita.
 
 ### 2. Banco gerenciado
 
 Auditoria visual de 01/09/2026 confirmou:
 
-- backups físicos agendados disponíveis para restauração;
-- múltiplos pontos recentes com status válido;
-- `Restore to new project (BETA)` disponível;
+- backups físicos agendados disponíveis;
+- Restore disponível;
+- Restore to new project disponível;
 - Point-in-Time Recovery (PITR) não habilitado no estágio atual;
 - Supabase Storage sem buckets/objetos no momento da auditoria.
 
-Para incidente de dados grande ou incerto, preferir restaurar primeiro em projeto isolado quando possível, validar e só então decidir ação sobre Production.
+Para incidente de dados grande ou incerto, preferir restaurar primeiro em ambiente isolado quando possível, validar e só então decidir ação sobre Production.
 
 ### 3. Backup lógico independente
 
-Scripts desta frente:
+Scripts:
 
-- `scripts/db/create-production-backup.mjs`
-- `scripts/db/verify-restore.mjs`
-- `scripts/lib/postgres-connection.mjs`
+- `scripts/db/create-production-backup.mjs`;
+- `scripts/db/verify-restore.mjs`;
+- `scripts/lib/postgres-connection.mjs`.
 
 O backup:
 
 - usa `pg_dump` em formato custom;
-- inclui somente o schema `public`;
+- inclui schema `public`;
 - não exporta ownership/privileges;
-- é salvo fora do repositório, em `../roda-festa-backups`;
+- é salvo fora do repositório;
 - recebe timestamp e commit Git no nome;
-- recebe manifesto JSON com tamanho, SHA-256, commit e contagens de origem;
-- nunca imprime URL, senha ou ambiente de conexão.
+- recebe manifesto JSON com tamanho, SHA-256, commit e contagens da origem;
+- não imprime URL, senha ou segredo de conexão.
+
+Destino padrão Windows:
+
+`D:\Backups\Roda-Festa\daily`
+
+Override opcional:
+
+`RODA_FESTA_BACKUP_DIR`
+
+O script recusa diretórios dentro do repositório.
+
+### 4. Restore real isolado
 
 O restore de prova:
 
 - exige confirmação destrutiva explícita;
-- recusa qualquer host que não seja `localhost`, `127.0.0.1` ou `::1`;
+- aceita apenas `localhost`, `127.0.0.1` ou `::1`;
 - exige o banco descartável exato `roda_festa_restore_test`;
+- recusa origem e alvo incompatíveis com a política;
 - valida SHA-256 e tamanho antes do restore;
-- executa `pg_restore --list` antes de apagar/criar o alvo;
-- recria somente o banco local reservado;
-- usa `pg_restore --clean --if-exists` para limpar objetos pré-existentes no banco descartável antes da restauração;
-- compara automaticamente as contagens restauradas com o manifesto;
-- remove o banco descartável depois de GREEN, salvo pedido explícito para inspeção.
+- executa `pg_restore --list` antes de recriar o alvo;
+- usa `pg_restore --clean --if-exists` no banco descartável;
+- compara contagens restauradas com o manifesto;
+- remove o banco descartável depois de GREEN, salvo inspeção explícita.
 
-## Baseline de prova atual
+### 5. Segunda cópia semanal criptografada
 
-No momento em que esta frente foi desenhada, a origem possuía:
+Scripts:
 
-- 6 tabelas públicas;
-- 21 registros em `planning_sessions`;
-- 3 registros em `product_catalog_overrides`;
-- 3 registros em `product_catalog_history`.
+- `scripts/db/create-weekly-encrypted-copy.mjs`;
+- `scripts/db/verify-weekly-encrypted-copy.mjs`;
+- `scripts/lib/backup-encryption.mjs`.
 
-Esses números são evidência histórica, não valores hardcoded. Cada novo backup consulta a origem e grava suas próprias contagens no manifesto.
+Staging semanal padrão:
 
-## Evidência real de backup e restore — 01/09/2026
+`D:\Backups\Roda-Festa\weekly`
 
-Primeira prova completa desta frente executada localmente contra o banco de Production do Roda Festa, usando PostgreSQL 18.6 no Windows.
+Formato:
 
-Backup lógico independente criado com sucesso:
+`rf-weekly-aes-256-gcm-v1`
 
-- resultado: `RODA_FESTA_DB_BACKUP_OK`;
-- arquivo: `roda-festa-production-2026-09-01T18-50-52Z-ec75129.dump`;
+Criptografia:
+
+- AES-256-GCM;
+- chave de 32 bytes;
+- IV aleatório de 12 bytes por arquivo;
+- tag GCM de 16 bytes;
+- SHA-256 do backup original usado como AAD;
+- dump e manifesto cifrados separadamente;
+- envelope operacional sem segredo;
+- falha de autenticação não produz arquivo recuperável final.
+
+### 6. Cópia off-machine
+
+Destino V1:
+
+- Google Drive;
+- pasta operacional `Meu Drive / roda-festa / backups-semanais`;
+- somente artefatos cifrados e envelope sem segredo;
+- nenhum dump bruto, manifesto bruto ou `.env.backup.local` é enviado.
+
+A prova inclui upload, presença da geração offsite, download de volta para `C:\Temp\rf-offsite-verify`, autenticação GCM, decifragem e igualdade com os bytes originais.
+
+## Evidência histórica de backup e restore — 01/09/2026
+
+Primeira prova completa:
+
+- backup `roda-festa-production-2026-09-01T18-50-52Z-ec75129.dump`;
+- tamanho `61165` bytes;
+- SHA-256 `1a463fe3f37ad710d94cba19544de1837b7609b80e5ff1734ebd966cb3592210`;
+- restore real no `roda_festa_restore_test`;
+- contagens origem/restaurado iguais;
+- banco descartável removido.
+
+Essas contagens são evidência histórica, não valores hardcoded.
+
+## Evidência histórica direta em D: — 02/09/2026
+
+Backup criado diretamente no destino dedicado:
+
+`D:\Backups\Roda-Festa\daily\roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump`
+
+Evidência:
+
+- `RODA_FESTA_DB_BACKUP_OK`;
 - tamanho: `61165` bytes;
-- SHA-256: `1a463fe3f37ad710d94cba19544de1837b7609b80e5ff1734ebd966cb3592210`;
-- commit registrado no nome do backup: `ec75129`;
-- tabelas públicas na origem: `6`;
+- SHA-256: `fdf0f0722c9dfff652b7aafd52592442b279f9d41640d5097d58a9328e0bb42f`;
+- tabelas públicas: `6`;
 - `planning_sessions`: `21`;
 - `product_catalog_overrides`: `3`;
 - `product_catalog_history`: `3`.
 
-A primeira tentativa de restore validou o arquivo (`RESTORE_ARCHIVE_READABLE_OK`), mas falhou de forma segura porque um banco recém-criado no PostgreSQL local já possuía o schema `public`, enquanto o dump também tentava criá-lo. Production não foi alterada. O script foi corrigido para usar `pg_restore --clean --if-exists`, alinhado ao procedimento já comprovado no projeto Simplify.
-
-Após a correção, o mesmo backup foi restaurado no banco local descartável `roda_festa_restore_test` e passou integralmente:
+Restore:
 
 - `RESTORE_ARCHIVE_READABLE_OK`;
 - `RODA_FESTA_DB_RESTORE_VERIFY_OK`;
@@ -98,122 +158,145 @@ Após a correção, o mesmo backup foi restaurado no banco local descartável `r
 - `BACKUP_AND_RESTORE_RECOVERY_PROOF_OK`;
 - `RESTORE_TEST_DATABASE_REMOVED`.
 
-Resultado: **backup e recuperação foram comprovados com restore real isolado e contagens idênticas às da origem.**
+## Evidência histórica da geração semanal — 02/09/2026
+
+Origem:
+
+`D:\Backups\Roda-Festa\daily\roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump`
+
+Resultados:
+
+- SHA-256 original: `fdf0f0722c9dfff652b7aafd52592442b279f9d41640d5097d58a9328e0bb42f`;
+- SHA-256 dump cifrado: `4f2d8684d53fa03ebdcb356f264986baaac95b98dffdc8038179be616f7affd1`;
+- SHA-256 manifesto cifrado: `b312da00ad3095d91037a172b4f8de1a8aad215da1e13cf156d4029f0dacc68d`;
+- `RODA_FESTA_WEEKLY_ENCRYPTED_COPY_OK`;
+- `RODA_FESTA_WEEKLY_ENCRYPTED_VERIFY_OK`;
+- `WEEKLY_DECRYPTION_AUTHENTICATION_OK`;
+- `WEEKLY_VERIFY_TEMP_REMOVED`.
+
+## Evidência histórica do ciclo offsite — 02/09/2026
+
+Cadeia comprovada:
+
+**backup diário validado → AES-256-GCM → staging semanal no D: → upload ao Google Drive → download da nuvem → validação de hash/tamanho → autenticação GCM → decifragem → bytes originais idênticos → limpeza temporária.**
+
+A verificação foi executada contra os arquivos baixados da nuvem, não contra a cópia original em `D:`.
 
 ## Configuração local — NÃO COMMITAR CREDENCIAIS
 
-O projeto ignora `.env` e `.env.*`. Criar localmente um arquivo `.env.backup.local`.
+O projeto ignora `.env` e `.env.*`. O arquivo operacional local é `.env.backup.local`.
 
-**Nunca enviar senha, connection string, token, service role key ou conteúdo desse arquivo por chat, documento, commit ou screenshot.**
+**Nunca enviar senha, connection string, token, service role/secret key, chave de criptografia ou conteúdo desse arquivo por chat, documento, commit ou screenshot.**
 
-As senhas devem ficar separadas das URLs para evitar problemas com caracteres especiais e reduzir risco de exposição acidental.
-
-Exemplo estrutural, com placeholders:
-
-```text
-POSTGRES_BIN=C:\Program Files\PostgreSQL\18\bin
-RODA_FESTA_DATABASE_URL=postgresql://<usuario>@<host>:5432/<banco>?sslmode=require
-RODA_FESTA_DATABASE_PASSWORD=<senha-do-banco-supabase>
-ALLOW_RODA_FESTA_DB_BACKUP=CREATE_READ_ONLY_BACKUP
-RODA_FESTA_RESTORE_DATABASE_URL=postgresql://postgres@127.0.0.1:5432/roda_festa_restore_test
-RODA_FESTA_RESTORE_PASSWORD=<senha-local-postgresql>
-ALLOW_RODA_FESTA_RESTORE_TEST=ERASE_LOCAL_RESTORE_TARGET
-```
-
-A senha local do PostgreSQL também é segredo e não deve entrar no Git.
+Variáveis usadas pelos scripts devem permanecer locais e secretas. A documentação registra somente nomes de variáveis, gates e formatos, nunca valores.
 
 ## Comandos
 
-Depois de sincronizar a branch e criar `.env.backup.local`:
+Backup diário:
 
 ```cmd
 npm run backup:production
 ```
 
-O comando imprime `RODA_FESTA_DB_BACKUP_OK` e o caminho do `.dump`/manifesto quando termina corretamente.
-
-Para provar o restore, usar o caminho do dump retornado:
+Restore de prova:
 
 ```cmd
-npm run restore:verify -- "C:\Projetos\roda-festa-backups\<arquivo>.dump"
+npm run restore:verify -- "D:\Backups\Roda-Festa\daily\<arquivo>.dump"
 ```
 
-GREEN completo exige:
+Criação semanal cifrada:
 
-- `RESTORE_ARCHIVE_READABLE_OK`
-- `RODA_FESTA_DB_RESTORE_VERIFY_OK`
-- contagens restauradas iguais às do manifesto
-- `BACKUP_AND_RESTORE_RECOVERY_PROOF_OK`
-- `RESTORE_TEST_DATABASE_REMOVED`
+```cmd
+npm run backup:weekly:encrypt -- "D:\Backups\Roda-Festa\daily\<arquivo>.dump"
+```
+
+Verificação semanal:
+
+```cmd
+npm run backup:weekly:verify -- "D:\Backups\Roda-Festa\weekly\<arquivo>.dump.weekly.json"
+```
+
+## Política operacional V1
+
+- RPO: **24 horas**;
+- RTO: **4 horas**;
+- backup lógico: **diário**;
+- backup adicional: antes/depois de migration ou intervenção relevante de dados;
+- retenção diária mínima: **14 gerações locais**;
+- segunda cópia: **semanal, cifrada, off-machine**;
+- meta de retenção semanal: **4 gerações**;
+- restore drill: **mensal**;
+- PITR: **OFF** no estágio atual;
+- retenção destrutiva automatizada: **não implementada**.
 
 ## Plano de incidente
 
 ### Plano A — operação normal
 
 - Production saudável;
-- backups físicos do Supabase monitorados;
-- backup lógico independente periódico;
-- restore real periódico;
+- backups físicos do Supabase disponíveis;
+- backup lógico diário;
+- cópia semanal cifrada/offsite;
+- restore drill mensal;
 - checkpoint Git conhecido.
 
 ### Plano B — problema de código/deploy
 
 - congelar novas mudanças;
 - identificar deployment estável anterior;
-- rollback Vercel;
+- rollback/promote Vercel conforme evidência;
 - smoke funcional;
 - registrar evidência.
 
 ### Plano C — problema de dados
 
-- impedir novas mutações quando necessário;
-- delimitar janela/escopo do incidente;
+- conter novas mutações quando necessário;
+- delimitar janela/escopo;
 - preservar evidência;
-- preferir restore em projeto/banco isolado para análise;
-- validar dados essenciais;
-- somente então decidir correção, restauração ou troca de endpoint.
+- escolher backup íntegro;
+- restaurar primeiro em ambiente isolado;
+- validar schema/dados;
+- só então decidir correção, restauração ou mudança de endpoint.
 
 ### Plano D — indisponibilidade do provedor
 
-- usar backup independente fora do caminho operacional primário;
+- usar backup independente;
 - restaurar em PostgreSQL/Supabase secundário;
 - validar schema e dados;
-- mudar endpoint apenas por procedimento controlado;
+- mudar endpoint somente por procedimento controlado;
 - reconciliar retorno ao primário posteriormente.
 
-## Retenção proposta para o estágio atual
+## Retenção
 
-Até haver volume operacional que justifique política mais agressiva:
-
-- backups automáticos do Supabase: manter conforme plano contratado;
-- backup lógico independente: pelo menos antes/depois de alterações relevantes de banco e em periodicidade operacional definida;
 - manter múltiplas gerações, não apenas o último arquivo;
-- armazenar uma segunda cópia em local independente do computador e do Supabase;
-- revisar PITR quando perder algumas horas de dados se tornar inaceitável.
+- manter pelo menos 14 diárias locais;
+- manter meta de 4 semanais cifradas;
+- não automatizar exclusão destrutiva sem teste específico, política fail-closed e aprovação explícita;
+- a existência de segunda cópia comprovada não autoriza limpeza automática por si só.
 
-## RPO/RTO
+## Supabase Storage
 
-Ainda devem ser formalizados com base no uso real da Adrielly/equipe:
+No último levantamento havia 0 buckets e 0 objetos. Se Storage passar a ser usado, reabrir o escopo de backup porque `pg_dump` não cobre automaticamente os objetos armazenados.
 
-- RPO: perda máxima aceitável de dados;
-- RTO: tempo máximo aceitável de indisponibilidade.
+## Gate consolidado
 
-Não inventar metas antes de conhecer o impacto operacional real.
+Estado final comprovado:
 
-## Gate desta frente
+1. backup lógico independente — GREEN;
+2. manifesto + SHA-256 — GREEN;
+3. archive readability — GREEN;
+4. restore real isolado — GREEN;
+5. contagens equivalentes — GREEN;
+6. banco descartável removido — GREEN;
+7. destino dedicado `D:` — GREEN;
+8. RPO/RTO — GREEN;
+9. política de restore mensal — GREEN;
+10. AES-256-GCM semanal — GREEN;
+11. chave com recuperação fora da máquina — GREEN;
+12. Google Drive offsite — GREEN;
+13. upload/download/verify offsite — GREEN;
+14. CI final PR #5 — GREEN, run #73;
+15. merge PR #5 — GREEN, `3ba6b42696993916a1cb28991f32e9049e7fe66b`;
+16. Vercel pós-merge — SUCCESS.
 
-Não mergear em `main` somente porque os scripts existem.
-
-Antes de promoção:
-
-1. testes estáticos GREEN;
-2. backup real de Production criado com PostgreSQL 18;
-3. manifesto e SHA-256 gerados;
-4. archive readability GREEN;
-5. restore real em `roda_festa_restore_test` local;
-6. contagens origem/restaurado iguais;
-7. banco descartável removido;
-8. evidência registrada;
-9. aprovação explícita antes de merge.
-
-Em 01/09/2026, os itens 1 a 8 foram comprovados. O item 9 permanece deliberadamente pendente: **não promover para `main` sem aprovação explícita.**
+**A frente de DR está encerrada. Não repetir a construção do DR para retomar contexto; novas evoluções devem responder a necessidade real, incidente, mudança de arquitetura ou revisão periódica.**
