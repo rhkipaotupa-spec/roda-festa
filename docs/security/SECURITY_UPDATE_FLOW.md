@@ -2,7 +2,7 @@
 
 Estado: **OBRIGATÓRIO para novas atualizações**
 
-Origem: auditoria de segurança concluída em 03/09/2026. Baseline seguro atual antes desta unidade P2: `32103c70f75da9c6ec1ff2e596735253d22baab0`.
+Origem: auditoria de segurança concluída em 03/09/2026. Baseline seguro reconciliado: `d7d89d22ace30d4b2e82847b4abfa44576b552ab`.
 
 Este documento define os gates mínimos de segurança que fazem parte do fluxo normal de atualização do Roda Festa.
 
@@ -119,7 +119,9 @@ Em toda atualização:
 6. se afetar frontend/env de build, confirmar que segredo server-side não entra no bundle;
 7. executar busca/scanner proporcional ao risco.
 
-Pendente P3: varredura dedicada do histórico Git/object database, `src/planner.zip` e bundle Vite. Isso é pendência de cobertura, não vazamento confirmado.
+**P3 FECHADO em 03/09/2026 no baseline `d7d89d22ace30d4b2e82847b4abfa44576b552ab`.** A varredura dedicada cobriu histórico Git alcançável, blobs unreachable do object database local, `src/planner.zip` e bundle Vite, sem findings do Gitleaks v8.30.1. Evidência detalhada: `docs/security/P3_SECRET_SCAN_2026-09-03.md`.
+
+A conclusão é limitada à cobertura executada: nenhum segredo foi detectado nas superfícies verificadas; isso não equivale a garantia absoluta de inexistência de segredo.
 
 ### S6 — Inputs e XSS
 
@@ -133,7 +135,9 @@ Para conteúdo controlável por usuário:
 
 ## 4. Security regression gates automatizados — P2
 
-A unidade P2 adiciona um comando estável:
+**P2 FECHADO no merge `d7d89d22ace30d4b2e82847b4abfa44576b552ab`.**
+
+O comando estável é:
 
 `npm run test:security`
 
@@ -148,8 +152,6 @@ O comando executa `scripts/security/run-regression-gates.mjs` e concentra cobert
 - ausência de sinks frontend perigosos conhecidos (`dangerouslySetInnerHTML`, `.innerHTML`, `eval(` e `new Function(`).
 
 O workflow de PR para `main` executa **Security regression gates** antes da suíte completa. Esse gate não substitui `npm test`, lint, build, revisão de diff, scanner histórico ou revisão humana específica do escopo.
-
-Até a unidade P2 ser mergeada e reconciliada pós-merge, seu estado é **IMPLEMENTADA / AGUARDANDO MERGE**.
 
 ## 5. Gates técnicos antes do PR
 
@@ -199,11 +201,11 @@ Após merge autorizado:
 
 ### P2 — Automatizar security regression gates
 
-**IMPLEMENTADO NA PR EM VALIDAÇÃO / AGUARDANDO MERGE.** Inclui comando dedicado, runner central e etapa explícita de CI.
+**FECHADO.** Merge `d7d89d22ace30d4b2e82847b4abfa44576b552ab`; comando dedicado, runner central e etapa explícita de CI estão em `main`.
 
 ### P3 — Ampliar varredura de segredos
 
-Executar varredura dedicada do histórico Git/object database, `src/planner.zip` e bundle Vite. Não tratar como vazamento até existir evidência real.
+**FECHADO na cobertura executada em 03/09/2026.** Histórico Git/object database local, `src/planner.zip` e bundle Vite foram verificados sem findings do Gitleaks v8.30.1. Ver `docs/security/P3_SECRET_SCAN_2026-09-03.md`.
 
 ## 9. Regra de segurança para velocidade
 
