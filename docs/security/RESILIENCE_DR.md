@@ -8,6 +8,8 @@ O Roda Festa não deve depender de um único caminho de recuperação. A operaç
 
 Princípio: **backup só é considerado comprovado quando um restore isolado foi executado e validado.** A integridade do arquivo também deve ser validada antes do restore. Para a camada offsite, a cadeia inclui ainda autenticação criptográfica, download de volta e comparação com os bytes originais.
 
+Regra permanente: **Não mergear em `main` somente porque os scripts existem.** Mudanças de DR precisam das provas aplicáveis, gates GREEN e aprovação explícita antes da promoção.
+
 ## Baseline reconciliado
 
 Baseline seguro de retomada após o fechamento do DR em 02/09/2026:
