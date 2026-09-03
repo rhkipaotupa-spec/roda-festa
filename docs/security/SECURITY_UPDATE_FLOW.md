@@ -2,9 +2,9 @@
 
 Estado: **OBRIGATÓRIO para novas atualizações**
 
-Origem: auditoria de segurança concluída em 03/09/2026 sobre o baseline `78cd386d5a80ac49a76c8a685e7633f776e587c8`.
+Origem: auditoria de segurança concluída em 03/09/2026. Baseline seguro atual antes desta unidade P2: `32103c70f75da9c6ec1ff2e596735253d22baab0`.
 
-Este documento não altera comportamento de produto. Ele define os gates mínimos de segurança que passam a fazer parte do fluxo normal de atualização do Roda Festa.
+Este documento define os gates mínimos de segurança que fazem parte do fluxo normal de atualização do Roda Festa.
 
 ## 1. Princípio
 
@@ -17,7 +17,7 @@ Nenhuma alteração deve chegar a `main` apenas porque testes funcionais passara
 - tratamento seguro de inputs e HTML;
 - capacidade de recuperação e rollback já estabelecida pelo DR.
 
-Os gates abaixo são proporcionais ao escopo da mudança. Quando uma categoria não for afetada, registrar como **N/A com justificativa**, em vez de ignorá-la silenciosamente.
+Os gates são proporcionais ao escopo. Quando uma categoria não for afetada, registrar como **N/A com justificativa**.
 
 ## 2. Fluxo obrigatório
 
@@ -35,7 +35,7 @@ Antes de começar:
 
 ### Gate 1 — Classificação de impacto de segurança
 
-Antes da implementação, marcar quais superfícies a mudança toca:
+Marcar as superfícies afetadas:
 
 - [ ] autenticação/sessão;
 - [ ] autorização/papéis/capabilities;
@@ -49,116 +49,115 @@ Antes da implementação, marcar quais superfícies a mudança toca:
 - [ ] deploy/CI;
 - [ ] dados de Production.
 
-Qualquer item marcado exige os gates específicos correspondentes abaixo.
-
 ## 3. Gates por categoria
 
 ### S1 — Banco e isolamento de dados
 
-Para qualquer mudança em banco, adapter, query, listagem, busca, relatório, exportação ou agregação:
+Para mudança em banco, adapter, query, listagem, busca, relatório, exportação ou agregação:
 
-1. confirmar qual é o mecanismo de isolamento aplicável;
-2. no estado atual do Roda Festa, as tabelas server-side usam RLS habilitado, sem policies para `anon`/`authenticated`, com acesso somente server-side por `service_role`;
-3. novas tabelas públicas devem nascer com RLS habilitado e grants mínimos;
-4. não criar policy permissiva para `anon`/`authenticated` sem justificativa explícita e teste;
-5. queries de jornada pública por ID devem preservar posse pelo token opaco da PlanningSession;
-6. queries administrativas devem permanecer atrás da autenticação/autorização do Admin;
-7. migration ou intervenção em dados exige backup adicional antes e depois, conforme política DR;
-8. executar os testes de segurança aplicáveis e revisar Supabase Security Advisor após DDL relevante.
+1. confirmar o mecanismo de isolamento;
+2. tabelas server-side atuais usam RLS habilitado, sem policies para `anon`/`authenticated`, com acesso por `service_role` no servidor;
+3. novas tabelas públicas devem nascer com RLS e grants mínimos;
+4. não criar policy permissiva para `anon`/`authenticated` sem justificativa e teste;
+5. PlanningSession pública deve preservar posse pelo token opaco;
+6. queries Admin devem permanecer atrás de autenticação/autorização server-side;
+7. migration/intervenção em dados exige backup adicional antes e depois conforme DR;
+8. revisar Supabase Security Advisor após DDL relevante.
 
-**Bloqueante:** qualquer acesso direto indevido por `anon`/`authenticated`, perda de RLS esperada ou query de objeto sem o isolamento definido.
+**Bloqueante:** acesso direto indevido, perda de RLS esperada ou query de objeto sem isolamento definido.
 
 ### S2 — Autorização server-side
 
-Para qualquer nova tela administrativa, botão privilegiado, configuração ou escrita:
+Para nova tela administrativa, botão privilegiado, configuração ou escrita:
 
-1. não aceitar ocultação de UI como controle de segurança;
-2. identificar o endpoint chamado pela UI;
+1. ocultação de UI não conta como controle;
+2. identificar o endpoint da UI;
 3. exigir autenticação no backend;
-4. exigir autorização no backend com role/capability apropriada;
-5. testar chamada direta ao endpoint sem sessão e com sessão sem privilégio;
-6. o backend deve negar independentemente do que o frontend mostra.
+4. exigir role/capability no backend;
+5. testar chamada direta sem sessão e sem privilégio;
+6. backend deve negar independentemente do frontend.
 
 **Bloqueante:** operação privilegiada protegida apenas no navegador.
 
 ### S3 — Sessões administrativas e revogação de privilégios
 
-A auditoria de 03/09/2026 confirmou um risco real: uma sessão Admin já emitida podia continuar usando `role`/`capabilities` armazenadas em `admin_sessions` mesmo após a identidade em `admin_users` ser desativada ou rebaixada.
+**P1 FECHADO no merge `32103c70f75da9c6ec1ff2e596735253d22baab0`.**
 
-A unidade P1 implementa o fechamento por **revalidação da identidade atual em toda autenticação de sessão Admin**:
+Toda autenticação de sessão Admin válida por token/revogação/expiração recarrega a identidade atual em `admin_users` pelo `userId` confiável da sessão. Identidade ausente, incompatível ou `active=false` falha fechada; `role` e `capabilities` usados na autorização vêm do registro atual e não do snapshot antigo da sessão.
 
-- a sessão opaca continua sendo validada por token, revogação e expiração;
-- em seguida o servidor consulta `admin_users` pelo `userId` confiável da sessão;
-- `active=false`, identidade ausente ou identidade incompatível invalidam a autenticação;
-- `role` e `capabilities` usados pela autorização são reconstruídos a partir do registro atual de `admin_users`, e não do snapshot antigo da sessão;
-- falha no lookup de identidade permanece fail-closed;
-- nenhuma credencial é revalidada a cada request e nenhum segredo novo é exposto.
+Preservar regressões para:
 
-Critério mínimo para fechamento:
-
-- [x] sessão existente deixa de autorizar imediatamente após `active=false` no usuário;
-- [x] redução de role/capability não permanece válida em sessão antiga;
-- [x] testes RED → GREEN cobrem desativação e downgrade de papel/capability;
-- [x] regressões de revogação, rotação e expiração continuam cobertas pela suíte existente;
-- [x] login/logout/refresh e endpoints Admin continuam cobertos pela suíte integral;
-- [ ] merge aprovado e reconciliação pós-merge concluídos.
-
-A correção só é considerada definitivamente fechada em Production depois do último item acima.
+- desativação imediata;
+- downgrade de role/capability;
+- revogação;
+- rotação/refresh;
+- expiração;
+- ausência de token bruto ou material de credencial em respostas/logs.
 
 ### S4 — IDOR
 
-Para **todo** handler novo ou alterado que aceite ID em path, query ou body:
+Para todo handler novo ou alterado que aceite ID em path, query ou body:
 
-1. identificar o objeto acessado;
-2. identificar quem pode possuí-lo/acessá-lo;
-3. validar posse/tenant/escopo no servidor antes de ler, alterar ou apagar;
-4. não confiar em ID vindo da UI;
-5. criar teste negativo com ID válido pertencente a outro contexto/sessão;
-6. para PlanningSession pública, preservar filtro conjunto `sessionId + tokenHash` nas leituras e escritas;
-7. para Admin, o acesso por ID deve permanecer atrás da fronteira administrativa server-side.
+1. identificar objeto e escopo permitido;
+2. validar posse/tenant/escopo no servidor antes de ler ou mutar;
+3. não confiar em ID vindo da UI;
+4. criar teste negativo com ID válido de outro contexto;
+5. PlanningSession pública preserva `sessionId + tokenHash`;
+6. Admin preserva fronteira administrativa server-side.
 
-**Bloqueante:** objeto acessível apenas por conhecer/adivinhar seu ID.
+**Bloqueante:** objeto acessível apenas por conhecer/adivinhar o ID.
 
 ### S5 — Segredos e configuração
 
 Em toda atualização:
 
 1. não hardcodar API key, token, senha, secret, private key, webhook secret, connection string privilegiada ou chave de backup;
-2. não usar fallback público que possa virar segredo real, como `${VAR:-segredo}`;
-3. configurações privilegiadas devem falhar fechado quando ausentes;
+2. não usar fallback público que possa virar segredo real;
+3. configuração privilegiada ausente deve falhar fechada;
 4. `.env`, `.env.*` e arquivos locais sensíveis permanecem fora do Git;
 5. revisar scripts, docs, workflow CI e configs de deploy modificadas;
-6. quando a mudança afetar frontend/env de build, verificar que nenhum segredo server-side entra no bundle Vite;
-7. antes de merge de mudanças sensíveis, executar busca/scanner de segredos no diff e, quando viável, no histórico Git.
+6. se afetar frontend/env de build, confirmar que segredo server-side não entra no bundle;
+7. executar busca/scanner proporcional ao risco.
 
-Pendente de melhoria de cobertura identificado pela auditoria:
-
-- o repositório contém `src/planner.zip`; como artefato binário versionado, deve ser incluído em uma futura varredura de segredos do histórico/object database com ferramenta apropriada, sem presumir que exista segredo ali;
-- essa pendência é de cobertura, não um vazamento confirmado.
-
-**Bloqueante:** segredo real ou credencial privilegiada detectada em código, Git, docs, CI ou bundle.
+Pendente P3: varredura dedicada do histórico Git/object database, `src/planner.zip` e bundle Vite. Isso é pendência de cobertura, não vazamento confirmado.
 
 ### S6 — Inputs e XSS
 
-Para toda mudança que renderize input do usuário em HTML, e-mail, template, markdown, href/src ou conteúdo imprimível:
+Para conteúdo controlável por usuário:
 
-1. React deve continuar usando rendering padrão escapado sempre que possível;
-2. `dangerouslySetInnerHTML`, `innerHTML`, HTML/markdown bruto, `eval` e `new Function` exigem revisão específica e justificativa;
-3. HTML de e-mail/PDF/template deve escapar qualquer campo controlável por usuário;
-4. URLs controláveis devem rejeitar esquemas perigosos como `javascript:`;
-5. se sanitização for necessária, usar biblioteca dedicada e testada — não regex improvisada como substituto geral;
-6. criar teste com payloads contendo `<script>`, atributos/event handlers, aspas e entidades.
+1. preferir rendering React padrão escapado;
+2. `dangerouslySetInnerHTML`, `innerHTML`, `eval`, `new Function` e HTML/markdown bruto exigem revisão específica;
+3. HTML de e-mail/PDF/template deve escapar input;
+4. URLs controláveis devem rejeitar esquemas perigosos;
+5. sanitização, quando necessária, deve usar biblioteca dedicada/testada.
 
-No baseline auditado, os geradores HTML atuais possuem escape explícito; novas mudanças não podem remover essa propriedade sem gate específico.
+## 4. Security regression gates automatizados — P2
 
-**Bloqueante:** input controlável alcançando sink HTML/JS executável sem escape/sanitização adequada.
+A unidade P2 adiciona um comando estável:
 
-## 4. Gates técnicos antes do PR
+`npm run test:security`
+
+O comando executa `scripts/security/run-regression-gates.mjs` e concentra cobertura explícita para:
+
+- autenticação/autorização/sessão Admin, incluindo o P1 de identidade atual;
+- ownership/IDOR de PlanningSession;
+- contratos de persistência com RLS/grants já codificados em testes;
+- fronteira moderna de segredo Supabase;
+- roteamento de API Vercel;
+- ausência de marcadores de segredo server-side em código frontend;
+- ausência de sinks frontend perigosos conhecidos (`dangerouslySetInnerHTML`, `.innerHTML`, `eval(` e `new Function(`).
+
+O workflow de PR para `main` executa **Security regression gates** antes da suíte completa. Esse gate não substitui `npm test`, lint, build, revisão de diff, scanner histórico ou revisão humana específica do escopo.
+
+Até a unidade P2 ser mergeada e reconciliada pós-merge, seu estado é **IMPLEMENTADA / AGUARDANDO MERGE**.
+
+## 5. Gates técnicos antes do PR
 
 Toda unidade deve executar, conforme aplicável:
 
-- `npm test`;
+- `npm run test:security`;
 - testes focados da frente;
+- `npm test`;
 - `npm run lint`;
 - `npm run build`;
 - `git diff --check`;
@@ -166,59 +165,49 @@ Toda unidade deve executar, conforme aplicável:
 - revisão de handlers alterados por ID/autorização/input;
 - revisão de migration/RLS/grants quando houver banco.
 
-Mudanças de segurança devem ter teste negativo que falhe antes da correção e passe depois sempre que tecnicamente possível.
+Mudanças de segurança devem ter teste negativo RED → GREEN sempre que tecnicamente possível.
 
-## 5. Gate de PR
+## 6. Gate de PR
 
 Antes de pedir merge:
 
 1. CI verde no SHA exato do head;
 2. Vercel/preview verde quando aplicável;
 3. diff revisado sem arquivos inesperados;
-4. nenhuma mudança de Production/banco fora do escopo declarado;
+4. nenhuma mudança de Production/banco fora do escopo;
 5. nenhum segredo no diff;
-6. achados de segurança da unidade classificados como resolvido, aceito explicitamente ou N/A;
-7. documentação reconciliada quando a mudança alterar arquitetura, segurança, DR ou comportamento congelado;
+6. achados classificados como resolvido, aceito explicitamente ou N/A;
+7. documentação reconciliada;
 8. merge somente após autorização explícita.
 
-## 6. Gate pós-merge
+## 7. Gate pós-merge
 
 Após merge autorizado:
 
-1. reconciliar local com `git switch main` + `git pull --ff-only`;
-2. confirmar novo `HEAD`, `origin/main` e working tree limpa;
-3. confirmar deployment final quando aplicável;
+1. `git switch main` + `git pull --ff-only`;
+2. confirmar `HEAD`, `origin/main` e working tree limpa;
+3. confirmar deployment final;
 4. executar smoke seguro da superfície alterada;
-5. para mudanças de banco, confirmar integridade e executar backup pós-mudança quando exigido;
-6. registrar novo checkpoint/snapshot seguro quando a frente justificar.
+5. para banco, confirmar integridade e backup pós-mudança quando exigido;
+6. registrar novo checkpoint/snapshot quando a frente justificar.
 
-## 7. Prioridades derivadas da auditoria de 03/09/2026
+## 8. Prioridades derivadas da auditoria de 03/09/2026
 
-### P1 — Corrigir revogação/downgrade de sessão Admin
+### P1 — Sessão Admin
 
-**Estado: CORREÇÃO IMPLEMENTADA / AGUARDANDO MERGE E RECONCILIAÇÃO FINAL.**
-
-A prova RED confirmou os três comportamentos inseguros esperados: sessão inativa continuava autenticada, downgrade continuava com role antiga e o runtime não possuía lookup atual por `userId`. A implementação posterior deixou esses testes GREEN e preservou as regressões existentes de login, logout, rotação, revogação e expiração.
+**FECHADO.** Revalidação de identidade atual por request autenticado está em `main` desde `32103c70f75da9c6ec1ff2e596735253d22baab0`.
 
 ### P2 — Automatizar security regression gates
 
-Adicionar gradualmente à CI testes de:
-
-- autorização server-side em endpoints Admin;
-- posse/IDOR para PlanningSession;
-- invariantes de RLS/grants em migrations quando possível;
-- sinks XSS conhecidos;
-- ausência de segredos no diff/build.
+**IMPLEMENTADO NA PR EM VALIDAÇÃO / AGUARDANDO MERGE.** Inclui comando dedicado, runner central e etapa explícita de CI.
 
 ### P3 — Ampliar varredura de segredos
 
-Executar varredura dedicada do histórico Git/object database e do artefato binário `src/planner.zip`, além de verificar o bundle Vite gerado. Não tratar essa pendência como vazamento até existir evidência real.
+Executar varredura dedicada do histórico Git/object database, `src/planner.zip` e bundle Vite. Não tratar como vazamento até existir evidência real.
 
-## 8. Regra de segurança para velocidade
+## 9. Regra de segurança para velocidade
 
-Segurança deve ser forte sem transformar cada mudança pequena em uma auditoria integral. A regra é:
-
-- mudança pequena → gates proporcionais ao impacto;
-- mudança em auth, banco, autorização, ID, input ou segredo → gate específico obrigatório;
-- mudança de alto risco → branch isolada + testes negativos + evidência + revisão antes do merge;
-- achado crítico/alto confirmado → não empurrar para backlog silenciosamente; classificar, priorizar e fechar com prova.
+- mudança pequena → gates proporcionais;
+- auth/banco/autorização/ID/input/segredo → gate específico obrigatório;
+- alto risco → branch isolada + teste negativo + evidência + revisão;
+- achado crítico/alto confirmado → classificar, priorizar e fechar com prova.

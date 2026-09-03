@@ -14,7 +14,8 @@
     "backup:weekly:encrypt": "node --env-file=.env.backup.local scripts/db/create-weekly-encrypted-copy.mjs",
     "backup:weekly:verify": "node --env-file=.env.backup.local scripts/db/verify-weekly-encrypted-copy.mjs",
     "test": "node --test tests/*.test.mjs",
-    "test:commercial": "node --test tests/commercial-ledger.test.mjs tests/api-commercial-validation.test.mjs"
+    "test:commercial": "node --test tests/commercial-ledger.test.mjs tests/api-commercial-validation.test.mjs",
+    "test:security": "node scripts/security/run-regression-gates.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.43.0",
