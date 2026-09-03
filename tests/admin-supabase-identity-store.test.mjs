@@ -58,7 +58,7 @@ test("identity store normaliza identificador e usa service role somente server-s
   );
 });
 
-test("identity store consulta identidade atual por userId para validar sessao", async () => {
+test("identity store consulta identidade atual por userId sem carregar material de credencial", async () => {
   let request = null;
 
   const store = createSupabaseAdminIdentityStore({
@@ -73,10 +73,6 @@ test("identity store consulta identidade atual por userId para validar sessao", 
         role: "ADMIN",
         capabilities: ["journey:read"],
         active: false,
-        credential_algorithm: "scrypt",
-        credential_salt: "salt-value",
-        credential_hash: "hash-value",
-        credential_key_length: 32,
         metadata: { source: "supabase" },
       }]);
     },
@@ -85,11 +81,14 @@ test("identity store consulta identidade atual por userId para validar sessao", 
   const identity = await store.findByUserId("  admin-1  ");
 
   assert.match(request.url, /admin_users\?id=eq\.admin-1/);
+  assert.equal(request.url.includes("credential_hash"), false);
+  assert.equal(request.url.includes("credential_salt"), false);
   assert.equal(request.options.method, "GET");
   assert.equal(identity.userId, "admin-1");
   assert.equal(identity.role, "ADMIN");
   assert.deepEqual(identity.capabilities, ["journey:read"]);
   assert.equal(identity.active, false);
+  assert.equal("credential" in identity, false);
 });
 
 test("identity store mapeia registro Supabase para contrato do verifier", async () => {
@@ -119,13 +118,13 @@ test("identity store mapeia registro Supabase para contrato do verifier", async 
     role: "OWNER",
     capabilities: ["journey:read"],
     active: true,
+    metadata: { source: "supabase" },
     credential: {
       algorithm: "scrypt",
       salt: "salt-value",
       hash: "hash-value",
       keyLength: 32,
     },
-    metadata: { source: "supabase" },
   });
 });
 
