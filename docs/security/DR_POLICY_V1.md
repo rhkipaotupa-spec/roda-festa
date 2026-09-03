@@ -1,32 +1,34 @@
 # Roda Festa — DR Operational Policy V1
 
-Status: **CONCLUÍDA em 02/09/2026**. Política técnica aprovada, destino local dedicado comprovado, restore real comprovado, CI final GREEN e PR #3 mergeado em `main` no commit `bbfa75a004d3614f160e2af9d3367ad0743e1a67`.
+Status: **CONCLUÍDA em 02/09/2026 e reconciliada em 03/09/2026**. Política técnica aprovada, destino local dedicado comprovado, restore real comprovado, segunda cópia semanal criptografada/offsite comprovada e linha final integrada em `main`.
 
 ## Objetivo
 
-Transformar a prova técnica de backup/restore concluída em 01/09/2026 em rotina operacional simples, mensurável e proporcional ao estágio atual do Roda Festa.
+Transformar a prova técnica de backup/restore em rotina operacional simples, mensurável e proporcional ao estágio atual do Roda Festa.
 
-Esta política complementa `docs/security/RESILIENCE_DR.md`.
+Esta política complementa `docs/security/RESILIENCE_DR.md` e `docs/security/DR_WEEKLY_OFFSITE_V1.md`.
 
-## Baseline de segurança
+## Baseline da política
 
 Baseline de Production no início desta frente:
 
 `47747e618d7b67d923f2065616fc90c662aa7d3d`
 
-Estado comprovado antes desta política:
+Fechamento da RF-DR-POLICY-V1:
 
-- Admin Commercial V1 em Production;
-- PR #1 merged/closed;
-- RF-DR-V1 merged/closed;
-- backup lógico independente real criado;
-- SHA-256 registrado;
-- restore real isolado em PostgreSQL 18.6 concluído;
-- contagens origem/restaurado iguais (`6 / 21 / 3 / 3`);
-- banco descartável removido;
-- Vercel final success;
-- local e `origin/main` reconciliados;
-- working tree limpa.
+- PR #3 mergeado em `main`;
+- merge commit `bbfa75a004d3614f160e2af9d3367ad0743e1a67`;
+- CI final GREEN;
+- backup lógico direto em `D:` comprovado;
+- restore real isolado comprovado.
+
+Fechamento posterior da segunda cópia:
+
+- PR #5 `RF-DR-WEEKLY-OFFSITE-V1` mergeado;
+- head aprovado `87dfd12fc39d86a0247ef01288427a5787c49b4b`;
+- CI run #73 GREEN;
+- merge commit `3ba6b42696993916a1cb28991f32e9049e7fe66b`;
+- Vercel SUCCESS.
 
 ## RPO
 
@@ -38,7 +40,7 @@ Exceção obrigatória: qualquer migration, alteração estrutural relevante de 
 
 Gatilho de evolução:
 
-- quando perder até 24 horas deixar de ser aceitável, reduzir RPO operacional para 4 horas;
+- quando perder até 24 horas deixar de ser aceitável, reduzir RPO operacional;
 - quando perder algumas horas também se tornar inaceitável, reavaliar PITR do Supabase.
 
 ## RTO
@@ -47,7 +49,7 @@ Gatilho de evolução:
 
 Interpretação: em incidente grave, o objetivo operacional é diagnosticar, restaurar, validar e voltar a operar em até 4 horas.
 
-Esse RTO é uma meta operacional, não promessa automática. Incidentes de provedor, rede ou corrupção ampla podem exigir escalonamento.
+Esse RTO é meta operacional, não promessa automática. Incidentes de provedor, rede ou corrupção ampla podem exigir escalonamento.
 
 ## Backup lógico independente
 
@@ -57,7 +59,7 @@ Periodicidade padrão:
 - backup extra antes de migration ou intervenção relevante;
 - backup extra depois de migration ou intervenção relevante, quando a nova versão estiver validada.
 
-O backup continua usando:
+O backup usa:
 
 - `pg_dump` custom;
 - manifesto JSON;
@@ -68,7 +70,7 @@ O backup continua usando:
 
 ## Destino local padrão
 
-Por decisão operacional de 02/09/2026, o destino local padrão no Windows é:
+No Windows:
 
 `D:\Backups\Roda-Festa\daily`
 
@@ -82,33 +84,29 @@ D:\Backups\Roda-Festa\
   recovery-evidence\
 ```
 
-O script aceita override explícito por `RODA_FESTA_BACKUP_DIR`, porém recusa diretório dentro do repositório. No Windows, sem override, usa `D:\Backups\Roda-Festa\daily`.
+Override do backup diário:
 
-A cópia de recuperação comprovada de 01/09/2026 foi preservada no local original em `C:\Projetos\roda-festa-backups` e também copiada para `D:`. A cópia no `D:` foi validada sem mover/apagar a origem:
+`RODA_FESTA_BACKUP_DIR`
 
-- arquivo: `roda-festa-production-2026-09-01T18-50-52Z-ec75129.dump`;
-- tamanho: `61165` bytes;
-- SHA-256: `1a463fe3f37ad710d94cba19544de1837b7609b80e5ff1734ebd966cb3592210`;
-- hash e tamanho idênticos ao backup original.
-
-A cópia antiga em `C:` não deve ser removida automaticamente. Qualquer limpeza futura exige decisão explícita depois de a segunda cópia criptografada estar comprovada.
+O script recusa diretório dentro do repositório.
 
 ## Evidência real do destino D: — 02/09/2026
 
-Na branch `chore/dr-policy-v1`, após teste estático GREEN (`6/6`), foi criado um novo backup real diretamente no destino dedicado:
+Backup criado diretamente no destino dedicado:
 
-- resultado: `RODA_FESTA_DB_BACKUP_OK`;
+- `RODA_FESTA_DB_BACKUP_OK`;
 - arquivo: `D:\Backups\Roda-Festa\daily\roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump`;
-- manifesto: mesmo caminho com sufixo `.json`;
+- manifesto no mesmo caminho com sufixo `.json`;
 - tamanho: `61165` bytes;
 - SHA-256: `fdf0f0722c9dfff652b7aafd52592442b279f9d41640d5097d58a9328e0bb42f`;
-- commit registrado no nome: `b3732a0`;
-- tabelas públicas na origem: `6`;
+- tabelas públicas: `6`;
 - `planning_sessions`: `21`;
 - `product_catalog_overrides`: `3`;
 - `product_catalog_history`: `3`.
 
-O mesmo arquivo criado diretamente no `D:` foi submetido ao restore de prova real no banco local descartável `roda_festa_restore_test`.
+As contagens acima são evidência histórica daquela geração, não constantes do sistema.
+
+O mesmo arquivo foi restaurado no banco local descartável `roda_festa_restore_test`.
 
 Resultado:
 
@@ -121,30 +119,41 @@ Resultado:
 - `BACKUP_AND_RESTORE_RECOVERY_PROOF_OK`;
 - `RESTORE_TEST_DATABASE_REMOVED`.
 
-Durante o fluxo, `dropdb --if-exists` informou que `roda_festa_restore_test` ainda não existia antes da recriação. Essa mensagem é esperada e não representa falha.
-
-Resultado da unidade: **Production → backup direto no D: → manifesto/SHA-256 → restore real local → contagens idênticas → banco descartável removido** foi comprovado.
-
 ## Retenção local
 
 Política V1:
 
 - manter pelo menos 14 gerações diárias locais;
-- não automatizar exclusão enquanto a segunda cópia criptografada não estiver comprovada;
-- limpeza deve preservar sempre múltiplas gerações válidas;
+- preservar múltiplas gerações válidas;
+- não automatizar exclusão destrutiva sem unidade própria;
 - qualquer automação futura de retenção deve ser fail-closed e testada antes de excluir arquivo real.
 
-## Segunda cópia independente
+A segunda cópia já foi comprovada, mas isso **não autoriza automaticamente** exclusão de backups antigos.
 
-Objetivo V1:
+## Segunda cópia independente — CONCLUÍDA
+
+Objetivo V1 entregue:
 
 - 1 cópia semanal;
-- manter 4 gerações semanais;
-- armazenar fora do computador que contém a cópia local;
-- não depender do Supabase como único segundo destino;
-- criptografar antes de enviar para nuvem.
+- meta de 4 gerações semanais;
+- armazenamento fora do computador que contém a cópia local;
+- independência do Supabase como único segundo destino;
+- criptografia antes do envio para nuvem.
 
-A escolha concreta do provedor de nuvem e o mecanismo de criptografia ainda precisam ser implementados e comprovados.
+Implementação comprovada:
+
+- criptografia autenticada AES-256-GCM;
+- staging local em `D:\Backups\Roda-Festa\weekly`;
+- Google Drive como destino off-machine;
+- apenas `.rfenc` + envelope operacional sem segredo enviados;
+- download de volta da nuvem;
+- verificação de hash/tamanho dos cifrados;
+- autenticação GCM;
+- decifragem;
+- igualdade com os bytes do backup original;
+- limpeza temporária.
+
+Detalhes e evidências completas ficam em `docs/security/DR_WEEKLY_OFFSITE_V1.md`.
 
 Nenhum dump bruto deve ser enviado para GitHub, chat, armazenamento público ou serviço sem proteção adequada.
 
@@ -152,7 +161,7 @@ Nenhum dump bruto deve ser enviado para GitHub, chat, armazenamento público ou 
 
 **Frequência V1 = mensal.**
 
-O drill deve repetir o padrão comprovado em 01/09/2026 e novamente em 02/09/2026:
+O drill deve:
 
 1. escolher backup + manifesto;
 2. validar tamanho e SHA-256;
@@ -162,6 +171,8 @@ O drill deve repetir o padrão comprovado em 01/09/2026 e novamente em 02/09/202
 6. exigir `BACKUP_AND_RESTORE_RECOVERY_PROOF_OK`;
 7. remover o banco descartável ao final;
 8. registrar evidência da execução.
+
+Periodicamente, uma geração semanal decifrada deve alimentar o mesmo fluxo para provar a cadeia completa offsite → restore.
 
 Backup sem restore real periódico não é considerado evidência suficiente de recuperabilidade contínua.
 
@@ -191,7 +202,8 @@ Camadas preservadas:
 - GitHub para histórico e checkpoints;
 - Vercel para rollback/promote;
 - `main` não é branch de experimento;
-- alterações de DR devem passar por branch/PR isolada.
+- alterações de DR passam por branch/PR isolada;
+- merge exige aprovação explícita.
 
 ## Credenciais
 
@@ -199,16 +211,17 @@ Nunca registrar em Git/docs/chat:
 
 - Database Password;
 - senha local PostgreSQL;
-- service role key;
+- service role/secret key;
 - private API key;
 - connection string com segredo;
+- chave de criptografia dos backups;
 - conteúdo de `.env.backup.local`.
 
 `.env.backup.local` permanece local e ignorado pelo Git.
 
 ## Revisão da política
 
-Revisar a cada 3 meses ou antes se ocorrer qualquer um destes gatilhos:
+Revisar a cada 3 meses ou antes se ocorrer:
 
 - crescimento forte no volume de orçamentos;
 - uso operacional diário crítico;
@@ -219,21 +232,24 @@ Revisar a cada 3 meses ou antes se ocorrer qualquer um destes gatilhos:
 - RPO 24h deixar de ser aceitável;
 - RTO 4h deixar de ser aceitável.
 
-## Gate desta frente
+## Gate consolidado
 
-Resultado final de `RF-DR-POLICY-V1`:
+Estado em 03/09/2026:
 
 1. política documentada — GREEN;
-2. destino local `D:` implementado de forma controlada — GREEN;
-3. backup comprovado copiado para `D:` sem apagar origem — GREEN;
-4. tamanho da cópia igual ao original — GREEN;
-5. SHA-256 da cópia igual ao original — GREEN;
-6. novo backup real criado diretamente no destino `D:` — GREEN;
-7. restore real do novo backup GREEN — GREEN;
-8. CI completo GREEN — GREEN (run #67, head final `0e6ccd623cf42ebef273d6874dae0cdcff62e31b`);
-9. evidência registrada — GREEN;
-10. aprovação explícita antes do merge — GREEN, registrada em 02/09/2026;
-11. PR #3 mergeado em `main` — GREEN, commit `bbfa75a004d3614f160e2af9d3367ad0743e1a67`;
-12. `main` local reconciliada com `origin/main` e working tree limpa — GREEN.
+2. destino local `D:` — GREEN;
+3. backup real direto em `D:` — GREEN;
+4. manifesto/SHA-256 — GREEN;
+5. restore real isolado — GREEN;
+6. RPO/RTO formalizados — GREEN;
+7. rotina mensal de restore definida — GREEN;
+8. segunda cópia semanal AES-256-GCM — GREEN;
+9. chave com recuperação fora da máquina — GREEN;
+10. Google Drive offsite — GREEN;
+11. upload apenas cifrado — GREEN;
+12. download + verificação da cópia offsite — GREEN;
+13. PR #5 / CI #73 / merge `3ba6b426...` — GREEN;
+14. retenção destrutiva automatizada — **NÃO IMPLEMENTADA / NÃO BLOQUEANTE / NÃO AUTORIZADA implicitamente**;
+15. PITR — **OFF por decisão do estágio atual**.
 
-**RF-DR-POLICY-V1 encerrada.** A próxima unidade de DR é a segunda cópia semanal criptografada e armazenada fora da máquina local.
+**DR Operational Policy V1 permanece encerrada. Próximas evoluções de DR devem responder a necessidade operacional real, não repetir provas já concluídas.**

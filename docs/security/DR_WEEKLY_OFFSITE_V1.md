@@ -1,6 +1,6 @@
 # Roda Festa — Weekly Encrypted Offsite V1
 
-Status: implementação em validação na branch `chore/dr-weekly-offsite-v1`; camada criptográfica local, ciclo offsite Google Drive e revisão de segurança da conta offsite comprovados em 02/09/2026. Pendentes apenas CI final do head reconciliado e aprovação explícita antes do merge.
+Status: **CONCLUÍDA em 02/09/2026**. Camada criptográfica local, ciclo offsite Google Drive, revisão de segurança da conta offsite, CI final e merge em `main` foram comprovados. PR #5 foi mergeado no commit `3ba6b42696993916a1cb28991f32e9049e7fe66b`.
 
 ## Objetivo
 
@@ -8,13 +8,13 @@ Adicionar uma segunda cópia independente ao DR do Roda Festa, semanal, criptogr
 
 Esta unidade complementa `docs/security/DR_POLICY_V1.md`.
 
-## Baseline
+## Baseline de início
 
 Baseline de `main` no início desta frente:
 
 `d56b568bc83d8d4d86b13b3685b7e0c5d8feb60c`
 
-A RF-DR-POLICY-V1 já estava concluída, com:
+A RF-DR-POLICY-V1 já estava concluída com:
 
 - backup lógico diário em `D:\Backups\Roda-Festa\daily`;
 - manifesto JSON;
@@ -25,25 +25,27 @@ A RF-DR-POLICY-V1 já estava concluída, com:
 - RTO V1 de 4h;
 - restore drill mensal;
 - 14 gerações diárias locais como política mínima;
-- nenhuma exclusão automática antes da segunda cópia comprovada.
+- nenhuma exclusão automática destrutiva.
 
-## Escopo desta unidade
+## Escopo entregue
 
-- criar artefato semanal criptografado a partir de um backup diário já validado;
-- usar criptografia autenticada AES-256-GCM;
-- criptografar o dump e o manifesto;
-- gerar envelope operacional sem segredo;
-- validar hash e tamanho dos artefatos cifrados;
-- provar decifragem e igualdade do SHA-256 do dump original;
-- apagar artefatos temporários da verificação;
-- manter 4 gerações semanais após a política de retenção ser implementada e comprovada;
-- armazenar uma cópia fora da máquina local após escolha explícita do destino offsite.
+- artefato semanal criptografado a partir de backup diário previamente validado;
+- AES-256-GCM autenticado;
+- dump e manifesto criptografados;
+- envelope operacional sem segredo;
+- validação de hash e tamanho dos artefatos cifrados;
+- prova de decifragem e igualdade do SHA-256 do dump original;
+- remoção de artefatos temporários da verificação;
+- staging semanal dedicado em `D:`;
+- segunda cópia off-machine no Google Drive;
+- download de volta do destino offsite e verificação contra os arquivos efetivamente recuperados;
+- chave de recuperação com cópia segura fora da máquina local.
 
-## Não faz parte desta primeira etapa
+## Fora de escopo desta unidade
 
 - enviar dumps brutos para nuvem;
 - guardar chave em GitHub, Vercel, Supabase, documentação versionada ou chat;
-- excluir backups antigos;
+- excluir backups antigos automaticamente;
 - automatizar retenção destrutiva;
 - habilitar PITR.
 
@@ -84,21 +86,13 @@ Regras obrigatórias:
 - nunca commitar a chave;
 - nunca colocar a chave no envelope `.weekly.json`;
 - nunca imprimir a chave em logs;
-- a chave local pode ficar em `.env.backup.local`, que já é ignorado pelo Git;
-- deve existir pelo menos uma cópia de recuperação da chave fora desta máquina antes de considerar a camada offsite comprovada;
-- a cópia de recuperação deve ficar em local seguro e independente, como um gerenciador de senhas confiável ou outro cofre de segredos sob controle do responsável;
+- a chave local pode ficar em `.env.backup.local`, ignorado pelo Git;
+- manter pelo menos uma cópia de recuperação da chave fora desta máquina;
 - perder a chave significa perder a capacidade de restaurar os backups cifrados.
 
-Em 02/09/2026 a chave local foi gerada diretamente em `.env.backup.local`, sem impressão em terminal/chat, e validada apenas por formato:
+Em 02/09/2026 a chave foi gerada diretamente em `.env.backup.local`, sem impressão em terminal/chat, e validada apenas por formato. Também foi comprovada uma cópia de recuperação fora da máquina local em gerenciador de senhas sincronizado. Nenhum conteúdo secreto foi registrado no repositório.
 
-- `WEEKLY_KEY_CREATED`;
-- `WEEKLY_ENV_GATES_CONFIGURED`;
-- `WEEKLY_KEY_FORMAT_OK`;
-- `WEEKLY_KEY_BYTES=32`.
-
-Em 02/09/2026 também foi comprovada uma cópia de recuperação da chave fora da máquina local, armazenada em gerenciador de senhas sincronizado. A evidência foi visual, com o valor secreto mantido oculto; nenhum conteúdo da chave foi registrado em Git, documentação ou chat.
-
-## Destino semanal local de staging
+## Destino semanal local
 
 Padrão Windows:
 
@@ -108,9 +102,7 @@ Override opcional:
 
 `RODA_FESTA_WEEKLY_BACKUP_DIR`
 
-O script recusa destino dentro do repositório.
-
-Este diretório é staging/local retention, não satisfaz sozinho o requisito offsite.
+O script recusa destino dentro do repositório. Este diretório é staging/local retention e não satisfaz sozinho o requisito offsite.
 
 ## Artefatos de cada geração
 
@@ -124,19 +116,11 @@ são gerados:
 2. `<arquivo>.dump.json.rfenc` — manifesto cifrado;
 3. `<arquivo>.dump.weekly.json` — envelope operacional sem a chave.
 
-O envelope registra:
+O envelope registra formato, algoritmo, arquivo original, SHA-256/tamanho do original, nomes dos cifrados, SHA-256/tamanho dos cifrados e tamanho da tag de autenticação.
 
-- formato;
-- algoritmo;
-- arquivo original;
-- tamanho e SHA-256 do original;
-- nomes dos arquivos cifrados;
-- tamanho e SHA-256 dos arquivos cifrados;
-- tamanho da tag de autenticação.
+## Comandos operacionais
 
-## Criação
-
-Comando previsto:
+Criação:
 
 ```cmd
 npm run backup:weekly:encrypt -- "D:\Backups\Roda-Festa\daily\<arquivo>.dump"
@@ -146,38 +130,7 @@ Gate explícito:
 
 `ALLOW_RODA_FESTA_WEEKLY_ENCRYPTION=CREATE_ENCRYPTED_WEEKLY_COPY`
 
-Antes de cifrar, o script exige:
-
-- dump existente;
-- manifesto existente;
-- manifesto válido;
-- tamanho real igual ao manifesto;
-- SHA-256 real igual ao manifesto;
-- chave válida de 32 bytes;
-- destino fora do repositório;
-- ausência de colisão com artefatos já existentes.
-
-Se qualquer passo falhar, a geração não é considerada válida e os artefatos parciais são removidos.
-
-## Evidência real de criação — 02/09/2026
-
-Backup diário de origem previamente comprovado por restore:
-
-`D:\Backups\Roda-Festa\daily\roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump`
-
-Resultado da criação semanal:
-
-- `RODA_FESTA_WEEKLY_ENCRYPTED_COPY_OK`;
-- backup cifrado criado em `D:\Backups\Roda-Festa\weekly\roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump.rfenc`;
-- manifesto cifrado criado em `D:\Backups\Roda-Festa\weekly\roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump.json.rfenc`;
-- envelope criado em `D:\Backups\Roda-Festa\weekly\roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump.weekly.json`;
-- SHA-256 do backup original: `fdf0f0722c9dfff652b7aafd52592442b279f9d41640d5097d58a9328e0bb42f`;
-- SHA-256 do backup cifrado: `4f2d8684d53fa03ebdcb356f264986baaac95b98dffdc8038179be616f7affd1`;
-- SHA-256 do manifesto cifrado: `b312da00ad3095d91037a172b4f8de1a8aad215da1e13cf156d4029f0dacc68d`.
-
-## Verificação criptográfica
-
-Comando previsto:
+Verificação:
 
 ```cmd
 npm run backup:weekly:verify -- "D:\Backups\Roda-Festa\weekly\<arquivo>.dump.weekly.json"
@@ -187,43 +140,26 @@ Gate explícito:
 
 `ALLOW_RODA_FESTA_WEEKLY_VERIFY=VERIFY_ENCRYPTED_WEEKLY_COPY`
 
-A verificação deve:
+A criação exige dump/manifesto válidos, igualdade de tamanho e SHA-256, chave válida, destino fora do repositório e ausência de colisão. A verificação valida os cifrados, autentica AES-GCM, decifra em diretório temporário, exige igualdade com o backup original e remove temporários ao final.
 
-1. ler e validar o envelope;
-2. localizar dump e manifesto cifrados;
-3. validar SHA-256 e tamanho dos dois cifrados;
-4. decifrar ambos em diretório temporário;
-5. exigir autenticação AES-GCM válida;
-6. recalcular SHA-256 do dump decifrado;
-7. exigir igualdade com o backup original registrado;
-8. validar o manifesto decifrado;
-9. remover o diretório temporário ao final.
+## Evidência real — geração de 02/09/2026
 
-Resultado GREEN esperado:
+Backup diário de origem previamente comprovado por restore:
 
+`D:\Backups\Roda-Festa\daily\roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump`
+
+Evidência:
+
+- tamanho original: `61165` bytes;
+- SHA-256 original: `fdf0f0722c9dfff652b7aafd52592442b279f9d41640d5097d58a9328e0bb42f`;
+- SHA-256 do dump cifrado: `4f2d8684d53fa03ebdcb356f264986baaac95b98dffdc8038179be616f7affd1`;
+- SHA-256 do manifesto cifrado: `b312da00ad3095d91037a172b4f8de1a8aad215da1e13cf156d4029f0dacc68d`;
+- `RODA_FESTA_WEEKLY_ENCRYPTED_COPY_OK`;
 - `RODA_FESTA_WEEKLY_ENCRYPTED_VERIFY_OK`;
 - `WEEKLY_DECRYPTION_AUTHENTICATION_OK`;
 - `WEEKLY_VERIFY_TEMP_REMOVED`.
 
-## Evidência real de verificação local — 02/09/2026
-
-A geração semanal acima foi verificada com sucesso:
-
-- `RODA_FESTA_WEEKLY_ENCRYPTED_VERIFY_OK`;
-- SHA-256 recuperado: `fdf0f0722c9dfff652b7aafd52592442b279f9d41640d5097d58a9328e0bb42f`;
-- tamanho recuperado: `61165` bytes;
-- `WEEKLY_DECRYPTION_AUTHENTICATION_OK`;
-- `WEEKLY_VERIFY_TEMP_REMOVED`.
-
-A igualdade de SHA-256 e tamanho prova que a cópia cifrada voltou exatamente aos bytes do backup original usado como origem.
-
-## Prova adicional de recuperabilidade
-
-A verificação criptográfica prova que a cópia cifrada consegue voltar exatamente aos bytes do backup original.
-
-Ela não substitui o restore drill PostgreSQL. Periodicamente, uma geração semanal decifrada deve alimentar o mesmo fluxo de `restore:verify` já comprovado, mantendo a separação:
-
-**integridade criptográfica → decifragem → integridade do dump → restore real isolado**.
+A igualdade de SHA-256 e tamanho após decifragem prova que a cópia cifrada voltou exatamente aos bytes do backup original usado como origem.
 
 ## Segunda cópia off-machine
 
@@ -233,31 +169,19 @@ Destino V1 escolhido em 02/09/2026:
 - pasta operacional: `Meu Drive / roda-festa / backups-semanais`;
 - conta sob controle do responsável pelo projeto;
 - somente artefatos já criptografados são enviados;
-- o dump bruto e o `.env.backup.local` não são enviados.
+- dump bruto, manifesto bruto e `.env.backup.local` não são enviados.
 
-Critérios mínimos preservados:
-
-- ficar fora da máquina local;
-- não ser o próprio Supabase;
-- receber somente arquivos já cifrados;
-- suportar pelo menos 4 gerações semanais;
-- permitir recuperação/download sem depender do ambiente Production;
-- acesso protegido por autenticação forte;
-- exclusão e retenção só serão automatizadas após prova de recuperação.
-
-A revisão de segurança da conta offsite foi concluída em 02/09/2026. Detalhes de autenticação da conta não são versionados neste repositório público.
+A revisão de segurança da conta offsite foi concluída em 02/09/2026. Detalhes de autenticação não são versionados.
 
 ## Evidência real do ciclo offsite — 02/09/2026
 
-Foi enviada ao Google Drive uma geração completa contendo somente:
+Foi enviada uma geração completa contendo somente:
 
 1. `roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump.rfenc`;
 2. `roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump.json.rfenc`;
 3. `roda-festa-production-2026-09-02T08-38-07Z-b3732a0.dump.weekly.json`.
 
-A presença dos três arquivos na pasta offsite foi comprovada visualmente. Nenhum `.dump` bruto foi enviado.
-
-Os três artefatos foram então baixados novamente do Google Drive e extraídos em diretório temporário isolado:
+Os três arquivos foram baixados novamente do Google Drive para diretório temporário isolado:
 
 `C:\Temp\rf-offsite-verify`
 
@@ -271,7 +195,7 @@ Resultado:
 - `WEEKLY_DECRYPTION_AUTHENTICATION_OK`;
 - `WEEKLY_VERIFY_TEMP_REMOVED`.
 
-Portanto foi comprovado o ciclo:
+Ciclo comprovado:
 
 **backup diário validado → criptografia autenticada → staging semanal no D: → upload de artefatos cifrados ao Google Drive → download da nuvem → validação de hash/tamanho → autenticação AES-256-GCM → decifragem → bytes originais idênticos → limpeza temporária.**
 
@@ -279,28 +203,39 @@ Portanto foi comprovado o ciclo:
 
 Meta aprovada:
 
-- 1 geração semanal;
+- produzir 1 geração semanal;
 - manter 4 gerações semanais;
-- nenhuma exclusão automática até que a operação recorrente seja observada e a política de retenção destrutiva tenha teste específico;
-- manter por enquanto a geração local em `D:` mesmo depois do upload, além da cópia offsite.
+- manter por enquanto a geração local em `D:` mesmo depois do upload;
+- nenhuma exclusão automática até que a operação recorrente seja observada e a política destrutiva tenha teste específico.
 
-## Gates desta frente
+A segunda cópia já está comprovada. Isso **não autoriza automaticamente retenção destrutiva**; exclusão automatizada continua sendo unidade futura e independente.
 
-Antes de promover para `main`:
+## Prova adicional de recuperabilidade
 
-1. implementação criptográfica isolada — GREEN (CI #69);
-2. round-trip criptográfico automatizado — GREEN (CI #69);
-3. chave errada deve falhar fechada — GREEN (CI #69);
-4. scripts não podem imprimir chave — GREEN (CI #69);
-5. criação real de uma geração semanal cifrada — GREEN em 02/09/2026;
-6. verificação real dessa geração — GREEN em 02/09/2026;
-7. chave com cópia de recuperação fora da máquina — GREEN em 02/09/2026;
-8. destino offsite escolhido — GREEN: Google Drive;
-9. envio de uma geração cifrada ao destino offsite — GREEN em 02/09/2026;
-10. download de volta a partir do destino offsite — GREEN em 02/09/2026;
-11. verificação da cópia baixada — GREEN em 02/09/2026;
-12. CI completo GREEN — GREEN histórico até run #72; o head desta reconciliação final ainda exige CI GREEN;
-13. revisão de segurança da conta offsite — GREEN em 02/09/2026; detalhes sensíveis não versionados;
-14. aprovação explícita antes do merge — pendente.
+A verificação criptográfica não substitui o restore drill PostgreSQL. Periodicamente, uma geração semanal decifrada deve alimentar o mesmo fluxo de `restore:verify`, mantendo a separação:
 
-Até o item 14 ser cumprido, não promover esta frente para `main`.
+**integridade criptográfica → decifragem → integridade do dump → restore real isolado**.
+
+## Fechamento da frente
+
+Resultado final de RF-DR-WEEKLY-OFFSITE-V1:
+
+1. implementação criptográfica isolada — GREEN;
+2. round-trip criptográfico automatizado — GREEN;
+3. chave errada falha fechada — GREEN;
+4. scripts não imprimem chave — GREEN;
+5. geração semanal real — GREEN em 02/09/2026;
+6. verificação real da geração — GREEN;
+7. chave com recuperação fora da máquina — GREEN;
+8. destino offsite Google Drive — GREEN;
+9. upload somente dos artefatos cifrados — GREEN;
+10. download de volta — GREEN;
+11. verificação da cópia baixada — GREEN;
+12. CI final — GREEN, run #73 no head `87dfd12fc39d86a0247ef01288427a5787c49b4b`;
+13. revisão de segurança da conta offsite — GREEN;
+14. aprovação explícita antes do merge — GREEN;
+15. PR #5 mergeado em `main` — GREEN;
+16. merge commit — `3ba6b42696993916a1cb28991f32e9049e7fe66b`;
+17. Vercel do merge — SUCCESS.
+
+**RF-DR-WEEKLY-OFFSITE-V1 encerrada.**
