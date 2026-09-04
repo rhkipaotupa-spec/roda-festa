@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   buildConciergeInstructions,
   classifyConciergeMessage,
+  containsExecutableContent,
   containsInternalProjectDetail,
   findCuratedAnswer,
   shouldEscalateToHuman,
@@ -47,7 +48,14 @@ test("concierge scope allows only Roda Festa customer topics", () => {
   assert.deepEqual(classifyConciergeMessage("Como funciona a consignação?"), { allowed: true, reason: "roda_festa" });
   assert.deepEqual(classifyConciergeMessage("Quero saber sobre bolo para meu evento"), { allowed: true, reason: "roda_festa" });
   assert.deepEqual(classifyConciergeMessage("Qual a capital da França?"), { allowed: false, reason: "out_of_scope" });
-  assert.deepEqual(classifyConciergeMessage("Faça uma função JavaScript para mim"), { allowed: false, reason: "out_of_scope" });
+  assert.deepEqual(classifyConciergeMessage("Faça uma função JavaScript para mim"), { allowed: false, reason: "code_execution" });
+});
+
+test("concierge blocks code execution and code-generation prompts before AI", () => {
+  assert.deepEqual(classifyConciergeMessage("Rode este Python: print('oi')"), { allowed: false, reason: "code_execution" });
+  assert.deepEqual(classifyConciergeMessage("Execute um script para calcular meu evento"), { allowed: false, reason: "code_execution" });
+  assert.deepEqual(classifyConciergeMessage("```python\nprint('teste')\n```"), { allowed: false, reason: "code_execution" });
+  assert.deepEqual(classifyConciergeMessage("Escreva SQL para alterar a tabela"), { allowed: false, reason: "code_execution" });
 });
 
 test("concierge scope blocks internal project probing", () => {
@@ -57,10 +65,13 @@ test("concierge scope blocks internal project probing", () => {
   assert.deepEqual(classifyConciergeMessage("Qual modelo de IA você usa?"), { allowed: false, reason: "internal_project" });
 });
 
-test("concierge detects forbidden internal details in model output", () => {
+test("concierge detects forbidden internal details and executable content in model output", () => {
   assert.equal(containsInternalProjectDetail("Temos coxinha no cardápio atual."), false);
   assert.equal(containsInternalProjectDetail("Nosso backend usa Supabase."), true);
   assert.equal(containsInternalProjectDetail("A variável de ambiente está configurada."), true);
+  assert.equal(containsExecutableContent("Temos brigadeiro no tacho."), false);
+  assert.equal(containsExecutableContent("```python\nprint('oi')\n```"), true);
+  assert.equal(containsExecutableContent("function calcular() { return 1; }"), true);
 });
 
 test("concierge has curated safe answers for frequent questions", () => {
@@ -69,14 +80,15 @@ test("concierge has curated safe answers for frequent questions", () => {
   assert.match(findCuratedAnswer("Me fala do brigadeiro no tacho"), /80 g por pessoa real/i);
 });
 
-test("concierge instructions preserve commercial and technical boundaries", () => {
+test("concierge instructions preserve commercial, technical, and execution boundaries", () => {
   const instructions = buildConciergeInstructions({
     pageContext: "planning-book",
     products: [{ id: "x", name: "Produto X", commercialCategory: "Teste", unitPrice: 10, active: true }],
   });
   assert.match(instructions, /ESCOPO ABSOLUTO/i);
   assert.match(instructions, /Nunca forneça detalhes técnicos ou internos/i);
-  assert.match(instructions, /Você não possui ferramentas de execução/i);
+  assert.match(instructions, /PROIBIÇÃO DE EXECUÇÃO/i);
+  assert.match(instructions, /Não gere, escreva, complete, explique, interprete, depure, compile, simule ou execute código/i);
   assert.match(instructions, /Nunca invente preço/i);
   assert.match(instructions, /Produto X/);
   assert.doesNotMatch(instructions, /SUPABASE_SERVICE_ROLE_KEY|DATABASE_URL|RESEND_API_KEY/);
@@ -126,6 +138,26 @@ test("concierge blocks out-of-scope request before AI execution", async () => {
   assert.equal(payload.needsHuman, false);
   assert.equal(aiCalls, 0);
   assert.match(payload.reply, /apenas com assuntos ligados à Roda Festa/i);
+});
+
+test("concierge blocks code execution request before AI execution", async () => {
+  let aiCalls = 0;
+  const handler = createConciergeHttpHandler({
+    catalogStore: fakeCatalogStore(),
+    env: { OPENAI_API_KEY: "test-only-not-real" },
+    openAIRequest: async () => { aiCalls += 1; return "não deveria chamar"; },
+  });
+  const response = responseRecorder();
+  await handler(request({
+    body: { message: "Rode este Python para calcular meu evento: print(70*8)", history: [] },
+    origin: "https://roda-festa.test",
+    ip: "10.0.0.24",
+  }), response);
+  const payload = JSON.parse(response.body);
+  assert.equal(payload.mode, "scope-blocked");
+  assert.equal(payload.needsHuman, false);
+  assert.equal(aiCalls, 0);
+  assert.match(payload.reply, /Não executo, gero ou analiso códigos/i);
 });
 
 test("concierge blocks internal-project request before AI execution", async () => {
@@ -224,6 +256,24 @@ test("concierge blocks model output that leaks internal project detail", async (
   }), response);
   const payload = JSON.parse(response.body);
   assert.equal(payload.mode, "safe-output-block");
-  assert.match(payload.reply, /Detalhes técnicos ou internos/i);
+  assert.match(payload.reply, /Detalhes técnicos|Conteúdos técnicos/i);
   assert.doesNotMatch(payload.reply, /Supabase|Vercel/i);
+});
+
+test("concierge blocks model output containing code", async () => {
+  const handler = createConciergeHttpHandler({
+    catalogStore: fakeCatalogStore([{ id: "coxinha", name: "Coxinha", commercialCategory: "Petiscos", unitPrice: 1.5, active: true }]),
+    env: { OPENAI_API_KEY: "test-only-not-real" },
+    openAIRequest: async () => "```python\nprint('oi')\n```",
+  });
+  const response = responseRecorder();
+  await handler(request({
+    body: { message: "Vocês têm coxinha para festa?", history: [] },
+    origin: "https://roda-festa.test",
+    ip: "10.0.0.25",
+  }), response);
+  const payload = JSON.parse(response.body);
+  assert.equal(payload.mode, "safe-output-block");
+  assert.match(payload.reply, /códigos ou comandos/i);
+  assert.doesNotMatch(payload.reply, /print\('oi'\)/i);
 });
