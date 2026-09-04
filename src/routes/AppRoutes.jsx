@@ -12,6 +12,7 @@ import BookCoverSandbox from "../planner/book/BookCoverSandbox";
 import RuntimePlanningBook from "../planner/planning-book/RuntimePlanningBook";
 import R4ShadowPreview from "../planner/planning-book/R4ShadowPreview";
 import AdminLogin from "../admin/AdminLogin";
+import Concierge from "../concierge/Concierge";
 
 function AdminQuoteEditRoute() {
   const { sessionId } = useParams();
@@ -35,6 +36,7 @@ function AppRoutes() {
         <Route path="/admin/editar-pedido" element={<AdminLogin view="quote-edit-index" />} />
         <Route path="/admin/orcamentos/:sessionId/editar" element={<AdminQuoteEditRoute />} />
       </Routes>
+      <Concierge />
     </BrowserRouter>
   );
 }
