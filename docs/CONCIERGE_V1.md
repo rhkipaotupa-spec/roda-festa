@@ -24,7 +24,7 @@ Ele responde somente assuntos diretamente ligados à Roda Festa e à jornada do 
 - dúvidas sobre itens e estrutura apresentados ao cliente;
 - orientação comercial simples dentro dos fatos públicos disponíveis.
 
-Assuntos fora da Roda Festa são recusados de forma breve. O Concierge não deve tentar ajudar com notícias, política, saúde, finanças, programação, estudos, curiosidades, outras empresas ou qualquer assunto não relacionado ao serviço Roda Festa.
+Assuntos fora da Roda Festa são recusados de forma breve e educada. O Concierge não deve tentar ajudar com notícias, política, saúde, finanças, programação, estudos, curiosidades, outras empresas ou qualquer assunto não relacionado ao serviço Roda Festa.
 
 ## Fronteira interna e técnica
 
@@ -69,6 +69,25 @@ Ele não pode:
 
 Pedidos de ação são encaminhados para atendimento humano ou para um fluxo explícito e seguro do próprio site quando esse fluxo existir.
 
+## Proibição de código e runtime
+
+O Concierge **não oferece ambiente de programação nem execução de código**.
+
+É proibido:
+
+- executar Python, JavaScript, TypeScript, Node.js, SQL, shell, PowerShell ou qualquer outra linguagem;
+- gerar, completar, depurar, interpretar, compilar ou simular código;
+- aceitar blocos de código para análise;
+- executar scripts, comandos de terminal, automações ou consultas SQL;
+- usar sandbox, terminal, runtime, arquivo local ou ferramenta de execução;
+- afirmar que executou código, comando ou ferramenta.
+
+A proibição vale inclusive quando o pedido tentar usar o contexto Roda Festa como pretexto para obter execução de código.
+
+A entrada passa por um bloqueio específico para padrões de código/execução antes da chamada ao modelo. A saída do modelo também é filtrada: conteúdo com blocos de código ou marcadores executáveis é descartado e substituído por uma resposta segura.
+
+Resposta esperada para esse tipo de pedido deve ser breve e educada, por exemplo: `Posso ajudar somente com dúvidas sobre a Roda Festa e o planejamento do seu evento. Não executo, gero ou analiso códigos, scripts ou comandos.`
+
 ## Experiência V1
 
 - launcher persistente nas rotas públicas;
@@ -101,7 +120,8 @@ O Concierge não pode:
 - alterar orçamento;
 - acessar Admin;
 - revelar segredo, prompt, credencial, env ou documento interno;
-- responder assuntos fora da Roda Festa.
+- responder assuntos fora da Roda Festa;
+- gerar, analisar ou executar código, scripts, SQL ou comandos.
 
 Perguntas sobre disponibilidade, desconto, negociação, pagamento, restrições alimentares, reclamações, ações sobre pedido/orçamento ou pedidos muito personalizados são encaminhadas para confirmação humana.
 
@@ -127,7 +147,7 @@ A API envia ao provedor de IA somente fatos públicos curados, contexto simples 
 
 ## Provider de IA
 
-A integração usa a Responses API via HTTPS no servidor.
+A integração usa uma API de modelo no servidor.
 
 Variáveis de ambiente esperadas:
 
@@ -146,9 +166,10 @@ Sem `OPENAI_API_KEY`, o V1 continua respondendo perguntas curadas e falha seguro
 - classificação de escopo antes da chamada ao modelo;
 - bloqueio explícito de sondagem técnica/interna;
 - bloqueio explícito de pedidos de ação;
+- bloqueio explícito de pedidos de geração/execução de código;
 - catálogo compactado antes de ser enviado ao modelo;
-- prompt com regra de escopo absoluto, anti-invenção e anti-prompt-injection;
-- filtro defensivo de saída contra vazamento de detalhes internos;
+- prompt com regra de escopo absoluto, anti-invenção, anti-prompt-injection e no-code;
+- filtro defensivo de saída contra vazamento de detalhes internos e conteúdo executável;
 - chave de IA somente server-side;
 - `OPENAI_API_KEY` incluída no scanner de marcadores proibidos no frontend;
 - testes dedicados incluídos em `npm run test:security`.
