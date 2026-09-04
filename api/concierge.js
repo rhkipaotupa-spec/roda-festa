@@ -34,7 +34,7 @@ function normalizeHost(value) {
 function isSameOriginRequest(request) {
   const origin = String(request?.headers?.origin || "").trim();
   if (!origin) return true;
-  let originHost = "";
+  let originHost;
   try { originHost = new URL(origin).host.toLowerCase(); } catch { return false; }
   const host = normalizeHost(request?.headers?.["x-forwarded-host"] || request?.headers?.host);
   return Boolean(host && originHost === host);
@@ -58,9 +58,18 @@ function rateAllowed(request, now = Date.now()) {
   return true;
 }
 
+function stripDisallowedControlChars(value) {
+  return Array.from(String(value || ""))
+    .filter((character) => {
+      const code = character.charCodeAt(0);
+      if (code === 9 || code === 10 || code === 13) return true;
+      return code >= 32 && code !== 127;
+    })
+    .join("");
+}
+
 function sanitizeText(value, maxChars) {
-  return String(value || "")
-    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
+  return stripDisallowedControlChars(value)
     .trim()
     .slice(0, maxChars);
 }
@@ -193,7 +202,7 @@ export function createConciergeHttpHandler({
       return;
     }
 
-    let products = [];
+    let products;
     try {
       products = await catalogStore.listCatalog({ includeInactive: false });
     } catch {
