@@ -8,6 +8,11 @@ import {
   findCuratedAnswer,
   shouldEscalateToHuman,
 } from "./_lib/concierge-knowledge.js";
+import {
+  getConciergeCalibration,
+  getConciergeHandoff,
+  isNaturalPublicConciergeTopic,
+} from "./_lib/concierge-calibration.js";
 
 const MAX_BODY_BYTES = 10_000;
 const MAX_MESSAGE_CHARS = 900;
@@ -92,7 +97,9 @@ function normalizeHistory(history) {
     if (!content) continue;
 
     const classification = classifyConciergeMessage(content);
-    if (!classification.allowed || shouldEscalateToHuman(content)) continue;
+    const naturallyPublic = classification.reason === "out_of_scope"
+      && isNaturalPublicConciergeTopic(content);
+    if ((!classification.allowed && !naturallyPublic) || shouldEscalateToHuman(content)) continue;
     if (total + content.length > MAX_HISTORY_CHARS) break;
 
     total += content.length;
@@ -195,7 +202,9 @@ export function createConciergeHttpHandler({
     }
 
     const classification = classifyConciergeMessage(message);
-    if (!classification.allowed) {
+    const naturallyPublic = classification.reason === "out_of_scope"
+      && isNaturalPublicConciergeTopic(message);
+    if (!classification.allowed && !naturallyPublic) {
       sendJson(response, 200, {
         ok: true,
         mode: "scope-blocked",
@@ -205,12 +214,30 @@ export function createConciergeHttpHandler({
       return;
     }
 
+    const guided = getConciergeCalibration(message);
+    if (guided) {
+      sendJson(response, 200, { ok: true, ...guided });
+      return;
+    }
+
+    const handoff = getConciergeHandoff(message);
+    if (handoff) {
+      sendJson(response, 200, {
+        ok: true,
+        mode: "handoff",
+        needsHuman: true,
+        reply: handoff.reply,
+        actions: handoff.actions,
+      });
+      return;
+    }
+
     if (shouldEscalateToHuman(message)) {
       sendJson(response, 200, {
         ok: true,
         mode: "handoff",
         needsHuman: true,
-        reply: "Essa parte precisa de confirmação ou ação da nossa equipe. Posso te ajudar a organizar a dúvida para você continuar o atendimento no WhatsApp.",
+        reply: "Essa parte precisa de confirmação ou ação da nossa equipe. Posso te orientar até o próximo passo sem inventar disponibilidade, condição comercial ou informação sensível.",
       });
       return;
     }
