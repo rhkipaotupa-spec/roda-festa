@@ -1,6 +1,8 @@
 import { createProductCatalogStore } from "./_lib/product-catalog-store.js";
 import {
   buildConciergeInstructions,
+  classifyConciergeMessage,
+  containsInternalProjectDetail,
   findCuratedAnswer,
   shouldEscalateToHuman,
 } from "./_lib/concierge-knowledge.js";
@@ -119,6 +121,13 @@ async function defaultOpenAIRequest({ apiKey, model, instructions, history, mess
   return text;
 }
 
+function outOfScopeReply(reason) {
+  if (reason === "internal_project") {
+    return "Posso ajudar com informações sobre a experiência, o cardápio e o planejamento da Roda Festa. Detalhes técnicos ou internos do sistema não fazem parte do meu atendimento.";
+  }
+  return "Eu sou o Concierge Roda Festa e consigo ajudar apenas com assuntos ligados à Roda Festa e ao planejamento do seu evento.";
+}
+
 export function createConciergeHttpHandler({
   catalogStore,
   env = process.env,
@@ -159,12 +168,23 @@ export function createConciergeHttpHandler({
       return;
     }
 
+    const classification = classifyConciergeMessage(message);
+    if (!classification.allowed) {
+      sendJson(response, 200, {
+        ok: true,
+        mode: "scope-blocked",
+        needsHuman: false,
+        reply: outOfScopeReply(classification.reason),
+      });
+      return;
+    }
+
     if (shouldEscalateToHuman(message)) {
       sendJson(response, 200, {
         ok: true,
         mode: "handoff",
         needsHuman: true,
-        reply: "Essa parte eu prefiro não arriscar: nossa equipe precisa confirmar para você. Posso te ajudar a organizar a dúvida para você continuar o atendimento no WhatsApp.",
+        reply: "Essa parte precisa de confirmação ou ação da nossa equipe. Posso te ajudar a organizar a dúvida para você continuar o atendimento no WhatsApp.",
       });
       return;
     }
@@ -196,8 +216,17 @@ export function createConciergeHttpHandler({
 
     try {
       const instructions = buildConciergeInstructions({ products, pageContext });
-      const reply = await openAIRequest({ apiKey, model, instructions, history, message });
-      sendJson(response, 200, { ok: true, mode: "ai", needsHuman: false, reply: sanitizeText(reply, 2_200) });
+      const reply = sanitizeText(await openAIRequest({ apiKey, model, instructions, history, message }), 2_200);
+      if (!reply || containsInternalProjectDetail(reply)) {
+        sendJson(response, 200, {
+          ok: true,
+          mode: "safe-output-block",
+          needsHuman: false,
+          reply: "Posso ajudar apenas com informações comerciais e de experiência da Roda Festa. Detalhes técnicos ou internos não fazem parte do meu atendimento.",
+        });
+        return;
+      }
+      sendJson(response, 200, { ok: true, mode: "ai", needsHuman: false, reply });
     } catch (error) {
       console.error("concierge_ai_failed", error?.message || error);
       if (curated) {
