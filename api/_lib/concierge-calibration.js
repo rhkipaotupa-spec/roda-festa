@@ -1,22 +1,50 @@
+const CLEARLY_OUT_OF_SCOPE_PATTERNS = Object.freeze([
+  /\b(piada|poema|charada|reda[cç][aã]o|traduza|traduzir|jogo|quiz)\b/i,
+  /\b(f[ií]sica|qu[ií]mica|pol[ií]tica|elei[cç][aã]o|not[ií]cia|previs[aã]o\s+do\s+tempo|bitcoin|criptomoeda)\b/i,
+]);
+
 const NATURAL_PUBLIC_SCOPE_PATTERNS = Object.freeze([
-  /\b(cat[aá]logo|produtos?|card[aá]pio|salgad\w*|coxinh\w*|kib\w*|past[eé]is?|lanch\w*|tort\w*|bol\w*|brigadeir\w*|doces?|bebidas?|refrigerantes?|sucos?|[aá]guas?)\b/i,
-  /\b(festa|evento|anivers[aá]rio|casamento|batizado|ch[aá]\s+de\s+beb[eê]|confraterniza[cç][aã]o|coffee\s*break|recep[cç][aã]o)\b/i,
+  /\broda\s*festa\b/i,
+  /\b(cat[aá]logo|produt\w*|card[aá]pio|salgad\w*|coxinh\w*|kib\w*|past[eé]is?|lanch\w*|mini\s*lanch\w*|tort\w*|bol\w*|brigadeir\w*|doces?|petiscos?|finger\s*food|bebidas?|refrigerantes?|sucos?|[aá]guas?)\b/i,
+  /\b(festa|evento|anivers[aá]rio|casamento|batizado|noivado|bodas|formatura|corporativo|confraterniza[cç][aã]o|coffee\s*break|coquetel|recep[cç][aã]o|ch[aá]\s+(?:de\s+)?(?:beb[eê]|revela[cç][aã]o|bar))\b/i,
   /\b(planning\s*book|planejamento|or[cç]amento|proposta|consigna[cç][aã]o)\b/i,
+  /\b(convidad\w*|adult\w*|crian[cç]\w*|pessoas?|quantidad\w*|por\s+pessoa)\b/i,
+  /\b(carrinh\w*|gar[cç]o(?:m|ns)|estrutura|montagem|servi[cç]\w*|dura[cç][aã]o|horas?\s+de\s+evento)\b/i,
+  /\b(pre[cç]os?|valores?|investimento|quanto\s+custa)\b/i,
+  /\b(datas?|agenda|disponibilidade|reserv\w*|contratar|fechar|atendimento|whats(?:app)?)\b/i,
 ]);
 
 const CATALOG_NAVIGATION_PATTERNS = Object.freeze([
-  /\b(cat[aá]logo)\b/i,
-  /\bonde\b.{0,35}\b(ver|vejo|achar|encontrar)\b.{0,35}\b(produtos?|card[aá]pio|op[cç][oõ]es)\b/i,
-  /\b(produtos?|card[aá]pio|op[cç][oõ]es)\b.{0,35}\b(dispon[ií]veis?|ver|vejo|achar|encontrar)\b/i,
-  /\b(envie|enviar|manda|mandar|mostra|mostrar)\b.{0,35}\b(cat[aá]logo|produtos?|card[aá]pio)\b/i,
+  /\bonde\b.{0,35}\b(ver|vejo|achar|encontrar|acessar)\b.{0,35}\b(cat[aá]logo|produt\w*|card[aá]pio|op[cç][oõ]es|planning\s*book)\b/i,
+  /\b(ver|abrir|acessar|envie|enviar|manda|mandar|mostra|mostrar)\b.{0,35}\b(cat[aá]logo|card[aá]pio|produt\w*|planning\s*book)\b/i,
+  /\blink\b.{0,35}\b(cat[aá]logo|card[aá]pio|produt\w*|planning\s*book)\b/i,
+  /\b(cat[aá]logo|card[aá]pio|produt\w*|planning\s*book)\b.{0,35}\blink\b/i,
+]);
+
+const QUOTE_NAVIGATION_PATTERNS = Object.freeze([
+  /\b(quero|gostaria\s+de|preciso\s+de)\b.{0,30}\b(or[cç]amento|proposta)\b/i,
+  /\b(montar|fazer|come[cç]ar|simular)\b.{0,30}\b(or[cç]amento|planejamento|proposta)\b/i,
 ]);
 
 const DATE_HANDOFF_PATTERNS = Object.freeze([
   /\bdisponibilidade\b/i,
-  /\b(data|dia|agenda)\b.{0,35}\b(livre|dispon[ií]vel|vaga|tem|ter|reservar|reserva)\b/i,
-  /\b(tem|t[eê]m|teria|voc[eê]s\s+t[eê]m)\b.{0,20}\b(data|dia|vaga)\b/i,
-  /\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b/,
-  /\b(janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b/i,
+  /\b(data|dia|agenda)\b.{0,45}\b(livre|dispon[ií]vel|vaga|reservar|reserva|confirmar)\b/i,
+  /\b(livre|dispon[ií]vel|vaga)\b.{0,45}\b(data|dia|agenda|\d{1,2}[/-]\d{1,2})\b/i,
+  /\b(tem|t[eê]m|teria|voc[eê]s\s+t[eê]m)\b.{0,25}\b(vaga|disponibilidade)\b/i,
+  /\b(posso|consigo|quero|gostaria\s+de)\b.{0,25}\b(reservar|fechar|confirmar)\b.{0,45}\b(data|dia|\d{1,2}[/-]\d{1,2}|janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b/i,
+  /\b(reservar|reserva)\b.{0,45}\b(data|dia|\d{1,2}[/-]\d{1,2}|janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b/i,
+]);
+
+const PLANNING_ESTIMATE_PATTERNS = Object.freeze([
+  /\b(quantos?|quantas?|quanto)\b.{0,90}\b(salgad\w*|coxinh\w*|kib\w*|past[eé]is?|lanch\w*|tort\w*|bol\w*|brigadeir\w*|doces?|bebidas?|carrinh\w*|gar[cç]o(?:m|ns))\b.{0,70}\b(pessoas?|convidad\w*)\b/i,
+  /\b(quantos?|quantas?|quanto)\b.{0,50}\b(preciso|devo|recomenda|pedir|comprar)\b.{0,80}\b(pessoas?|convidad\w*|evento|festa)\b/i,
+  /\b(quanto|quantos?|quantas?)\b.{0,80}\b(para|pra)\b\s*\d{1,4}\b.{0,25}\b(pessoas?|convidad\w*)\b/i,
+]);
+
+const CONTEXTUAL_FOLLOW_UP_PATTERNS = Object.freeze([
+  /^(e\s+)?(para|pra)\s+\d{1,4}\s*(pessoas?|convidad\w*|adult\w*|crian[cç]\w*)?[?!. ]*$/i,
+  /^(e\s+)?(com|sem|para|pra)\s+(bebidas?|crian[cç]\w*|adult\w*|doces?|salgad\w*|carrinh\w*)[?!. ]*$/i,
+  /^e\s+(bebidas?|crian[cç]\w*|adult\w*|doces?|salgad\w*|carrinh\w*|consigna[cç][aã]o)[?!. ]*$/i,
 ]);
 
 const HUMAN_ACTIONS = Object.freeze([
@@ -25,27 +53,48 @@ const HUMAN_ACTIONS = Object.freeze([
 ]);
 
 const PLANNING_ACTION = Object.freeze([
-  Object.freeze({ type: "planning-book", label: "Ver no Planning Book" }),
+  Object.freeze({ type: "planning-book", label: "Abrir Planning Book" }),
 ]);
 
 function text(value) {
   return String(value || "").trim();
 }
 
+export function isClearlyOutOfScope(message) {
+  const value = text(message);
+  return Boolean(value && CLEARLY_OUT_OF_SCOPE_PATTERNS.some((pattern) => pattern.test(value)));
+}
+
 export function isNaturalPublicConciergeTopic(message) {
   const value = text(message);
-  return Boolean(value && NATURAL_PUBLIC_SCOPE_PATTERNS.some((pattern) => pattern.test(value)));
+  if (!value || isClearlyOutOfScope(value)) return false;
+  return NATURAL_PUBLIC_SCOPE_PATTERNS.some((pattern) => pattern.test(value));
+}
+
+export function isContextualPublicFollowUp(message, history = []) {
+  const value = text(message);
+  if (!value || !Array.isArray(history) || history.length === 0 || isClearlyOutOfScope(value)) return false;
+  return CONTEXTUAL_FOLLOW_UP_PATTERNS.some((pattern) => pattern.test(value));
 }
 
 export function getConciergeCalibration(message) {
   const value = text(message);
-  if (!value) return null;
+  if (!value || isClearlyOutOfScope(value)) return null;
 
   if (CATALOG_NAVIGATION_PATTERNS.some((pattern) => pattern.test(value))) {
     return {
       mode: "guided-navigation",
       needsHuman: false,
-      reply: "Você pode ver o catálogo atual e montar seu evento pelo Planning Book. Ele mostra as opções disponíveis para o planejamento e permite começar a composição antes de falar com a equipe.",
+      reply: "Você pode abrir o Planning Book para ver as opções atuais e começar a montar seu evento. Se preferir, eu também posso continuar respondendo suas dúvidas por aqui.",
+      actions: PLANNING_ACTION,
+    };
+  }
+
+  if (QUOTE_NAVIGATION_PATTERNS.some((pattern) => pattern.test(value))) {
+    return {
+      mode: "guided-navigation",
+      needsHuman: false,
+      reply: "O Planning Book é o melhor caminho para começar seu orçamento: ele organiza o perfil do evento, as escolhas e uma recomendação inicial editável. Depois, a equipe pode confirmar os detalhes finais com você.",
       actions: PLANNING_ACTION,
     };
   }
@@ -55,12 +104,20 @@ export function getConciergeCalibration(message) {
 
 export function getConciergeHandoff(message) {
   const value = text(message);
-  if (!value) return null;
+  if (!value || isClearlyOutOfScope(value)) return null;
 
   if (DATE_HANDOFF_PATTERNS.some((pattern) => pattern.test(value))) {
     return {
       reason: "date_availability",
-      reply: "A disponibilidade da data precisa ser confirmada pela nossa equipe. Você pode adiantar o perfil do evento no Planning Book e, para confirmar a data, seguir para o atendimento humano.",
+      reply: "Posso te ajudar a planejar o evento, mas a disponibilidade dessa data precisa ser confirmada pela nossa equipe. Você pode adiantar o planejamento no Planning Book e falar com a equipe para confirmar a agenda.",
+      actions: HUMAN_ACTIONS,
+    };
+  }
+
+  if (PLANNING_ESTIMATE_PATTERNS.some((pattern) => pattern.test(value))) {
+    return {
+      reason: "authoritative_quantity",
+      reply: "Para essa quantidade, o Planning Book calcula uma recomendação inicial usando as regras atuais da Roda Festa. Você pode montar o cenário por lá e, se quiser validar a composição final, continuar com nossa equipe.",
       actions: HUMAN_ACTIONS,
     };
   }
