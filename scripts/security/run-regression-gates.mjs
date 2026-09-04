@@ -24,6 +24,7 @@ const SECURITY_TESTS = Object.freeze([
   "tests/admin-commercial-v1-persistence.test.mjs",
   "tests/supabase-modern-secret-key.test.mjs",
   "tests/vercel-api-routing-boundary.test.mjs",
+  "tests/concierge-v1.test.mjs",
 ]);
 
 const FRONTEND_ROOTS = Object.freeze(["src"]);
@@ -39,6 +40,7 @@ const SERVER_SECRET_MARKERS = Object.freeze([
   "RESEND_API_KEY",
   "DATABASE_URL",
   "RODA_FESTA_BACKUP_ENCRYPTION_KEY",
+  "OPENAI_API_KEY",
 ]);
 
 async function walkFiles(directory) {
