@@ -2,6 +2,7 @@ import { createProductCatalogStore } from "./_lib/product-catalog-store.js";
 import {
   buildConciergeInstructions,
   classifyConciergeMessage,
+  containsExecutableContent,
   containsInternalProjectDetail,
   findCuratedAnswer,
   shouldEscalateToHuman,
@@ -122,6 +123,9 @@ async function defaultOpenAIRequest({ apiKey, model, instructions, history, mess
 }
 
 function outOfScopeReply(reason) {
+  if (reason === "code_execution") {
+    return "Posso ajudar somente com dúvidas sobre a Roda Festa e o planejamento do seu evento. Não executo, gero ou analiso códigos, scripts ou comandos.";
+  }
   if (reason === "internal_project") {
     return "Posso ajudar com informações sobre a experiência, o cardápio e o planejamento da Roda Festa. Detalhes técnicos ou internos do sistema não fazem parte do meu atendimento.";
   }
@@ -217,12 +221,12 @@ export function createConciergeHttpHandler({
     try {
       const instructions = buildConciergeInstructions({ products, pageContext });
       const reply = sanitizeText(await openAIRequest({ apiKey, model, instructions, history, message }), 2_200);
-      if (!reply || containsInternalProjectDetail(reply)) {
+      if (!reply || containsInternalProjectDetail(reply) || containsExecutableContent(reply)) {
         sendJson(response, 200, {
           ok: true,
           mode: "safe-output-block",
           needsHuman: false,
-          reply: "Posso ajudar apenas com informações comerciais e de experiência da Roda Festa. Detalhes técnicos ou internos não fazem parte do meu atendimento.",
+          reply: "Posso ajudar apenas com informações comerciais e de experiência da Roda Festa. Conteúdos técnicos, códigos ou comandos não fazem parte do meu atendimento.",
         });
         return;
       }
