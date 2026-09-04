@@ -2,11 +2,15 @@
 
 Data: 03/09/2026
 
-Estado: **VALIDADO LOCALMENTE; fechamento condicionado ao merge aprovado desta unidade após CI/Vercel verdes no head final.**
+Estado: **FECHADO em 03/09/2026 após CI/Vercel verdes, autorização explícita e merge da PR #11.**
 
 Baseline de partida: `5cb1f43bb16e4d21c40604e9a7df9fbfac43fd5a`
 
 Commit técnico validado: `309074ff4da0632323f99cf495dec831fff814dc`
+
+Head final da PR: `4f963532b8598841850f1899f67f984c75e3ad6f`
+
+Merge: `ad6eb282dc83da65c209b96e9fbc0637f35bbb90`
 
 Branch: `security/npm-audit-review-p4`
 
@@ -124,17 +128,20 @@ Comparação do commit-base `5cb1f43bb16e4d21c40604e9a7df9fbfac43fd5a` com o com
 - `package.json`: 1 adição / 1 remoção
 - `package-lock.json`: 14 adições / 14 remoções
 
-## 8. Gate de fechamento
+## 8. Fechamento comprovado
 
-Esta evidência não autoriza merge por si só.
-
-O fechamento de P4 exige, no head final da PR:
+O gate de fechamento foi satisfeito no head final da PR #11:
 
 1. diff sem arquivos inesperados;
-2. CI verde, incluindo security regression gates, suíte completa, lint e build;
-3. Vercel/preview verde quando aplicável;
-4. documentação presente no mesmo head final;
-5. autorização explícita para merge;
-6. pós-merge com `main` local reconciliada, working tree limpa e deployment final confirmado.
+2. CI run #98 / job `validate` = SUCCESS;
+3. security regression gates 110/110, suíte completa 417/417, lint e build = GREEN;
+4. Vercel Preview = SUCCESS;
+5. autorização explícita de merge registrada;
+6. merge `ad6eb282dc83da65c209b96e9fbc0637f35bbb90` concluído;
+7. Vercel Production após merge = SUCCESS.
 
-Até o merge aprovado, o baseline seguro oficial permanece `5cb1f43bb16e4d21c40604e9a7df9fbfac43fd5a`.
+Classificação final:
+
+`P4 = CLOSED / npm audit full=0 / npm audit Production=0`
+
+O baseline seguro posterior a P4 avançou para `ad6eb282dc83da65c209b96e9fbc0637f35bbb90` e, após P5, para `5292da7268b134f0a4b822e48c13623073f2da99`.

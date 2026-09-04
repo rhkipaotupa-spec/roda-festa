@@ -23,11 +23,11 @@ Não deve parecer um formulário tradicional. Deve funcionar como uma experiênc
 9. Servidor é autoridade de preço e integridade comercial.
 10. Alterações aprovadas/congeladas só devem ser reabertas por feedback real ou necessidade funcional comprovada.
 
-## Estado reconciliado — 03/09/2026
+## Estado reconciliado — 04/09/2026
 
 Baseline seguro de retomada:
 
-`3ba6b42696993916a1cb28991f32e9049e7fe66b`
+`5292da7268b134f0a4b822e48c13623073f2da99`
 
 Estado principal:
 
@@ -39,7 +39,12 @@ Estado principal:
 - edição administrativa de orçamento preservando histórico;
 - catálogo com edição individual e em massa por categoria;
 - Admin Commercial V1 aprovado/congelado até feedback real;
-- Disaster Recovery V1 concluído, incluindo backup lógico, restore real, política operacional e segunda cópia semanal criptografada/offsite.
+- motor autoritativo `RF-REC-2.1.0`;
+- Disaster Recovery V1 concluído, incluindo backup lógico, restore real, política operacional e segunda cópia semanal criptografada/offsite;
+- Security P1-P5 fechados conforme evidências de 03/09;
+- `npm run test:security` faz parte do contrato de CI;
+- `main` protegida por ruleset `Protect main` com PR e status `validate` obrigatórios;
+- GitHub Actions usa checkout/setup-node v7 em Node 24.
 
 ## Welcome
 
@@ -148,6 +153,28 @@ Estado aprovado/congelado:
 
 `Clientes` e `Aprendizados` permanecem futuros. Não criar módulo `Pedidos` enquanto não existir entidade/lifecycle operacional distinta do orçamento validado.
 
+## Segurança e governança de entrega
+
+Estado reconciliado do fechamento de 03/09/2026:
+
+- P1 — sessão Admin revalida identidade atual por `userId`: **CLOSED**;
+- P2 — `npm run test:security` como gate explícito antes da suíte completa: **CLOSED**;
+- P3 — secret scan com Gitleaks: **CLOSED WITHIN EXECUTED COVERAGE**; TruffleHog não foi executado;
+- P4 — dependências npm: **CLOSED**, audit completo e Production = 0 vulnerabilidades;
+- P5 — Actions em Node 24: **CLOSED**;
+- security tests = 110/110;
+- full suite = 417/417;
+- lint/build = GREEN;
+- workflow `.github/workflows/admin-commercial-v1.yml` usa `actions/checkout@v7`, `actions/setup-node@v7`, Node 24 e job `validate`;
+- ruleset `Protect main` id `22214695` ativo na default branch;
+- bypass = nenhum / `current_user_can_bypass=never`;
+- delete e force push/non-fast-forward bloqueados;
+- Pull Request obrigatório;
+- status check obrigatório = `validate`;
+- approvals = 0 e strict up-to-date = off por decisão deliberada.
+
+Não renomear `validate` sem atualizar a ruleset. Não burlar a proteção da `main` para acelerar uma entrega.
+
 ## Disaster Recovery
 
 Estado atual: **CONCLUÍDO**.
@@ -185,6 +212,8 @@ Staging semanal:
 `D:\Backups\Roda-Festa\weekly`
 
 Nenhum segredo, chave, token, senha, cookie, connection string privilegiada ou conteúdo de `.env*` deve ser registrado em Git ou documentação.
+
+A última recovery proof comprovada permanece a de 02/09. O fechamento de 03/09 não comprovou nesta conversa um novo backup diário de 03/09; não marcar esse item GREEN sem evidência externa.
 
 ## Próxima direção
 
