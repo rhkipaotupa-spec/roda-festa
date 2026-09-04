@@ -1,7 +1,7 @@
 const HUMAN_ONLY_PATTERNS = Object.freeze([
   /\bdesconto\b/i,
   /\bnegoci(a|ar|ação|acao)\b/i,
-  /\bdata\s+(livre|dispon[ií]vel)\b/i,
+  /\bdata\b.{0,24}\b(livre|dispon[ií]vel)\b/i,
   /\bdisponibilidade\b/i,
   /\bquero\s+(fechar|contratar)\b/i,
   /\bpagamento\b/i,
