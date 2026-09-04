@@ -2,7 +2,7 @@
 
 Estado: **OBRIGATÓRIO para novas atualizações**
 
-Origem: auditoria de segurança concluída em 03/09/2026. Baseline seguro reconciliado: `d7d89d22ace30d4b2e82847b4abfa44576b552ab`.
+Origem: auditoria de segurança concluída em 03/09/2026. Baseline seguro reconciliado: `5292da7268b134f0a4b822e48c13623073f2da99`.
 
 Este documento define os gates mínimos de segurança que fazem parte do fluxo normal de atualização do Roda Festa.
 
@@ -119,9 +119,9 @@ Em toda atualização:
 6. se afetar frontend/env de build, confirmar que segredo server-side não entra no bundle;
 7. executar busca/scanner proporcional ao risco.
 
-**P3 FECHADO em 03/09/2026 no baseline `d7d89d22ace30d4b2e82847b4abfa44576b552ab`.** A varredura dedicada cobriu histórico Git alcançável, blobs unreachable do object database local, `src/planner.zip` e bundle Vite, sem findings do Gitleaks v8.30.1. Evidência detalhada: `docs/security/P3_SECRET_SCAN_2026-09-03.md`.
+**P3 FECHADO em 03/09/2026 dentro da cobertura executada.** A varredura dedicada cobriu histórico Git alcançável, blobs unreachable do object database local, `src/planner.zip` e bundle Vite, sem findings do Gitleaks v8.30.1. Evidência detalhada: `docs/security/P3_SECRET_SCAN_2026-09-03.md`.
 
-A conclusão é limitada à cobertura executada: nenhum segredo foi detectado nas superfícies verificadas; isso não equivale a garantia absoluta de inexistência de segredo.
+A conclusão é limitada à cobertura executada: nenhum segredo foi detectado nas superfícies verificadas; isso não equivale a garantia absoluta de inexistência de segredo. TruffleHog não foi executado.
 
 ### S6 — Inputs e XSS
 
@@ -209,9 +209,17 @@ Após merge autorizado:
 
 ### P4 — Auditoria de dependências npm
 
-**VALIDADO LOCALMENTE em 03/09/2026; fechamento condicionado ao merge aprovado da PR.** A investigação separou runtime de tooling, atualizou `react-router-dom/react-router` para 7.18.2, `brace-expansion` para 5.0.9 e `nanoid` para 3.3.18. Após a remediação, `npm audit --json` e `npm audit --omit=dev --json` retornaram zero vulnerabilidades; `npm run test:security`, `npm test`, lint, build e `git diff --check` passaram no conteúdo técnico commitado. Evidência detalhada: `docs/security/P4_DEPENDENCY_AUDIT_2026-09-03.md`.
+**FECHADO.** PR #11 mergeada em `ad6eb282dc83da65c209b96e9fbc0637f35bbb90`. `react-router-dom/react-router` foram atualizados para 7.18.2, `brace-expansion` para 5.0.9 e `nanoid` para 3.3.18. `npm audit --json` e `npm audit --omit=dev --json` retornaram zero vulnerabilidades; security 110/110, full 417/417, lint/build GREEN; CI/Vercel/Production SUCCESS. Evidência: `docs/security/P4_DEPENDENCY_AUDIT_2026-09-03.md`.
 
-Até o merge aprovado e a reconciliação pós-merge, o baseline seguro oficial permanece `5cb1f43bb16e4d21c40604e9a7df9fbfac43fd5a`.
+### P5 — GitHub Actions em Node 24
+
+**FECHADO.** PR #12 mergeada em `5292da7268b134f0a4b822e48c13623073f2da99`. Workflow usa `actions/checkout@v7`, `actions/setup-node@v7`, Node 24 e preserva o job `validate`.
+
+### Governança da `main`
+
+Ruleset `Protect main` id `22214695` está ativo para `~DEFAULT_BRANCH/main`, sem bypass (`current_user_can_bypass=never`), bloqueando deletion e non-fast-forward/force push, exigindo Pull Request e status check `validate` da integração GitHub Actions. `required approvals = 0` e `strict required status checks = false` são decisões deliberadas para o repositório operado por uma pessoa.
+
+O nome do job `validate` é parte da fronteira de governança e não deve ser renomeado sem atualizar a ruleset.
 
 ## 9. Regra de segurança para velocidade
 
@@ -219,3 +227,11 @@ Até o merge aprovado e a reconciliação pós-merge, o baseline seguro oficial 
 - auth/banco/autorização/ID/input/segredo → gate específico obrigatório;
 - alto risco → branch isolada + teste negativo + evidência + revisão;
 - achado crítico/alto confirmado → classificar, priorizar e fechar com prova.
+
+## 10. Baseline reconciliado após P5
+
+Baseline seguro corrente após o fechamento de 03/09/2026:
+
+`5292da7268b134f0a4b822e48c13623073f2da99`
+
+A partir deste ponto, toda nova frente deve nascer de `main` limpa nesse commit ou em baseline posterior verificado.
