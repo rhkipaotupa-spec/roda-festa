@@ -9,7 +9,7 @@ const HUMAN_ONLY_PATTERNS = Object.freeze([
   /\balerg/i,
   /\bintoler/i,
   /\brestri[cç][aã]o\s+alimentar\b/i,
-  /\b(ingrediente|alerg[eê]nico|composi[cç][aã]o\s+dos?\s+alimentos?)\b/i,
+  /\b(ingredientes?|alerg[eê]nicos?|composi[cç][aã]o\s+dos?\s+alimentos?)\b/i,
   /\b(vegano|vegetariano|lactose|gl[uú]ten|sem\s+gl[uú]ten|sem\s+lactose)\b/i,
   /\b(cont[eé]m|leva)\b.{0,30}\b(leite|ovo|gl[uú]ten|amendoim|castanha|soja|lactose)\b/i,
   /\bcapacidade\b/i,
