@@ -4,6 +4,7 @@ import {
   classifyConciergeMessage,
   containsExecutableContent,
   containsInternalProjectDetail,
+  containsUnauthorizedContactDetail,
   findCuratedAnswer,
   shouldEscalateToHuman,
 } from "./_lib/concierge-knowledge.js";
@@ -148,7 +149,7 @@ function outOfScopeReply(reason) {
     return "Posso ajudar somente com dúvidas sobre a Roda Festa e o planejamento do seu evento. Não executo, gero ou analiso códigos, scripts ou comandos.";
   }
   if (reason === "internal_project") {
-    return "Posso ajudar com informações sobre a experiência, o cardápio e o planejamento da Roda Festa. Detalhes técnicos ou internos do sistema não fazem parte do meu atendimento.";
+    return "Posso ajudar com informações públicas sobre a experiência, o cardápio e o planejamento da Roda Festa. Detalhes internos, técnicos ou operacionais não fazem parte do meu atendimento.";
   }
   return "Eu sou o Concierge Roda Festa e consigo ajudar apenas com assuntos ligados à Roda Festa e ao planejamento do seu evento.";
 }
@@ -242,12 +243,15 @@ export function createConciergeHttpHandler({
     try {
       const instructions = buildConciergeInstructions({ products, pageContext });
       const reply = sanitizeText(await openAIRequest({ apiKey, model, instructions, history, message }), 2_200);
-      if (!reply || containsInternalProjectDetail(reply) || containsExecutableContent(reply)) {
+      if (!reply
+          || containsInternalProjectDetail(reply)
+          || containsExecutableContent(reply)
+          || containsUnauthorizedContactDetail(reply)) {
         sendJson(response, 200, {
           ok: true,
           mode: "safe-output-block",
           needsHuman: false,
-          reply: "Posso ajudar apenas com informações comerciais e de experiência da Roda Festa. Conteúdos técnicos, códigos ou comandos não fazem parte do meu atendimento.",
+          reply: "Posso ajudar apenas com informações públicas sobre a experiência e o planejamento da Roda Festa. Conteúdo interno, código, comandos ou contatos não confirmados não fazem parte do meu atendimento.",
         });
         return;
       }
