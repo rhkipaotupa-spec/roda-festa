@@ -13,6 +13,13 @@ const NATURAL_PUBLIC_SCOPE_PATTERNS = Object.freeze([
   /\b(carrinh\w*|gar[cç]o(?:m|ns)|estrutura|montagem|servi[cç]\w*|dura[cç][aã]o|horas?\s+de\s+evento)\b/i,
   /\b(pre[cç]os?|valores?|investimento|quanto\s+custa)\b/i,
   /\b(datas?|dias?|agenda|disponibilidade|reserv\w*|contratar|fechar|atendimento|whats(?:app)?)\b/i,
+  /\b(no que|em que|como)\b.{0,25}\b(ajuda|ajudar|pode ajudar|consegue ajudar)\b/i,
+]);
+
+const HELP_PATTERNS = Object.freeze([
+  /^\s*(no que|em que)\s+(voc[eê]\s+)?(pode|consegue)\s+me\s+ajudar\s*[?!. ]*$/i,
+  /^\s*(o que|como)\s+voc[eê]\s+(pode|consegue)\s+me\s+ajudar\s*[?!. ]*$/i,
+  /^\s*no que\s+pode\s+me\s+ajudar\s*[?!. ]*$/i,
 ]);
 
 const CATALOG_NAVIGATION_PATTERNS = Object.freeze([
@@ -38,6 +45,7 @@ const DATE_HANDOFF_PATTERNS = Object.freeze([
   /\b(tem|t[eê]m|teria)\b.{0,20}\b\d{1,2}\s+de\s+(janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b/i,
   /\b\d{1,2}\s+de\s+(janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b.{0,25}\b(tem|t[eê]m|livre|dispon[ií]vel|vaga)\b/i,
   /\b(atende|atendem|fazem|realizam)\w*\b.{0,25}\b(?:no\s+)?dia\s+\d{1,2}(?:[/-]\d{1,2}(?:[/-]\d{2,4})?)?\b/i,
+  /\btem\s+como\s+(fazer|realizar|montar|ter)\b.{0,35}\b(evento|festa|anivers[aá]rio|casamento|batizado|confraterniza[cç][aã]o)?\b.{0,20}\b(?:no\s+)?dia\s+\d{1,2}(?:[/-]\d{1,2}(?:[/-]\d{2,4})?)?\b/i,
   /\b(posso|consigo|quero|gostaria\s+de)\b.{0,25}\b(reservar|fechar|confirmar)\b.{0,45}\b(data|dia|\d{1,2}[/-]\d{1,2}|janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b/i,
   /\b(reservar|reserva)\b.{0,45}\b(data|dia|\d{1,2}[/-]\d{1,2}|janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b/i,
 ]);
@@ -105,6 +113,15 @@ export function isContextualPublicFollowUp(message, history = []) {
 export function getConciergeCalibration(message) {
   const value = text(message);
   if (!value || isClearlyOutOfScope(value)) return null;
+
+  if (HELP_PATTERNS.some((pattern) => pattern.test(value))) {
+    return {
+      mode: "guided-help",
+      needsHuman: false,
+      reply: "Posso te ajudar com cardápio e produtos, como funciona a Roda Festa, duração e consignação, dúvidas gerais do planejamento e o próximo passo do seu evento. Para quantidade oficial eu te levo ao Planning Book; para data, negociação, pagamento, alergênicos ou alguma exceção, eu encaminho para nossa equipe.",
+      actions: PLANNING_ACTION,
+    };
+  }
 
   if (CATALOG_NAVIGATION_PATTERNS.some((pattern) => pattern.test(value))) {
     return {
