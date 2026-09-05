@@ -2,6 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import "./concierge.css";
 
+const WHATSAPP_URL = "https://wa.me/5514998960208?text=Ol%C3%A1%21%20Vim%20pelo%20Concierge%20Roda%20Festa%20e%20gostaria%20de%20continuar%20meu%20atendimento.";
+const DEFAULT_HUMAN_ACTIONS = Object.freeze([
+  Object.freeze({ type: "whatsapp", label: "Falar com a equipe" }),
+]);
+
 const QUICK_PROMPTS = [
   "Como funciona a Roda Festa?",
   "Criança conta na quantidade?",
@@ -22,6 +27,20 @@ function shouldHide(pathname) {
     || pathname === "/r4-preview";
 }
 
+function normalizeActions(payloadActions, needsHuman) {
+  const allowedTypes = new Set(["planning-book", "whatsapp"]);
+  const actions = (Array.isArray(payloadActions) ? payloadActions : [])
+    .filter((action) => action && allowedTypes.has(action.type))
+    .map((action) => ({
+      type: action.type,
+      label: String(action.label || "").trim() || (action.type === "whatsapp" ? "Falar com a equipe" : "Abrir Planning Book"),
+    }))
+    .slice(0, 2);
+
+  if (actions.length > 0) return actions;
+  return needsHuman ? [...DEFAULT_HUMAN_ACTIONS] : [];
+}
+
 export default function Concierge() {
   const location = useLocation();
   const hidden = shouldHide(location.pathname);
@@ -37,6 +56,7 @@ export default function Concierge() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [needsHuman, setNeedsHuman] = useState(false);
+  const [actions, setActions] = useState([]);
   const listRef = useRef(null);
 
   useEffect(() => {
@@ -52,7 +72,7 @@ export default function Concierge() {
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, loading]);
+  }, [messages, loading, actions]);
 
   const history = useMemo(
     () => messages.slice(-8).map(({ role, content }) => ({ role, content })),
@@ -60,6 +80,22 @@ export default function Concierge() {
   );
 
   if (hidden) return null;
+
+  function runAction(action) {
+    if (action.type === "planning-book") {
+      if (location.pathname === "/planning-book") {
+        setOpen(false);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      window.location.assign("/planning-book");
+      return;
+    }
+
+    if (action.type === "whatsapp") {
+      window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
+    }
+  }
 
   async function sendMessage(rawText) {
     const text = String(rawText || "").trim();
@@ -70,6 +106,7 @@ export default function Concierge() {
     setInput("");
     setLoading(true);
     setNeedsHuman(false);
+    setActions([]);
     setShowNudge(false);
 
     try {
@@ -87,8 +124,10 @@ export default function Concierge() {
       if (!response.ok || payload?.ok !== true || typeof payload?.reply !== "string") {
         throw new Error("concierge_unavailable");
       }
+      const human = Boolean(payload.needsHuman);
       setMessages((current) => [...current, { role: "assistant", content: payload.reply }]);
-      setNeedsHuman(Boolean(payload.needsHuman));
+      setNeedsHuman(human);
+      setActions(normalizeActions(payload.actions, human));
     } catch {
       setMessages((current) => [
         ...current,
@@ -98,6 +137,7 @@ export default function Concierge() {
         },
       ]);
       setNeedsHuman(true);
+      setActions([...DEFAULT_HUMAN_ACTIONS]);
     } finally {
       setLoading(false);
     }
@@ -150,8 +190,24 @@ export default function Concierge() {
 
           {needsHuman ? (
             <div className="rf-concierge-handoff">
-              <strong>Quer continuar com a equipe?</strong>
-              <span>O Concierge não inventa disponibilidade, desconto ou condição comercial.</span>
+              <strong>Continuamos com você.</strong>
+              <span>Quando a dúvida precisa de confirmação humana, você pode seguir direto para nossa equipe.</span>
+            </div>
+          ) : null}
+
+          {actions.length > 0 ? (
+            <div className="rf-concierge-actions" aria-label="Próximos passos">
+              {actions.map((action) => (
+                <button
+                  type="button"
+                  key={action.type}
+                  className={`rf-concierge-action rf-concierge-action--${action.type}`}
+                  onClick={() => runAction(action)}
+                >
+                  <span>{action.type === "whatsapp" ? "↗" : "→"}</span>
+                  {action.label}
+                </button>
+              ))}
             </div>
           ) : null}
 
