@@ -78,9 +78,7 @@ function stripDisallowedControlChars(value) {
 }
 
 function sanitizeText(value, maxChars) {
-  return stripDisallowedControlChars(value)
-    .trim()
-    .slice(0, maxChars);
+  return stripDisallowedControlChars(value).trim().slice(0, maxChars);
 }
 
 function normalizePageContext(value) {
@@ -92,23 +90,18 @@ function normalizeHistory(history) {
   if (!Array.isArray(history)) return [];
   let total = 0;
   const normalized = [];
-
   for (const item of history.slice(-MAX_HISTORY_ITEMS * 2)) {
     if (item?.role !== "user") continue;
     const content = sanitizeText(item?.content, MAX_MESSAGE_CHARS);
     if (!content) continue;
-
     const classification = classifyConciergeMessage(content);
-    const naturallyPublic = classification.reason === "out_of_scope"
-      && isNaturalPublicConciergeTopic(content);
+    const naturallyPublic = classification.reason === "out_of_scope" && isNaturalPublicConciergeTopic(content);
     if ((!classification.allowed && !naturallyPublic) || shouldEscalateToHuman(content)) continue;
     if (total + content.length > MAX_HISTORY_CHARS) break;
-
     total += content.length;
     normalized.push({ role: "user", content });
     if (normalized.length >= MAX_HISTORY_ITEMS) break;
   }
-
   return normalized;
 }
 
@@ -126,17 +119,13 @@ function extractResponseText(payload) {
 }
 
 function transcript(history, message) {
-  const rows = [...history, { role: "user", content: message }];
-  return rows.map((item) => `CLIENTE: ${item.content}`).join("\n");
+  return [...history, { role: "user", content: message }].map((item) => `CLIENTE: ${item.content}`).join("\n");
 }
 
 async function defaultOpenAIRequest({ apiKey, model, instructions, history, message, fetchImpl = globalThis.fetch }) {
   const response = await fetchImpl("https://api.openai.com/v1/responses", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       model,
       instructions,
@@ -145,7 +134,6 @@ async function defaultOpenAIRequest({ apiKey, model, instructions, history, mess
       store: false,
     }),
   });
-
   if (!response.ok) throw new Error(`openai_response_${response.status}`);
   const payload = await response.json();
   const text = extractResponseText(payload);
@@ -154,36 +142,23 @@ async function defaultOpenAIRequest({ apiKey, model, instructions, history, mess
 }
 
 function outOfScopeReply(reason) {
-  if (reason === "code_execution") {
-    return "Posso ajudar somente com dúvidas sobre a Roda Festa e o planejamento do seu evento. Não executo, gero ou analiso códigos, scripts ou comandos.";
-  }
-  if (reason === "internal_project") {
-    return "Posso ajudar com informações públicas sobre a experiência, o cardápio e o planejamento da Roda Festa. Detalhes internos, técnicos ou operacionais não fazem parte do meu atendimento.";
-  }
+  if (reason === "code_execution") return "Posso ajudar somente com dúvidas sobre a Roda Festa e o planejamento do seu evento. Não executo, gero ou analiso códigos, scripts ou comandos.";
+  if (reason === "internal_project") return "Posso ajudar com informações públicas sobre a experiência, o cardápio e o planejamento da Roda Festa. Detalhes internos, técnicos ou operacionais não fazem parte do meu atendimento.";
   return "Eu sou o Concierge Roda Festa e consigo ajudar apenas com assuntos ligados à Roda Festa e ao planejamento do seu evento.";
 }
 
-export function createConciergeHttpHandler({
-  catalogStore,
-  env = process.env,
-  openAIRequest = defaultOpenAIRequest,
-  now = () => Date.now(),
-} = {}) {
-  if (!catalogStore || typeof catalogStore.listCatalog !== "function") {
-    throw new Error("concierge_catalog_store_required");
-  }
+export function createConciergeHttpHandler({ catalogStore, env = process.env, openAIRequest = defaultOpenAIRequest, now = () => Date.now() } = {}) {
+  if (!catalogStore || typeof catalogStore.listCatalog !== "function") throw new Error("concierge_catalog_store_required");
 
   return async function conciergeHttpHandler(request, response) {
     if (String(request?.method || "").toUpperCase() !== "POST") {
       sendJson(response, 405, { ok: false, error: "method_not_allowed" }, { Allow: "POST" });
       return;
     }
-
     if (!isSameOriginRequest(request)) {
       sendJson(response, 403, { ok: false, error: "origin_not_allowed" });
       return;
     }
-
     if (!rateAllowed(request, now())) {
       sendJson(response, 429, { ok: false, error: "rate_limited", reply: "Recebi muitas mensagens em sequência. Aguarde um pouquinho e tente novamente." });
       return;
@@ -204,35 +179,16 @@ export function createConciergeHttpHandler({
     }
 
     const classification = classifyConciergeMessage(message);
-    const naturallyPublic = classification.reason === "out_of_scope"
-      && isNaturalPublicConciergeTopic(message);
-    const contextualPublic = classification.reason === "out_of_scope"
-      && isContextualPublicFollowUp(message, history);
+    const naturallyPublic = classification.reason === "out_of_scope" && isNaturalPublicConciergeTopic(message);
+    const contextualPublic = classification.reason === "out_of_scope" && isContextualPublicFollowUp(message, history);
     if (!classification.allowed && !naturallyPublic && !contextualPublic) {
-      sendJson(response, 200, {
-        ok: true,
-        mode: "scope-blocked",
-        needsHuman: false,
-        reply: outOfScopeReply(classification.reason),
-      });
-      return;
-    }
-
-    const guided = getConciergeCalibration(message);
-    if (guided) {
-      sendJson(response, 200, { ok: true, ...guided });
+      sendJson(response, 200, { ok: true, mode: "scope-blocked", needsHuman: false, reply: outOfScopeReply(classification.reason) });
       return;
     }
 
     const handoff = getConciergeHandoff(message, history);
     if (handoff) {
-      sendJson(response, 200, {
-        ok: true,
-        mode: "handoff",
-        needsHuman: true,
-        reply: handoff.reply,
-        actions: handoff.actions,
-      });
+      sendJson(response, 200, { ok: true, mode: "handoff", needsHuman: true, reply: handoff.reply, actions: handoff.actions });
       return;
     }
 
@@ -250,12 +206,18 @@ export function createConciergeHttpHandler({
     try {
       products = await catalogStore.listCatalog({ includeInactive: false });
     } catch {
-      products = [];
+      products = typeof catalogStore.baseCatalog === "function" ? catalogStore.baseCatalog().filter((product) => product.active !== false) : [];
     }
 
     const catalogResponse = getPublicCatalogResponse({ message, products });
     if (catalogResponse) {
       sendJson(response, 200, { ok: true, ...catalogResponse });
+      return;
+    }
+
+    const guided = getConciergeCalibration(message);
+    if (guided) {
+      sendJson(response, 200, { ok: true, ...guided });
       return;
     }
 
@@ -268,28 +230,15 @@ export function createConciergeHttpHandler({
         sendJson(response, 200, { ok: true, mode: "curated", needsHuman: false, reply: curated });
         return;
       }
-      sendJson(response, 200, {
-        ok: true,
-        mode: "safe-fallback",
-        needsHuman: true,
-        reply: "Eu ainda não tenho confirmação segura para responder isso sozinha. Posso encaminhar essa dúvida para nossa equipe sem inventar nenhuma informação.",
-      });
+      sendJson(response, 200, { ok: true, mode: "safe-fallback", needsHuman: true, reply: "Eu ainda não tenho confirmação segura para responder isso sozinha. Posso encaminhar essa dúvida para nossa equipe sem inventar nenhuma informação." });
       return;
     }
 
     try {
       const instructions = buildConciergeInstructions({ products, pageContext });
       const reply = sanitizeText(await openAIRequest({ apiKey, model, instructions, history, message }), 2_200);
-      if (!reply
-          || containsInternalProjectDetail(reply)
-          || containsExecutableContent(reply)
-          || containsUnauthorizedContactDetail(reply)) {
-        sendJson(response, 200, {
-          ok: true,
-          mode: "safe-output-block",
-          needsHuman: false,
-          reply: "Posso ajudar apenas com informações públicas sobre a experiência e o planejamento da Roda Festa. Conteúdo interno, código, comandos ou contatos não confirmados não fazem parte do meu atendimento.",
-        });
+      if (!reply || containsInternalProjectDetail(reply) || containsExecutableContent(reply) || containsUnauthorizedContactDetail(reply)) {
+        sendJson(response, 200, { ok: true, mode: "safe-output-block", needsHuman: false, reply: "Posso ajudar apenas com informações públicas sobre a experiência e o planejamento da Roda Festa. Conteúdo interno, código, comandos ou contatos não confirmados não fazem parte do meu atendimento." });
         return;
       }
       sendJson(response, 200, { ok: true, mode: "ai", needsHuman: false, reply });
@@ -299,25 +248,15 @@ export function createConciergeHttpHandler({
         sendJson(response, 200, { ok: true, mode: "curated-fallback", needsHuman: false, reply: curated });
         return;
       }
-      sendJson(response, 200, {
-        ok: true,
-        mode: "safe-fallback",
-        needsHuman: true,
-        reply: "Tive uma dificuldade para consultar essa informação agora. Prefiro não arriscar uma resposta errada; nossa equipe pode confirmar para você.",
-      });
+      sendJson(response, 200, { ok: true, mode: "safe-fallback", needsHuman: true, reply: "Tive uma dificuldade para consultar essa informação agora. Prefiro não arriscar uma resposta errada; nossa equipe pode confirmar para você." });
     }
   };
 }
 
-export function createConciergeRuntimeHandler({
-  createCatalogStore = createProductCatalogStore,
-  env = process.env,
-} = {}) {
+export function createConciergeRuntimeHandler({ createCatalogStore = createProductCatalogStore, env = process.env } = {}) {
   return async function conciergeRuntimeHandler(request, response) {
     let catalogStore;
-    try {
-      catalogStore = createCatalogStore({ env });
-    } catch {
+    try { catalogStore = createCatalogStore({ env }); } catch {
       sendJson(response, 503, { ok: false, error: "concierge_runtime_unavailable" });
       return;
     }
