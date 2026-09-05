@@ -47,13 +47,14 @@ export function isPublicCatalogQuestion(message) {
   const text = normalize(safe);
 
   const explicitCatalog = /\b(catalogo|cardapio|produtos?|itens?|opcoes?)\b/.test(text);
-  const sellingIntent = /\b(vende|vendem|vender|oferece|oferecem|tem|têm|possui|possuem)\b/.test(text);
+  const sellingIntent = /\b(vende|vendem|vender|oferece|oferecem|tem|possu[ií]|possuem)\b/.test(text);
   const listIntent = /\b(quais|qual|que|lista|listar|mostra|mostrar|mostre|mostrem|envia|enviar|manda|mandar|informa|informar|informe|informem|sabe|saber|opcoes?|itens?)\b/.test(text);
   const foodSubject = /\b(salgad\w*|doces?|bebidas?|lanches?|bolos?|tortas?|coxinh\w*|kib\w*|pasteis?)\b/.test(text);
 
+  if (/^(e\s+)?(o\s+)?(catalogo|cardapio|produtos?|itens?|opcoes?)\s*[?!. ]*$/.test(text)) return true;
   if (explicitCatalog && (listIntent || sellingIntent || /\bonde\b/.test(text))) return true;
   if (foodSubject && listIntent) return true;
-  if (/\bo que\b.{0,30}\b(vende|vendem|oferece|oferecem|tem|têm)\b/.test(text)) return true;
+  if (/\bo que\b.{0,30}\b(vende|vendem|oferece|oferecem|tem)\b/.test(text)) return true;
   if (/\b(vende|vendem|oferece|oferecem)\b.{0,30}\b(o que|quais|que)\b/.test(text)) return true;
   return false;
 }
