@@ -11,6 +11,7 @@ import {
 import {
   getConciergeCalibration,
   getConciergeHandoff,
+  isContextualPublicFollowUp,
   isNaturalPublicConciergeTopic,
 } from "./_lib/concierge-calibration.js";
 
@@ -204,7 +205,9 @@ export function createConciergeHttpHandler({
     const classification = classifyConciergeMessage(message);
     const naturallyPublic = classification.reason === "out_of_scope"
       && isNaturalPublicConciergeTopic(message);
-    if (!classification.allowed && !naturallyPublic) {
+    const contextualPublic = classification.reason === "out_of_scope"
+      && isContextualPublicFollowUp(message, history);
+    if (!classification.allowed && !naturallyPublic && !contextualPublic) {
       sendJson(response, 200, {
         ok: true,
         mode: "scope-blocked",
@@ -220,7 +223,7 @@ export function createConciergeHttpHandler({
       return;
     }
 
-    const handoff = getConciergeHandoff(message);
+    const handoff = getConciergeHandoff(message, history);
     if (handoff) {
       sendJson(response, 200, {
         ok: true,
