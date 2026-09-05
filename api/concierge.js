@@ -151,7 +151,7 @@ async function defaultOpenAIRequest({ apiKey, model, instructions, history, mess
 function outOfScopeReply(reason) {
   if (reason === "code_execution") return "Posso ajudar somente com dúvidas sobre a Roda Festa e o planejamento do seu evento. Não executo, gero ou analiso códigos, scripts ou comandos.";
   if (reason === "internal_project") return "Posso ajudar com informações públicas sobre a experiência, o cardápio e o planejamento da Roda Festa. Detalhes internos, técnicos ou operacionais não fazem parte do meu atendimento.";
-  return "Sou o Assistente Roda Festa e consigo ajudar com assuntos ligados à Roda Festa e ao planejamento do seu evento.";
+  return "Sou o Assistente Roda Festa e consigo ajudar apenas com assuntos ligados à Roda Festa e ao planejamento do seu evento.";
 }
 
 export function createConciergeHttpHandler({ catalogStore, env = process.env, openAIRequest = defaultOpenAIRequest, now = () => Date.now() } = {}) {
