@@ -29,11 +29,15 @@ function fakeCatalogStore() {
   return {
     async listCatalog() {
       return [
-        { id: "coxinha", name: "Coxinha", commercialCategory: "Salgados", unitPrice: 2, active: true },
-        { id: "kibe", name: "Kibe", commercialCategory: "Salgados", unitPrice: 2, active: true },
-        { id: "bolinha-queijo", name: "Bolinha de Queijo", commercialCategory: "Salgados", unitPrice: 2, active: true },
-        { id: "mini-lanche", name: "Mini Lanche", commercialCategory: "Mini Lanches", unitPrice: 6, active: true },
-        { id: "brigadeiro-tacho", name: "Brigadeiro no Tacho", commercialCategory: "Doces", unitPrice: 12, active: true },
+        { id: "coxinha", name: "Coxinha", commercialCategory: "Petiscos", unitPrice: 2, active: true },
+        { id: "kibe", name: "Kibe", commercialCategory: "Petiscos", unitPrice: 2, active: true },
+        { id: "bolinha-queijo", name: "Bolinha de Queijo", commercialCategory: "Petiscos", unitPrice: 2, active: true },
+        { id: "mini-lanche", name: "Mini Lanche", commercialCategory: "Mini lanches", unitPrice: 6, active: true },
+        { id: "bolo-chocolate", name: "Bolo de Chocolate", commercialCategory: "Bolos", unitPrice: 10.8, active: true },
+        { id: "bolo-abacaxi", name: "Bolo de Abacaxi", commercialCategory: "Bolos", unitPrice: 10.8, active: true },
+        { id: "brigadeiro-tacho", name: "Brigadeiro no Tacho - Chocolate", commercialCategory: "Brigadeiro no tacho", unitPrice: 12, active: true },
+        { id: "brigadeiro-doce", name: "Brigadeiro de Chocolate", commercialCategory: "Doces", unitPrice: 2, active: true },
+        { id: "suco", name: "Suco de Laranja", commercialCategory: "Bebidas", unitPrice: 5, active: true },
       ];
     },
   };
@@ -69,6 +73,27 @@ test("catalog questions are useful without spending an AI call", async () => {
     assert.equal(payload.needsHuman, false, message);
     assert.equal(payload.actions?.[0]?.type, "planning-book", message);
     assert.match(payload.reply, /Coxinha/i, message);
+    assert.equal(aiCalls, 0, message);
+  }
+});
+
+test("specific category questions return only the requested category", async () => {
+  const cases = [
+    ["bolo tem do que?", "Bolo de Chocolate", /Coxinha|Suco de Laranja/i],
+    ["quais salgadinhos vocês têm?", "Coxinha", /Bolo de Chocolate|Suco de Laranja/i],
+    ["quais bebidas?", "Suco de Laranja", /Coxinha|Bolo de Chocolate/i],
+    ["tem quais mini lanches?", "Mini Lanche", /Coxinha|Bolo de Chocolate/i],
+    ["quais doces?", "Brigadeiro de Chocolate", /Coxinha|Bolo de Chocolate/i],
+    ["brigadeiro no tacho tem quais sabores?", "Brigadeiro no Tacho - Chocolate", /Brigadeiro de Chocolate|Coxinha/i],
+  ];
+
+  for (const [index, [message, expected, forbidden]] of cases.entries()) {
+    const { payload, aiCalls } = await runCase({ message, ip: `10.10.11.${index + 1}` });
+    assert.equal(payload.mode, "catalog-category", message);
+    assert.equal(payload.needsHuman, false, message);
+    assert.match(payload.reply, new RegExp(expected, "i"), message);
+    assert.doesNotMatch(payload.reply, forbidden, message);
+    assert.equal(payload.actions?.[0]?.type, "planning-book", message);
     assert.equal(aiCalls, 0, message);
   }
 });

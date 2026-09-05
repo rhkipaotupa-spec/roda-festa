@@ -11,6 +11,16 @@ const PLANNING_ACTION = Object.freeze([
   Object.freeze({ type: "planning-book", label: "Abrir Planning Book" }),
 ]);
 
+const CATEGORY_MATCHERS = Object.freeze([
+  Object.freeze({ category: "Brigadeiro no tacho", pattern: /\bbrigadeiro\s+no\s+tacho\b|\btacho\b/ }),
+  Object.freeze({ category: "Mini lanches", pattern: /\bmini\s*lanch\w*\b/ }),
+  Object.freeze({ category: "Petiscos", pattern: /\bpetisc\w*\b|\bsalgad\w*\b/ }),
+  Object.freeze({ category: "Tortas", pattern: /\btort\w*\b/ }),
+  Object.freeze({ category: "Bolos", pattern: /\bbol\w*\b/ }),
+  Object.freeze({ category: "Doces", pattern: /\bdoc\w*\b|\bbrigadeir\w*\b/ }),
+  Object.freeze({ category: "Bebidas", pattern: /\bbebid\w*\b|\brefrigerant\w*\b|\bsuc\w*\b|\bagua\w*\b/ }),
+]);
+
 function normalize(value) {
   return String(value || "")
     .normalize("NFD")
@@ -41,10 +51,29 @@ function compactPublicProducts(products = []) {
     .filter((product) => product.name);
 }
 
+function hasCategoryListIntent(text) {
+  return /\b(quais|opcoes?|lista|listar|sabores?|tipos?|variedades?)\b/.test(text)
+    || /\btem\s+(?:do|de)\s+que\b/.test(text)
+    || /\btem\s+quais\b/.test(text)
+    || /\b(me\s+)?(mostra|mostrar|mostre|fala|falar|diga|dizer)\b/.test(text);
+}
+
+function requestedCategory(message) {
+  const safe = safeMessage(message);
+  if (!safe) return null;
+  const text = normalize(safe);
+  if (!hasCategoryListIntent(text)) return null;
+
+  const match = CATEGORY_MATCHERS.find(({ pattern }) => pattern.test(text));
+  return match?.category || null;
+}
+
 export function isPublicCatalogQuestion(message) {
   const safe = safeMessage(message);
   if (!safe) return false;
   const text = normalize(safe);
+
+  if (requestedCategory(safe)) return true;
 
   const explicitCatalog = /\b(catalogo|cardapio|produtos?|itens?|opcoes?)\b/.test(text);
   const sellingIntent = /\b(vende|vendem|vender|oferece|oferecem|tem|possu[ií]|possuem)\b/.test(text);
@@ -77,6 +106,21 @@ export function formatPublicCatalogReply(products = []) {
   }
 
   return `Claro. Hoje o nosso catálogo inclui ${parts.join("; ")}. Essas são opções públicas do catálogo-base da Roda Festa; o Planning Book mostra a composição disponível para o seu evento.`;
+}
+
+function formatCategoryReply(message, products = []) {
+  const category = requestedCategory(message);
+  if (!category) return null;
+
+  const active = compactPublicProducts(products)
+    .filter((product) => normalize(product.category) === normalize(category));
+  if (active.length === 0) return null;
+
+  const names = [...new Set(active.map((product) => product.name))];
+  return {
+    category,
+    reply: `Claro. Em ${category}, temos: ${names.join(", ")}. Se quiser, posso te explicar uma opção específica ou você pode abrir o Planning Book para montar o evento.`,
+  };
 }
 
 function findMentionedProduct(message, products) {
@@ -121,6 +165,16 @@ export function getPublicCatalogResponse({ message, products = [] } = {}) {
       mode: "catalog-suggestion",
       needsHuman: false,
       reply: pairingReply,
+      actions: PLANNING_ACTION,
+    };
+  }
+
+  const categoryReply = formatCategoryReply(message, products);
+  if (categoryReply) {
+    return {
+      mode: "catalog-category",
+      needsHuman: false,
+      reply: categoryReply.reply,
       actions: PLANNING_ACTION,
     };
   }
