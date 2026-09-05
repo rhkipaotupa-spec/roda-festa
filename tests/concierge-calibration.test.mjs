@@ -35,6 +35,14 @@ function fakeCatalogStore(products = []) {
   return { async listCatalog() { return products; } };
 }
 
+const CATALOG = [
+  { id: "coxinha", name: "Coxinha", commercialCategory: "Salgados", unitPrice: 2, active: true },
+  { id: "kibe", name: "Kibe", commercialCategory: "Salgados", unitPrice: 2, active: true },
+  { id: "bolinha-queijo", name: "Bolinha de Queijo", commercialCategory: "Salgados", unitPrice: 2, active: true },
+  { id: "pastel", name: "Pastel", commercialCategory: "Salgados", unitPrice: 2, active: true },
+  { id: "bolo", name: "Bolo", commercialCategory: "Doces", unitPrice: 10, active: true },
+];
+
 test("natural public topics accept common customer phrasing", () => {
   for (const message of [
     "vocês tem salgadinhos?",
@@ -43,6 +51,8 @@ test("natural public topics accept common customer phrasing", () => {
     "vocês atendem batizado?",
     "tem brigadeiro no tacho?",
     "queria saber dos produtos",
+    "quais itens voces tem para vender?",
+    "mas voce nao sabe me dizer nem as opções?",
   ]) {
     assert.equal(isNaturalPublicConciergeTopic(message), true, message);
   }
@@ -92,10 +102,53 @@ test("quantity follow-up is routed to Planning Book instead of AI arithmetic", (
   assert.equal(result?.actions?.some((action) => action.type === "planning-book"), true);
 });
 
+test("handler answers public catalog list from authoritative catalog without AI", async () => {
+  let aiCalls = 0;
+  const handler = createConciergeHttpHandler({
+    catalogStore: fakeCatalogStore(CATALOG),
+    env: { OPENAI_API_KEY: "test-only-not-real" },
+    openAIRequest: async () => { aiCalls += 1; return "não deveria chamar"; },
+  });
+
+  for (const [index, message] of [
+    "quais itens voces tem para vender?",
+    "mas voce nao sabe me dizer nem as opções?",
+  ].entries()) {
+    const response = responseRecorder();
+    await handler(request({ ip: `10.9.1.${index + 1}`, body: { message, history: [] } }), response);
+    const payload = JSON.parse(response.body);
+    assert.equal(payload.mode, "catalog", message);
+    assert.match(payload.reply, /Coxinha/i, message);
+    assert.match(payload.reply, /Kibe/i, message);
+    assert.equal(payload.actions?.[0]?.type, "planning-book", message);
+  }
+
+  assert.equal(aiCalls, 0);
+});
+
+test("handler suggests catalog alternatives for pairing questions without inventing products", async () => {
+  let aiCalls = 0;
+  const handler = createConciergeHttpHandler({
+    catalogStore: fakeCatalogStore(CATALOG),
+    env: { OPENAI_API_KEY: "test-only-not-real" },
+    openAIRequest: async () => { aiCalls += 1; return "não deveria chamar"; },
+  });
+  const response = responseRecorder();
+  await handler(request({
+    ip: "10.9.1.10",
+    body: { message: "a coxinha combina com qual outro salgadinho?", history: [] },
+  }), response);
+  const payload = JSON.parse(response.body);
+  assert.equal(payload.mode, "catalog-suggestion");
+  assert.match(payload.reply, /Kibe|Bolinha de Queijo|Pastel/i);
+  assert.doesNotMatch(payload.reply, /Empada/);
+  assert.equal(aiCalls, 0);
+});
+
 test("handler lets safe contextual follow-up reach AI", async () => {
   let captured = null;
   const handler = createConciergeHttpHandler({
-    catalogStore: fakeCatalogStore([{ id: "coxinha", name: "Coxinha", commercialCategory: "Salgados", unitPrice: 2, active: true }]),
+    catalogStore: fakeCatalogStore(CATALOG),
     env: { OPENAI_API_KEY: "test-only-not-real" },
     openAIRequest: async (args) => {
       captured = args;
