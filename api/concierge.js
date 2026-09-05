@@ -129,6 +129,23 @@ function isOrderIntent(message) {
     && /\b(quero|gostaria|preciso|como|onde|posso|tem\s+como|fa[cç]o|fazer)\b/i.test(value);
 }
 
+function hasPublicConversation(history) {
+  return Array.isArray(history) && history.length > 0;
+}
+
+function isConversationRepairIntent(message, history) {
+  if (!hasPublicConversation(history)) return false;
+  const value = String(message || "").trim();
+  return /\b(n[aã]o\s+foi\s+(essa|isso)\s+(a\s+)?minha\s+pergunta|n[aã]o\s+respondeu\s+(a\s+)?minha\s+pergunta|mas\s+(eu\s+)?perguntei|foi\s+isso\s+que\s+eu\s+perguntei|n[aã]o\s+era\s+isso|que\s+confuso)\b/i.test(value);
+}
+
+function isConversationalFeedback(message, history) {
+  if (!hasPublicConversation(history)) return false;
+  const value = String(message || "").trim();
+  return /\b(finalmente|agora\s+sim|melhorou|demorou|obrigad[oa]|valeu|entendi)\b/i.test(value)
+    && value.length <= 180;
+}
+
 async function defaultOpenAIRequest({ apiKey, model, instructions, history, message, fetchImpl = globalThis.fetch }) {
   const response = await fetchImpl("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -192,6 +209,16 @@ export function createConciergeHttpHandler({ catalogStore, env = process.env, op
       return;
     }
 
+    if (isConversationalFeedback(message, history)) {
+      sendJson(response, 200, {
+        ok: true,
+        mode: "conversation-feedback",
+        needsHuman: false,
+        reply: "Entendi. Obrigado pelo retorno — vou tentar ser mais direto e útil nas próximas respostas. Pode continuar sua dúvida por aqui.",
+      });
+      return;
+    }
+
     if (classification.reason === "out_of_scope" && isOrderIntent(message)) {
       sendJson(response, 200, {
         ok: true,
@@ -208,7 +235,8 @@ export function createConciergeHttpHandler({ catalogStore, env = process.env, op
 
     const naturallyPublic = classification.reason === "out_of_scope" && isNaturalPublicConciergeTopic(message);
     const contextualPublic = classification.reason === "out_of_scope" && isContextualPublicFollowUp(message, history);
-    if (!classification.allowed && !naturallyPublic && !contextualPublic) {
+    const repairPublic = classification.reason === "out_of_scope" && isConversationRepairIntent(message, history);
+    if (!classification.allowed && !naturallyPublic && !contextualPublic && !repairPublic) {
       sendJson(response, 200, { ok: true, mode: "scope-blocked", needsHuman: false, reply: outOfScopeReply(classification.reason) });
       return;
     }
