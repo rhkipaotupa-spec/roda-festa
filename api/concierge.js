@@ -14,6 +14,7 @@ import {
   isContextualPublicFollowUp,
   isNaturalPublicConciergeTopic,
 } from "./_lib/concierge-calibration.js";
+import { getPublicCatalogResponse } from "./_lib/concierge-public-catalog.js";
 
 const MAX_BODY_BYTES = 10_000;
 const MAX_MESSAGE_CHARS = 900;
@@ -250,6 +251,12 @@ export function createConciergeHttpHandler({
       products = await catalogStore.listCatalog({ includeInactive: false });
     } catch {
       products = [];
+    }
+
+    const catalogResponse = getPublicCatalogResponse({ message, products });
+    if (catalogResponse) {
+      sendJson(response, 200, { ok: true, ...catalogResponse });
+      return;
     }
 
     const curated = findCuratedAnswer(message);
