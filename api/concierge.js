@@ -122,6 +122,18 @@ function transcript(history, message) {
   return [...history, { role: "user", content: message }].map((item) => `CLIENTE: ${item.content}`).join("\n");
 }
 
+function isOrderIntent(message) {
+  const value = String(message || "").trim();
+  return /\b(encomenda|encomendar|pedido|pedir|comprar|compra)\b/i.test(value)
+    && /\b(quero|gostaria|preciso|como|onde|posso|tem\s+como|fa[cç]o|fazer)\b/i.test(value);
+}
+
+function isOfficialContactIntent(message) {
+  const value = String(message || "").trim();
+  return /\b(telefone|contato|n[uú]mero|whats(?:app)?|falo|falar|converso|conversar|chamo|chamar|encaminh\w*)\b/i.test(value)
+    && /\b(voc[eê]s|equipe|atendente|algu[eé]m|roda\s*festa|telefone|contato|n[uú]mero|whats(?:app)?)\b/i.test(value);
+}
+
 async function defaultOpenAIRequest({ apiKey, model, instructions, history, message, fetchImpl = globalThis.fetch }) {
   const response = await fetchImpl("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -179,6 +191,32 @@ export function createConciergeHttpHandler({ catalogStore, env = process.env, op
     }
 
     const classification = classifyConciergeMessage(message);
+
+    if (classification.reason === "out_of_scope" && isOfficialContactIntent(message)) {
+      sendJson(response, 200, {
+        ok: true,
+        mode: "handoff",
+        needsHuman: true,
+        reply: "Claro. Você pode falar com a equipe da Roda Festa pelo WhatsApp oficial (14) 99896-0208. Se quiser, use o botão abaixo para continuar o atendimento.",
+        actions: [{ type: "whatsapp", label: "Falar com a equipe" }],
+      });
+      return;
+    }
+
+    if (classification.reason === "out_of_scope" && isOrderIntent(message)) {
+      sendJson(response, 200, {
+        ok: true,
+        mode: "guided-order",
+        needsHuman: false,
+        reply: "Claro. Para fazer uma encomenda, você pode começar pelo Planning Book para ver as opções e montar seu evento. Se preferir atendimento direto, também pode falar com nossa equipe pelo WhatsApp.",
+        actions: [
+          { type: "planning-book", label: "Abrir Planning Book" },
+          { type: "whatsapp", label: "Falar com a equipe" },
+        ],
+      });
+      return;
+    }
+
     const naturallyPublic = classification.reason === "out_of_scope" && isNaturalPublicConciergeTopic(message);
     const contextualPublic = classification.reason === "out_of_scope" && isContextualPublicFollowUp(message, history);
     if (!classification.allowed && !naturallyPublic && !contextualPublic) {

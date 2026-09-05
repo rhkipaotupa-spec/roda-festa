@@ -8,6 +8,8 @@ const NATURAL_PUBLIC_SCOPE_PATTERNS = Object.freeze([
   /\b(cat[aá]logo|produt\w*|card[aá]pio|itens?|op[cç][oõ]es|salgad\w*|coxinh\w*|kib\w*|past[eé]is?|lanch\w*|mini\s*lanch\w*|tort\w*|bol\w*|brigadeir\w*|doces?|petiscos?|finger\s*food|bebidas?|refrigerantes?|sucos?|[aá]guas?)\b/i,
   /\b(vende|vendem|vender|oferece|oferecem)\b.{0,40}\b(itens?|op[cç][oõ]es|produt\w*|comidas?|salgad\w*|doces?|bebidas?)\b/i,
   /\b(o\s+que|que|quais)\b.{0,30}\b(voc[eê]s\s+)?(vende|vendem|oferece|oferecem|tem|t[eê]m)\b/i,
+  /\b(encomenda|encomendar|pedido|pedir|comprar|compra)\b/i,
+  /\b(telefone|contato|n[uú]mero|falar\s+com\s+(voc[eê]s|equipe|atendente|algu[eé]m)|encaminh\w*\s+(?:para|pra|a)\s+(?:a\s+)?equipe)\b/i,
   /\b(festa|evento|anivers[aá]rio|casamento|batizado|noivado|bodas|formatura|corporativo|confraterniza[cç][aã]o|coffee\s*break|coquetel|recep[cç][aã]o|ch[aá]\s+(?:de\s+)?(?:beb[eê]|revela[cç][aã]o|bar))\b/i,
   /\b(planning\s*book|planejamento|or[cç]amento|proposta|consigna[cç][aã]o)\b/i,
   /\b(convidad\w*|adult\w*|crian[cç]\w*|pessoas?|quantidad\w*|por\s+pessoa)\b/i,
@@ -21,6 +23,21 @@ const HELP_PATTERNS = Object.freeze([
   /^\s*(no que|em que)\s+(voc[eê]\s+)?(pode|consegue)\s+me\s+ajudar\s*[?!. ]*$/i,
   /^\s*(o que|como)\s+voc[eê]\s+(pode|consegue)\s+me\s+ajudar\s*[?!. ]*$/i,
   /^\s*no que\s+pode\s+me\s+ajudar\s*[?!. ]*$/i,
+]);
+
+const ORDER_HELP_PATTERNS = Object.freeze([
+  /\b(quero|gostaria\s+de|preciso\s+de|posso|como|tem\s+como)\b.{0,35}\b(fazer\s+)?(uma\s+)?encomenda\b/i,
+  /\b(como|onde)\b.{0,30}\b(fa[cç]o|fazer|realizo|realizar)\b.{0,25}\b(encomenda|pedido)\b/i,
+  /\b(quero|gostaria\s+de|preciso\s+de)\b.{0,30}\b(fazer\s+)?(um\s+)?pedido\b/i,
+  /\b(quero|gostaria\s+de)\b.{0,25}\b(comprar|pedir|encomendar)\b/i,
+]);
+
+const CONTACT_HANDOFF_PATTERNS = Object.freeze([
+  /\b(qual|quais|me\s+passa|me\s+manda|informa|informar)\b.{0,25}\b(telefone|contato|n[uú]mero|whats(?:app)?)\b/i,
+  /\b(telefone|contato|n[uú]mero|whats(?:app)?)\b.{0,25}\b(voc[eê]s|equipe|roda\s*festa)?\b/i,
+  /\b(como|onde)\b.{0,30}\b(falo|falar|converso|conversar|contato|chamo|chamar)\b.{0,30}\b(voc[eê]s|equipe|atendente|algu[eé]m)\b/i,
+  /\b(como|onde)\b.{0,30}\b(encaminh\w*)\b.{0,30}\b(equipe|atendente|algu[eé]m)\b/i,
+  /\b(encaminh\w*)\b.{0,30}\b(equipe|atendente|algu[eé]m)\b/i,
 ]);
 
 const CATALOG_NAVIGATION_PATTERNS = Object.freeze([
@@ -77,6 +94,10 @@ const HUMAN_ACTIONS = Object.freeze([
   Object.freeze({ type: "whatsapp", label: "Falar com a equipe" }),
 ]);
 
+const WHATSAPP_ACTION = Object.freeze([
+  Object.freeze({ type: "whatsapp", label: "Falar com a equipe" }),
+]);
+
 const PLANNING_ACTION = Object.freeze([
   Object.freeze({ type: "planning-book", label: "Abrir Planning Book" }),
 ]);
@@ -119,8 +140,17 @@ export function getConciergeCalibration(message) {
     return {
       mode: "guided-help",
       needsHuman: false,
-      reply: "Posso te ajudar com cardápio e produtos, como funciona a Roda Festa, duração e consignação, dúvidas gerais do planejamento e o próximo passo do seu evento. Para quantidade oficial eu te levo ao Planning Book; para data, negociação, pagamento, alergênicos ou alguma exceção, eu encaminho para nossa equipe.",
-      actions: PLANNING_ACTION,
+      reply: "Posso te ajudar com cardápio e produtos, encomendas e próximos passos, como funciona a Roda Festa, duração e consignação, além de dúvidas gerais do planejamento. Para quantidade oficial eu te levo ao Planning Book; para data, negociação, pagamento, alergênicos ou alguma exceção, eu encaminho para nossa equipe.",
+      actions: HUMAN_ACTIONS,
+    };
+  }
+
+  if (ORDER_HELP_PATTERNS.some((pattern) => pattern.test(value))) {
+    return {
+      mode: "guided-order",
+      needsHuman: false,
+      reply: "Claro. Para fazer uma encomenda, você pode começar pelo Planning Book para ver as opções e montar o evento. Se preferir atendimento direto, também pode falar com nossa equipe pelo WhatsApp.",
+      actions: HUMAN_ACTIONS,
     };
   }
 
@@ -148,6 +178,14 @@ export function getConciergeCalibration(message) {
 export function getConciergeHandoff(message, history = []) {
   const value = text(message);
   if (!value || isClearlyOutOfScope(value)) return null;
+
+  if (CONTACT_HANDOFF_PATTERNS.some((pattern) => pattern.test(value))) {
+    return {
+      reason: "official_contact",
+      reply: "Claro. Você pode falar com a equipe da Roda Festa pelo WhatsApp oficial (14) 99896-0208. Se quiser, é só usar o botão abaixo para continuar o atendimento.",
+      actions: WHATSAPP_ACTION,
+    };
+  }
 
   if (DATE_HANDOFF_PATTERNS.some((pattern) => pattern.test(value))) {
     return {

@@ -60,6 +60,7 @@ test("catalog questions are useful without spending an AI call", async () => {
     "quais opções vocês têm?",
     "o que vocês vendem?",
     "me mostre o cardápio de produtos",
+    "e o cardapio?",
   ];
 
   for (const [index, message] of cases.entries()) {
@@ -93,6 +94,42 @@ test("normal public conversation still reaches AI when judgment and language hel
     const { payload, aiCalls } = await runCase({ message, ip: `10.10.2.${index + 1}` });
     assert.equal(payload.mode, "ai", message);
     assert.equal(aiCalls, 1, message);
+  }
+});
+
+test("order and purchase intent is guided instead of blocked", async () => {
+  const cases = [
+    "oi, quero fazer encomenda",
+    "ta, mas pode me ajudar como faço encomenda?",
+    "quero fazer um pedido",
+    "como faço para encomendar?",
+  ];
+
+  for (const [index, message] of cases.entries()) {
+    const { payload, aiCalls } = await runCase({ message, ip: `10.10.9.${index + 1}` });
+    assert.equal(payload.mode, "guided-order", message);
+    assert.equal(payload.needsHuman, false, message);
+    assert.equal(payload.actions?.some((action) => action.type === "planning-book"), true, message);
+    assert.equal(payload.actions?.some((action) => action.type === "whatsapp"), true, message);
+    assert.equal(aiCalls, 0, message);
+  }
+});
+
+test("official contact questions always expose the authorized WhatsApp path", async () => {
+  const cases = [
+    "como encaminho a equipe?",
+    "qual o telefone?",
+    "como falo com vocês?",
+    "me passa o contato da equipe",
+  ];
+
+  for (const [index, message] of cases.entries()) {
+    const { payload, aiCalls } = await runCase({ message, ip: `10.10.10.${index + 1}` });
+    assert.equal(payload.mode, "handoff", message);
+    assert.equal(payload.needsHuman, true, message);
+    assert.match(payload.reply, /99896-0208/, message);
+    assert.equal(payload.actions?.some((action) => action.type === "whatsapp"), true, message);
+    assert.equal(aiCalls, 0, message);
   }
 });
 
