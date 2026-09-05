@@ -1,3 +1,5 @@
+import { baseProductCatalog } from "../../src/planner/planning-book/engine/productCatalog.js";
+
 const BLOCKED_PUBLIC_CATALOG_PATTERNS = Object.freeze([
   /```/,
   /\b(api key|token|senha|secret|segredo|credencial|\.env)\b/i,
@@ -24,8 +26,13 @@ function safeMessage(message) {
   return value;
 }
 
+function sourceProducts(products = []) {
+  if (Array.isArray(products) && products.length > 0) return products;
+  return baseProductCatalog();
+}
+
 function compactPublicProducts(products = []) {
-  return (Array.isArray(products) ? products : [])
+  return sourceProducts(products)
     .filter((product) => product && product.active !== false)
     .map((product) => ({
       name: String(product.name || "").trim(),
@@ -68,7 +75,7 @@ export function formatPublicCatalogReply(products = []) {
     if (parts.length >= 6) break;
   }
 
-  return `Claro. Hoje o nosso catálogo inclui ${parts.join("; ")}. Essas são opções do catálogo atual; para ver a composição completa e montar seu evento, você pode abrir o Planning Book.`;
+  return `Claro. Hoje o nosso catálogo inclui ${parts.join("; ")}. Essas são opções públicas do catálogo-base da Roda Festa; o Planning Book mostra a composição disponível para o seu evento.`;
 }
 
 function findMentionedProduct(message, products) {
@@ -103,7 +110,7 @@ export function formatPublicPairingReply(message, products = []) {
     : active.filter((product) => product.name !== mentioned.name).slice(0, 4);
   if (fallback.length === 0) return null;
 
-  return `Para variar junto com ${mentioned.name}, você pode considerar ${fallback.map((product) => product.name).join(", ")}. É uma sugestão com opções do catálogo atual, não uma composição obrigatória; no Planning Book você pode ajustar a combinação do evento.`;
+  return `Para variar junto com ${mentioned.name}, você pode considerar ${fallback.map((product) => product.name).join(", ")}. É uma sugestão com opções públicas do catálogo da Roda Festa, não uma composição obrigatória; no Planning Book você pode ajustar a combinação do evento.`;
 }
 
 export function getPublicCatalogResponse({ message, products = [] } = {}) {
