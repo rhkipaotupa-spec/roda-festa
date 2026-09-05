@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+import logoRodaFesta from "../assets/logo-roda-festa.png";
 import "./concierge.css";
 
 const WHATSAPP_URL = "https://wa.me/5514998960208?text=Ol%C3%A1%21%20Vim%20pelo%20Assistente%20Roda%20Festa%20e%20gostaria%20de%20continuar%20meu%20atendimento.";
@@ -47,6 +48,7 @@ export default function Concierge() {
   const pageContext = pageContextFromPath(location.pathname);
   const [open, setOpen] = useState(false);
   const [showNudge, setShowNudge] = useState(false);
+  const [quickPromptsOpen, setQuickPromptsOpen] = useState(true);
   const [messages, setMessages] = useState([
     {
       role: "assistant",
@@ -108,6 +110,7 @@ export default function Concierge() {
     setNeedsHuman(false);
     setActions([]);
     setShowNudge(false);
+    setQuickPromptsOpen(false);
 
     try {
       const response = await fetch("/api/concierge", {
@@ -149,6 +152,7 @@ export default function Concierge() {
   }
 
   const intro = messages.length <= 1 && !loading && actions.length === 0 && !needsHuman;
+  const hasConversation = messages.length > 1;
 
   return (
     <div className="rf-concierge-root" aria-live="polite">
@@ -166,10 +170,15 @@ export default function Concierge() {
       {open ? (
         <section className={`rf-concierge-panel${intro ? " rf-concierge-panel--intro" : ""}`} aria-label="Assistente Roda Festa">
           <header className="rf-concierge-header">
-            <div>
+            <div className="rf-concierge-header-copy">
               <span className="rf-concierge-eyebrow">ASSISTENTE RODA FESTA</span>
               <strong>Seu evento começa aqui.</strong>
             </div>
+            <span
+              className="rf-concierge-brand-wheel"
+              aria-hidden="true"
+              style={{ backgroundImage: `url(${logoRodaFesta})` }}
+            />
             <button type="button" className="rf-concierge-close" onClick={() => setOpen(false)} aria-label="Fechar assistente">×</button>
           </header>
 
@@ -182,12 +191,21 @@ export default function Concierge() {
             {loading ? <div className="rf-concierge-message rf-concierge-message--assistant rf-concierge-typing">Pensando<span>.</span><span>.</span><span>.</span></div> : null}
           </div>
 
-          {messages.length <= 2 ? (
-            <div className="rf-concierge-prompts">
+          {quickPromptsOpen ? (
+            <div className="rf-concierge-prompts" aria-label="Dúvidas rápidas">
               {QUICK_PROMPTS.map((prompt) => (
                 <button type="button" key={prompt} onClick={() => sendMessage(prompt)}>{prompt}</button>
               ))}
             </div>
+          ) : hasConversation ? (
+            <button
+              type="button"
+              className="rf-concierge-prompts-toggle"
+              onClick={() => setQuickPromptsOpen(true)}
+              aria-expanded="false"
+            >
+              <span>＋</span> Ver dúvidas rápidas
+            </button>
           ) : null}
 
           {needsHuman ? (
