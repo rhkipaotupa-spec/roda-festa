@@ -146,6 +146,29 @@ function isConversationalFeedback(message, history) {
     && value.length <= 180;
 }
 
+function planningBookMentioned(history) {
+  return Array.isArray(history) && history.some((item) => /\bplanning\s*book\b/i.test(String(item?.content || "")));
+}
+
+function isPlanningBookNavigationIntent(message, history) {
+  const value = String(message || "").trim();
+  if (!value) return false;
+  const explicit = /\b(planning\s*book)\b/i.test(value)
+    && /\b(como|onde|abrir|abre|acessar|acesso|entrar|entro|ir|vou|chegar|link|leva|levar|manda|mandar)\b/i.test(value);
+  const contextual = planningBookMentioned(history)
+    && /\b(como|onde)\b.{0,24}\b(vou|ir|entro|entrar|acesso|acessar|chego|chegar)\b.{0,16}\b(l[aá]|nele|nisso)?\b/i.test(value);
+  return explicit || contextual;
+}
+
+function planningBookNavigationResponse() {
+  return {
+    mode: "guided-navigation",
+    needsHuman: false,
+    reply: "É só usar o botão abaixo. Ele abre o Planning Book da Roda Festa, onde você pode informar os dados do evento e montar sua composição.",
+    actions: [{ type: "planning-book", label: "Abrir Planning Book" }],
+  };
+}
+
 async function defaultOpenAIRequest({ apiKey, model, instructions, history, message, fetchImpl = globalThis.fetch }) {
   const response = await fetchImpl("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -206,6 +229,11 @@ export function createConciergeHttpHandler({ catalogStore, env = process.env, op
 
     if (isOfficialContactIntent(message)) {
       sendJson(response, 200, { ok: true, ...officialContactResponse() });
+      return;
+    }
+
+    if (isPlanningBookNavigationIntent(message, history)) {
+      sendJson(response, 200, { ok: true, ...planningBookNavigationResponse() });
       return;
     }
 
