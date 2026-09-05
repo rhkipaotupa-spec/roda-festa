@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import "./concierge.css";
 
-const WHATSAPP_URL = "https://wa.me/5514998960208?text=Ol%C3%A1%21%20Vim%20pelo%20Concierge%20Roda%20Festa%20e%20gostaria%20de%20continuar%20meu%20atendimento.";
+const WHATSAPP_URL = "https://wa.me/5514998960208?text=Ol%C3%A1%21%20Vim%20pelo%20Assistente%20Roda%20Festa%20e%20gostaria%20de%20continuar%20meu%20atendimento.";
 const DEFAULT_HUMAN_ACTIONS = Object.freeze([
   Object.freeze({ type: "whatsapp", label: "Falar com a equipe" }),
 ]);
@@ -50,7 +50,7 @@ export default function Concierge() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: "Olá ✨ Eu sou o Concierge Roda Festa. Posso explicar como funciona o serviço, tirar dúvidas sobre o planejamento e te ajudar antes de falar com nossa equipe.",
+      content: "Olá ✨ Sou o Assistente Roda Festa. Posso explicar como funciona o serviço, mostrar opções do cardápio, orientar seu planejamento e te conectar com nossa equipe quando precisar.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -148,6 +148,8 @@ export default function Concierge() {
     setShowNudge(false);
   }
 
+  const intro = messages.length <= 1 && !loading && actions.length === 0 && !needsHuman;
+
   return (
     <div className="rf-concierge-root" aria-live="polite">
       {showNudge && !open ? (
@@ -155,20 +157,20 @@ export default function Concierge() {
           <span>✨</span>
           <span>
             <strong>Posso ajudar com seu evento?</strong>
-            <small>Tire dúvidas aqui antes de ir para o WhatsApp.</small>
+            <small>Tire dúvidas aqui antes de falar com nossa equipe.</small>
           </span>
           <span className="rf-concierge-nudge-arrow">→</span>
         </button>
       ) : null}
 
       {open ? (
-        <section className="rf-concierge-panel" aria-label="Concierge Roda Festa">
+        <section className={`rf-concierge-panel${intro ? " rf-concierge-panel--intro" : ""}`} aria-label="Assistente Roda Festa">
           <header className="rf-concierge-header">
             <div>
-              <span className="rf-concierge-eyebrow">CONCIERGE RODA FESTA</span>
+              <span className="rf-concierge-eyebrow">ASSISTENTE RODA FESTA</span>
               <strong>Seu evento começa aqui.</strong>
             </div>
-            <button type="button" className="rf-concierge-close" onClick={() => setOpen(false)} aria-label="Fechar concierge">×</button>
+            <button type="button" className="rf-concierge-close" onClick={() => setOpen(false)} aria-label="Fechar assistente">×</button>
           </header>
 
           <div className="rf-concierge-messages" ref={listRef}>
@@ -190,8 +192,8 @@ export default function Concierge() {
 
           {needsHuman ? (
             <div className="rf-concierge-handoff">
-              <strong>Continuamos com você.</strong>
-              <span>Quando a dúvida precisa de confirmação humana, você pode seguir direto para nossa equipe.</span>
+              <strong>Fale com nossa equipe</strong>
+              <span>Use o botão abaixo para continuar pelo WhatsApp.</span>
             </div>
           ) : null}
 
@@ -223,17 +225,17 @@ export default function Concierge() {
               onChange={(event) => setInput(event.target.value)}
               maxLength={900}
               placeholder="Pergunte sobre seu evento..."
-              aria-label="Mensagem para o Concierge Roda Festa"
+              aria-label="Mensagem para o Assistente Roda Festa"
             />
             <button type="submit" disabled={!input.trim() || loading} aria-label="Enviar mensagem">↑</button>
           </form>
 
-          <p className="rf-concierge-footnote">Informações comerciais especiais e disponibilidade são confirmadas pela equipe.</p>
+          <p className="rf-concierge-footnote">Disponibilidade, negociação e informações que exigem confirmação são tratadas pela equipe.</p>
         </section>
-      ) : (
-        <button type="button" className="rf-concierge-launcher" onClick={openWidget} aria-label="Abrir Concierge Roda Festa">
+      ) : showNudge ? null : (
+        <button type="button" className="rf-concierge-launcher" onClick={openWidget} aria-label="Abrir Assistente Roda Festa">
           <span className="rf-concierge-launcher-spark">✦</span>
-          <span className="rf-concierge-launcher-copy"><strong>Concierge</strong><small>Posso ajudar?</small></span>
+          <span className="rf-concierge-launcher-copy"><strong>Posso ajudar?</strong><small>Assistente Roda Festa</small></span>
         </button>
       )}
     </div>
