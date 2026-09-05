@@ -5,7 +5,8 @@ const CLEARLY_OUT_OF_SCOPE_PATTERNS = Object.freeze([
 
 const NATURAL_PUBLIC_SCOPE_PATTERNS = Object.freeze([
   /\broda\s*festa\b/i,
-  /\b(cat[aá]logo|produt\w*|card[aá]pio|salgad\w*|coxinh\w*|kib\w*|past[eé]is?|lanch\w*|mini\s*lanch\w*|tort\w*|bol\w*|brigadeir\w*|doces?|petiscos?|finger\s*food|bebidas?|refrigerantes?|sucos?|[aá]guas?)\b/i,
+  /\b(cat[aá]logo|produt\w*|card[aá]pio|itens?|op[cç][oõ]es|salgad\w*|coxinh\w*|kib\w*|past[eé]is?|lanch\w*|mini\s*lanch\w*|tort\w*|bol\w*|brigadeir\w*|doces?|petiscos?|finger\s*food|bebidas?|refrigerantes?|sucos?|[aá]guas?)\b/i,
+  /\b(vende|vendem|vender|oferece|oferecem)\b.{0,40}\b(itens?|op[cç][oõ]es|produt\w*|comidas?|salgad\w*|doces?|bebidas?)\b/i,
   /\b(festa|evento|anivers[aá]rio|casamento|batizado|noivado|bodas|formatura|corporativo|confraterniza[cç][aã]o|coffee\s*break|coquetel|recep[cç][aã]o|ch[aá]\s+(?:de\s+)?(?:beb[eê]|revela[cç][aã]o|bar))\b/i,
   /\b(planning\s*book|planejamento|or[cç]amento|proposta|consigna[cç][aã]o)\b/i,
   /\b(convidad\w*|adult\w*|crian[cç]\w*|pessoas?|quantidad\w*|por\s+pessoa)\b/i,
