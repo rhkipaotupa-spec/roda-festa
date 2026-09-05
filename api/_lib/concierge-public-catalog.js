@@ -21,6 +21,10 @@ const CATEGORY_MATCHERS = Object.freeze([
   Object.freeze({ category: "Bebidas", pattern: /\bbebid\w*\b|\brefrigerant\w*\b|\bsuc\w*\b|\bagua\w*\b/ }),
 ]);
 
+const PRODUCT_STOP_WORDS = new Set([
+  "de", "da", "do", "das", "dos", "com", "sem", "no", "na", "em", "e", "ao", "aos",
+]);
+
 function normalize(value) {
   return String(value || "")
     .normalize("NFD")
@@ -126,19 +130,43 @@ function formatCategoryReply(message, products = []) {
   };
 }
 
+function meaningfulTokens(value) {
+  return normalize(value)
+    .split(/[^a-z0-9]+/)
+    .filter((token) => token.length >= 4 && !PRODUCT_STOP_WORDS.has(token));
+}
+
 function findMentionedProduct(message, products) {
   const text = normalize(message);
-  return products.find((product) => {
+
+  const exact = products.find((product) => {
     const name = normalize(product.name);
     return name.length >= 4 && text.includes(name);
-  }) || null;
+  });
+  if (exact) return exact;
+
+  let best = null;
+  let bestScore = 0;
+  for (const product of products) {
+    const tokens = meaningfulTokens(product.name);
+    if (tokens.length === 0) continue;
+    const matched = tokens.filter((token) => text.includes(token));
+    if (matched.length === 0) continue;
+    const score = matched.length / tokens.length;
+    if (matched.length > bestScore || (matched.length === bestScore && score > (best?.score || 0))) {
+      best = { product, score };
+      bestScore = matched.length;
+    }
+  }
+
+  return best?.product || null;
 }
 
 function isPairingQuestion(message) {
   const safe = safeMessage(message);
   if (!safe) return false;
   const text = normalize(safe);
-  return /\b(combina|combinar|acompanha|acompanhar|junto|juntos|vai bem|harmoniza|variar|variedade)\b/.test(text)
+  return /\b(combina|combinar|acompanha|acompanhar|junto|juntos|vai bem|harmoniza|variar|variedade|combina mais|melhor combina)\b/.test(text)
     && /\b(salgad\w*|coxinh\w*|kib\w*|pasteis?|lanch\w*|tort\w*|bol\w*|brigadeir\w*|doces?|bebidas?)\b/.test(text);
 }
 
