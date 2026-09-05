@@ -11,7 +11,7 @@ const NATURAL_PUBLIC_SCOPE_PATTERNS = Object.freeze([
   /\b(convidad\w*|adult\w*|crian[cç]\w*|pessoas?|quantidad\w*|por\s+pessoa)\b/i,
   /\b(carrinh\w*|gar[cç]o(?:m|ns)|estrutura|montagem|servi[cç]\w*|dura[cç][aã]o|horas?\s+de\s+evento)\b/i,
   /\b(pre[cç]os?|valores?|investimento|quanto\s+custa)\b/i,
-  /\b(datas?|agenda|disponibilidade|reserv\w*|contratar|fechar|atendimento|whats(?:app)?)\b/i,
+  /\b(datas?|dias?|agenda|disponibilidade|reserv\w*|contratar|fechar|atendimento|whats(?:app)?)\b/i,
 ]);
 
 const CATALOG_NAVIGATION_PATTERNS = Object.freeze([
@@ -31,6 +31,12 @@ const DATE_HANDOFF_PATTERNS = Object.freeze([
   /\b(data|dia|agenda)\b.{0,45}\b(livre|dispon[ií]vel|vaga|reservar|reserva|confirmar)\b/i,
   /\b(livre|dispon[ií]vel|vaga)\b.{0,45}\b(data|dia|agenda|\d{1,2}[/-]\d{1,2})\b/i,
   /\b(tem|t[eê]m|teria|voc[eê]s\s+t[eê]m)\b.{0,25}\b(vaga|disponibilidade)\b/i,
+  /\b(tem|t[eê]m|teria)\b.{0,20}\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b/i,
+  /\b(tem|t[eê]m|teria)\b.{0,20}\bdia\s+\d{1,2}(?:[/-]\d{1,2}(?:[/-]\d{2,4})?)?\b/i,
+  /\bdia\s+\d{1,2}(?:[/-]\d{1,2}(?:[/-]\d{2,4})?)?\b.{0,25}\b(tem|t[eê]m|livre|dispon[ií]vel|vaga)\b/i,
+  /\b(tem|t[eê]m|teria)\b.{0,20}\b\d{1,2}\s+de\s+(janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b/i,
+  /\b\d{1,2}\s+de\s+(janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b.{0,25}\b(tem|t[eê]m|livre|dispon[ií]vel|vaga)\b/i,
+  /\b(atende|atendem|fazem|realizam)\w*\b.{0,25}\b(?:no\s+)?dia\s+\d{1,2}(?:[/-]\d{1,2}(?:[/-]\d{2,4})?)?\b/i,
   /\b(posso|consigo|quero|gostaria\s+de)\b.{0,25}\b(reservar|fechar|confirmar)\b.{0,45}\b(data|dia|\d{1,2}[/-]\d{1,2}|janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b/i,
   /\b(reservar|reserva)\b.{0,45}\b(data|dia|\d{1,2}[/-]\d{1,2}|janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b/i,
 ]);
@@ -41,10 +47,19 @@ const PLANNING_ESTIMATE_PATTERNS = Object.freeze([
   /\b(quanto|quantos?|quantas?)\b.{0,80}\b(para|pra)\b\s*\d{1,4}\b.{0,25}\b(pessoas?|convidad\w*)\b/i,
 ]);
 
+const CONTEXTUAL_QUANTITY_PATTERNS = Object.freeze([
+  /^(e\s+)?(para|pra)\s+\d{1,4}\s*(pessoas?|convidad\w*|adult\w*|crian[cç]\w*)?[?!. ]*$/i,
+  /^(e\s+)?\d{1,4}\s*(pessoas?|convidad\w*)[?!. ]*$/i,
+]);
+
 const CONTEXTUAL_FOLLOW_UP_PATTERNS = Object.freeze([
   /^(e\s+)?(para|pra)\s+\d{1,4}\s*(pessoas?|convidad\w*|adult\w*|crian[cç]\w*)?[?!. ]*$/i,
   /^(e\s+)?(com|sem|para|pra)\s+(bebidas?|crian[cç]\w*|adult\w*|doces?|salgad\w*|carrinh\w*)[?!. ]*$/i,
   /^e\s+(bebidas?|crian[cç]\w*|adult\w*|doces?|salgad\w*|carrinh\w*|consigna[cç][aã]o)[?!. ]*$/i,
+  /^(e\s+)?(isso|esse|essa|esses|essas|tamb[eé]m)[?!. ]*$/i,
+  /^(e\s+)?(o\s+)?valor[?!. ]*$/i,
+  /^(e\s+)?quanto\s+custa[?!. ]*$/i,
+  /^(e\s+)?voc[eê]s\s+(fazem|t[eê]m|atendem|levam|montam)\s+(isso|esse|essa)?[?!. ]*$/i,
 ]);
 
 const HUMAN_ACTIONS = Object.freeze([
@@ -60,6 +75,15 @@ function text(value) {
   return String(value || "").trim();
 }
 
+function hasPublicHistory(history) {
+  if (!Array.isArray(history)) return false;
+  return history.some((item) => {
+    if (!item || item.role !== "user") return false;
+    const content = text(item.content);
+    return Boolean(content && isNaturalPublicConciergeTopic(content));
+  });
+}
+
 export function isClearlyOutOfScope(message) {
   const value = text(message);
   return Boolean(value && CLEARLY_OUT_OF_SCOPE_PATTERNS.some((pattern) => pattern.test(value)));
@@ -73,7 +97,7 @@ export function isNaturalPublicConciergeTopic(message) {
 
 export function isContextualPublicFollowUp(message, history = []) {
   const value = text(message);
-  if (!value || !Array.isArray(history) || history.length === 0 || isClearlyOutOfScope(value)) return false;
+  if (!value || !hasPublicHistory(history) || isClearlyOutOfScope(value)) return false;
   return CONTEXTUAL_FOLLOW_UP_PATTERNS.some((pattern) => pattern.test(value));
 }
 
@@ -102,7 +126,7 @@ export function getConciergeCalibration(message) {
   return null;
 }
 
-export function getConciergeHandoff(message) {
+export function getConciergeHandoff(message, history = []) {
   const value = text(message);
   if (!value || isClearlyOutOfScope(value)) return null;
 
@@ -114,7 +138,8 @@ export function getConciergeHandoff(message) {
     };
   }
 
-  if (PLANNING_ESTIMATE_PATTERNS.some((pattern) => pattern.test(value))) {
+  if (PLANNING_ESTIMATE_PATTERNS.some((pattern) => pattern.test(value))
+      || (hasPublicHistory(history) && CONTEXTUAL_QUANTITY_PATTERNS.some((pattern) => pattern.test(value)))) {
     return {
       reason: "authoritative_quantity",
       reply: "Para essa quantidade, o Planning Book calcula uma recomendação inicial usando as regras atuais da Roda Festa. Você pode montar o cenário por lá e, se quiser validar a composição final, continuar com nossa equipe.",
