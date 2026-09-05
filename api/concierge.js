@@ -15,6 +15,7 @@ import {
   isNaturalPublicConciergeTopic,
 } from "./_lib/concierge-calibration.js";
 import { getPublicCatalogResponse } from "./_lib/concierge-public-catalog.js";
+import { isOfficialContactIntent, officialContactResponse } from "./_lib/assistant-contact-intent.js";
 
 const MAX_BODY_BYTES = 10_000;
 const MAX_MESSAGE_CHARS = 900;
@@ -128,12 +129,6 @@ function isOrderIntent(message) {
     && /\b(quero|gostaria|preciso|como|onde|posso|tem\s+como|fa[cç]o|fazer)\b/i.test(value);
 }
 
-function isOfficialContactIntent(message) {
-  const value = String(message || "").trim();
-  return /\b(telefone|contato|n[uú]mero|whats(?:app)?|falo|falar|converso|conversar|chamo|chamar|encaminh\w*)\b/i.test(value)
-    && /\b(voc[eê]s|equipe|atendente|algu[eé]m|roda\s*festa|telefone|contato|n[uú]mero|whats(?:app)?)\b/i.test(value);
-}
-
 async function defaultOpenAIRequest({ apiKey, model, instructions, history, message, fetchImpl = globalThis.fetch }) {
   const response = await fetchImpl("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -156,7 +151,7 @@ async function defaultOpenAIRequest({ apiKey, model, instructions, history, mess
 function outOfScopeReply(reason) {
   if (reason === "code_execution") return "Posso ajudar somente com dúvidas sobre a Roda Festa e o planejamento do seu evento. Não executo, gero ou analiso códigos, scripts ou comandos.";
   if (reason === "internal_project") return "Posso ajudar com informações públicas sobre a experiência, o cardápio e o planejamento da Roda Festa. Detalhes internos, técnicos ou operacionais não fazem parte do meu atendimento.";
-  return "Eu sou o Concierge Roda Festa e consigo ajudar apenas com assuntos ligados à Roda Festa e ao planejamento do seu evento.";
+  return "Sou o Assistente Roda Festa e consigo ajudar com assuntos ligados à Roda Festa e ao planejamento do seu evento.";
 }
 
 export function createConciergeHttpHandler({ catalogStore, env = process.env, openAIRequest = defaultOpenAIRequest, now = () => Date.now() } = {}) {
@@ -192,14 +187,8 @@ export function createConciergeHttpHandler({ catalogStore, env = process.env, op
 
     const classification = classifyConciergeMessage(message);
 
-    if (classification.reason === "out_of_scope" && isOfficialContactIntent(message)) {
-      sendJson(response, 200, {
-        ok: true,
-        mode: "handoff",
-        needsHuman: true,
-        reply: "Claro. Você pode falar com a equipe da Roda Festa pelo WhatsApp oficial (14) 99896-0208. Se quiser, use o botão abaixo para continuar o atendimento.",
-        actions: [{ type: "whatsapp", label: "Falar com a equipe" }],
-      });
+    if (isOfficialContactIntent(message)) {
+      sendJson(response, 200, { ok: true, ...officialContactResponse() });
       return;
     }
 
