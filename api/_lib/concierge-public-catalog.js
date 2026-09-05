@@ -13,7 +13,7 @@ const PLANNING_ACTION = Object.freeze([
 
 const CATEGORY_MATCHERS = Object.freeze([
   Object.freeze({ category: "Brigadeiro no tacho", pattern: /\bbrigadeiro\s+no\s+tacho\b|\btacho\b/ }),
-  Object.freeze({ category: "Mini lanches", pattern: /\bmini\s*lanch\w*\b/ }),
+  Object.freeze({ category: "Mini lanches", pattern: /\bmini\s*lanch\w*\b|\blanch\w*\b/ }),
   Object.freeze({ category: "Petiscos", pattern: /\bpetisc\w*\b|\bsalgad\w*\b/ }),
   Object.freeze({ category: "Tortas", pattern: /\btort\w*\b/ }),
   Object.freeze({ category: "Bolos", pattern: /\bbol\w*\b/ }),
@@ -55,7 +55,10 @@ function hasCategoryListIntent(text) {
   return /\b(quais|opcoes?|lista|listar|sabores?|tipos?|variedades?)\b/.test(text)
     || /\btem\s+(?:do|de)\s+que\b/.test(text)
     || /\btem\s+quais\b/.test(text)
-    || /\b(me\s+)?(mostra|mostrar|mostre|fala|falar|diga|dizer)\b/.test(text);
+    || /\b(me\s+)?(mostra|mostrar|mostre|fala|falar|diga|dizer)\b/.test(text)
+    || /\b(perguntei|quero|queria)\b.{0,24}\b(sobre|so|apenas)\b/.test(text)
+    || /^\s*(e\s+)?(os?|as?)?\s*(lanches?|bolos?|doces?|bebidas?|tortas?|salgados?|petiscos?)\s*[?!. ]*$/.test(text)
+    || /^\s*tem\s+(lanches?|bolos?|doces?|bebidas?|tortas?|salgados?|petiscos?)\s*[?!. ]*$/.test(text);
 }
 
 function requestedCategory(message) {
@@ -105,7 +108,7 @@ export function formatPublicCatalogReply(products = []) {
     if (parts.length >= 6) break;
   }
 
-  return `Claro. Hoje o nosso catálogo inclui ${parts.join("; ")}. Essas são opções públicas do catálogo-base da Roda Festa; o Planning Book mostra a composição disponível para o seu evento.`;
+  return `Claro. Hoje o nosso catálogo inclui ${parts.join("; ")}. Se quiser, posso detalhar só uma categoria para ficar mais objetivo.`;
 }
 
 function formatCategoryReply(message, products = []) {
@@ -119,7 +122,7 @@ function formatCategoryReply(message, products = []) {
   const names = [...new Set(active.map((product) => product.name))];
   return {
     category,
-    reply: `Claro. Em ${category}, temos: ${names.join(", ")}. Se quiser, posso te explicar uma opção específica ou você pode abrir o Planning Book para montar o evento.`,
+    reply: `Claro. Em ${category}, temos: ${names.join(", ")}.`,
   };
 }
 
@@ -155,7 +158,7 @@ export function formatPublicPairingReply(message, products = []) {
     : active.filter((product) => product.name !== mentioned.name).slice(0, 4);
   if (fallback.length === 0) return null;
 
-  return `Para variar junto com ${mentioned.name}, você pode considerar ${fallback.map((product) => product.name).join(", ")}. É uma sugestão com opções públicas do catálogo da Roda Festa, não uma composição obrigatória; no Planning Book você pode ajustar a combinação do evento.`;
+  return `Para variar junto com ${mentioned.name}, você pode considerar ${fallback.map((product) => product.name).join(", ")}. É uma sugestão com opções públicas do catálogo da Roda Festa, não uma composição obrigatória.`;
 }
 
 export function getPublicCatalogResponse({ message, products = [] } = {}) {
