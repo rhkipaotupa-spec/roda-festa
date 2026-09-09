@@ -116,7 +116,7 @@ const PUBLIC_FACTS = Object.freeze([
   "A Roda Festa oferece uma experiência guiada de planejamento de eventos; a recomendação automática é um ponto de partida editável, não uma imposição.",
   "O preço e a integridade comercial oficiais vêm do sistema e do catálogo atual. O Concierge nunca deve inventar preço, desconto, capacidade, disponibilidade ou condição comercial.",
   "A duração-base contemplada pelo planejamento é de 4 horas. Hora adicional é calculada conforme a estrutura e os carrinhos efetivamente cobrados.",
-  "Para convidados equivalentes no motor atual: adultos = 1,0; crianças de 7 anos ou mais = 1,0; crianças de 0 a 6 anos = 0,35. A contagem real de convidados continua preservada separadamente.",
+  "Para convidados equivalentes no motor atual: adultos = 1,0; crianças de 7 anos ou mais = 1,0; crianças de 0 a 6 anos = 0,5. A contagem real de convidados continua preservada separadamente.",
   "Bebidas podem aparecer como consignação. A consignação é variável conforme consumo e deve ser apresentada separadamente do investimento contratado.",
   "Brigadeiro no Tacho: 80 g por pessoa real, R$ 12,00 por porção de 80 g, sabores Chocolate, Leite Ninho e Meio a Meio. Meio a Meio representa 40 g + 40 g por pessoa.",
   "O Brigadeiro no Tacho ainda não possui capacidade por hora medida. Nunca inventar throughput ou capacidade operacional para esse produto.",

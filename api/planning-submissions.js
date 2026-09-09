@@ -152,7 +152,7 @@ export function rebuildAuthoritativeSnapshot(
   const olderChildren = Math.max(0, Number(snapshot.olderChildren) || 0);
   const children = Math.max(0, Number(snapshot.children) || 0);
   const realGuests = adults + olderChildren + children;
-  const equivalentGuests = adults + olderChildren + children * 0.35;
+  const equivalentGuests = adults + olderChildren + children * 0.5;
   const duration = Math.max(4, Number(snapshot.duration) || 4);
 
   const seen = new Set();

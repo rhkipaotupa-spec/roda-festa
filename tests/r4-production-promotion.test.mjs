@@ -57,7 +57,7 @@ test("RF-REC-2 Production preserves the validated 70-person commercial reference
   });
 });
 
-test("RF-REC-2 Production uses 35 percent for ages 0-6", () => {
+test("RF-REC-2 Production uses 50 percent for ages 0-6", () => {
   const result = generateR4ProductionSuggestion({
     adults: 27,
     olderChildren: 0,
@@ -66,7 +66,7 @@ test("RF-REC-2 Production uses 35 percent for ages 0-6", () => {
     selectedProductIds: ["coxinha-frango-catupiry"],
   });
   assert.equal(result.guests.realGuests, 42);
-  assert.equal(result.guests.equivalentGuests, 32.25);
+  assert.equal(result.guests.equivalentGuests, 34.5);
 });
 
 test("authoritative browser and PlanningSession are wired through the same RF-REC-2 adapter", () => {
@@ -75,18 +75,18 @@ test("authoritative browser and PlanningSession are wired through the same RF-RE
 
   assert.match(planningBook, /generateR4ProductionSuggestion/);
   assert.doesNotMatch(planningBook, /generatePlanningSuggestion\s*\(/);
-  assert.match(planningBook, /const equivalentGuests = adults \+ olderChildren \+ children \* 0\.35;/);
-  assert.match(planningBook, /Equivalem a 0,35 adulto/);
+  assert.match(planningBook, /const equivalentGuests = adults \+ olderChildren \+ children \* 0\.5;/);
+  assert.match(planningBook, /Equivalem a 0,5 adulto/);
 
   assert.match(planningSessions, /generateR4ProductionSuggestion/);
   assert.doesNotMatch(planningSessions, /generatePlanningSuggestion\s*\(/);
   assert.match(planningSessions, /const equivalentGuests = suggestion\.guests\.equivalentGuests/);
 });
 
-test("final commercial validation stamps current RF-REC-2 and the 35 percent child factor", () => {
+test("final commercial validation stamps current RF-REC-2 and the 50 percent child factor", () => {
   const submissions = fs.readFileSync(new URL("../api/planning-submissions.js", import.meta.url), "utf8");
   assert.match(submissions, /R4_PRODUCTION_VERSIONS/);
-  assert.match(submissions, /children \* 0\.35/);
-  assert.doesNotMatch(submissions, /children \* 0\.5/);
+  assert.match(submissions, /children \* 0\.5/);
+  assert.doesNotMatch(submissions, /children \* 0\.35/);
   assert.equal(R4_PRODUCTION_VERSIONS.recommendation, "RF-REC-2.1.0");
 });

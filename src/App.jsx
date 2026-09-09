@@ -5,6 +5,7 @@ import SceneTwo from "./scenes/SceneTwo/SceneTwo";
 import SceneThree from "./scenes/SceneThree/SceneThree";
 import SceneFive from "./scenes/SceneFive/SceneFive";
 import SceneSix from "./scenes/SceneSix/SceneSix";
+import SceneContact from "./scenes/SceneContact/SceneContact";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <SceneThree />
         <SceneFive />
         <SceneSix />
+        <SceneContact />
       </main>
     </>
   );

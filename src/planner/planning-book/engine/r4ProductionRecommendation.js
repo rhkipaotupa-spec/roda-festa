@@ -28,7 +28,7 @@ export const R4_PRODUCTION_POLICY = Object.freeze({
   authoritative: true,
   failClosed: true,
   ageResolution: "legacy3",
-  youngChildFactor: 0.35,
+  youngChildFactor: 0.5,
   skuStrategy: "equal-share-lot-aware-minimum-overage-provisional",
   tachoPolicy: "80g-per-real-guest-one-option-shares-beverage-cart",
 });

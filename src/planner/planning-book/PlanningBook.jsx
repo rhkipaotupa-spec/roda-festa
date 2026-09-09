@@ -419,7 +419,7 @@ export default function PlanningBook() {
 
   const eventData = EVENT_OPTIONS.find((item) => item.id === selectedEvent);
   const realGuests = adults + olderChildren + children;
-  const equivalentGuests = adults + olderChildren + children * 0.35;
+  const equivalentGuests = adults + olderChildren + children * 0.5;
   const categories = useMemo(() => MENU_CATEGORIES.map((category) => ({
     ...category,
     products: PRODUCT_CATALOG.filter((product) => product.active && product.commercialCategory === category.commercialCategory),
@@ -901,7 +901,7 @@ export default function PlanningBook() {
 
               <div className="rf-section-block"><div className="rf-section-block__title"><span>Tipo de evento</span><h2>Qual será a ocasião?</h2></div><div className="rf-event-grid">{EVENT_OPTIONS.map((event) => <button type="button" key={event.id} className={`rf-choice-card ${selectedEvent === event.id ? "is-selected" : ""}`} onClick={() => setSelectedEvent(event.id)}><span className="rf-choice-card__check">{selectedEvent === event.id ? "✓" : ""}</span><strong>{event.label}</strong><small>{event.description}</small></button>)}</div>{errors.selectedEvent && <small className="rf-error rf-error--block">{errors.selectedEvent}</small>}</div>
 
-              <div className="rf-section-block"><div className="rf-section-block__title"><span>Convidados</span><h2>Quantas pessoas participarão?</h2></div><div className="rf-card rf-counter-stack"><Counter label="Adultos" hint="Consumo integral" value={adults} onChange={setAdults} /><Counter label="Crianças 7+" hint="Equivalem a 1 adulto" value={olderChildren} onChange={setOlderChildren} /><Counter label="Crianças 0–6" hint="Equivalem a 0,35 adulto" value={children} onChange={setChildren} /></div><div className="rf-equivalent"><span>{realGuests} convidados reais</span><strong>{equivalentGuests.toLocaleString("pt-BR")} equivalentes para o cálculo</strong></div>{errors.guests && <small className="rf-error rf-error--block">{errors.guests}</small>}</div>
+              <div className="rf-section-block"><div className="rf-section-block__title"><span>Convidados</span><h2>Quantas pessoas participarão?</h2></div><div className="rf-card rf-counter-stack"><Counter label="Adultos" hint="Consumo integral" value={adults} onChange={setAdults} /><Counter label="Crianças 7+" hint="Equivalem a 1 adulto" value={olderChildren} onChange={setOlderChildren} /><Counter label="Crianças 0–6" hint="Equivalem a 0,5 adulto" value={children} onChange={setChildren} /></div><div className="rf-equivalent"><span>{realGuests} convidados reais</span><strong>{equivalentGuests.toLocaleString("pt-BR")} equivalentes para o cálculo</strong></div>{errors.guests && <small className="rf-error rf-error--block">{errors.guests}</small>}</div>
 
               <div className="rf-section-block"><div className="rf-section-block__title"><span>Duração</span><h2>Quanto tempo de atendimento?</h2></div><label className="rf-field rf-field--select"><select value={duration} onChange={(event) => setDuration(Number(event.target.value))}>{[4,5,6,7,8].map((hours) => <option key={hours} value={hours}>{hours} horas</option>)}</select></label></div>
 

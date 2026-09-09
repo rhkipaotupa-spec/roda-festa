@@ -142,14 +142,14 @@ test("duration remains 1.0 at 4h, 1.2 at 6h and 1.4 at 8h through recommendation
   close(p8 / p4, 1.4, 1e-5);
 });
 
-test("legacy3 keeps 35 percent for 0-6 and 100 percent for older children", () => {
+test("legacy3 uses 50 percent for 0-6 and 100 percent for older children", () => {
   const result = generateR4ShadowRecommendation({
     adults: 27,
     olderChildren: 0,
     children: 15,
     selectedCategories: ["Petiscos"],
   });
-  close(result.guests.planningGuests, 32.25);
+  close(result.guests.planningGuests, 34.5);
 });
 
 test("beverages keep fixed typical shares without renormalizing selected subset", () => {

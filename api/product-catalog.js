@@ -11,6 +11,21 @@ function sendJson(response, status, body, headers = {}) {
   response.end(JSON.stringify(body));
 }
 
+export function toPublicProduct(product = {}) {
+  return Object.freeze({
+    id: String(product.id || ""),
+    name: String(product.name || ""),
+    description: String(product.description || ""),
+    commercialCategory: String(product.commercialCategory || ""),
+    lotSize: Number(product.lotSize || 1),
+    unitPrice: Number(product.unitPrice || 0),
+    priceUnit: String(product.priceUnit || "unit"),
+    portionGrams: product.portionGrams == null ? null : Number(product.portionGrams),
+    consignment: Boolean(product.consignment),
+    active: product.active !== false,
+  });
+}
+
 export function createProductCatalogHttpHandler({ catalogStore } = {}) {
   if (!catalogStore || typeof catalogStore.listCatalog !== "function") {
     throw new Error("product_catalog_http_store_required");
@@ -27,7 +42,7 @@ export function createProductCatalogHttpHandler({ catalogStore } = {}) {
       sendJson(
         response,
         200,
-        { ok: true, products },
+        { ok: true, products: products.map(toPublicProduct) },
         { "Cache-Control": "no-store" },
       );
     } catch {
