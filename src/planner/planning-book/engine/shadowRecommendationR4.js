@@ -30,8 +30,8 @@ export const R4_BLOCKS = Object.freeze({
 });
 
 const AGE_FACTORS = Object.freeze({
-  "0-3": 0.35,
-  "4-6": 0.35,
+  "0-3": 0.5,
+  "4-6": 0.5,
   "7-12": 1,
   "13-17": 1,
   adult: 1,
@@ -231,7 +231,7 @@ export function calculateR4PlanningGuests({
     ageResolution: "legacy3",
     bands: { adults: safeAdults, olderChildren: safeOlder, children: safeChildren },
     realGuests: round(safeAdults + safeOlder + safeChildren, 3),
-    planningGuests: round(safeAdults + safeOlder + safeChildren * 0.35, 3),
+    planningGuests: round(safeAdults + safeOlder + safeChildren * 0.5, 3),
     compatibilityProjectionApplied: true,
   };
 }

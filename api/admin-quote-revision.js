@@ -70,6 +70,9 @@ export function createAdminQuoteRevisionHttpHandler({
     const body = normalizedBody(request);
     const sessionId = String(body.sessionId || "").trim();
     const items = Array.isArray(body.items) ? body.items : [];
+    const guests = body.guests && typeof body.guests === "object" && !Array.isArray(body.guests)
+      ? body.guests
+      : undefined;
     if (!sessionId || items.length === 0 || items.length > 120) {
       sendJson(response, 400, { ok: false, error: "invalid_revision_request" });
       return;
@@ -79,6 +82,7 @@ export function createAdminQuoteRevisionHttpHandler({
       const result = await revisionStore.revise({
         sessionId,
         requestedItems: items,
+        requestedGuests: guests,
         includeWaiters: Boolean(body.includeWaiters),
         includeDisposables: Boolean(body.includeDisposables),
         actorUserId: session?.principal?.userId,

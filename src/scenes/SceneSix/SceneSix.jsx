@@ -1,12 +1,30 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import MenuSection from "./components/MenuSection";
 import menuData, { heroCardapio } from "./data/menuData";
+import { applyPublicCatalogToMenu, markPublicCatalogUnavailable } from "./data/publicMenuData.js";
 
 import "./SceneSix.css";
 
 function SceneSix() {
   const sceneRef = useRef(null);
+  const [sections, setSections] = useState(() => menuData);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadCatalog() {
+      try {
+        const response = await fetch("/api/product-catalog", { headers: { Accept: "application/json" } });
+        const payload = await response.json().catch(() => null);
+        if (!response.ok || payload?.ok !== true || !Array.isArray(payload.products)) throw new Error("catalog_unavailable");
+        if (!cancelled) setSections(applyPublicCatalogToMenu(menuData, payload.products));
+      } catch {
+        if (!cancelled) setSections(markPublicCatalogUnavailable(menuData));
+      }
+    }
+    loadCatalog();
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     const scene = sceneRef.current;
@@ -106,7 +124,7 @@ function SceneSix() {
       </header>
 
       <div className="scene-six__chapters">
-        {menuData.map((section, index) => (
+        {sections.map((section, index) => (
           <MenuSection
             key={section.id}
             section={section}

@@ -5,10 +5,14 @@ import {
   calculatePreparers,
   calculateWaiters,
 } from "../../src/planner/planning-book/engine/planningRules.js";
-import { R4_PRODUCTION_VERSIONS } from "../../src/planner/planning-book/engine/r4ProductionRecommendation.js";
+import {
+  R4_PRODUCTION_POLICY,
+  R4_PRODUCTION_VERSIONS,
+} from "../../src/planner/planning-book/engine/r4ProductionRecommendation.js";
 import { productCatalogById } from "../../src/planner/planning-book/engine/productCatalog.js";
 
 const MAX_ITEM_QUANTITY = 100_000;
+const MAX_GUESTS_PER_GROUP = 10_000;
 const TACHO_CATEGORY = "Brigadeiro no tacho";
 
 function roundMoney(value) {
@@ -25,6 +29,30 @@ function normalizeQuantity(value, product) {
     throw new Error(`admin_quote_revision_invalid_lot:${product.id}`);
   }
   return quantity;
+}
+
+function normalizeGuestCount(requestedValue, fallbackValue, field) {
+  const raw = requestedValue == null ? fallbackValue : requestedValue;
+  const value = Number(raw ?? 0);
+  if (!Number.isInteger(value) || value < 0 || value > MAX_GUESTS_PER_GROUP) {
+    throw new Error(`admin_quote_revision_invalid_${field}`);
+  }
+  return value;
+}
+
+function resolveGuests(baseSnapshot, requestedGuests) {
+  const requested = requestedGuests && typeof requestedGuests === "object" && !Array.isArray(requestedGuests)
+    ? requestedGuests
+    : {};
+  const adults = normalizeGuestCount(requested.adults, baseSnapshot.adults, "adults");
+  const olderChildren = normalizeGuestCount(requested.olderChildren, baseSnapshot.olderChildren, "older_children");
+  const children = normalizeGuestCount(requested.children, baseSnapshot.children, "children");
+  const realGuests = adults + olderChildren + children;
+  if (realGuests <= 0) throw new Error("admin_quote_revision_invalid_guests");
+  const equivalentGuests = adults
+    + olderChildren
+    + children * Number(R4_PRODUCTION_POLICY.youngChildFactor);
+  return { adults, olderChildren, children, realGuests, equivalentGuests };
 }
 
 function tachoAwareCarts({ items, serviceHours }) {
@@ -76,6 +104,7 @@ function tachoAwareCarts({ items, serviceHours }) {
 export function rebuildAdminEffectiveSnapshot({
   baseSnapshot,
   requestedItems,
+  requestedGuests,
   includeWaiters,
   includeDisposables,
   productCatalog,
@@ -123,11 +152,8 @@ export function rebuildAdminEffectiveSnapshot({
     };
   });
 
-  const adults = Math.max(0, Number(baseSnapshot.adults) || 0);
-  const olderChildren = Math.max(0, Number(baseSnapshot.olderChildren) || 0);
-  const children = Math.max(0, Number(baseSnapshot.children) || 0);
-  const realGuests = adults + olderChildren + children;
-  const equivalentGuests = adults + olderChildren + children * 0.35;
+  const guests = resolveGuests(baseSnapshot, requestedGuests);
+  const { adults, olderChildren, children, realGuests, equivalentGuests } = guests;
   const duration = Math.max(4, Number(baseSnapshot.duration) || 4);
 
   const carts = tachoAwareCarts({ items, serviceHours: duration });
@@ -150,6 +176,7 @@ export function rebuildAdminEffectiveSnapshot({
     schemaVersion: Math.max(4, Number(baseSnapshot.schemaVersion) || 0),
     adminValidatedAt: new Date(now).toISOString(),
     versions: { ...R4_PRODUCTION_VERSIONS },
+    youngChildFactor: Number(R4_PRODUCTION_POLICY.youngChildFactor),
     adults,
     olderChildren,
     children,

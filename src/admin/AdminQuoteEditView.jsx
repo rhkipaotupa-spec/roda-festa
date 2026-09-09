@@ -4,6 +4,7 @@ import "./AdminCommercial.css";
 const QUOTES_ENDPOINT = "/api/admin-quotes";
 const PRODUCTS_ENDPOINT = "/api/admin-products";
 const REVISION_ENDPOINT = "/api/admin-quote-revision";
+const YOUNG_CHILD_FACTOR = 0.5;
 
 function money(value) {
   return Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -17,10 +18,16 @@ function snapshotItemMap(snapshot) {
   return new Map((snapshot?.items || []).map((item) => [String(item.id), item]));
 }
 
+function normalizeGuestInput(value) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : 0;
+}
+
 export default function AdminQuoteEditView({ sessionId, embedded = false }) {
   const [quote, setQuote] = useState(null);
   const [products, setProducts] = useState([]);
   const [items, setItems] = useState([]);
+  const [guests, setGuests] = useState({ adults: 0, olderChildren: 0, children: 0 });
   const [includeWaiters, setIncludeWaiters] = useState(false);
   const [includeDisposables, setIncludeDisposables] = useState(false);
   const [status, setStatus] = useState("loading");
@@ -57,6 +64,11 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
         setQuote(quotePayload.quote);
         setProducts(productPayload.products);
         setItems((effective.items || []).map((item) => ({ id: item.id, quantity: Number(item.quantity) || 0 })));
+        setGuests({
+          adults: normalizeGuestInput(effective.adults),
+          olderChildren: normalizeGuestInput(effective.olderChildren),
+          children: normalizeGuestInput(effective.children),
+        });
         setIncludeWaiters(Number(effective.waiters || 0) > 0);
         setIncludeDisposables(Boolean(effective.includeDisposables));
         setSavedSnapshot(effective);
@@ -78,6 +90,12 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
     return products.filter((product) => product.active && !selected.has(product.id));
   }, [products, items]);
 
+  const guestSummary = useMemo(() => {
+    const realGuests = guests.adults + guests.olderChildren + guests.children;
+    const equivalentGuests = guests.adults + guests.olderChildren + guests.children * YOUNG_CHILD_FACTOR;
+    return { realGuests, equivalentGuests };
+  }, [guests]);
+
   const estimatedProductsTotal = useMemo(() => items.reduce((sum, item) => {
     const previous = currentSnapshotById.get(item.id);
     const product = productById.get(item.id);
@@ -92,6 +110,10 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
       : item));
   }
 
+  function changeGuest(field, value) {
+    setGuests((current) => ({ ...current, [field]: normalizeGuestInput(value) }));
+  }
+
   function removeItem(id) {
     setItems((current) => current.filter((item) => item.id !== id));
   }
@@ -104,7 +126,7 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
   }
 
   async function saveRevision() {
-    if (saving || items.length === 0) return;
+    if (saving || items.length === 0 || guestSummary.realGuests <= 0) return;
     setSaving(true);
     setMessage("");
     try {
@@ -115,6 +137,7 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
         body: JSON.stringify({
           sessionId,
           items,
+          guests,
           includeWaiters,
           includeDisposables,
         }),
@@ -125,12 +148,17 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
       }
       setSavedSnapshot(payload.effectiveSnapshot);
       setItems(payload.effectiveSnapshot.items.map((item) => ({ id: item.id, quantity: item.quantity })));
+      setGuests({
+        adults: normalizeGuestInput(payload.effectiveSnapshot.adults),
+        olderChildren: normalizeGuestInput(payload.effectiveSnapshot.olderChildren),
+        children: normalizeGuestInput(payload.effectiveSnapshot.children),
+      });
       setMessage(`Orçamento atualizado com segurança. Revisão administrativa ${payload.revision}.`);
     } catch (error) {
       const reason = String(error?.message || "");
       setMessage(reason === "quote_changed_concurrently"
         ? "Este orçamento mudou em outra tela. Reabra antes de editar novamente."
-        : "Não foi possível salvar. Verifique lotes e quantidades dos produtos.");
+        : "Não foi possível salvar. Verifique convidados, lotes e quantidades dos produtos.");
     } finally {
       setSaving(false);
     }
@@ -146,7 +174,7 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
         <div>
           <span>Roda Festa · Revisão administrativa</span>
           <h1>Editar orçamento</h1>
-          <p>{quote?.client?.name || "Cliente"} · o evento, convidados e data permanecem congelados; esta tela altera composição comercial e serviços.</p>
+          <p>{quote?.client?.name || "Cliente"} · a proposta original permanece preservada; convidados, composição e serviços podem ser revisados. A data do evento permanece congelada.</p>
         </div>
         <div className="rf-commercial-header__actions">
           <a href="/admin">← Voltar para orçamentos</a>
@@ -187,7 +215,25 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
         </section>
 
         <section className="rf-commercial-editor">
-          <div className="rf-commercial-editor__heading"><span>Serviços e conferência</span><h2>Revisão do orçamento</h2></div>
+          <div className="rf-commercial-editor__heading"><span>Convidados e serviços</span><h2>Revisão do orçamento</h2></div>
+
+          <div className="rf-commercial-guests">
+            <div className="rf-commercial-guests__heading">
+              <strong>Quantidade de pessoas</strong>
+              <small>Crianças de 0–6 contam como 0,5 convidado equivalente.</small>
+            </div>
+            <div className="rf-commercial-guests__grid">
+              <label><span>Adultos</span><input type="number" min="0" step="1" value={guests.adults} onChange={(event) => changeGuest("adults", event.target.value)} /></label>
+              <label><span>Crianças 7+</span><input type="number" min="0" step="1" value={guests.olderChildren} onChange={(event) => changeGuest("olderChildren", event.target.value)} /></label>
+              <label><span>Crianças 0–6</span><input type="number" min="0" step="1" value={guests.children} onChange={(event) => changeGuest("children", event.target.value)} /></label>
+            </div>
+            <div className="rf-commercial-guests__summary">
+              <span>{guestSummary.realGuests} convidados reais</span>
+              <strong>{guestSummary.equivalentGuests.toLocaleString("pt-BR")} equivalentes para cálculo</strong>
+            </div>
+            <small className="rf-commercial-warning">Alterar convidados não muda automaticamente as quantidades negociadas dos produtos. Revise a composição antes de salvar.</small>
+          </div>
+
           <label className="rf-commercial-check"><input type="checkbox" checked={includeWaiters} onChange={(event) => setIncludeWaiters(event.target.checked)} /> Incluir garçons</label>
           <label className="rf-commercial-check"><input type="checkbox" checked={includeDisposables} onChange={(event) => setIncludeDisposables(event.target.checked)} /> Incluir descartáveis</label>
 
@@ -197,8 +243,8 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
             {savedSnapshot ? <><small>Último total contratado: {money(savedSnapshot.investmentTotal)}</small><small>Consignação estimada: {money(savedSnapshot.consignmentTotal)}</small><small>Carrinhos: {savedSnapshot.totalCarts}</small></> : null}
           </div>
 
-          <button type="button" className="rf-commercial-save" disabled={saving || items.length === 0} onClick={saveRevision}>{saving ? "Salvando revisão..." : "Salvar revisão do orçamento"}</button>
-          <p className="rf-commercial-footnote">Preços já contratados são preservados para itens existentes. Produtos adicionados nesta revisão usam o preço atual do catálogo.</p>
+          <button type="button" className="rf-commercial-save" disabled={saving || items.length === 0 || guestSummary.realGuests <= 0} onClick={saveRevision}>{saving ? "Salvando revisão..." : "Salvar revisão do orçamento"}</button>
+          <p className="rf-commercial-footnote">Preços já contratados são preservados para itens existentes. Produtos adicionados nesta revisão usam o preço atual do catálogo. A revisão registra também a nova quantidade de convidados.</p>
         </section>
       </div>
     </section>

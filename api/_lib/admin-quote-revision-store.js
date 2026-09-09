@@ -22,9 +22,9 @@ export function createAdminQuoteRevisionStore({
   if (typeof fetchImpl !== "function") throw new Error("admin_quote_revision_fetch_required");
   if (typeof now !== "function") throw new Error("admin_quote_revision_clock_required");
 
-  async function request(path, { method = "GET", body, prefer } = {}) {
+  async function request(pathname, { method = "GET", body, prefer } = {}) {
     const { url, serviceRoleKey } = getConfig(env);
-    const response = await fetchImpl(`${url}/rest/v1/${path}`, {
+    const response = await fetchImpl(`${url}/rest/v1/${pathname}`, {
       method,
       headers: buildSupabaseRestHeaders(serviceRoleKey, { prefer }),
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
@@ -52,6 +52,7 @@ export function createAdminQuoteRevisionStore({
   async function revise({
     sessionId,
     requestedItems,
+    requestedGuests,
     includeWaiters,
     includeDisposables,
     actorUserId,
@@ -70,6 +71,7 @@ export function createAdminQuoteRevisionStore({
     const nextSnapshot = rebuildAdminEffectiveSnapshot({
       baseSnapshot,
       requestedItems,
+      requestedGuests,
       includeWaiters,
       includeDisposables,
       productCatalog,
@@ -87,6 +89,12 @@ export function createAdminQuoteRevisionStore({
       actorUserId: actor,
       beforeSnapshot: baseSnapshot,
       afterSummary: {
+        adults: nextSnapshot.adults,
+        olderChildren: nextSnapshot.olderChildren,
+        children: nextSnapshot.children,
+        realGuests: nextSnapshot.realGuests,
+        equivalentGuests: nextSnapshot.equivalentGuests,
+        youngChildFactor: nextSnapshot.youngChildFactor,
         investmentTotal: nextSnapshot.investmentTotal,
         consignmentTotal: nextSnapshot.consignmentTotal,
         totalCarts: nextSnapshot.totalCarts,

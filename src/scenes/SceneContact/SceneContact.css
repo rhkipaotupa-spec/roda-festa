@@ -1,0 +1,22 @@
+.scene-contact {
+  scroll-margin-top: 96px;
+  background: linear-gradient(135deg, #3f241a, #25140f);
+  color: #f7ead4;
+  padding: clamp(64px, 8vw, 108px) 0;
+}
+.scene-contact__inner { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); gap: clamp(32px, 7vw, 84px); align-items: center; }
+.scene-contact__copy { max-width: 760px; }
+.scene-contact__eyebrow { display: block; margin-bottom: 14px; color: #d9b36b; font-size: .78rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.scene-contact h2 { margin: 0; font-family: Georgia, serif; font-size: clamp(2rem, 4.4vw, 4.25rem); font-weight: 500; line-height: 1.02; }
+.scene-contact p { max-width: 670px; margin: 22px 0 0; color: rgba(247, 234, 212, .82); font-size: 1.05rem; line-height: 1.7; }
+.scene-contact__actions { display: grid; gap: 12px; }
+.scene-contact__actions a { min-height: 50px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; padding: 12px 20px; text-decoration: none; font-weight: 700; transition: transform .18s ease, background .18s ease, color .18s ease; }
+.scene-contact__actions a:hover { transform: translateY(-1px); }
+.scene-contact__primary { background: #d9b36b; color: #2f1a12; }
+.scene-contact__primary:hover { background: #e6c681; }
+.scene-contact__secondary { border: 1px solid rgba(247, 234, 212, .38); color: #f7ead4; background: rgba(255,255,255,.04); }
+.scene-contact__secondary:hover { background: rgba(247,234,212,.12); }
+.scene-contact__actions small { text-align: center; color: rgba(247,234,212,.62); }
+#eventos, #cardapio, #como-funciona { scroll-margin-top: 96px; }
+@media (max-width: 760px) { .scene-contact__inner { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .scene-contact__actions a { transition: none; } }
