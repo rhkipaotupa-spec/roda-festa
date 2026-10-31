@@ -6,7 +6,7 @@ import {
   PRODUCTS,
   ENGINE_VERSIONS,
 } from "./engine/planningRules";
-import { calculatePlanningPreview, fetchWithTimeout } from "./planningPreviewClient.js";
+import { calculatePlanningPreview, fetchWithTimeout, recommendAdditionalBeverage } from "./planningPreviewClient.js";
 import { createRecommendationSnapshot, compareRecommendationToFinal } from "./engine/planningHistory.js";
 import { buildProposalPresentation } from "./proposalPresentation.js";
 import { buildProposalComposition, captureProposalSnapshot } from "./proposalSummary.js";
@@ -629,7 +629,10 @@ export default function PlanningBook({ catalogFingerprint }) {
         return;
       }
       const lot = Number(product.lotSize) || 1;
-      const suggested = product.commercialCategory === "Brigadeiro no tacho"
+      const suggested = product.commercialCategory === "Bebidas" || product.consignment
+        ? await recommendAdditionalBeverage({ catalogFingerprint, adults, olderChildren, children,
+          serviceHours: duration }, product)
+        : product.commercialCategory === "Brigadeiro no tacho"
         ? realGuests
         : suggestion.suggestedQuantities[product.id];
       const quantity = Math.max(lot, Number(suggested) || lot);
