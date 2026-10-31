@@ -97,7 +97,7 @@ export function normalizeEventDate(value, now = new Date()) {
   return value >= businessToday ? value : null;
 }
 
-function calculateTachoAwareCarts({ items, serviceHours }) {
+export function calculateTachoAwareCarts({ items, serviceHours }) {
   const tachoItems = items.filter((item) => item.commercialCategory === TACHO_CATEGORY);
   const baseItems = items.filter((item) => item.commercialCategory !== TACHO_CATEGORY);
   const base = calculateCarts({ items: baseItems, serviceHours });

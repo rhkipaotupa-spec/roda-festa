@@ -351,6 +351,21 @@ export default async function handler(request, response) {
   const raw = JSON.stringify(request.body || {});
   if (Buffer.byteLength(raw, "utf8") > MAX_BODY_BYTES) return sendError(response, 413, "payload_too_large");
 
+  // Establish proof of possession before a start can write anything. Losing this
+  // response is harmless; a retry creates no orphaned database session.
+  if (request.body?.action === "prepare") {
+    if (!getPlanningSessionToken(request)) {
+      response.setHeader("Set-Cookie", buildPlanningSessionCookie(createOpaqueSessionToken(), {
+        secure: process.env.NODE_ENV === "production",
+      }));
+    }
+    response.setHeader("Cache-Control", "no-store");
+    return response.status(200).json({ ok: true });
+  }
+  if (request.body?.action === "start" && request.body?.requirePreparedSession === true && !getPlanningSessionToken(request)) {
+    return sendError(response, 409, "planning_session_cookie_required");
+  }
+
   let repository;
   try {
     repository = createPlanningSessionRuntime();

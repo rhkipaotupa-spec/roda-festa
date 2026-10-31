@@ -1,3 +1,4 @@
+import { fetchWithTimeout } from "./planningPreviewClient.js";
 import { PRODUCTS } from "./engine/planningRules.js";
 import { productCatalogFingerprint } from "./engine/productCatalog.js";
 
@@ -8,12 +9,12 @@ function createClientRequestId() {
 }
 
 async function postPlanningSession(payload, fetchImpl = globalThis.fetch) {
-  const response = await fetchImpl("/api/planning-sessions", {
+  const response = await fetchWithTimeout("/api/planning-sessions", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "same-origin",
     body: JSON.stringify(payload),
-  });
+  }, fetchImpl);
 
   let body = null;
   try {
@@ -56,8 +57,10 @@ export function isPlanningSessionPersistenceEnabled(env = import.meta.env) {
 }
 
 export async function startPlanningSession(input, { fetchImpl = globalThis.fetch, clientRequestId = createClientRequestId() } = {}) {
+  const prepared = await postPlanningSession({ action: "prepare" }, fetchImpl);
+  if (!prepared.available) return prepared;
   const catalogFingerprint = productCatalogFingerprint(Object.values(PRODUCTS));
-  return postPlanningSession({ action: "start", clientRequestId, catalogFingerprint, ...input }, fetchImpl);
+  return postPlanningSession({ action: "start", clientRequestId, catalogFingerprint, ...input, requirePreparedSession: true }, fetchImpl);
 }
 
 export async function finalizePlanningSession({ sessionId, expectedVersion, finalSnapshot }, { fetchImpl = globalThis.fetch } = {}) {

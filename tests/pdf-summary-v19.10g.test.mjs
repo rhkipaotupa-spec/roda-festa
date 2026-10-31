@@ -29,8 +29,8 @@ test('V19.10G restaura integralmente a linguagem escura da capa anterior', () =>
   assert.equal(pdfBuilder.includes('V19.10F_PDF_CLEAN_CONTINUITY'), false);
   assert.match(pdfBuilder, /\.cover\{[^}]*background:linear-gradient\(145deg,#4c2c22,#2f1a12\);color:#f7ead4/);
   assert.match(pdfBuilder, /\.page\.cover\{[^}]*background:linear-gradient\(145deg,#4c2c22,#2f1a12\)!important;color:#f7ead4!important/);
-  assert.equal(scoped.includes('.cover{'), false);
-  assert.equal(scoped.includes('.page.cover{'), false);
+  assert.equal(scoped.includes('min-height:297mm'), false);
+  assert.ok(scoped.includes('.page.cover{min-height:230mm'));
 });
 
 test('V19.10G altera somente a pagina intermediaria do resumo e cardapio', () => {
