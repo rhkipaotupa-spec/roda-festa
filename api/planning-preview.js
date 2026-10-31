@@ -41,15 +41,6 @@ export function buildPlanningPreview(input, catalog) {
       investment: calculateInvestment({ items, totalCarts: carts.totalCarts, serviceHours: hours, waiters, disposables }),
       evaluation: evaluateSuggestion({ equivalentGuests, items, totalCarts: carts.totalCarts }) };
   }
-  // Adding a drink must use the same R4 demand, duration and lot rounding as
-  // choosing it initially. Existing item quantities remain untouched above.
-  const beverageIds = [...byId.values()]
-    .filter((product) => product.commercialCategory === 'Bebidas' || product.consignment)
-    .map((product) => product.id);
-  const beverageQuantities = new Map(beverageIds.length
-    ? generateR4ProductionSuggestion({ ...input, selectedProductIds: beverageIds,
-      includeBeverages: true, productCatalog: catalog }).items.map((item) => [item.id, item.quantity])
-    : []);
   return {
     versions: suggestion.versions,
     guests: suggestion.guests,
@@ -58,8 +49,7 @@ export function buildPlanningPreview(input, catalog) {
     preparers: suggestion.preparers, waiters: suggestion.waiters, disposables: suggestion.disposables,
     investment: suggestion.investment, evaluation: suggestion.evaluation,
     suggestedQuantities: Object.fromEntries([...byId.values()].map((product) => [product.id,
-      beverageQuantities.has(product.id) ? beverageQuantities.get(product.id)
-        : product.commercialCategory === 'Brigadeiro no tacho' ? suggestion.guests.realGuests
+      product.commercialCategory === 'Brigadeiro no tacho' ? suggestion.guests.realGuests
         : calculateSuggestedProductQuantity({ product, equivalentGuests: suggestion.guests.equivalentGuests })])),
   };
 }
