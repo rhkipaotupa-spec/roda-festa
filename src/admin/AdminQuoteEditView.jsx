@@ -190,7 +190,8 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
           {capacityWarnings.length > 0 && <aside className="rf-commercial-notice rf-commercial-warning" aria-label="Alerta operacional interno" role="status">
             <strong>Revisar capacidade operacional</strong>
             {capacityWarnings.map((warning) => <p key={warning.group}>
-              {{ fried: "Frituras", hotSandwiches: "Mini lanches e tortas", beverages: "Bebidas" }[warning.group] || warning.group}: carga estimada de {warning.loadHours.toLocaleString("pt-BR")} h para {warning.serviceHours} h de serviço ({warning.usagePercent}% da capacidade cadastrada).
+              {{ fried: "Frituras", hotSandwiches: "Mini lanches e tortas", beverages: "Bebidas" }[warning.group] || warning.group}: carga estimada de {warning.isLowerBound ? "pelo menos " : ""}{warning.loadHours.toLocaleString("pt-BR")} h para {warning.serviceHours} h de serviço ({warning.isLowerBound ? "pelo menos " : ""}{warning.usagePercent}% da capacidade cadastrada).
+              {warning.isLowerBound && " Há itens compartilhados com capacidade ainda não medida; a carga deles não foi estimada."}
             </p>)}
             <small>Estimativa pelo catálogo atual e pelas quantidades em edição. Conferir com a operação; este aviso interno não altera a proposta, os carrinhos ou o atendimento ao cliente.</small>
           </aside>}

@@ -75,3 +75,15 @@ test('capacity warning is advisory, reacts to quantities, and is absent from pub
   assert.deepEqual(publicResult.carts,{totalCarts:3});
   assert.equal(JSON.stringify(publicResult).includes('capacityUsage'),false);
 });
+
+test('unmeasured tacho never hides overload already proven by beverages', () => {
+  const tacho = { id: 'test-tacho', operationalGroup: 'tacho', countsAsMainCart: true, productionPerHour: null };
+  const products = [...catalog, tacho];
+  const items = [{id:'suco-laranja-200ml',quantity:800},{id:tacho.id,quantity:150}];
+  assert.deepEqual(getOperationalCapacityWarnings({items,products,duration:4}), [{
+    group:'beverages',usagePercent:133,loadHours:5.33,serviceHours:4,isLowerBound:true,
+  }]);
+  assert.deepEqual(getOperationalCapacityWarnings({items:[{...items[0],quantity:600},items[1]],products,duration:4}), []);
+  assert.deepEqual(getOperationalCapacityWarnings({items:[items[1]],products,duration:4}), []);
+  assert.equal(tacho.productionPerHour,null);
+});
