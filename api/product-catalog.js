@@ -1,4 +1,5 @@
 import { createProductCatalogStore } from "./_lib/product-catalog-store.js";
+import { productCatalogFingerprint } from "../src/planner/planning-book/engine/productCatalog.js";
 
 const JSON_CONTENT_TYPE = "application/json; charset=utf-8";
 
@@ -38,11 +39,11 @@ export function createProductCatalogHttpHandler({ catalogStore } = {}) {
     }
 
     try {
-      const products = await catalogStore.listCatalog({ includeInactive: false });
+      const products = await catalogStore.listCatalog({ includeInactive: true });
       sendJson(
         response,
         200,
-        { ok: true, products: products.map(toPublicProduct) },
+        { ok: true, products: products.filter((product) => product.active !== false).map(toPublicProduct), catalogFingerprint: productCatalogFingerprint(products) },
         { "Cache-Control": "no-store" },
       );
     } catch {

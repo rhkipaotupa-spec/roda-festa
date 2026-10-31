@@ -5,15 +5,8 @@ import "./PlanningBook.css";
 import {
   PRODUCTS,
   ENGINE_VERSIONS,
-  calculateCarts,
-  calculateDisposables,
-  calculateInvestment,
-  calculatePreparers,
-  calculateSuggestedProductQuantity,
-  calculateWaiters,
-  evaluateSuggestion,
 } from "./engine/planningRules";
-import { generateR4ProductionSuggestion } from "./engine/r4ProductionRecommendation.js";
+import { calculatePlanningPreview, fetchWithTimeout } from "./planningPreviewClient.js";
 import { createRecommendationSnapshot, compareRecommendationToFinal } from "./engine/planningHistory.js";
 import { buildProposalPresentation } from "./proposalPresentation.js";
 import {
@@ -156,7 +149,8 @@ function getConsignmentTotal(items = []) {
 
 function getSceneObjects(items = []) {
   const ids = new Set(items.filter((item) => Number(item.quantity) > 0).map((item) => item.id));
-  const groups = new Set(items.filter((item) => Number(item.quantity) > 0).map((item) => item.operationalGroup));
+  const visualGroups = { "Petiscos": "fried", "Mini lanches": "hotSandwiches", "Tortas": "hotSandwiches", "Bolos": "cake", "Doces": "sweets", "Bebidas": "beverages" };
+  const groups = new Set(items.filter((item) => Number(item.quantity) > 0).map((item) => visualGroups[item.commercialCategory]));
   const result = [];
 
   if (groups.has("fried")) result.push({ id: "fried", label: "Carrinho de petiscos", src: carFrituras });
@@ -185,46 +179,6 @@ function getSceneObjects(items = []) {
   }
 
   return result;
-}
-
-function rebuildSuggestion(baseSuggestion, items, serviceHours, includeWaiters, includeDisposables) {
-  const carts = calculateCarts({
-    items,
-    serviceHours,
-    equivalentGuests: baseSuggestion.guests.equivalentGuests,
-  });
-  const preparers = calculatePreparers(carts.totalCarts);
-  const waiters = calculateWaiters({
-    realGuests: baseSuggestion.guests.realGuests,
-    includeWaiters,
-  });
-  const disposables = calculateDisposables({
-    equivalentGuests: baseSuggestion.guests.equivalentGuests,
-    includeDisposables,
-  });
-  const investment = calculateInvestment({
-    items,
-    totalCarts: carts.totalCarts,
-    serviceHours,
-    waiters,
-    disposables,
-  });
-  const evaluation = evaluateSuggestion({
-    equivalentGuests: baseSuggestion.guests.equivalentGuests,
-    items,
-    totalCarts: carts.totalCarts,
-  });
-
-  return {
-    ...baseSuggestion,
-    items,
-    carts,
-    preparers,
-    waiters,
-    disposables,
-    investment,
-    evaluation,
-  };
 }
 
 function escapeHtml(value) {
@@ -279,7 +233,7 @@ function buildProposalHtml(snapshot) {
 </style>
 </head>
 <body>
-<div class="print-note">Na janela de impressão, escolha “Salvar como PDF”.</div>
+<div class="print-note"><button type="button" onclick="window.print()">Imprimir / Salvar PDF</button><p>No iPhone, use Compartilhar ou Imprimir para salvar em Arquivos.</p></div>
 <section class="page cover">
   <img src="${escapeHtml(snapshot.logoUrl)}" alt="Roda Festa" />
   <div class="cover-tagline">GASTRONOMIA QUE ENCANTA</div>
@@ -377,7 +331,7 @@ function Counter({ label, hint, value, onChange }) {
   );
 }
 
-export default function PlanningBook() {
+export default function PlanningBook({ catalogFingerprint }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [clientName, setClientName] = useState("");
   const [phone, setPhone] = useState("");
@@ -397,10 +351,38 @@ export default function PlanningBook() {
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState("idle");
   const [submitMessage, setSubmitMessage] = useState("");
+  const [pdfUrl, setPdfUrl] = useState("");
   const [formNotice, setFormNotice] = useState("");
   const [editingCategory, setEditingCategory] = useState("");
   const [replacingItemId, setReplacingItemId] = useState("");
   const planningSessionStartRef = useRef(null);
+  const retryPlanningStartRef = useRef(null);
+  const calculationBusy = useRef(false);
+  const retryCalculationRef = useRef(null);
+  const [calculating, setCalculating] = useState(false);
+  const [calculationError, setCalculationError] = useState("");
+
+  async function runCalculation(action) {
+    if (calculationBusy.current) return;
+    calculationBusy.current = true;
+    retryCalculationRef.current = action;
+    setCalculating(true);
+    setCalculationError("");
+    try { await action(); }
+    catch (error) {
+      setCalculationError(error.message === "planning_catalog_changed"
+        ? "O cardápio foi atualizado. Recarregue a página antes de continuar."
+        : "Não foi possível atualizar o planejamento. Suas escolhas foram mantidas; tente novamente.");
+    } finally { calculationBusy.current = false; setCalculating(false); }
+  }
+
+  async function rebuildSuggestion(baseSuggestion, items, serviceHours, nextWaiters, nextDisposables) {
+    const result = await calculatePlanningPreview({ catalogFingerprint, adults, olderChildren, children,
+      serviceHours, selectedProductIds: items.map((item) => item.id),
+      items: items.map(({ id, quantity }) => ({ id, quantity })),
+      includeWaiters: nextWaiters, includeDisposables: nextDisposables });
+    return { ...baseSuggestion, ...result, versions: baseSuggestion.versions };
+  }
   const planningSessionPersistenceEnabled = isPlanningSessionPersistenceEnabled();
 
   const adminNavigation = useMemo(() => {
@@ -497,22 +479,24 @@ export default function PlanningBook() {
   }
 
   function generateSuggestionAndContinue() {
-    if (selectedProductIds.length === 0) {
-      setErrors({ menu: "Escolha pelo menos um item do cardápio." });
-      return;
-    }
+    return runCalculation(async () => {
+      if (selectedProductIds.length === 0) {
+        setErrors({ menu: "Escolha pelo menos um item do cardápio." });
+        return;
+      }
 
-    const includeBeverages = selectedProductIds.some((id) => PRODUCT_CATALOG.find((product) => product.id === id)?.consignment);
-    const generated = generateR4ProductionSuggestion({
-      adults,
-      olderChildren,
-      children,
-      serviceHours: duration,
-      selectedProductIds,
-      includeWaiters,
-      includeDisposables,
-      includeBeverages,
-      additionalProductIds: [],
+      const includeBeverages = selectedProductIds.some((id) => PRODUCT_CATALOG.find((product) => product.id === id)?.consignment);
+      const generated = await calculatePlanningPreview({
+        catalogFingerprint,
+        adults,
+        olderChildren,
+        children,
+        serviceHours: duration,
+        selectedProductIds,
+        includeWaiters,
+        includeDisposables,
+        includeBeverages,
+        additionalProductIds: [],
     });
 
     const recommendationSnapshot = createRecommendationSnapshot({
@@ -534,7 +518,9 @@ export default function PlanningBook() {
     setSuggestion(generated);
 
     if (planningSessionPersistenceEnabled) {
-      const startPromise = startPlanningSession({
+      const clientRequestId = globalThis.crypto?.randomUUID?.() || `rf-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      retryPlanningStartRef.current = () => startPlanningSession({
+        catalogFingerprint,
         clientName: clientName.trim(),
         phone,
         eventType: selectedEvent,
@@ -546,19 +532,20 @@ export default function PlanningBook() {
         selectedProductIds,
         includeWaiters,
         includeDisposables,
-      }).then((result) => {
+      }, { clientRequestId }).then((result) => {
         if (!result.available) return { ok: false, error: result.reason || "planning_persistence_unavailable" };
         if (!areRecommendationSnapshotsEquivalent(recommendationSnapshot, result.recommendation)) {
           return { ok: false, error: "planning_recommendation_mismatch" };
         }
         return { ok: true, session: { id: result.sessionId, version: result.version } };
       }).catch((error) => ({ ok: false, error: error?.message || "planning_session_start_failed" }));
-      planningSessionStartRef.current = startPromise;
+      planningSessionStartRef.current = retryPlanningStartRef.current();
     } else {
       planningSessionStartRef.current = null;
     }
 
     goTo(3);
+    });
   }
 
   function queuePlanningChanges(changes) {
@@ -578,110 +565,126 @@ export default function PlanningBook() {
   }
 
   function addProductToSuggestion(product) {
-    if (!suggestion || suggestion.items.some((item) => item.id === product.id)) return;
-    const existingTacho = product.commercialCategory === "Brigadeiro no tacho"
-      ? suggestion.items.find((item) => item.commercialCategory === "Brigadeiro no tacho")
-      : null;
-    if (existingTacho) {
-      replaceSuggestionItem(existingTacho.id, product);
-      return;
-    }
-    const lot = Number(product.lotSize) || 1;
-    const suggested = product.commercialCategory === "Brigadeiro no tacho"
-      ? realGuests
-      : calculateSuggestedProductQuantity({ product, equivalentGuests });
-    const quantity = Math.max(lot, Number(suggested) || lot);
-    const nextItem = {
-      ...product,
-      quantity,
-      estimatedValue: product.consignment ? 0 : quantity * Number(product.unitPrice || 0),
-    };
-    const items = [...suggestion.items, nextItem];
-    const categoryWasAbsent = !suggestion.items.some((item) => item.commercialCategory === product.commercialCategory);
-    setSelectedProductIds((current) => [...new Set([...current, product.id])]);
-    setSuggestion(rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
-    queuePlanningChanges([
-      ...(categoryWasAbsent ? [{ type: "CATEGORY_ADDED", category: product.commercialCategory }] : []),
-      { type: "ITEM_ADDED", productId: product.id, afterQuantity: quantity },
-    ]);
-    setEditingCategory(product.commercialCategory);
+    return runCalculation(async () => {
+      if (!suggestion || suggestion.items.some((item) => item.id === product.id)) return;
+      const existingTacho = product.commercialCategory === "Brigadeiro no tacho"
+        ? suggestion.items.find((item) => item.commercialCategory === "Brigadeiro no tacho")
+        : null;
+      if (existingTacho) {
+        const quantity = existingTacho.quantity;
+        const items = suggestion.items.map((item) => item.id === existingTacho.id ? { ...product, quantity } : item);
+        setSuggestion(await rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
+        setSelectedProductIds((current) => current.filter((id) => id !== existingTacho.id).concat(product.id));
+        queuePlanningChanges([{ type: "ITEM_REPLACED", fromProductId: existingTacho.id, toProductId: product.id, beforeQuantity: quantity, afterQuantity: quantity }]);
+        return;
+      }
+      const lot = Number(product.lotSize) || 1;
+      const suggested = product.commercialCategory === "Brigadeiro no tacho"
+        ? realGuests
+        : suggestion.suggestedQuantities[product.id];
+      const quantity = Math.max(lot, Number(suggested) || lot);
+      const nextItem = {
+        ...product,
+        quantity,
+        estimatedValue: product.consignment ? 0 : quantity * Number(product.unitPrice || 0),
+      };
+      const items = [...suggestion.items, nextItem];
+      const categoryWasAbsent = !suggestion.items.some((item) => item.commercialCategory === product.commercialCategory);
+      setSuggestion(await rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
+      setSelectedProductIds((current) => [...new Set([...current, product.id])]);
+      queuePlanningChanges([
+        ...(categoryWasAbsent ? [{ type: "CATEGORY_ADDED", category: product.commercialCategory }] : []),
+        { type: "ITEM_ADDED", productId: product.id, afterQuantity: quantity },
+      ]);
+      setEditingCategory(product.commercialCategory);
+    });
   }
 
   function removeItemFromSuggestion(itemId) {
-    if (!suggestion) return;
-    const removed = suggestion.items.find((item) => item.id === itemId);
-    const items = suggestion.items.filter((item) => item.id !== itemId);
-    setSelectedProductIds((current) => current.filter((id) => id !== itemId));
-    setSuggestion(rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
-    if (removed) queuePlanningChanges([{ type: "ITEM_REMOVED", productId: itemId, beforeQuantity: removed.quantity }]);
-    if (replacingItemId === itemId) setReplacingItemId("");
+    return runCalculation(async () => {
+      if (!suggestion) return;
+      const removed = suggestion.items.find((item) => item.id === itemId);
+      const items = suggestion.items.filter((item) => item.id !== itemId);
+      setSuggestion(await rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
+      setSelectedProductIds((current) => current.filter((id) => id !== itemId));
+      if (removed) queuePlanningChanges([{ type: "ITEM_REMOVED", productId: itemId, beforeQuantity: removed.quantity }]);
+      if (replacingItemId === itemId) setReplacingItemId("");
+    });
   }
 
   function removeCategoryFromSuggestion(categoryName) {
-    if (!suggestion) return;
-    const removedIds = new Set(suggestion.items.filter((item) => item.commercialCategory === categoryName).map((item) => item.id));
-    const items = suggestion.items.filter((item) => item.commercialCategory !== categoryName);
-    setSelectedProductIds((current) => current.filter((id) => !removedIds.has(id)));
-    setSuggestion(rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
-    queuePlanningChanges([{ type: "CATEGORY_REMOVED", category: categoryName }]);
-    setEditingCategory("");
-    setReplacingItemId("");
+    return runCalculation(async () => {
+      if (!suggestion) return;
+      const removedIds = new Set(suggestion.items.filter((item) => item.commercialCategory === categoryName).map((item) => item.id));
+      const items = suggestion.items.filter((item) => item.commercialCategory !== categoryName);
+      setSuggestion(await rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
+      setSelectedProductIds((current) => current.filter((id) => !removedIds.has(id)));
+      queuePlanningChanges([{ type: "CATEGORY_REMOVED", category: categoryName }]);
+      setEditingCategory("");
+      setReplacingItemId("");
+    });
   }
 
   function replaceSuggestionItem(currentItemId, product) {
-    if (!suggestion) return;
-    const currentItem = suggestion.items.find((item) => item.id === currentItemId);
-    if (!currentItem || product.id === currentItemId) return;
-    const lot = Number(product.lotSize) || 1;
-    const quantity = Math.max(lot, Math.ceil(Number(currentItem.quantity || lot) / lot) * lot);
-    const replacement = {
-      ...product,
-      quantity,
-      estimatedValue: product.consignment ? 0 : quantity * Number(product.unitPrice || 0),
-    };
-    const items = suggestion.items.map((item) => item.id === currentItemId ? replacement : item);
-    setSelectedProductIds((current) => [...new Set(current.filter((id) => id !== currentItemId).concat(product.id))]);
-    setSuggestion(rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
-    queuePlanningChanges([{
-      type: "ITEM_REPLACED",
-      fromProductId: currentItemId,
-      toProductId: product.id,
-      beforeQuantity: currentItem.quantity,
-      afterQuantity: quantity,
-    }]);
-    setReplacingItemId("");
-    setEditingCategory(product.commercialCategory);
+    return runCalculation(async () => {
+      if (!suggestion) return;
+      const currentItem = suggestion.items.find((item) => item.id === currentItemId);
+      if (!currentItem || product.id === currentItemId) return;
+      const lot = Number(product.lotSize) || 1;
+      const quantity = Math.max(lot, Math.ceil(Number(currentItem.quantity || lot) / lot) * lot);
+      const replacement = {
+        ...product,
+        quantity,
+        estimatedValue: product.consignment ? 0 : quantity * Number(product.unitPrice || 0),
+      };
+      const items = suggestion.items.map((item) => item.id === currentItemId ? replacement : item);
+      setSuggestion(await rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
+      setSelectedProductIds((current) => [...new Set(current.filter((id) => id !== currentItemId).concat(product.id))]);
+      queuePlanningChanges([{
+        type: "ITEM_REPLACED",
+        fromProductId: currentItemId,
+        toProductId: product.id,
+        beforeQuantity: currentItem.quantity,
+        afterQuantity: quantity,
+      }]);
+      setReplacingItemId("");
+      setEditingCategory(product.commercialCategory);
+    });
   }
 
   function changeItemQuantity(itemId, nextQuantity) {
-    if (!suggestion) return;
-    const current = suggestion.items.find((item) => item.id === itemId);
-    if (!current) return;
-    const lot = Number(current.lotSize) || 1;
-    const normalized = Math.max(0, Math.round((Number(nextQuantity) || 0) / lot) * lot);
-    if (normalized === Number(current.quantity || 0)) return;
-    const items = suggestion.items
-      .map((item) => item.id === itemId
-        ? { ...item, quantity: normalized, estimatedValue: item.consignment ? 0 : normalized * Number(item.unitPrice || 0) }
-        : item)
-      .filter((item) => Number(item.quantity) > 0);
-    setSuggestion(rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
-    queuePlanningChanges([{
-      type: normalized > 0 ? "ITEM_QUANTITY_CHANGED" : "ITEM_REMOVED",
-      productId: itemId,
-      beforeQuantity: current.quantity,
-      afterQuantity: normalized,
-    }]);
+    return runCalculation(async () => {
+      if (!suggestion) return;
+      const current = suggestion.items.find((item) => item.id === itemId);
+      if (!current) return;
+      const lot = Number(current.lotSize) || 1;
+      const normalized = Math.max(0, Math.round((Number(nextQuantity) || 0) / lot) * lot);
+      if (normalized === Number(current.quantity || 0)) return;
+      const items = suggestion.items
+        .map((item) => item.id === itemId
+          ? { ...item, quantity: normalized, estimatedValue: item.consignment ? 0 : normalized * Number(item.unitPrice || 0) }
+          : item)
+        .filter((item) => Number(item.quantity) > 0);
+      setSuggestion(await rebuildSuggestion(suggestion, items, duration, includeWaiters, includeDisposables));
+      queuePlanningChanges([{
+        type: normalized > 0 ? "ITEM_QUANTITY_CHANGED" : "ITEM_REMOVED",
+        productId: itemId,
+        beforeQuantity: current.quantity,
+        afterQuantity: normalized,
+      }]);
+    });
   }
 
   function syncOptionalServices(nextWaiters, nextDisposables) {
-    const changes = [];
-    if (nextWaiters !== includeWaiters) changes.push({ type: nextWaiters ? "SERVICE_ADDED" : "SERVICE_REMOVED", service: "WAITERS" });
-    if (nextDisposables !== includeDisposables) changes.push({ type: nextDisposables ? "SERVICE_ADDED" : "SERVICE_REMOVED", service: "DISPOSABLES" });
-    setIncludeWaiters(nextWaiters);
-    setIncludeDisposables(nextDisposables);
-    if (suggestion) setSuggestion(rebuildSuggestion(suggestion, suggestion.items, duration, nextWaiters, nextDisposables));
-    queuePlanningChanges(changes);
+    return runCalculation(async () => {
+      const changes = [];
+      if (nextWaiters !== includeWaiters) changes.push({ type: nextWaiters ? "SERVICE_ADDED" : "SERVICE_REMOVED", service: "WAITERS" });
+      if (nextDisposables !== includeDisposables) changes.push({ type: nextDisposables ? "SERVICE_ADDED" : "SERVICE_REMOVED", service: "DISPOSABLES" });
+      if (suggestion) setSuggestion(await rebuildSuggestion(suggestion, suggestion.items, duration, nextWaiters, nextDisposables));
+      setIncludeWaiters(nextWaiters);
+      setIncludeDisposables(nextDisposables);
+      queuePlanningChanges(changes);
+    });
   }
 
   function buildSnapshot(code) {
@@ -746,7 +749,7 @@ export default function PlanningBook() {
     }
 
     try {
-      const response = await fetch("/api/planning-submissions", {
+      const response = await fetchWithTimeout("/api/planning-submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(snapshot),
@@ -759,7 +762,7 @@ export default function PlanningBook() {
   }
 
   async function finalizePlanning() {
-    if (!suggestion || submitStatus === "sending") return;
+    if (!suggestion || calculationBusy.current || calculationError || submitStatus === "sending") return;
     setSubmitStatus("sending");
     setSubmitMessage("Registrando sua proposta…");
 
@@ -768,7 +771,11 @@ export default function PlanningBook() {
     if (planningSessionPersistenceEnabled) {
       try {
         const draftSnapshot = buildSnapshot("");
-        const startResult = await planningSessionStartRef.current;
+        let startResult = await planningSessionStartRef.current;
+        if (!startResult?.ok && retryPlanningStartRef.current && !startResult?.session) {
+          planningSessionStartRef.current = retryPlanningStartRef.current();
+          startResult = await planningSessionStartRef.current;
+        }
         if (!startResult?.ok) throw new Error(startResult?.error || "planning_session_missing");
         const session = startResult.session;
         if (!session?.id) throw new Error("planning_session_missing");
@@ -813,14 +820,14 @@ export default function PlanningBook() {
     const proposalHtml = buildProposalHtml(snapshot);
     const proposalBlob = new Blob([proposalHtml], { type: "text/html;charset=utf-8" });
     const proposalUrl = URL.createObjectURL(proposalBlob);
+    if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+    setPdfUrl(proposalUrl);
     const proposalWindow = window.open(proposalUrl, "_blank");
     if (!proposalWindow) {
-      URL.revokeObjectURL(proposalUrl);
       setSubmitMessage("Seu navegador bloqueou a proposta. Autorize pop-ups e tente novamente.");
       return;
     }
     proposalWindow.opener = null;
-    window.setTimeout(() => URL.revokeObjectURL(proposalUrl), 60000);
   }
 
   function openWhatsApp() {
@@ -830,6 +837,10 @@ export default function PlanningBook() {
   }
 
   function restart() {
+    if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+    setPdfUrl("");
+    retryPlanningStartRef.current = null;
+    planningSessionStartRef.current = null;
     setClientName(""); setPhone(""); setEventDate(""); setSelectedEvent("");
     setAdults(0); setOlderChildren(0); setChildren(0); setDuration(4);
     setIncludeWaiters(false); setIncludeDisposables(false); setSelectedProductIds([]);
@@ -843,7 +854,10 @@ export default function PlanningBook() {
   })).filter((group) => group.items.length > 0);
 
   return (
-    <main className={`rf-planner-v19${adminNavigation ? " rf-planner-v19--admin" : ""}`}>
+    <>
+    {calculating && <div role="status" style={{position:"fixed",top:0,left:0,right:0,zIndex:9999,background:"#fff",padding:16,textAlign:"center"}}>Atualizando planejamento...</div>}
+    {calculationError && <div role="alert" style={{position:"sticky",top:0,zIndex:9999,background:"#fff",padding:16}}>{calculationError} <button type="button" onClick={() => runCalculation(retryCalculationRef.current)}>Tentar cálculo novamente</button></div>}
+    <main inert={calculating || submitStatus === "sending"} className={`rf-planner-v19${adminNavigation ? " rf-planner-v19--admin" : ""}`}>
       {adminNavigation ? (
         <aside className="rf-admin-mode-bar" aria-label="Modo administrativo">
           <div className="rf-admin-mode-bar__copy">
@@ -1006,7 +1020,7 @@ export default function PlanningBook() {
                 <div className="is-highlight"><span>Estimativa por pessoa</span><strong>{formatCurrency(proposalPresentation.estimatedEventPerPerson)}</strong><small>Base de cálculo: {realGuests} {realGuests === 1 ? "convidado considerado" : "convidados considerados"}. {proposalPresentation.hasConsignment ? "Considera o investimento contratado + a estimativa de consignação." : "Considera o investimento contratado."}</small></div>
               </div>
 
-              <div className="rf-sticky-action rf-sticky-action--split"><button type="button" className="rf-secondary" onClick={() => goTo(2)}>Voltar ao cardápio</button><button type="button" className="rf-primary" onClick={() => { if ((suggestion.items || []).length === 0) { setFormNotice("Adicione pelo menos um item antes de validar a proposta."); return; } goTo(4); }}>Validar proposta <span>→</span></button></div>
+              <div className="rf-sticky-action rf-sticky-action--split"><button type="button" className="rf-secondary" onClick={() => goTo(2)}>Voltar ao cardápio</button><button type="button" className="rf-primary" disabled={Boolean(calculationError)} onClick={() => { if ((suggestion.items || []).length === 0) { setFormNotice("Adicione pelo menos um item antes de validar a proposta."); return; } goTo(4); }}>Validar proposta <span>→</span></button></div>
             </section>
           )}
 
@@ -1029,7 +1043,8 @@ export default function PlanningBook() {
 
               <div className="rf-terms-mini"><p><strong>Reserva:</strong> {COMMERCIAL_TERMS.reservation}</p><p><strong>Saldo:</strong> {COMMERCIAL_TERMS.balance}</p><p><strong>Validade:</strong> {COMMERCIAL_TERMS.validity}</p></div>
 
-              <div className="rf-sticky-action rf-sticky-action--split"><button type="button" className="rf-secondary" onClick={() => goTo(3)}>Ajustar</button><button type="button" className="rf-primary" disabled={submitStatus === "sending"} onClick={finalizePlanning}>{submitStatus === "sending" ? "Registrando…" : "Concluir planejamento"} <span>→</span></button></div>
+              {submitMessage && <div role="alert" className={`rf-submit-status rf-submit-status--${submitStatus}`}>{submitMessage}</div>}
+              <div className="rf-sticky-action rf-sticky-action--split"><button type="button" className="rf-secondary" disabled={submitStatus === "sending"} onClick={() => goTo(3)}>Ajustar</button><button type="button" className="rf-primary" disabled={submitStatus === "sending" || Boolean(calculationError)} onClick={finalizePlanning}>{submitStatus === "sending" ? "Registrando…" : "Concluir planejamento"} <span>→</span></button></div>
             </section>
           )}
 
@@ -1043,6 +1058,7 @@ export default function PlanningBook() {
                 <p>Uma responsável irá revisar o cardápio com você, tirar dúvidas e confirmar os próximos passos para o fechamento da proposta.</p>
               </div>
               {submitMessage && <div className={`rf-submit-status rf-submit-status--${submitStatus}`}>{submitMessage}</div>}
+              {pdfUrl && <p><a href={pdfUrl} target="_blank" rel="noopener noreferrer">Abrir proposta para imprimir ou salvar PDF</a></p>}
               <div className="rf-complete__actions"><button type="button" className="rf-primary" onClick={openPdf}>Gerar meu PDF</button><button type="button" className="rf-secondary rf-secondary--wide" onClick={openWhatsApp}>Enviar para a especialista pelo WhatsApp</button></div>
               <button type="button" className="rf-restart-action rf-restart-action--final" onClick={restart}><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span>Criar outro planejamento</span></button>
             </section>
@@ -1050,5 +1066,6 @@ export default function PlanningBook() {
         </div>
       )}
     </main>
+    </>
   );
 }

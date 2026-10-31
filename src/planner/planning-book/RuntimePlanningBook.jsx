@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { PRODUCTS } from "./engine/planningRules.js";
+import { fetchWithTimeout } from "./planningPreviewClient.js";
 
 function replaceRuntimeProducts(products) {
   for (const key of Object.keys(PRODUCTS)) delete PRODUCTS[key];
@@ -8,6 +9,7 @@ function replaceRuntimeProducts(products) {
 
 export default function RuntimePlanningBook() {
   const [Component, setComponent] = useState(null);
+  const [catalogFingerprint, setCatalogFingerprint] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -15,7 +17,7 @@ export default function RuntimePlanningBook() {
 
     async function boot() {
       try {
-        const response = await fetch("/api/product-catalog", {
+        const response = await fetchWithTimeout("/api/product-catalog", {
           method: "GET",
           credentials: "same-origin",
           headers: { Accept: "application/json" },
@@ -25,7 +27,9 @@ export default function RuntimePlanningBook() {
         if (!response.ok || payload?.ok !== true || !Array.isArray(payload.products) || payload.products.length === 0) {
           throw new Error("runtime_product_catalog_unavailable");
         }
+        if (!payload.catalogFingerprint) throw new Error("catalog_fingerprint_missing");
         replaceRuntimeProducts(payload.products);
+        setCatalogFingerprint(payload.catalogFingerprint);
         const module = await import("./PlanningBook.jsx");
         if (!cancelled) setComponent(() => module.default);
       } catch {
@@ -57,5 +61,5 @@ export default function RuntimePlanningBook() {
     );
   }
 
-  return <Component />;
+  return <Component catalogFingerprint={catalogFingerprint} />;
 }

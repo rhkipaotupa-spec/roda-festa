@@ -73,7 +73,9 @@ test("authoritative browser and PlanningSession are wired through the same RF-RE
   const planningBook = fs.readFileSync(new URL("../src/planner/planning-book/PlanningBook.jsx", import.meta.url), "utf8");
   const planningSessions = fs.readFileSync(new URL("../api/planning-sessions.js", import.meta.url), "utf8");
 
-  assert.match(planningBook, /generateR4ProductionSuggestion/);
+  assert.match(planningBook, /calculatePlanningPreview/);
+  const preview = fs.readFileSync(new URL("../api/planning-preview.js", import.meta.url), "utf8");
+  assert.match(preview, /generateR4ProductionSuggestion/);
   assert.doesNotMatch(planningBook, /generatePlanningSuggestion\s*\(/);
   assert.match(planningBook, /const equivalentGuests = adults \+ olderChildren \+ children \* 0\.5;/);
   assert.match(planningBook, /Equivalem a 0,5 adulto/);
