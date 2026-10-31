@@ -71,7 +71,7 @@ test('preview handler uses only catalog reads and rejects untrusted requests', a
 
 test('retry preserves request ID and server fingerprint', async () => {
   const requests = [];
-  const fetchImpl = async (_url, options) => { requests.push(JSON.parse(options.body)); return new Response(JSON.stringify({ ok: true })); };
+  const fetchImpl = async (_url, options) => { if (JSON.parse(options.body).action === "start") requests.push(JSON.parse(options.body)); return new Response(JSON.stringify({ ok: true })); };
   for (let n = 0; n < 2; n++) await startPlanningSession({ catalogFingerprint: input.catalogFingerprint }, { fetchImpl, clientRequestId: 'stable-request-123456789' });
   assert.equal(requests[0].clientRequestId, requests[1].clientRequestId);
   assert.equal(requests[0].catalogFingerprint, input.catalogFingerprint);

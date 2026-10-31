@@ -92,7 +92,7 @@ test("V19.9A QA organiza leitura financeira sem tres valores por pessoa concorre
 
 test("V19.9A QA preserva capa marrom e mantem o cardapio sem quebra artificial", () => {
   const source = fs.readFileSync(new URL("../src/planner/planning-book/PlanningBook.jsx", import.meta.url), "utf8");
-  assert.match(source, /\.page\.cover\{min-height:297mm/);
+  assert.match(source, /\.page\.cover\{min-height:230mm/);
   assert.match(source, /background:linear-gradient\(145deg,#4c2c22,#2f1a12\)!important/);
   assert.match(source, /-webkit-print-color-adjust:exact;print-color-adjust:exact/);
   assert.doesNotMatch(source, /class="page financial-page"/);
@@ -147,7 +147,7 @@ test("V19.9A QA espera recursos antes da impressao e mantem fundo continuo", () 
   assert.match(pdfBuilder, /requestAnimationFrame/);
   assert.match(pdfBuilder, /window\.setTimeout\(\(\)=>\{window\.focus\(\);window\.print\(\);\},600\)/);
   assert.doesNotMatch(pdfBuilder, /setTimeout\(\(\)=>window\.print\(\),350\)/);
-  assert.match(pdfBuilder, /html,body\{background:#fbf5e9!important/);
+  assert.match(pdfBuilder, /html,body\{margin:0;background:#fff!important/);
 });
 
 test("V19.9A QA nao duplica consignacao dentro do investimento contratado", () => {
@@ -184,16 +184,16 @@ test("V19.9A QA separa investimento contratado do detalhamento de custos", () =>
   assert.match(contractedCardCss, /box-shadow:/);
 });
 
-test("V19.9A QA inicia investimento em pagina final dedicada no PDF", () => {
+test("V19.9A QA mantem investimento junto e permite fluxo natural no PDF", () => {
   const source = fs.readFileSync(new URL("../src/planner/planning-book/PlanningBook.jsx", import.meta.url), "utf8");
   const start = source.indexOf("function buildProposalHtml(snapshot) {");
   const end = source.indexOf("\nfunction ", start + 1);
   assert.notEqual(start, -1);
   assert.notEqual(end, -1);
   const pdfBuilder = source.slice(start, end);
-  assert.ok(pdfBuilder.includes('.page.investment-page{page-break-before:always;break-before:page}'));
+  assert.ok(pdfBuilder.includes('.page.investment-page{page-break-before:auto;break-before:auto;padding-top:6mm}'));
   assert.match(pdfBuilder, /<section class="page investment-page">\r?\n  <div class="investment-block">/);
-  assert.ok(pdfBuilder.includes('.menu-group,.fact,.money-grid,.money-card,.investment-block{page-break-inside:avoid;break-inside:avoid}'));
+  assert.ok(pdfBuilder.includes('.investment-block{break-inside:avoid;page-break-inside:avoid}'));
   assert.match(pdfBuilder, /<div class="investment-block">[\s\S]*?<h1>Investimento<\/h1>[\s\S]*?<div class="money-grid">/);
 });
 
@@ -291,7 +291,7 @@ test("V19.9A QA PDF usa logo creme titulos marrons e condicoes em blocos editori
   assert.match(pdfBuilder, /<h3>Estrutura do evento<\/h3>/);
   assert.match(pdfBuilder, /Cancelamento com até 10 dias de antecedência: cobrança de 50% do orçamento./);
   assert.match(pdfBuilder, /Ao término do evento, os alimentos contratados e não consumidos serão entregues aos anfitriões./);
-  assert.match(pdfBuilder, /\.terms-head,\.term-card\{page-break-inside:avoid;break-inside:avoid\}/);
+  assert.match(pdfBuilder, /\.terms\{[^}]*break-inside:avoid;page-break-inside:avoid\}/);
 });
 
 test("V19.9A QA remove filete dourado final e usa marrom nos detalhes do cardapio PDF", () => {

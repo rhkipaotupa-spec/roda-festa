@@ -57,8 +57,10 @@ export function isPlanningSessionPersistenceEnabled(env = import.meta.env) {
 }
 
 export async function startPlanningSession(input, { fetchImpl = globalThis.fetch, clientRequestId = createClientRequestId() } = {}) {
+  const prepared = await postPlanningSession({ action: "prepare" }, fetchImpl);
+  if (!prepared.available) return prepared;
   const catalogFingerprint = productCatalogFingerprint(Object.values(PRODUCTS));
-  return postPlanningSession({ action: "start", clientRequestId, catalogFingerprint, ...input }, fetchImpl);
+  return postPlanningSession({ action: "start", clientRequestId, catalogFingerprint, ...input, requirePreparedSession: true }, fetchImpl);
 }
 
 export async function finalizePlanningSession({ sessionId, expectedVersion, finalSnapshot }, { fetchImpl = globalThis.fetch } = {}) {

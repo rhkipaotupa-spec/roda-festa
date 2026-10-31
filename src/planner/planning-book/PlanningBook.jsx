@@ -9,6 +9,7 @@ import {
 import { calculatePlanningPreview, fetchWithTimeout } from "./planningPreviewClient.js";
 import { createRecommendationSnapshot, compareRecommendationToFinal } from "./engine/planningHistory.js";
 import { buildProposalPresentation } from "./proposalPresentation.js";
+import { buildProposalComposition, captureProposalSnapshot } from "./proposalSummary.js";
 import {
   areRecommendationSnapshotsEquivalent,
   finalizePlanningSession,
@@ -197,16 +198,16 @@ function buildProposalHtml(snapshot) {
     realGuests: snapshot.realGuests,
   });
 
+  const compositionHtml = buildProposalComposition(snapshot).map((line) => `<div class="composition-line"><span>${escapeHtml(line.label)}</span><strong>${line.value == null ? "—" : escapeHtml(formatCurrency(line.value))}</strong></div>`).join("");
   const grouped = CATEGORY_ORDER.map((category) => ({
     category,
-    items: snapshot.items.filter((item) => item.commercialCategory === category),
+    items: snapshot.items.filter((item) => item.commercialCategory === category && Number(item.quantity) > 0),
   })).filter((group) => group.items.length > 0);
 
   const groupsHtml = grouped.map((group) => `
-    <section class="menu-group">
-      <h3>${escapeHtml(group.category === "Bebidas" ? "Bebidas em consignação" : group.category)}</h3>
-      ${group.items.map((item) => `<div class="menu-line"><span>${escapeHtml(item.name)}</span><strong>${escapeHtml(item.quantityLabel)}</strong></div>`).join("")}
-    </section>
+    <table class="menu-group"><thead><tr><th colspan="2"><h3>${escapeHtml(group.category === "Bebidas" ? "Bebidas em consignação" : group.category)}</h3></th></tr></thead><tbody>
+      ${group.items.map((item) => `<tr class="menu-line"><td>${escapeHtml(item.name)}</td><td>${escapeHtml(item.quantityLabel)}</td></tr>`).join("")}
+    </tbody></table>
   `).join("");
 
   return `<!doctype html>
@@ -215,7 +216,7 @@ function buildProposalHtml(snapshot) {
 <meta charset="utf-8" />
 <title>Proposta ${escapeHtml(snapshot.code)}</title>
 <style>
-@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;background:#eee;color:#432b20;font-family:Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{width:210mm;min-height:297mm;margin:0 auto 12px;padding:18mm;background:#fbf5e9;position:relative}.page:last-child{margin-bottom:0}.cover{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(145deg,#4c2c22,#2f1a12);color:#f7ead4}/* V19.9A_QA_VISUAL_POLISH_V16 */.cover img{width:62mm;margin-bottom:3mm}.cover-tagline{margin:0 0 11mm;color:#dfc195;font-size:8.7pt;font-weight:600;letter-spacing:.07em}.cover .eyebrow{letter-spacing:.22em;text-transform:uppercase;font-size:10pt;color:#d9b36b}.cover h1{font-family:Georgia,serif;font-size:30pt;margin:5mm 0 2mm;color:#dfc195}.cover h2{font-size:18pt;font-weight:400;margin:0 0 12mm}.page:not(.cover)>h1,.page:not(.cover)>h2,.terms h2{font-family:Georgia,serif;font-weight:500;letter-spacing:-.015em}.chips{display:flex;gap:4mm;flex-wrap:wrap;justify-content:center}.chips span{border:1px solid rgba(255,255,255,.28);border-radius:99px;padding:3mm 5mm}.brandline{display:flex;justify-content:space-between;border-bottom:1px solid #caa976;padding-bottom:4mm;margin-bottom:8mm}.brandline strong{letter-spacing:.13em}/* V19.9A_QA_VISUAL_POLISH_V17: summary title intentionally shares the same h2 system as Cardápio selecionado */.facts{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin:0 0 8mm}.fact{border:1px solid #d9c0a0;border-radius:4mm;padding:4mm;background:linear-gradient(180deg,#fffaf1 0%,#f8eddf 100%);box-shadow:inset 0 .75mm 0 #4c2c22}.fact span{display:block;font-size:8pt;text-transform:uppercase;letter-spacing:.09em;color:#8a604e}.fact strong{display:block;margin-top:2mm;color:#4c2c22;font-size:10.4pt;line-height:1.25}.menu-group{margin:6mm 0;border:1px solid #dec9a7;border-radius:4mm;background:#fffaf1;overflow:hidden;box-shadow:inset 1.2mm 0 0 #4c2c22}.menu-group h3{margin:0;padding:3.7mm 5mm 3.2mm 6mm;font-family:Georgia,serif;font-size:15pt;font-weight:500;letter-spacing:-.012em;color:#f7ead4;background:linear-gradient(135deg,#4c2c22,#321c13);border-bottom:1px solid #c99a4d}.menu-line{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8mm;padding:3mm 5mm 3mm 6mm}.menu-line+.menu-line{border-top:1px solid rgba(117,75,49,.11)}.menu-line span{font-size:10pt;font-weight:600;line-height:1.35;color:#432b20}.menu-line strong{font-size:9pt;font-weight:700;color:#6d503d;background:#f3e1c7;border:1px solid #e1c49a;border-radius:99px;padding:1.2mm 2.6mm;white-space:nowrap}.money-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin:8mm 0}.money-card{border:1px solid #d4b783;border-radius:4mm;padding:5mm;background:#fffaf1}.money-card span{display:block;font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:#806451}.money-card strong{display:block;font-family:Georgia,serif;font-size:17pt;margin:2mm 0}.money-card small{display:block;font-size:8.5pt;line-height:1.4;color:#6f5848}.money-card--contracted{background:#4c2c22;color:#fff1dd;border-color:#4c2c22}.money-card--contracted span,.money-card--contracted small{color:#f0d9ba}.money-card--estimate{border:2px solid #b78a43;background:#f7ead4}.terms{margin-top:7mm}.terms-head{margin-bottom:4mm;padding:4.2mm 5mm;border:1px solid #c99a4d;border-radius:4mm;background:linear-gradient(135deg,#4c2c22,#321c13);color:#f7ead4}.terms-head h2{margin:0!important;color:#f7ead4;font-size:18pt;line-height:1.1}.terms-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4mm}.term-card{position:relative;padding:4.4mm 4.6mm;border:1px solid #dec9a7;border-radius:4mm;background:#fffaf1}.term-card--wide{grid-column:1/-1}.term-card__index{position:absolute;top:4mm;right:4.4mm;color:#b58543;font-size:7.5pt;font-weight:700;letter-spacing:.12em}.term-card h3{margin:0 0 3mm;padding-right:9mm;font-family:Georgia,serif;font-size:12.5pt;font-weight:500;color:#4c2c22}.terms .term-card p{margin:1.7mm 0;font-size:8.7pt;line-height:1.4;color:#5f4638}.terms .term-card p strong{color:#432b20}.footer{position:absolute;left:18mm;right:18mm;bottom:12mm;border-top:1px solid #caa976;padding-top:5mm;display:flex;justify-content:space-between;font-size:9pt}@media screen{.page{box-shadow:0 18px 55px rgba(0,0,0,.18)}.print-note{position:sticky;top:0;z-index:5;background:#fff;padding:12px;text-align:center}}@media print{html,body{background:#fbf5e9!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.print-note{display:none}.page{width:auto;min-height:0;margin:0;padding:14mm 16mm;background:#fbf5e9!important;box-shadow:none;position:static;page-break-after:auto;break-after:auto;-webkit-print-color-adjust:exact;print-color-adjust:exact;-webkit-box-decoration-break:clone;box-decoration-break:clone}.page.cover{min-height:297mm;padding:18mm;background:linear-gradient(145deg,#4c2c22,#2f1a12)!important;color:#f7ead4!important;page-break-after:always;break-after:page}.page.cover .eyebrow{color:#d9b36b!important}.page.investment-page{page-break-before:always;break-before:page}.menu-group,.fact,.money-grid,.money-card,.investment-block{page-break-inside:avoid;break-inside:avoid}.terms-head,.term-card{page-break-inside:avoid;break-inside:avoid}.footer{position:static;margin-top:10mm}.money-grid{grid-template-columns:repeat(3,1fr)}}
+@page{size:A4;margin:14mm}*{box-sizing:border-box}body{margin:0;background:#eee;color:#432b20;font-family:Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{width:210mm;min-height:297mm;margin:0 auto 12px;padding:18mm;background:#fbf5e9;position:relative}.page:last-child{margin-bottom:0}.cover{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(145deg,#4c2c22,#2f1a12);color:#f7ead4}/* V19.9A_QA_VISUAL_POLISH_V16 */.cover img{width:62mm;margin-bottom:3mm}.cover-tagline{margin:0 0 11mm;color:#dfc195;font-size:8.7pt;font-weight:600;letter-spacing:.07em}.cover .eyebrow{letter-spacing:.22em;text-transform:uppercase;font-size:10pt;color:#d9b36b}.cover h1{font-family:Georgia,serif;font-size:30pt;margin:5mm 0 2mm;color:#dfc195}.cover h2{font-size:18pt;font-weight:400;margin:0 0 12mm}.page:not(.cover)>h1,.page:not(.cover)>h2,.terms h2{font-family:Georgia,serif;font-weight:500;letter-spacing:-.015em}.chips{display:flex;gap:4mm;flex-wrap:wrap;justify-content:center}.chips span{border:1px solid rgba(255,255,255,.28);border-radius:99px;padding:3mm 5mm}.brandline{display:flex;justify-content:space-between;border-bottom:1px solid #caa976;padding-bottom:4mm;margin-bottom:8mm}.brandline strong{letter-spacing:.13em}/* V19.9A_QA_VISUAL_POLISH_V17: summary title intentionally shares the same h2 system as Cardápio selecionado */.facts{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin:0 0 8mm}.fact{border:1px solid #d9c0a0;border-radius:4mm;padding:4mm;background:linear-gradient(180deg,#fffaf1 0%,#f8eddf 100%);box-shadow:inset 0 .75mm 0 #4c2c22}.fact span{display:block;font-size:8pt;text-transform:uppercase;letter-spacing:.09em;color:#8a604e}.fact strong{display:block;margin-top:2mm;color:#4c2c22;font-size:10.4pt;line-height:1.25}.menu-group{margin:6mm 0;border:1px solid #dec9a7;border-radius:4mm;background:#fffaf1;overflow:hidden;box-shadow:inset 1.2mm 0 0 #4c2c22}.menu-group h3{margin:0;padding:3.7mm 5mm 3.2mm 6mm;font-family:Georgia,serif;font-size:15pt;font-weight:500;letter-spacing:-.012em;color:#f7ead4;background:linear-gradient(135deg,#4c2c22,#321c13);border-bottom:1px solid #c99a4d}.menu-line{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8mm;padding:3mm 5mm 3mm 6mm}.menu-line+.menu-line{border-top:1px solid rgba(117,75,49,.11)}.menu-line span{font-size:10pt;font-weight:600;line-height:1.35;color:#432b20}.menu-line strong{font-size:9pt;font-weight:700;color:#6d503d;background:#f3e1c7;border:1px solid #e1c49a;border-radius:99px;padding:1.2mm 2.6mm;white-space:nowrap}.money-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin:8mm 0}.money-card{border:1px solid #d4b783;border-radius:4mm;padding:5mm;background:#fffaf1}.money-card span{display:block;font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:#806451}.money-card strong{display:block;font-family:Georgia,serif;font-size:17pt;margin:2mm 0}.money-card small{display:block;font-size:8.5pt;line-height:1.4;color:#6f5848}.money-card--contracted{background:#4c2c22;color:#fff1dd;border-color:#4c2c22}.money-card--contracted span,.money-card--contracted small{color:#f0d9ba}.money-card--estimate{border:2px solid #b78a43;background:#f7ead4}.terms{margin-top:7mm}.terms-head{margin-bottom:4mm;padding:4.2mm 5mm;border:1px solid #c99a4d;border-radius:4mm;background:linear-gradient(135deg,#4c2c22,#321c13);color:#f7ead4}.terms-head h2{margin:0!important;color:#f7ead4;font-size:18pt;line-height:1.1}.terms-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4mm}.term-card{position:relative;padding:4.4mm 4.6mm;border:1px solid #dec9a7;border-radius:4mm;background:#fffaf1}.term-card--wide{grid-column:1/-1}.term-card__index{position:absolute;top:4mm;right:4.4mm;color:#b58543;font-size:7.5pt;font-weight:700;letter-spacing:.12em}.term-card h3{margin:0 0 3mm;padding-right:9mm;font-family:Georgia,serif;font-size:12.5pt;font-weight:500;color:#4c2c22}.terms .term-card p{margin:1.7mm 0;font-size:8.7pt;line-height:1.4;color:#5f4638}.terms .term-card p strong{color:#432b20}.footer{position:absolute;left:18mm;right:18mm;bottom:12mm;border-top:1px solid #caa976;padding-top:5mm;display:flex;justify-content:space-between;font-size:9pt}@media screen{.page{box-shadow:0 18px 55px rgba(0,0,0,.18)}.print-note{position:sticky;top:0;z-index:5;background:#fff;padding:12px;text-align:center}}
 
 /* V19.10G_PDF_SUMMARY_ONLY */
 .summary-page .brandline{margin-bottom:7mm}
@@ -229,7 +230,52 @@ function buildProposalHtml(snapshot) {
 .summary-page .menu-line{gap:6mm;padding:2.2mm 4mm}
 .summary-page .menu-line span{font-size:9.2pt;font-weight:600}
 .summary-page .menu-line strong{padding:0;border:0;border-radius:0;background:transparent;color:#6d503d;font-size:8.5pt}
-@media print{.summary-page .fact,.summary-page .menu-group{page-break-inside:avoid;break-inside:avoid}}
+/* A4 flow: no fixed sheet-height boxes; table headers repeat when a category spans pages. */
+.menu-group{width:100%;border-spacing:0;text-align:left}
+.menu-group th{padding:0;text-align:left}
+.menu-group .menu-line{display:table-row}
+.menu-group td{padding:2.2mm 4mm;font-size:10pt;line-height:1.35;border-bottom:1px solid #e3cba7}
+.menu-group td:last-child{text-align:right;font-weight:600;white-space:nowrap}
+.composition{margin:5mm 0;break-inside:avoid;page-break-inside:avoid}
+.composition h2{font-size:15pt;margin:0 0 3mm}
+.composition-line{display:flex;justify-content:space-between;gap:6mm;padding:2mm 0;border-bottom:1px solid #dec9a7;font-size:10pt;line-height:1.35}
+.composition-line strong{white-space:nowrap}
+.composition-total{font-weight:bold;border-bottom:2px solid #9a7046}
+@media print{
+ html,body{margin:0;background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .print-note{display:none!important}
+ .page{width:auto;min-height:0;margin:0;padding:0;background:transparent;box-shadow:none;position:static;overflow:visible}
+ .page.cover{min-height:230mm;padding:18mm;background:linear-gradient(145deg,#4c2c22,#2f1a12)!important;color:#f7ead4!important;page-break-inside:avoid;break-inside:avoid;page-break-after:always;break-after:page}
+ .page.cover .eyebrow{color:#d9b36b!important}
+ .page.investment-page{page-break-before:auto;break-before:auto;padding-top:6mm}
+ h1,h2,h3,.terms-head{page-break-after:avoid;break-after:avoid}
+ .brandline{padding-bottom:3mm;margin-bottom:4mm}
+ .investment-page h1{font-size:20pt;margin:0 0 4mm}
+ .summary-page .brandline{margin-bottom:4mm}
+ .summary-page .facts{margin-bottom:4mm}
+ .summary-page .fact{min-height:0;padding:2mm 0;break-inside:avoid;page-break-inside:avoid}
+ .summary-page .fact span{font-size:9pt}
+ .summary-page .menu-group{margin:3mm 0;border-radius:0;overflow:visible;box-shadow:none;break-inside:auto;page-break-inside:auto}
+ .menu-group thead{display:table-header-group}
+ .menu-group tbody{display:table-row-group}
+ .menu-group tr{break-inside:avoid;page-break-inside:avoid}
+ .menu-group td{font-size:10pt;line-height:1.3;padding:1.4mm 3mm}
+ .money-grid{display:flex;gap:3mm;margin:5mm 0;break-inside:avoid;page-break-inside:avoid}
+ .money-card{flex:1;min-width:0;padding:3mm}
+ .money-card strong{font-size:15pt}
+ .money-card small{font-size:9.5pt;line-height:1.35}
+ .money-card span{font-size:9pt}
+ .investment-block{break-inside:avoid;page-break-inside:avoid}
+ .terms{margin-top:4mm;break-inside:avoid;page-break-inside:avoid}
+ .terms-head{padding:3mm 4mm;margin-bottom:3mm}
+ .terms-head h2{font-size:16pt}
+ .terms-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm}
+ .term-card{margin:0;padding:3mm 4mm;break-inside:avoid;page-break-inside:avoid}
+ .terms .term-card p{font-size:10pt;line-height:1.35;margin:1.5mm 0}
+ .term-card h3{font-size:12pt;margin-bottom:2mm}
+ .term-card__index{top:3mm}
+ .footer{position:static;margin-top:4mm;padding-top:3mm;font-size:9pt;break-inside:avoid;page-break-inside:avoid}
+}
 </style>
 </head>
 <body>
@@ -260,6 +306,7 @@ function buildProposalHtml(snapshot) {
   <div class="investment-block">
     <div class="brandline"><strong>RODA FESTA</strong><span>Proposta comercial</span></div>
     <h1>Investimento</h1>
+    <div class="composition"><h2>Composição da proposta</h2>${compositionHtml}<div class="composition-line composition-total"><span>Total contratado</span><strong>${escapeHtml(formatCurrency(snapshot.investmentTotal))}</strong></div></div>
     <div class="money-grid">
     <div class="money-card money-card--contracted"><span>Investimento contratado</span><strong>${escapeHtml(formatCurrency(presentation.investmentTotal))}</strong><small>Consignação não incluída neste valor.</small></div>
     <div class="money-card"><span>Estimativa de consignação</span><strong>${escapeHtml(presentation.hasConsignment ? formatCurrency(presentation.consignmentTotal) : "Sem consignação")}</strong><small>${presentation.hasConsignment ? "Cobrança posterior apenas do consumo real." : "Nenhum item em consignação nesta proposta."}</small></div>
@@ -352,6 +399,7 @@ export default function PlanningBook({ catalogFingerprint }) {
   const [submitStatus, setSubmitStatus] = useState("idle");
   const [submitMessage, setSubmitMessage] = useState("");
   const [pdfUrl, setPdfUrl] = useState("");
+  const [finalProposal, setFinalProposal] = useState(null);
   const [formNotice, setFormNotice] = useState("");
   const [editingCategory, setEditingCategory] = useState("");
   const [replacingItemId, setReplacingItemId] = useState("");
@@ -363,7 +411,7 @@ export default function PlanningBook({ catalogFingerprint }) {
   const [calculationError, setCalculationError] = useState("");
 
   async function runCalculation(action) {
-    if (calculationBusy.current) return;
+    if (calculationBusy.current || typeof action !== "function") return;
     calculationBusy.current = true;
     retryCalculationRef.current = action;
     setCalculating(true);
@@ -804,7 +852,9 @@ export default function PlanningBook({ catalogFingerprint }) {
       snapshot = buildSnapshot(code);
     }
 
-    const internalCopySent = await submitInternalCopy(snapshot);
+    const captured = captureProposalSnapshot(snapshot);
+    setFinalProposal(captured);
+    const internalCopySent = await submitInternalCopy(captured);
 
     setSubmitStatus(internalCopySent ? "sent" : "local-only");
     setSubmitMessage(internalCopySent
@@ -814,10 +864,8 @@ export default function PlanningBook({ catalogFingerprint }) {
   }
 
   function openPdf() {
-    const code = planningCode || createPlanningCode();
-    if (!planningCode) setPlanningCode(code);
-    const snapshot = buildSnapshot(code);
-    const proposalHtml = buildProposalHtml(snapshot);
+    if (!finalProposal) return;
+    const proposalHtml = buildProposalHtml(finalProposal);
     const proposalBlob = new Blob([proposalHtml], { type: "text/html;charset=utf-8" });
     const proposalUrl = URL.createObjectURL(proposalBlob);
     if (pdfUrl) URL.revokeObjectURL(pdfUrl);
@@ -841,6 +889,11 @@ export default function PlanningBook({ catalogFingerprint }) {
     setPdfUrl("");
     retryPlanningStartRef.current = null;
     planningSessionStartRef.current = null;
+    retryCalculationRef.current = null;
+    calculationBusy.current = false;
+    setCalculationError("");
+    setCalculating(false);
+    setFinalProposal(null);
     setClientName(""); setPhone(""); setEventDate(""); setSelectedEvent("");
     setAdults(0); setOlderChildren(0); setChildren(0); setDuration(4);
     setIncludeWaiters(false); setIncludeDisposables(false); setSelectedProductIds([]);
@@ -1052,6 +1105,13 @@ export default function PlanningBook({ catalogFingerprint }) {
             <section className="rf-complete">
               <div className="rf-complete__mark">✓</div><span className="rf-eyebrow">Planejamento concluído</span><h1>Pronto, {clientName.trim().split(" ")[0]}.</h1><p>Seu planejamento foi fechado em uma versão única. O PDF nasce exatamente desses dados.</p>
               <div className="rf-code-card"><span>Código do planejamento</span><strong>{planningCode}</strong></div>
+              {finalProposal && <div className="rf-complete__analysis" aria-label="Composição da proposta concluída">
+                <strong>O que está incluído</strong>
+                {buildProposalComposition(finalProposal).map((line) => <p key={line.label}>{line.label}{line.value == null ? "" : " — " + formatCurrency(line.value)}</p>)}
+                <p><strong>Total contratado: {formatCurrency(finalProposal.investmentTotal)}</strong></p>
+                <p>Consignação estimada: {formatCurrency(finalProposal.consignmentTotal)} · cobrada conforme o consumo.</p>
+                <p>Estimativa geral: {formatCurrency(buildProposalPresentation(finalProposal).estimatedEventTotal)}</p>
+              </div>}
               <div className="rf-complete__analysis" aria-label="Próxima etapa do planejamento">
                 <span>Próxima etapa</span>
                 <strong>Validação com a equipe Roda Festa</strong>
