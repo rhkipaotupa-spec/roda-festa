@@ -392,3 +392,12 @@
   .rf-concierge-form button,
   .rf-concierge-close { transition: none; }
 }
+
+/* Help is opt-in and stays in document flow, including with a mobile keyboard. */
+.rf-concierge-root { position: static; inset: auto; z-index: auto; margin: 12px auto; padding: 0 16px max(16px, env(safe-area-inset-bottom)); max-width: 700px; }
+.rf-concierge-launcher { margin: 0 auto; min-height: 44px; min-width: 0; padding: 10px 14px; box-shadow: none; border: 1px solid #cbb9a5; background: #fffaf1; color: #563126; font-size: 14px; }
+.rf-concierge-launcher:hover { background: #f4eadb; transform: none; }
+.rf-concierge-panel, .rf-concierge-panel--intro { width: 100%; height: auto; max-height: none; box-shadow: none; }
+.rf-concierge-messages, .rf-concierge-panel--intro .rf-concierge-messages { max-height: min(320px, 40dvh); overflow-y: auto; flex: 0 1 auto; }
+.rf-concierge-form input { font-size: 16px; }
+.rf-concierge-launcher:focus-visible, .rf-concierge-panel:focus-visible { outline: 2px solid #563126; outline-offset: 3px; }
