@@ -17,19 +17,22 @@ import { allocateR4ShadowSkus } from "./shadowR4SkuAllocation.js";
 import { buildR4ShadowCommercialPreview } from "./shadowR4CommercialPreview.js";
 
 export const R4_PRODUCTION_VERSIONS = Object.freeze({
-  recommendation: "RF-REC-2.1.0",
-  parameters: "RF-PARAM-2.0.0-r4-elicited-2026-08-29",
+  recommendation: "RF-REC-2.2.0",
+  parameters: "RF-PARAM-2.1.0-category-totals-2026-10-31",
   commercialRules: "RF-COM-1.0.0",
   priceBook: "RF-PRICE-2026-08-24",
 });
 
 export const R4_PRODUCTION_POLICY = Object.freeze({
-  id: "RF-REC-2-PRODUCTION-ADAPTER-2",
+  id: "RF-REC-2-PRODUCTION-ADAPTER-3",
   authoritative: true,
   failClosed: true,
   ageResolution: "legacy3",
   youngChildFactor: 0.5,
   skuStrategy: "equal-share-lot-aware-minimum-overage-provisional",
+  categoryTotals: "independent-of-flavor-count",
+  sweetsCompensationForMissingCake: false,
+  lotRounding: "minimum-feasible-total-at-least-one-lot-per-selected-sku",
   tachoPolicy: "80g-per-real-guest-one-option-shares-beverage-cart",
 });
 
@@ -175,6 +178,11 @@ export function generateR4ProductionSuggestion({
     externalCategories: [],
     productCatalog: catalog,
     flavorCounts,
+    // Confirmed commercial policy: flavors share a category total; no extra
+    // sweets are added because cake was not selected. Historical shadow defaults
+    // remain available for comparisons, never used for production here.
+    applyFlavorUplift: false,
+    compensateMissingCake: false,
     includeBeverages: effectiveIncludeBeverages,
   });
 

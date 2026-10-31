@@ -32,7 +32,7 @@ test("RF-REC-2 Production preserves the validated 70-person commercial reference
     includeBeverages: true,
   });
 
-  assert.equal(result.versions.recommendation, "RF-REC-2.1.0");
+  assert.equal(result.versions.recommendation, "RF-REC-2.2.0");
   assert.equal(result.policy.authoritative, true);
   assert.equal(result.guests.realGuests, 70);
   assert.equal(result.guests.equivalentGuests, 70);
@@ -90,5 +90,5 @@ test("final commercial validation stamps current RF-REC-2 and the 50 percent chi
   assert.match(submissions, /R4_PRODUCTION_VERSIONS/);
   assert.match(submissions, /children \* 0\.5/);
   assert.doesNotMatch(submissions, /children \* 0\.35/);
-  assert.equal(R4_PRODUCTION_VERSIONS.recommendation, "RF-REC-2.1.0");
+  assert.equal(R4_PRODUCTION_VERSIONS.recommendation, "RF-REC-2.2.0");
 });

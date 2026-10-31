@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "./AdminCommercial.css";
+import { getOperationalCapacityWarnings } from "./operationalCapacity.js";
 
 const QUOTES_ENDPOINT = "/api/admin-quotes";
 const PRODUCTS_ENDPOINT = "/api/admin-products";
@@ -84,6 +85,9 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
   }, [sessionId]);
 
   const productById = useMemo(() => new Map(products.map((product) => [String(product.id), product])), [products]);
+  const capacityWarnings = useMemo(() => getOperationalCapacityWarnings({
+    items, products, duration: savedSnapshot?.duration,
+  }), [items, products, savedSnapshot?.duration]);
   const currentSnapshotById = useMemo(() => snapshotItemMap(savedSnapshot), [savedSnapshot]);
   const activeProductsToAdd = useMemo(() => {
     const selected = new Set(items.map((item) => item.id));
@@ -183,6 +187,15 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
 
       {message ? <div className="rf-commercial-notice" role="status">{message}</div> : null}
 
+          {capacityWarnings.length > 0 && <aside className="rf-commercial-notice rf-commercial-warning" aria-label="Alerta operacional interno" role="status">
+            <strong>Revisar capacidade operacional</strong>
+            {capacityWarnings.map((warning) => <p key={warning.group}>
+              {{ fried: "Frituras", hotSandwiches: "Mini lanches e tortas", beverages: "Bebidas" }[warning.group] || warning.group}: carga estimada de {warning.isLowerBound ? "pelo menos " : ""}{warning.loadHours.toLocaleString("pt-BR")} h para {warning.serviceHours} h de serviço ({warning.isLowerBound ? "pelo menos " : ""}{warning.usagePercent}% da capacidade cadastrada).
+              {warning.isLowerBound && " Há itens compartilhados com capacidade ainda não medida; a carga deles não foi estimada."}
+            </p>)}
+            <small>Estimativa pelo catálogo atual e pelas quantidades em edição. Conferir com a operação; este aviso interno não altera a proposta, os carrinhos ou o atendimento ao cliente.</small>
+          </aside>}
+
       <div className="rf-commercial-grid">
         <section className="rf-commercial-list">
           <div className="rf-commercial-editor__heading">
@@ -216,6 +229,8 @@ export default function AdminQuoteEditView({ sessionId, embedded = false }) {
 
         <section className="rf-commercial-editor">
           <div className="rf-commercial-editor__heading"><span>Convidados e serviços</span><h2>Revisão do orçamento</h2></div>
+
+
 
           <div className="rf-commercial-guests">
             <div className="rf-commercial-guests__heading">

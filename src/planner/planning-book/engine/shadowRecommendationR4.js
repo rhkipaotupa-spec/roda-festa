@@ -385,6 +385,8 @@ export function calculateR4SolidDemand({
   flavorCounts = {},
   petiscoReadyGrams = deriveReferencePetiscoReadyGrams(),
   lambdaIn = LAMBDA_IN_CENTRAL,
+  applyFlavorUplift = true,
+  compensateMissingCake = true,
 } = {}) {
   const presentSolidCategories = R4_SOLID_CATEGORIES.filter(
     (category) =>
@@ -402,12 +404,13 @@ export function calculateR4SolidDemand({
 
   for (const category of presentSolidCategories) {
     const block = blockForCategory(category);
-    const substitutionMultiplier = substitution.multipliers[block] || 0;
+    const substitutionMultiplier = category === "Doces" && !compensateMissingCake
+      ? 1 : substitution.multipliers[block] || 0;
     const baseNatural =
       category === "Petiscos"
         ? petiscoBase.unitsPerAdult
         : EXPECTED_NATURAL_BASE[category].value;
-    const h = varietyMultiplier(category, flavorCounts[category]);
+    const h = applyFlavorUplift ? varietyMultiplier(category, flavorCounts[category]) : 1;
     baseNoVariety[category] = baseNatural * substitutionMultiplier;
     candidate[category] = baseNatural * substitutionMultiplier * h;
   }
@@ -439,7 +442,7 @@ export function calculateR4SolidDemand({
     const expectedPerAdult = expectedPerAdultBeforeCap * varietyCapFactor;
     const ratio = planningRatio(category, {
       onlyPetiscosInB1,
-      flavorCount: flavorCounts[category],
+      flavorCount: applyFlavorUplift ? flavorCounts[category] : 1,
     });
     const plannedPerAdult = expectedPerAdult * ratio;
     const expectedNaturalQuantity =
@@ -457,8 +460,8 @@ export function calculateR4SolidDemand({
       external,
       naturalUnit: unit,
       flavorCount: Math.max(1, Number(flavorCounts[category]) || 1),
-      substitutionMultiplier: substitution.multipliers[block],
-      varietyMultiplier: round(varietyMultiplier(category, flavorCounts[category]), 6),
+      substitutionMultiplier: category === "Doces" && !compensateMissingCake ? 1 : substitution.multipliers[block],
+      varietyMultiplier: applyFlavorUplift ? round(varietyMultiplier(category, flavorCounts[category]), 6) : 1,
       varietyCapFactor: round(varietyCapFactor, 6),
       expectedNaturalPerAdult4h: round(expectedPerAdult, 6),
       plannedNaturalPerAdult4h: round(plannedPerAdult, 6),
@@ -605,6 +608,8 @@ export function generateR4ShadowRecommendation({
   petiscoReadyGrams = deriveReferencePetiscoReadyGrams(),
   lambdaIn = LAMBDA_IN_CENTRAL,
   includeBeverages = null,
+  applyFlavorUplift = true,
+  compensateMissingCake = true,
 } = {}) {
   const guests = calculateR4PlanningGuests({
     ageResolution,
@@ -627,6 +632,8 @@ export function generateR4ShadowRecommendation({
     flavorCounts,
     petiscoReadyGrams,
     lambdaIn,
+    applyFlavorUplift,
+    compensateMissingCake,
   });
   const beveragesRequested =
     includeBeverages == null ? selection.hasBeverages : Boolean(includeBeverages);
