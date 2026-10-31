@@ -399,6 +399,8 @@ export default function PlanningBook({ catalogFingerprint }) {
   const [submitStatus, setSubmitStatus] = useState("idle");
   const [submitMessage, setSubmitMessage] = useState("");
   const [pdfUrl, setPdfUrl] = useState("");
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const pdfGenerationRef = useRef(0);
   const [finalProposal, setFinalProposal] = useState(null);
   const [formNotice, setFormNotice] = useState("");
   const [editingCategory, setEditingCategory] = useState("");
@@ -863,19 +865,35 @@ export default function PlanningBook({ catalogFingerprint }) {
     goTo(5);
   }
 
-  function openPdf() {
-    if (!finalProposal) return;
-    const proposalHtml = buildProposalHtml(finalProposal);
-    const proposalBlob = new Blob([proposalHtml], { type: "text/html;charset=utf-8" });
-    const proposalUrl = URL.createObjectURL(proposalBlob);
-    if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-    setPdfUrl(proposalUrl);
-    const proposalWindow = window.open(proposalUrl, "_blank");
-    if (!proposalWindow) {
-      setSubmitMessage("Seu navegador bloqueou a proposta. Autorize pop-ups e tente novamente.");
-      return;
+  async function openPdf() {
+    if (!finalProposal || pdfBusy) return;
+    const generation = ++pdfGenerationRef.current;
+    setPdfBusy(true);
+    // Reserve the tab during the user gesture; Safari may block it after an await.
+    const proposalWindow = window.open("", "_blank");
+    if (proposalWindow) {
+      proposalWindow.opener = null;
+      proposalWindow.document.body.textContent = "Preparando seu PDF…";
     }
-    proposalWindow.opener = null;
+    try {
+      const { createProposalPdf, readProposalDocument } = await import("./proposalPdf.js");
+      const document = new DOMParser().parseFromString(buildProposalHtml(finalProposal), "text/html");
+      const response = await fetchWithTimeout(rodaFestaLogoCreme);
+      if (!response.ok) throw new Error("pdf_logo_unavailable");
+      const logo = new Uint8Array(await response.arrayBuffer());
+      const pdf = createProposalPdf(readProposalDocument(document), logo);
+      if (generation !== pdfGenerationRef.current) { proposalWindow?.close(); return; }
+      const proposalUrl = URL.createObjectURL(pdf.output("blob"));
+      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+      setPdfUrl(proposalUrl);
+      if (proposalWindow && !proposalWindow.closed) proposalWindow.location.replace(proposalUrl);
+      else setSubmitMessage("PDF pronto. Use o link abaixo para abrir ou salvar o arquivo.");
+    } catch {
+      proposalWindow?.close();
+      if (generation === pdfGenerationRef.current) setSubmitMessage("Não foi possível gerar o PDF agora. Seu planejamento está preservado; toque em Gerar PDF para tentar novamente.");
+    } finally {
+      if (generation === pdfGenerationRef.current) setPdfBusy(false);
+    }
   }
 
   function openWhatsApp() {
@@ -885,6 +903,8 @@ export default function PlanningBook({ catalogFingerprint }) {
   }
 
   function restart() {
+    pdfGenerationRef.current += 1;
+    setPdfBusy(false);
     if (pdfUrl) URL.revokeObjectURL(pdfUrl);
     setPdfUrl("");
     retryPlanningStartRef.current = null;
@@ -1118,8 +1138,8 @@ export default function PlanningBook({ catalogFingerprint }) {
                 <p>Uma responsável irá revisar o cardápio com você, tirar dúvidas e confirmar os próximos passos para o fechamento da proposta.</p>
               </div>
               {submitMessage && <div className={`rf-submit-status rf-submit-status--${submitStatus}`}>{submitMessage}</div>}
-              {pdfUrl && <p><a href={pdfUrl} target="_blank" rel="noopener noreferrer">Abrir proposta para imprimir ou salvar PDF</a></p>}
-              <div className="rf-complete__actions"><button type="button" className="rf-primary" onClick={openPdf}>Gerar meu PDF</button><button type="button" className="rf-secondary rf-secondary--wide" onClick={openWhatsApp}>Enviar para a especialista pelo WhatsApp</button></div>
+              {pdfUrl && <p><a href={pdfUrl} target="_blank" rel="noopener noreferrer">Abrir PDF pronto para salvar ou compartilhar</a></p>}
+              <div className="rf-complete__actions"><button type="button" className="rf-primary" disabled={pdfBusy} onClick={openPdf}>{pdfBusy ? "Preparando PDF…" : "Gerar meu PDF"}</button><button type="button" className="rf-secondary rf-secondary--wide" onClick={openWhatsApp}>Enviar para a especialista pelo WhatsApp</button></div>
               <button type="button" className="rf-restart-action rf-restart-action--final" onClick={restart}><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span>Criar outro planejamento</span></button>
             </section>
           )}

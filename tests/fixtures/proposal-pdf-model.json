@@ -1,0 +1,132 @@
+{
+  "title": "Casamento",
+  "client": "Cliente de demonstração",
+  "chips": [
+    "19/11/2026",
+    "250 convidados",
+    "4 horas"
+  ],
+  "facts": [
+    [
+      "Código",
+      "RF-DEMONSTRACAO"
+    ],
+    [
+      "Cliente",
+      "Cliente de demonstração"
+    ],
+    [
+      "Telefone",
+      "Não informado"
+    ],
+    [
+      "Data",
+      "19/11/2026"
+    ],
+    [
+      "Convidados",
+      "100 adultos, 50 crianças 7+, 100 crianças 0–6"
+    ],
+    [
+      "Estrutura",
+      "2 carrinhos"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "Petiscos",
+      "rows": [
+        [
+          "Petiscos selecionados",
+          "1.300 un."
+        ]
+      ]
+    },
+    {
+      "title": "Mini lanches",
+      "rows": [
+        [
+          "Mini lanches selecionados",
+          "400 un."
+        ]
+      ]
+    },
+    {
+      "title": "Tortas",
+      "rows": [
+        [
+          "Tortas selecionadas",
+          "187 porções de 150 g"
+        ]
+      ]
+    }
+  ],
+  "composition": [
+    [
+      "Cardápio selecionado",
+      "R$ 7.555,00"
+    ],
+    [
+      "2 carrinhos · 2 profissionais de preparo",
+      "R$ 600,00"
+    ],
+    [
+      "13 garçons incluídos",
+      "R$ 2.600,00"
+    ],
+    [
+      "Descartáveis: não incluídos",
+      "—"
+    ],
+    [
+      "Total contratado",
+      "R$ 10.755,00"
+    ]
+  ],
+  "money": [
+    [
+      "Investimento contratado",
+      "R$ 10.755,00",
+      "Consignação não incluída neste valor."
+    ],
+    [
+      "Estimativa de consignação",
+      "Sem consignação",
+      "Nenhum item em consignação nesta proposta."
+    ],
+    [
+      "Estimativa geral do evento",
+      "R$ 10.755,00",
+      "Sem consignação: equivale ao investimento contratado. R$ 43,02 por pessoa. Base de cálculo: 250 convidados."
+    ]
+  ],
+  "terms": [
+    {
+      "title": "Contratação",
+      "paragraphs": [
+        "Validade: 5 dias.",
+        "Pagamento: Pix ou dinheiro.",
+        "Reserva: 50% no ato da contratação.",
+        "Saldo: 50% até 24 horas antes do evento.",
+        "Área de atendimento: atendimento incluído apenas para eventos em Tupã."
+      ]
+    },
+    {
+      "title": "Cancelamento e alterações",
+      "paragraphs": [
+        "Cancelamento com até 10 dias de antecedência: cobrança de 50% do orçamento.",
+        "Cancelamento com até 3 dias de antecedência: cobrança integral do orçamento.",
+        "Alteração de data com até 5 dias de antecedência: taxa de 50%, sujeita à disponibilidade."
+      ]
+    },
+    {
+      "title": "Estrutura do evento",
+      "paragraphs": [
+        "Utilizamos tomadas 110V e 220V. Fios, extensões e transformadores já estão contemplados no orçamento.",
+        "A amperagem necessária será informada previamente e deverá ser providenciada pelo cliente.",
+        "Ao término do evento, os alimentos contratados e não consumidos serão entregues aos anfitriões."
+      ]
+    }
+  ],
+  "footer": "(14) 99896-0208 · @rodafesta"
+}

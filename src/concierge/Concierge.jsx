@@ -47,7 +47,6 @@ export default function Concierge() {
   const hidden = shouldHide(location.pathname);
   const pageContext = pageContextFromPath(location.pathname);
   const [open, setOpen] = useState(false);
-  const [showNudge, setShowNudge] = useState(false);
   const [quickPromptsOpen, setQuickPromptsOpen] = useState(true);
   const [messages, setMessages] = useState([
     {
@@ -60,17 +59,17 @@ export default function Concierge() {
   const [needsHuman, setNeedsHuman] = useState(false);
   const [actions, setActions] = useState([]);
   const listRef = useRef(null);
+  const launcherRef = useRef(null);
+  const panelRef = useRef(null);
 
   useEffect(() => {
-    if (hidden || open) return undefined;
-    const alreadyShown = window.sessionStorage.getItem("rf-concierge-nudge-shown") === "1";
-    if (alreadyShown) return undefined;
-    const timer = window.setTimeout(() => {
-      setShowNudge(true);
-      window.sessionStorage.setItem("rf-concierge-nudge-shown", "1");
-    }, pageContext === "planning-book" ? 4500 : 7000);
-    return () => window.clearTimeout(timer);
-  }, [hidden, open, pageContext]);
+    if (open) panelRef.current?.focus();
+  }, [open]);
+
+  function closeWidget() {
+    setOpen(false);
+    window.requestAnimationFrame(() => launcherRef.current?.focus());
+  }
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
@@ -109,7 +108,6 @@ export default function Concierge() {
     setLoading(true);
     setNeedsHuman(false);
     setActions([]);
-    setShowNudge(false);
     setQuickPromptsOpen(false);
 
     try {
@@ -148,7 +146,6 @@ export default function Concierge() {
 
   function openWidget() {
     setOpen(true);
-    setShowNudge(false);
   }
 
   const intro = messages.length <= 1 && !loading && actions.length === 0 && !needsHuman;
@@ -156,19 +153,8 @@ export default function Concierge() {
 
   return (
     <div className="rf-concierge-root" aria-live="polite">
-      {showNudge && !open ? (
-        <button type="button" className="rf-concierge-nudge" onClick={openWidget}>
-          <span>✨</span>
-          <span>
-            <strong>Posso ajudar com seu evento?</strong>
-            <small>Tire dúvidas aqui antes de falar com nossa equipe.</small>
-          </span>
-          <span className="rf-concierge-nudge-arrow">→</span>
-        </button>
-      ) : null}
-
       {open ? (
-        <section className={`rf-concierge-panel${intro ? " rf-concierge-panel--intro" : ""}`} aria-label="Assistente Roda Festa">
+        <section ref={panelRef} tabIndex={-1} id="rf-help-panel" onKeyDown={(event) => { if (event.key === "Escape") closeWidget(); }} className={`rf-concierge-panel${intro ? " rf-concierge-panel--intro" : ""}`} aria-label="Assistente Roda Festa">
           <header className="rf-concierge-header">
             <div className="rf-concierge-header-copy">
               <span className="rf-concierge-eyebrow">ASSISTENTE RODA FESTA</span>
@@ -179,7 +165,7 @@ export default function Concierge() {
               aria-hidden="true"
               style={{ backgroundImage: `url(${logoRodaFesta})` }}
             />
-            <button type="button" className="rf-concierge-close" onClick={() => setOpen(false)} aria-label="Fechar assistente">×</button>
+            <button type="button" className="rf-concierge-close" onClick={closeWidget} aria-label="Fechar assistente">×</button>
           </header>
 
           <div className="rf-concierge-messages" ref={listRef}>
@@ -250,10 +236,10 @@ export default function Concierge() {
 
           <p className="rf-concierge-footnote">Disponibilidade, negociação e informações que exigem confirmação são tratadas pela equipe.</p>
         </section>
-      ) : showNudge ? null : (
-        <button type="button" className="rf-concierge-launcher" onClick={openWidget} aria-label="Abrir Assistente Roda Festa">
-          <span className="rf-concierge-launcher-spark">✦</span>
-          <span className="rf-concierge-launcher-copy"><strong>Posso ajudar?</strong><small>Assistente Roda Festa</small></span>
+      ) : (
+        <button type="button" className="rf-concierge-launcher" ref={launcherRef} aria-expanded={false} aria-controls="rf-help-panel" onClick={openWidget} aria-label="Abrir Assistente Roda Festa">
+
+          <span>Ajuda com o planejamento</span>
         </button>
       )}
     </div>
