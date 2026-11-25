@@ -213,6 +213,19 @@ function proposalItemDetails(item) {
   return { detail, description, subtotal };
 }
 
+function proposalCategoryTotals(snapshot) {
+  const rows = CATEGORY_ORDER.flatMap(category => {
+    const items = snapshot.items.filter(item => item.commercialCategory === category && item.quantity > 0 && !item.consignment);
+    if (!items.length) return [];
+    return [{
+      label: category === "Tortas" ? "Tortinhas individuais" : category,
+      cents: items.reduce((sum, item) => sum + Math.round(item.quantity * item.unitPrice * 100), 0),
+    }];
+  });
+  const menuCents = Math.round(Number(snapshot.investment?.productsValue) * 100);
+  return rows.reduce((sum, row) => sum + row.cents, 0) === menuCents ? rows : [];
+}
+
 function buildProposalHtml(snapshot) {
   const presentation = buildProposalPresentation({
     investmentTotal: snapshot.investmentTotal,
@@ -226,16 +239,8 @@ function buildProposalHtml(snapshot) {
     items: snapshot.items.filter((item) => item.commercialCategory === category && Number(item.quantity) > 0),
   })).filter((group) => group.items.length > 0);
 
-  const categoryTotals = grouped.map(group => ({
-    label: group.category === "Tortas" ? "Tortinhas individuais" : group.category,
-    items: group.items.filter(item => !item.consignment),
-  })).filter(group => group.items.length);
-  const categoryRows = categoryTotals.map(group => ({
-    label: group.label,
-    cents: group.items.reduce((sum, item) => sum + Math.round(item.quantity * item.unitPrice * 100), 0),
-  }));
-  const menuCents = Math.round(Number(snapshot.investment?.productsValue) * 100);
-  const categoryHtml = categoryRows.length && categoryRows.reduce((sum, row) => sum + row.cents, 0) === menuCents
+  const categoryRows = proposalCategoryTotals(snapshot);
+  const categoryHtml = categoryRows.length
     ? categoryRows.map(row => `<div class="category-subtotal"><span>${escapeHtml(row.label)}</span><strong>${escapeHtml(formatCurrency(row.cents / 100))}</strong></div>`).join("")
     : "";
 
@@ -1187,10 +1192,17 @@ export default function PlanningBook({ catalogFingerprint }) {
               <div className="rf-code-card"><span>Código do planejamento</span><strong>{planningCode}</strong></div>
               {finalProposal && <div className="rf-complete__analysis" aria-label="Composição da proposta concluída">
                 <p><strong>{finalProposal.clientName}</strong><br/>Telefone do cliente: {finalProposal.phone}</p>
-                <h2>Cardápio contratado</h2>
-                <ProposalMenu groups={CATEGORY_ORDER.map(category => ({ category, items: finalProposal.items.filter(item => item.commercialCategory === category && item.quantity > 0) })).filter(group => group.items.length)} />
+                <div style={{ background: "#fff8ed", color: "#432b20", borderRadius: 12, padding: "1rem", textAlign: "left" }}>
+                  <h2 style={{ color: "inherit", margin: "0 0 .6rem", fontSize: "1.2rem" }}>Cardápio por categoria</h2>
+                  {proposalCategoryTotals(finalProposal).map(row => <div key={row.label} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: ".3rem 0" }}>
+                    <span>{row.label}</span><b>{formatCurrency(row.cents / 100)}</b>
+                  </div>)}
+                  <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #d9c0a0", marginTop: ".4rem", paddingTop: ".5rem" }}>
+                    <b>Total do cardápio</b><b>{formatCurrency(finalProposal.investment.productsValue)}</b>
+                  </div>
+                </div>
                 <strong>O que está incluído</strong>
-                {buildProposalComposition(finalProposal).map((line) => <p key={line.label}>{line.label}{line.value == null ? "" : " — " + formatCurrency(line.value)}</p>)}
+                {buildProposalComposition(finalProposal).slice(1).map((line) => <p key={line.label}>{line.label}{line.value == null ? "" : " — " + formatCurrency(line.value)}</p>)}
                 <p><strong>Total contratado: {formatCurrency(finalProposal.investmentTotal)}</strong></p>
                 <p>Consignação estimada: {formatCurrency(finalProposal.consignmentTotal)} · cobrada conforme o consumo.</p>
                 <p>Estimativa geral: {formatCurrency(buildProposalPresentation(finalProposal).estimatedEventTotal)}</p>
