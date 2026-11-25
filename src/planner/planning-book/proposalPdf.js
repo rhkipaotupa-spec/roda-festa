@@ -84,10 +84,6 @@ export function createProposalPdf(model, logoData) {
   let menuTitlePending = true;
   for (const group of model.groups) {
     if (!group.rows.length) continue;
-    const groupHeader = () => {
-      pdf.setFillColor('#f2e5d2'); pdf.roundedRect(left, y, width, 9, 1.5, 1.5, 'F');
-      font(12, true, true); pdf.text(group.title, left + 3, y + 6); y += 10;
-    };
     let first = true;
     for (const [label, subtotal] of group.rows) {
       const [name, ...details] = label.split('\n');
@@ -98,7 +94,7 @@ export function createProposalPdf(model, logoData) {
       const height = Math.max(titleHeight + body.length * 4, amount.length * 4.3) + 5;
       if (y + height + (first ? 10 : 0) + (menuTitlePending ? 22 : 0) > bottom) { newPage(); first = true; }
       if (menuTitlePending) { sectionBand('Cardápio selecionado'); menuTitlePending = false; }
-      if (first) { groupHeader(); first = false; }
+      if (first) { subsectionBand(group.title); first = false; }
       font(10, true); pdf.text(title, left + 3, y + 4);
       pdf.text(amount, 191, y + 4, {align: 'right'});
       if (body.length) { font(9); pdf.text(body, left + 3, y + 4 + titleHeight); }
@@ -106,6 +102,11 @@ export function createProposalPdf(model, logoData) {
       pdf.setDrawColor('#dec9a7'); pdf.line(left, y - 1, 194, y - 1);
     }
     y += 4;
+  }
+
+  function subsectionBand(title) {
+    pdf.setFillColor('#f2e5d2'); pdf.roundedRect(left, y, width, 9, 1.5, 1.5, 'F');
+    font(12, true, true); pdf.text(title, left + 3, y + 6); y += 10;
   }
 
   function sectionBand(title) {
@@ -116,20 +117,21 @@ export function createProposalPdf(model, logoData) {
   }
 
   const categories = model.categoryTotals || [];
-  const investmentSpace = 145 + categories.length * 7;
+  const investmentSpace = 158 + categories.length * 9;
   if (y + investmentSpace > bottom) newPage();
   else y += 13;
   sectionBand('Investimento');
   if (categories.length) {
-    font(13, true, true); pdf.text('Cardápio por categoria', left, y); y += 4;
+    subsectionBand('Cardápio por categoria');
     for (const [category, amount] of categories) {
       font(10); pdf.text(category, left + 3, y + 4);
       font(10, true); pdf.text(amount, 191, y + 4, {align: 'right'});
-      y += 7;
+      y += 9;
+      pdf.setDrawColor('#dec9a7'); pdf.line(left, y - 2, 194, y - 2);
     }
-    pdf.setDrawColor(gold); pdf.line(left, y, 194, y); y += 8;
+    y += 4;
   }
-  font(13, false, true); pdf.text('Composição da proposta', left, y); y += 5;
+  subsectionBand('Composição da proposta');
   model.composition.forEach(([a, b], i) => row(categories.length && i === 0 ? 'Total do cardápio' : a, b, i === model.composition.length - 1));
   y += 5;
   const cardWidth = (width - 8) / 3;
