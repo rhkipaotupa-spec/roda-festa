@@ -206,7 +206,7 @@ function buildProposalHtml(snapshot) {
 
   const groupsHtml = grouped.map((group) => `
     <table class="menu-group"><thead><tr><th colspan="2"><h3>${escapeHtml(group.category === "Bebidas" ? "Bebidas em consignação" : group.category)}</h3></th></tr></thead><tbody>
-      ${group.items.map((item) => `<tr class="menu-line"><td>${escapeHtml(item.name)}</td><td>${escapeHtml(item.quantityLabel)}</td></tr>`).join("")}
+      ${group.items.map((item) => `<tr class="menu-line"><td>${escapeHtml(item.id === "batata-frita-porcao" ? `Batata frita — porção de ${item.portionGrams || 200} g a ${formatCurrency(item.unitPrice)} por porção` : item.name)}</td><td>${escapeHtml(item.id === "batata-frita-porcao" ? `${item.quantity} ${Number(item.quantity) === 1 ? "porção" : "porções"}` : item.quantityLabel)}</td></tr>`).join("")}
     </tbody></table>
   `).join("");
 
@@ -748,6 +748,7 @@ export default function PlanningBook({ catalogFingerprint }) {
       operationalGroup: item.operationalGroup,
       quantity: item.quantity,
       quantityLabel: getQuantityLabel(item),
+      portionGrams: item.portionGrams,
       unitPrice: item.unitPrice,
       priceUnit: item.priceUnit || "unit",
       consignment: Boolean(item.consignment),
