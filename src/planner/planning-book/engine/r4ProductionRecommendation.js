@@ -205,6 +205,14 @@ export function generateR4ProductionSuggestion({
     );
   }
 
+  // A serving of fries is 200 g. Cap the initial allocation before pricing
+  // and cart sizing; later manual quantity edits use the rebuild flow.
+  const fries = skuAllocation.categories.flatMap(category => category.items || [])
+    .find(item => item.id === "batata-frita-porcao");
+  if (fries) {
+    fries.quantity = Math.min(fries.quantity, Math.floor(recommendation.guests.planningGuests));
+  }
+
   const commercial = buildR4ShadowCommercialPreview({
     recommendation,
     skuAllocation,
