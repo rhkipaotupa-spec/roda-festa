@@ -190,6 +190,14 @@ export function generateR4ProductionSuggestion({
     throw new Error("r4_production_service_hours_outside_validated_domain");
   }
 
+  // Demand is calculated in grams for the whole category, then sold in
+  // whole 70 g pies and shared across the selected flavors.
+  const pies = recommendation.solids.categories.find(entry => entry.category === "Tortas" && entry.contracted);
+  if (pies) {
+    pies.nominalPortionGrams = 70;
+    pies.plannedRoundedNominalPortions = Math.ceil(pies.plannedNaturalQuantity / 70);
+  }
+
   const skuAllocation = allocateR4ShadowSkus({
     recommendation,
     selectedProductIds: solidIds,
