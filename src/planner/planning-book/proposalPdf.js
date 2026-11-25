@@ -41,7 +41,6 @@ export function createProposalPdf(model, logoData) {
     pdf.setDrawColor(gold); pdf.line(left, 24, 194, 24); y = 33;
   }
   function ensure(height) { if (y + height > bottom) newPage(); }
-  function heading(text) { ensure(16); font(20, false, true); pdf.text(text, left, y); y += 10; }
   function row(a, b, total = false) {
     const label = lines(a, 126, 10, total), value = lines(b, 40, 10, true);
     const height = Math.max(label.length, value.length) * 4.5 + 7;
@@ -68,7 +67,7 @@ export function createProposalPdf(model, logoData) {
   pdf.text(clientLines, 105, y, {align: 'center'}); y += clientLines.length * 8 + 10;
   font(11); pdf.setTextColor(cream); pdf.text(model.chips.join('   |   '), 105, y, {align: 'center'});
 
-  newPage(); heading('Resumo do evento');
+  newPage(); sectionBand('Resumo do evento');
   for (let i = 0; i < model.facts.length; i += 2) {
     const pair = model.facts.slice(i, i + 2);
     const values = pair.map((fact) => lines(fact[1], 77, 10, true));
@@ -81,12 +80,13 @@ export function createProposalPdf(model, logoData) {
       font(10, true); pdf.text(values[j], x + 5, y + 12);
     }); y += h + 4;
   }
-  y += 4; heading('Cardápio selecionado');
+  y += 4;
+  let menuTitlePending = true;
   for (const group of model.groups) {
     if (!group.rows.length) continue;
     const groupHeader = () => {
-      pdf.setFillColor(brown); pdf.roundedRect(left, y, width, 11, 2, 2, 'F');
-      font(14, false, true); pdf.setTextColor(cream); pdf.text(group.title, left + 5, y + 7.5); y += 12;
+      pdf.setFillColor('#f2e5d2'); pdf.roundedRect(left, y, width, 9, 1.5, 1.5, 'F');
+      font(12, true, true); pdf.text(group.title, left + 3, y + 6); y += 10;
     };
     let first = true;
     for (const [label, subtotal] of group.rows) {
@@ -96,7 +96,8 @@ export function createProposalPdf(model, logoData) {
       const amount = lines(subtotal, 43, 10, true);
       const titleHeight = title.length * 4.3;
       const height = Math.max(titleHeight + body.length * 4, amount.length * 4.3) + 5;
-      if (y + height + (first ? 12 : 0) > bottom) { newPage(); first = true; }
+      if (y + height + (first ? 10 : 0) + (menuTitlePending ? 22 : 0) > bottom) { newPage(); first = true; }
+      if (menuTitlePending) { sectionBand('Cardápio selecionado'); menuTitlePending = false; }
       if (first) { groupHeader(); first = false; }
       font(10, true); pdf.text(title, left + 3, y + 4);
       pdf.text(amount, 191, y + 4, {align: 'right'});
