@@ -17,7 +17,7 @@ const CATEGORIES = [
 const CATEGORY_DEFAULTS = {
   Petiscos: { operationalGroup: "fried", lotSize: 25, priceUnit: "unit", portionGrams: "", productionPerHour: 120 },
   "Mini lanches": { operationalGroup: "hotSandwiches", lotSize: 5, priceUnit: "unit", portionGrams: "", productionPerHour: 80 },
-  Tortas: { operationalGroup: "hotSandwiches", lotSize: 1, priceUnit: "portion150g", portionGrams: 150, productionPerHour: 40 },
+  Tortas: { operationalGroup: "hotSandwiches", lotSize: 1, priceUnit: "unit", portionGrams: 70, productionPerHour: 40 },
   Doces: { operationalGroup: "sweets", lotSize: 10, priceUnit: "unit", portionGrams: "", productionPerHour: 200 },
   Bolos: { operationalGroup: "cake", lotSize: 1, priceUnit: "portion120g", portionGrams: 120, productionPerHour: 100 },
   "Brigadeiro no tacho": { operationalGroup: "tacho", lotSize: 1, priceUnit: "portion80g", portionGrams: 80, productionPerHour: "" },
