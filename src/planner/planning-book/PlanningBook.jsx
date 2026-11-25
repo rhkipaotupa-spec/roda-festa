@@ -130,6 +130,7 @@ function getPriceLabel(product) {
 
 function getQuantityLabel(item) {
   const quantity = Number(item.quantity) || 0;
+  if (item.id === "cascata-de-chocolate") return `${quantity} ${quantity === 1 ? "porção" : "porções"} de 30 ml a ${formatCurrency(item.unitPrice)} cada`;
   if (item.priceUnit === "portion150g") return `${quantity} ${quantity === 1 ? "porção" : "porções"} de 150 g`;
   if (item.priceUnit === "portion120g") return `${quantity} ${quantity === 1 ? "porção" : "porções"} de 120 g`;
   if (item.priceUnit === "portion80g") return `${quantity} ${quantity === 1 ? "porção" : "porções"} de 80 g`;
@@ -634,6 +635,7 @@ export default function PlanningBook({ catalogFingerprint }) {
           serviceHours: duration }, product)
         : product.commercialCategory === "Brigadeiro no tacho"
         ? realGuests
+        : product.id === "cascata-de-chocolate" ? Math.ceil(equivalentGuests)
         : suggestion.suggestedQuantities[product.id];
       const quantity = Math.max(lot, Number(suggested) || lot);
       const nextItem = {
