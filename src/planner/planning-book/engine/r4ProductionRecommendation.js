@@ -216,7 +216,7 @@ export function generateR4ProductionSuggestion({
   const fountain = skuAllocation.categories.flatMap(category => category.items || [])
     .find(item => item.id === "cascata-de-chocolate");
   if (fountain) {
-    fountain.quantity = Math.ceil(recommendation.guests.planningGuests);
+    fountain.quantity = Math.floor(recommendation.guests.planningGuests);
   }
 
   const commercial = buildR4ShadowCommercialPreview({
