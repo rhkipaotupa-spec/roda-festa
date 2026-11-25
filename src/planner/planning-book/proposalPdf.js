@@ -41,7 +41,6 @@ export function createProposalPdf(model, logoData) {
     pdf.setDrawColor(gold); pdf.line(left, 24, 194, 24); y = 33;
   }
   function ensure(height) { if (y + height > bottom) newPage(); }
-  function heading(text) { ensure(16); font(20, false, true); pdf.text(text, left, y); y += 10; }
   function row(a, b, total = false) {
     const label = lines(a, 126, 10, total), value = lines(b, 40, 10, true);
     const height = Math.max(label.length, value.length) * 4.5 + 7;
