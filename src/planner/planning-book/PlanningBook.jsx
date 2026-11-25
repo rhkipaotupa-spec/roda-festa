@@ -47,7 +47,7 @@ const EVENT_OPTIONS = [
 const MENU_CATEGORIES = [
   { id: "mini-lanches", title: "Mini Lanches", commercialCategory: "Mini lanches", subtitle: "Lanches preparados durante o evento." },
   { id: "petiscos", title: "Salgadinhos Fritos", commercialCategory: "Petiscos", subtitle: "Escolha os sabores que deseja servir." },
-  { id: "tortas", title: "Tortas", commercialCategory: "Tortas", subtitle: "Porções individuais de 150 g." },
+  { id: "tortas", title: "Tortinhas individuais", commercialCategory: "Tortas", subtitle: "Cada unidade pesa 70 g. Escolha os sabores." },
   { id: "doces", title: "Doces", commercialCategory: "Doces", subtitle: "Doces entregues prontos." },
   { id: "bolos", title: "Bolos", commercialCategory: "Bolos", subtitle: "Porções individuais de 120 g." },
   { id: "tacho", title: "Brigadeiro no tacho", commercialCategory: "Brigadeiro no tacho", subtitle: "80 g por pessoa · chocolate, Leite Ninho ou meio a meio." },
@@ -121,6 +121,7 @@ function createPlanningCode() {
 }
 
 function getPriceLabel(product) {
+  if (product.commercialCategory === "Tortas" && product.priceUnit === "unit" && product.portionGrams === 70) return `${formatCurrency(product.unitPrice)} por tortinha de 70 g`;
   if (product.priceUnit === "portion150g") return `${formatCurrency(product.unitPrice)} / 150 g`;
   if (product.priceUnit === "portion120g") return `${formatCurrency(product.unitPrice)} / 120 g`;
   if (product.priceUnit === "portion80g") return `${formatCurrency(product.unitPrice)} / 80 g`;
@@ -131,6 +132,7 @@ function getPriceLabel(product) {
 function getQuantityLabel(item) {
   const quantity = Number(item.quantity) || 0;
   if (item.id === "cascata-de-chocolate") return `${quantity} ${quantity === 1 ? "porção" : "porções"} de 30 ml a ${formatCurrency(item.unitPrice)} cada`;
+  if (item.commercialCategory === "Tortas" && item.priceUnit === "unit" && item.portionGrams === 70) return `${quantity} ${quantity === 1 ? "unidade" : "unidades"} de 70 g`;
   if (item.priceUnit === "portion150g") return `${quantity} ${quantity === 1 ? "porção" : "porções"} de 150 g`;
   if (item.priceUnit === "portion120g") return `${quantity} ${quantity === 1 ? "porção" : "porções"} de 120 g`;
   if (item.priceUnit === "portion80g") return `${quantity} ${quantity === 1 ? "porção" : "porções"} de 80 g`;
@@ -196,10 +198,11 @@ function proposalItemDetails(item, equivalentGuests) {
   const qty = Number(item.quantity);
   const fountain = item.id === "cascata-de-chocolate";
   const grams = item.portionGrams || Number(/^portion(\d+)g$/.exec(item.priceUnit)?.[1]) || (item.id === "batata-frita-porcao" ? 200 : 0);
-  const portion = fountain || grams > 0;
+  const individualPie = item.commercialCategory === "Tortas" && item.priceUnit === "unit" && grams === 70;
+  const portion = fountain || (grams > 0 && !individualPie);
   const unit = item.priceUnit === "kg" ? "kg" : portion ? "porção" : "unidade";
   const units = unit === "porção" ? "porções" : unit === "unidade" ? "unidades" : "kg";
-  const size = fountain ? " de 30 ml" : portion ? ` de ${grams} g` : "";
+  const size = individualPie ? " de tortinha de 70 g" : fountain ? " de 30 ml" : portion ? ` de ${grams} g` : "";
   const volume = `${qty.toLocaleString("pt-BR")} ${qty === 1 ? unit : units}${size}`;
   const priced = item.unitPrice != null && Number.isFinite(Number(item.unitPrice));
   const detail = priced ? `${volume} × ${formatCurrency(item.unitPrice)} por ${unit}` : item.quantityLabel || volume;

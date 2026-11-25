@@ -37,17 +37,17 @@ test('sweets retain five per equivalent guest regardless of cake presence or fla
 });
 test('RF00003 before/after changes only intended categories and reconciles every charge', () => {
   const r=generateR4ProductionSuggestion(input);
-  assert.equal(total(r,'Petiscos'),1000); assert.equal(total(r,'Tortas'),72);
-  assert.deepEqual(r.items.filter(p=>p.commercialCategory==='Tortas').map(p=>p.quantity),[36,36]);
+  assert.equal(total(r,'Petiscos'),1000); assert.equal(total(r,'Tortas'),153);
+  assert.deepEqual(r.items.filter(p=>p.commercialCategory==='Tortas').map(p=>p.quantity).sort((a,b)=>a-b),[76,77]);
   assert.equal(total(r,'Doces'),630); assert.equal(total(r,'Bebidas'),230);
   assert.equal(r.carts.totalCarts,3); assert.equal(r.preparers,3); assert.equal(r.waiters.quantity,8);
-  assert.equal(r.disposables.value,1120); assert.equal(r.investment.productsValue,4570);
-  assert.equal(r.investment.total,8190); assert.equal(r.investment.ledger.totals.consignmentEstimate,1380);
+  assert.equal(r.disposables.value,1120); assert.equal(r.investment.productsValue,5785);
+  assert.equal(r.investment.total,9405); assert.equal(r.investment.ledger.totals.consignmentEstimate,1380);
 });
 test('lot constraints use the smallest feasible total, never multiply demand by flavor count', () => {
   const custom=catalog.map(p=>pies.includes(p.id)?{...p,lotSize:5}:p);
   const r=generateR4ProductionSuggestion({...input,productCatalog:custom,selectedProductIds:[...ids,...pies]});
-  assert.equal(total(r,'Tortas'),75); // target 72; minimum feasible multiple of 5
+  assert.equal(total(r,'Tortas'),155); // target 153; minimum feasible multiple of 5
   assert.ok(r.items.filter(p=>p.commercialCategory==='Tortas').every(p=>p.quantity%5===0));
   const tiny=generateR4ProductionSuggestion({...input,adults:1,olderChildren:0,children:0,selectedProductIds:pies,productCatalog:custom});
   assert.equal(total(tiny,'Tortas'),15); // explicit minimum: one lot per selected SKU
