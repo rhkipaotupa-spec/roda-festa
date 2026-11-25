@@ -635,7 +635,7 @@ export default function PlanningBook({ catalogFingerprint }) {
           serviceHours: duration }, product)
         : product.commercialCategory === "Brigadeiro no tacho"
         ? realGuests
-        : product.id === "cascata-de-chocolate" ? Math.ceil(equivalentGuests)
+        : product.id === "cascata-de-chocolate" ? Math.floor(equivalentGuests)
         : suggestion.suggestedQuantities[product.id];
       const quantity = Math.max(lot, Number(suggested) || lot);
       const nextItem = {
