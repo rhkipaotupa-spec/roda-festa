@@ -422,6 +422,28 @@ function Counter({ label, hint, value, onChange }) {
   );
 }
 
+function ContractedCostSummary({ proposal }) {
+  const categories = proposalCategoryTotals(proposal);
+  const composition = buildProposalComposition(proposal);
+  const lines = [
+    ...(categories.length ? categories.map(row => ({ label: row.label, value: row.cents / 100 })) : composition.slice(0, 1)),
+    ...composition.slice(1).filter(line => line.value != null),
+  ];
+  return <div style={{ background: "#fff8ed", color: "#432b20", borderRadius: 12, padding: "1rem", textAlign: "left" }}>
+    <h2 style={{ color: "inherit", margin: "0 0 .6rem", fontSize: "1.2rem" }}>Resumo do investimento</h2>
+    {lines.map(line => <div key={line.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, padding: ".35rem 0" }}>
+      <span>{line.label}</span><b style={{ whiteSpace: "nowrap" }}>{formatCurrency(line.value)}</b>
+    </div>)}
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, background: "#432b20", color: "#fff8ed", borderRadius: 8, padding: ".7rem", marginTop: ".5rem", fontSize: "1.15rem" }}>
+      <b>Total contratado</b><b>{formatCurrency(proposal.investmentTotal)}</b>
+    </div>
+    {proposal.consignmentTotal > 0 && <div style={{ paddingTop: ".65rem" }}>
+      <div>Consignação estimada: {formatCurrency(proposal.consignmentTotal)} · cobrada conforme o consumo.</div>
+      <div>Estimativa com consignação: {formatCurrency(buildProposalPresentation(proposal).estimatedEventTotal)}</div>
+    </div>}
+  </div>;
+}
+
 function ProposalMenu({ groups }) {
   return <div className="rf-review-menu">{groups.map(group => <section key={group.category}>
     <h3>{group.category === "Bebidas" ? "Bebidas em consignação" : group.category}</h3>
@@ -1192,20 +1214,7 @@ export default function PlanningBook({ catalogFingerprint }) {
               <div className="rf-code-card"><span>Código do planejamento</span><strong>{planningCode}</strong></div>
               {finalProposal && <div className="rf-complete__analysis" aria-label="Composição da proposta concluída">
                 <p><strong>{finalProposal.clientName}</strong><br/>Telefone do cliente: {finalProposal.phone}</p>
-                <div style={{ background: "#fff8ed", color: "#432b20", borderRadius: 12, padding: "1rem", textAlign: "left" }}>
-                  <h2 style={{ color: "inherit", margin: "0 0 .6rem", fontSize: "1.2rem" }}>Cardápio por categoria</h2>
-                  {proposalCategoryTotals(finalProposal).map(row => <div key={row.label} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: ".3rem 0" }}>
-                    <span>{row.label}</span><b>{formatCurrency(row.cents / 100)}</b>
-                  </div>)}
-                  <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #d9c0a0", marginTop: ".4rem", paddingTop: ".5rem" }}>
-                    <b>Total do cardápio</b><b>{formatCurrency(finalProposal.investment.productsValue)}</b>
-                  </div>
-                </div>
-                <strong>O que está incluído</strong>
-                {buildProposalComposition(finalProposal).slice(1).map((line) => <p key={line.label}>{line.label}{line.value == null ? "" : " — " + formatCurrency(line.value)}</p>)}
-                <p><strong>Total contratado: {formatCurrency(finalProposal.investmentTotal)}</strong></p>
-                <p>Consignação estimada: {formatCurrency(finalProposal.consignmentTotal)} · cobrada conforme o consumo.</p>
-                <p>Estimativa geral: {formatCurrency(buildProposalPresentation(finalProposal).estimatedEventTotal)}</p>
+                <ContractedCostSummary proposal={finalProposal} />
               </div>}
               <div className="rf-complete__analysis" aria-label="Próxima etapa do planejamento">
                 <span>Próxima etapa</span>
