@@ -192,6 +192,17 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function proposalItemName(item) {
+  if (item.id === "batata-frita-porcao") {
+    return `Batata frita — porção de ${item.portionGrams || 200} g a ${formatCurrency(item.unitPrice)} por porção`;
+  }
+  if (item.id === "cascata-de-chocolate") {
+    const description = item.description || "Calda de chocolate em cascata, acompanhada de morango, chocoball, granulado e banana.";
+    return `${item.name} — ${description}`;
+  }
+  return item.name;
+}
+
 function buildProposalHtml(snapshot) {
   const presentation = buildProposalPresentation({
     investmentTotal: snapshot.investmentTotal,
@@ -207,7 +218,7 @@ function buildProposalHtml(snapshot) {
 
   const groupsHtml = grouped.map((group) => `
     <table class="menu-group"><thead><tr><th colspan="2"><h3>${escapeHtml(group.category === "Bebidas" ? "Bebidas em consignação" : group.category)}</h3></th></tr></thead><tbody>
-      ${group.items.map((item) => `<tr class="menu-line"><td>${escapeHtml(item.id === "batata-frita-porcao" ? `Batata frita — porção de ${item.portionGrams || 200} g a ${formatCurrency(item.unitPrice)} por porção` : item.name)}</td><td>${escapeHtml(item.id === "batata-frita-porcao" ? `${item.quantity} ${Number(item.quantity) === 1 ? "porção" : "porções"}` : item.quantityLabel)}</td></tr>`).join("")}
+      ${group.items.map((item) => `<tr class="menu-line"><td>${escapeHtml(proposalItemName(item))}</td><td>${escapeHtml(item.id === "batata-frita-porcao" ? `${item.quantity} ${Number(item.quantity) === 1 ? "porção" : "porções"}` : item.quantityLabel)}</td></tr>`).join("")}
     </tbody></table>
   `).join("");
 
@@ -750,6 +761,7 @@ export default function PlanningBook({ catalogFingerprint }) {
       operationalGroup: item.operationalGroup,
       quantity: item.quantity,
       quantityLabel: getQuantityLabel(item),
+      description: item.description,
       portionGrams: item.portionGrams,
       unitPrice: item.unitPrice,
       priceUnit: item.priceUnit || "unit",
