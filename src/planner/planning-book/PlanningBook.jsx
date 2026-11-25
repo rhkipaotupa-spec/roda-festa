@@ -194,7 +194,7 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function proposalItemDetails(item, equivalentGuests) {
+function proposalItemDetails(item) {
   const qty = Number(item.quantity);
   const fountain = item.id === "cascata-de-chocolate";
   const grams = item.portionGrams || Number(/^portion(\d+)g$/.exec(item.priceUnit)?.[1]) || (item.id === "batata-frita-porcao" ? 200 : 0);
@@ -206,11 +206,11 @@ function proposalItemDetails(item, equivalentGuests) {
   const volume = `${qty.toLocaleString("pt-BR")} ${qty === 1 ? unit : units}${size}`;
   const priced = item.unitPrice != null && Number.isFinite(Number(item.unitPrice));
   const detail = priced ? `${volume} × ${formatCurrency(item.unitPrice)} por ${unit}` : item.quantityLabel || volume;
-  const average = equivalentGuests > 0 ? qty / equivalentGuests : null;
-  const perPerson = average == null ? "" : `Média: ${average.toLocaleString("pt-BR", { maximumFractionDigits: 2 })} ${average === 1 ? unit : units} por pessoa equivalente`;
+
+
   const description = fountain ? item.description || "Acompanha morango, chocoball, granulado e banana." : "";
   const subtotal = priced ? `${item.consignment ? "Estimativa" : "Subtotal"}: ${formatCurrency(qty * item.unitPrice)}` : "";
-  return { detail, perPerson, description, subtotal };
+  return { detail, description, subtotal };
 }
 
 function buildProposalHtml(snapshot) {
@@ -229,9 +229,9 @@ function buildProposalHtml(snapshot) {
   const groupsHtml = grouped.map((group) => `
     <table class="menu-group"><thead><tr><th colspan="2"><h3>${escapeHtml(group.category === "Bebidas" ? "Bebidas em consignação" : group.category)}</h3></th></tr></thead><tbody>
       ${group.items.map((item) => {
-        const line = proposalItemDetails(item, snapshot.equivalentGuests);
-        const info = [item.name, line.description, line.detail, line.perPerson].filter(Boolean).join("\n");
-        return `<tr class="menu-line"><td style="white-space:pre-line">${escapeHtml(info)}</td><td>${escapeHtml(line.subtotal)}</td></tr>`;
+        const line = proposalItemDetails(item);
+        const info = [line.description, line.detail].filter(Boolean).join("\n");
+        return `<tr class="menu-line"><td style="white-space:pre-line"><b>${escapeHtml(item.name)}</b>\n${escapeHtml(info)}</td><td>${escapeHtml(line.subtotal)}</td></tr>`;
       }).join("")}
     </tbody></table>
   `).join("");
@@ -404,14 +404,14 @@ function Counter({ label, hint, value, onChange }) {
   );
 }
 
-function ProposalMenu({ groups, equivalentGuests }) {
+function ProposalMenu({ groups }) {
   return <div className="rf-review-menu">{groups.map(group => <section key={group.category}>
     <h3>{group.category === "Bebidas" ? "Bebidas em consignação" : group.category}</h3>
     {group.items.map(item => {
-      const line = proposalItemDetails(item, equivalentGuests);
+      const line = proposalItemDetails(item);
       return <div key={item.id} style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem 1rem", alignItems: "baseline" }}>
         <span style={{ flex: "1 1 15rem" }}><b>{item.name}</b>{line.description && <><br/>{line.description}</>}
-          <br/>{line.detail}<br/><small>{line.perPerson}</small></span>
+          <br/>{line.detail}</span>
         <strong>{line.subtotal}</strong>
       </div>;
     })}
@@ -1093,10 +1093,10 @@ export default function PlanningBook({ catalogFingerprint }) {
                         </div>
                         {group.items.map((item) => {
                           const lot = Number(item.lotSize) || 1;
-                          const line = proposalItemDetails(item, equivalentGuests);
+                          const line = proposalItemDetails(item);
                           return (
                             <article className="rf-adjust-item" key={item.id}>
-                              <div className="rf-adjust-item__copy"><strong>{item.name}</strong><span>{line.detail}</span><small>{line.perPerson}</small></div>
+                              <div className="rf-adjust-item__copy"><strong>{item.name}</strong><span>{line.detail}</span></div>
                               <div className="rf-adjust-item__control"><button type="button" onClick={() => changeItemQuantity(item.id, Number(item.quantity) - lot)}>−</button><input type="number" min="0" step={lot} value={item.quantity} onChange={(event) => changeItemQuantity(item.id, event.target.value)} /><button type="button" onClick={() => changeItemQuantity(item.id, Number(item.quantity) + lot)}>+</button></div>
                               <div className="rf-adjust-item__value"><strong>{line.subtotal}</strong></div>
                               <div className="rf-adjust-item__actions"><button type="button" onClick={() => { setEditingCategory(group.category); setReplacingItemId(item.id); }}>Trocar sabor</button><button type="button" className="is-danger" onClick={() => removeItemFromSuggestion(item.id)}>Retirar item</button></div>
@@ -1148,11 +1148,11 @@ export default function PlanningBook({ catalogFingerprint }) {
             <section className="rf-screen">
               <div className="rf-screen__heading"><span className="rf-eyebrow">Última conferência</span><h1>Confira antes de concluir.</h1><p>Nesta etapa nada disputa sua atenção: apenas o que será enviado para a proposta.</p></div>
 
-              <div className="rf-review-hero"><div><span>{eventData?.label}</span><h2>{clientName.trim()}</h2><p>{formatDate(eventDate)} · {duration} horas</p></div><span className="rf-review-hero__badge">{realGuests} convidados</span></div>
+              <div className="rf-review-hero"><div><span>{eventData?.label}</span><h2>{clientName.trim()}</h2><p>Telefone do cliente: {phone}</p><p>{formatDate(eventDate)} · {duration} horas</p></div><span className="rf-review-hero__badge">{realGuests} convidados</span></div>
 
               <div className="rf-review-grid"><div className="rf-review-card"><span>Convidados</span><strong>{adults} adultos</strong><p>{olderChildren} crianças 7+ · {children} crianças 0–6</p><small>{equivalentGuests.toLocaleString("pt-BR")} equivalentes no cálculo</small></div><div className="rf-review-card"><span>Estrutura</span><strong>{suggestion.carts.totalCarts} {suggestion.carts.totalCarts === 1 ? "carrinho" : "carrinhos"}</strong><p>{suggestion.preparers} {suggestion.preparers === 1 ? "profissional de preparo" : "profissionais de preparo"}</p>{suggestion.waiters.quantity > 0 && <small>+ {suggestion.waiters.quantity} {suggestion.waiters.quantity === 1 ? "garçom" : "garçons"}</small>}</div></div>
 
-              <ProposalMenu groups={groupedSuggestion} equivalentGuests={equivalentGuests} />
+              <ProposalMenu groups={groupedSuggestion} />
 
               <div className="rf-review-money-grid">
                 <div><span>Investimento contratado</span><strong>{formatCurrency(proposalPresentation.investmentTotal)}</strong><small>{formatCurrency(proposalPresentation.contractedPerPerson)} por pessoa.</small></div>
@@ -1173,8 +1173,9 @@ export default function PlanningBook({ catalogFingerprint }) {
               <div className="rf-complete__mark">✓</div><span className="rf-eyebrow">Planejamento concluído</span><h1>Pronto, {clientName.trim().split(" ")[0]}.</h1><p>Seu planejamento foi fechado em uma versão única. O PDF nasce exatamente desses dados.</p>
               <div className="rf-code-card"><span>Código do planejamento</span><strong>{planningCode}</strong></div>
               {finalProposal && <div className="rf-complete__analysis" aria-label="Composição da proposta concluída">
+                <p><strong>{finalProposal.clientName}</strong><br/>Telefone do cliente: {finalProposal.phone}</p>
                 <h2>Cardápio contratado</h2>
-                <ProposalMenu groups={CATEGORY_ORDER.map(category => ({ category, items: finalProposal.items.filter(item => item.commercialCategory === category && item.quantity > 0) })).filter(group => group.items.length)} equivalentGuests={finalProposal.equivalentGuests} />
+                <ProposalMenu groups={CATEGORY_ORDER.map(category => ({ category, items: finalProposal.items.filter(item => item.commercialCategory === category && item.quantity > 0) })).filter(group => group.items.length)} />
                 <strong>O que está incluído</strong>
                 {buildProposalComposition(finalProposal).map((line) => <p key={line.label}>{line.label}{line.value == null ? "" : " — " + formatCurrency(line.value)}</p>)}
                 <p><strong>Total contratado: {formatCurrency(finalProposal.investmentTotal)}</strong></p>
