@@ -12,6 +12,7 @@ export function readProposalDocument(document) {
       title: text(n.querySelector('h3')),
       rows: [...n.querySelectorAll('tbody tr')].map((row) => [...row.querySelectorAll('td')].map(text)),
     })),
+    categoryTotals: [...document.querySelectorAll('.category-subtotal')].map(n => [text(n.querySelector('span')), text(n.querySelector('strong'))]),
     composition: [...document.querySelectorAll('.composition-line')].map((n) => [text(n.querySelector('span')), text(n.querySelector('strong'))]),
     money: [...document.querySelectorAll('.money-card')].map((n) => [text(n.querySelector('span')), text(n.querySelector('strong')), text(n.querySelector('small'))]),
     terms: [...document.querySelectorAll('.term-card')].map((n) => ({title: text(n.querySelector('h3')), paragraphs: [...n.querySelectorAll('p')].map(text)})),
@@ -106,9 +107,29 @@ export function createProposalPdf(model, logoData) {
     y += 4;
   }
 
-  ensure(135); heading('Investimento');
+  function sectionBand(title) {
+    pdf.setFillColor(brown); pdf.roundedRect(left, y, width, 15, 2, 2, 'F');
+    pdf.setFillColor(gold); pdf.rect(left + 3, y + 3, 1, 9, 'F');
+    font(17, true, true); pdf.setTextColor(cream);
+    pdf.text(title, left + 8, y + 10); y += 22;
+  }
+
+  const categories = model.categoryTotals || [];
+  const investmentSpace = 145 + categories.length * 7;
+  if (y + investmentSpace > bottom) newPage();
+  else y += 13;
+  sectionBand('Investimento');
+  if (categories.length) {
+    font(13, true, true); pdf.text('Cardápio por categoria', left, y); y += 4;
+    for (const [category, amount] of categories) {
+      font(10); pdf.text(category, left + 3, y + 4);
+      font(10, true); pdf.text(amount, 191, y + 4, {align: 'right'});
+      y += 7;
+    }
+    pdf.setDrawColor(gold); pdf.line(left, y, 194, y); y += 8;
+  }
   font(13, false, true); pdf.text('Composição da proposta', left, y); y += 5;
-  model.composition.forEach(([a, b], i) => row(a, b, i === model.composition.length - 1));
+  model.composition.forEach(([a, b], i) => row(categories.length && i === 0 ? 'Total do cardápio' : a, b, i === model.composition.length - 1));
   y += 5;
   const cardWidth = (width - 8) / 3;
   const cardText = model.money.map(([label, value, note]) => ({label: lines(label.toUpperCase(), cardWidth - 8, 8), value: lines(value, cardWidth - 8, 15, true), note: lines(note, cardWidth - 8, 9)}));
@@ -130,8 +151,8 @@ export function createProposalPdf(model, logoData) {
   });
   const topHeight = Math.max(...termBlocks.slice(0, 2).map((t) => t.height));
   const totalTerms = topHeight + termBlocks.slice(2).reduce((h, t) => h + t.height + 4, 0) + 20;
-  if (totalTerms < bottom - 33) ensure(totalTerms);
-  heading('Condições comerciais e operacionais');
+  ensure(Math.min(totalTerms + 14, bottom - 33));
+  sectionBand('Condições comerciais e operacionais');
   const drawTerm = (term, x, top, height) => {
     pdf.setFillColor('#fffaf1'); pdf.setDrawColor('#dec9a7'); pdf.roundedRect(x, top, term.w, height, 3, 3, 'FD');
     font(12, false, true); pdf.text(term.title, x + 6, top + 7);
