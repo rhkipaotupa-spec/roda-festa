@@ -87,12 +87,23 @@ export function createProposalPdf(model, logoData) {
       pdf.setFillColor(brown); pdf.roundedRect(left, y, width, 11, 2, 2, 'F');
       font(14, false, true); pdf.setTextColor(cream); pdf.text(group.title, left + 5, y + 7.5); y += 12;
     };
-    ensure(25); groupHeader();
-    for (const [name, quantity] of group.rows) {
-      const rowHeight = Math.max(lines(name, 126).length, lines(quantity, 40).length) * 4.5 + 7;
-      if (y + rowHeight > bottom) { newPage(); groupHeader(); }
-      row(name, quantity);
-    } y += 5;
+    let first = true;
+    for (const [label, subtotal] of group.rows) {
+      const [name, ...details] = label.split('\n');
+      const title = lines(name, 124, 10, true);
+      const body = details.flatMap(detail => lines(detail, 124, 9));
+      const amount = lines(subtotal, 43, 10, true);
+      const titleHeight = title.length * 4.3;
+      const height = Math.max(titleHeight + body.length * 4, amount.length * 4.3) + 5;
+      if (y + height + (first ? 12 : 0) > bottom) { newPage(); first = true; }
+      if (first) { groupHeader(); first = false; }
+      font(10, true); pdf.text(title, left + 3, y + 4);
+      pdf.text(amount, 191, y + 4, {align: 'right'});
+      if (body.length) { font(9); pdf.text(body, left + 3, y + 4 + titleHeight); }
+      y += height;
+      pdf.setDrawColor('#dec9a7'); pdf.line(left, y - 1, 194, y - 1);
+    }
+    y += 4;
   }
 
   ensure(135); heading('Investimento');
@@ -132,8 +143,9 @@ export function createProposalPdf(model, logoData) {
   y += topHeight + 4;
   for (const term of termBlocks.slice(2)) { ensure(term.height); drawTerm(term, left, y, term.height); y += term.height + 4; }
   const count = pdf.getNumberOfPages();
+  const phone = model.facts.find(([label]) => label.toLowerCase().includes('telefone'))?.[1];
   for (let page = 2; page <= count; page++) {
-    pdf.setPage(page); font(8); pdf.text(model.footer, left, 288); pdf.text(`${page} / ${count}`, 194, 288, {align: 'right'});
+    pdf.setPage(page); font(8); pdf.text(model.footer, left, 288); if (phone) pdf.text('Telefone do cliente: ' + phone, left, 283); pdf.text(`${page} / ${count}`, 194, 288, {align: 'right'});
   }
   pdf.setProperties({title: `Proposta Roda Festa - ${model.title}`, creator: 'Roda Festa'});
   return pdf;
