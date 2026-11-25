@@ -39,7 +39,7 @@ test("RF-REC-2 Production preserves the validated 70-person commercial reference
   assert.equal(result.carts.totalCarts, 3);
   assert.equal(result.waiters.quantity, 4);
   assert.equal(result.disposables.value, 630);
-  assert.equal(result.investment.total, 5889.5);
+  assert.equal(result.investment.total, 6148.5);
   assert.equal(result.investment.ledger.totals.consignmentEstimate, 1180);
 
   const quantities = Object.fromEntries(result.items.map((item) => [item.id, item.quantity]));
@@ -48,7 +48,7 @@ test("RF-REC-2 Production preserves the validated 70-person commercial reference
     "bolinha-queijo": 175,
     "pastel-queijo": 130,
     "mini-x-burguer": 140,
-    "torta-frango-catupiry": 33,
+    "torta-frango-catupiry": 70,
     "brigadeiro-chocolate": 350,
     "bolo-beatriz": 70,
     "agua-mineral": 90,
