@@ -226,6 +226,19 @@ function buildProposalHtml(snapshot) {
     items: snapshot.items.filter((item) => item.commercialCategory === category && Number(item.quantity) > 0),
   })).filter((group) => group.items.length > 0);
 
+  const categoryTotals = grouped.map(group => ({
+    label: group.category === "Tortas" ? "Tortinhas individuais" : group.category,
+    items: group.items.filter(item => !item.consignment),
+  })).filter(group => group.items.length);
+  const categoryRows = categoryTotals.map(group => ({
+    label: group.label,
+    cents: group.items.reduce((sum, item) => sum + Math.round(item.quantity * item.unitPrice * 100), 0),
+  }));
+  const menuCents = Math.round(Number(snapshot.investment?.productsValue) * 100);
+  const categoryHtml = categoryRows.length && categoryRows.reduce((sum, row) => sum + row.cents, 0) === menuCents
+    ? categoryRows.map(row => `<div class="category-subtotal"><span>${escapeHtml(row.label)}</span><strong>${escapeHtml(formatCurrency(row.cents / 100))}</strong></div>`).join("")
+    : "";
+
   const groupsHtml = grouped.map((group) => `
     <table class="menu-group"><thead><tr><th colspan="2"><h3>${escapeHtml(group.category === "Bebidas" ? "Bebidas em consignação" : group.category)}</h3></th></tr></thead><tbody>
       ${group.items.map((item) => {
@@ -332,7 +345,7 @@ function buildProposalHtml(snapshot) {
   <div class="investment-block">
     <div class="brandline"><strong>RODA FESTA</strong><span>Proposta comercial</span></div>
     <h1>Investimento</h1>
-    <div class="composition"><h2>Composição da proposta</h2>${compositionHtml}<div class="composition-line composition-total"><span>Total contratado</span><strong>${escapeHtml(formatCurrency(snapshot.investmentTotal))}</strong></div></div>
+    <div class="composition"><h2>Composição da proposta</h2>${categoryHtml}${compositionHtml}<div class="composition-line composition-total"><span>Total contratado</span><strong>${escapeHtml(formatCurrency(snapshot.investmentTotal))}</strong></div></div>
     <div class="money-grid">
     <div class="money-card money-card--contracted"><span>Investimento contratado</span><strong>${escapeHtml(formatCurrency(presentation.investmentTotal))}</strong><small>Consignação não incluída neste valor.</small></div>
     <div class="money-card"><span>Estimativa de consignação</span><strong>${escapeHtml(presentation.hasConsignment ? formatCurrency(presentation.consignmentTotal) : "Sem consignação")}</strong><small>${presentation.hasConsignment ? "Cobrança posterior apenas do consumo real." : "Nenhum item em consignação nesta proposta."}</small></div>
